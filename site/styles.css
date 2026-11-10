@@ -1949,3 +1949,25 @@ p { text-wrap: pretty; }
 .out-dlg .out-stay { background: var(--bt-round) !important; }
 @media (hover: hover) { .out-dlg .out-stay:hover { background: var(--bt-round-hover) !important; } }
 @media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
+
+/* Christmas lights (shell.js): a string of red, green and blue bulbs pinned along the top of every page in the season.
+   Above the bars and sidebar, below sheets and tips; never tappable. The glow is drawn once; with Animations on it fades
+   in and out (opacity only, so it runs off the main thread). */
+.xl { position: fixed; z-index: 60; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 52px; pointer-events: none; overflow: hidden;
+  --xl-r: #ff3b30; --xl-g: #28cd41; --xl-u: #007aff; --xl-wire: rgba(29, 29, 31, .5); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .xl { --xl-r: #ff453a; --xl-g: #30d158; --xl-u: #0a84ff; --xl-wire: rgba(235, 235, 245, .3); } }
+:root[data-theme="dark"] .xl { --xl-r: #ff453a; --xl-g: #30d158; --xl-u: #0a84ff; --xl-wire: rgba(235, 235, 245, .3); }
+.xl svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.xl path { fill: none; stroke: var(--xl-wire); stroke-width: 1.4; stroke-linecap: round; }
+.xl-o { position: absolute; width: 8px; height: 12px; margin: 3px 0 0 -4px; transform: rotate(var(--tilt)); transform-origin: 50% -3px;
+  border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%; --c: var(--xl-r);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .85) 0 1.5px, transparent 3px), var(--c);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--c) 70%, transparent); }
+.xl-g { --c: var(--xl-g); }
+.xl-u { --c: var(--xl-u); }
+.xl-o::before { content: ""; position: absolute; left: 1.5px; top: -3.5px; width: 5px; height: 4.5px; border-radius: 1.5px; background: var(--xl-wire); }
+.xl-o::after { content: ""; position: absolute; inset: -10px -11px; border-radius: 50%; opacity: .7;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 55%, transparent), transparent); }
+:root:not(.still) .xl-o::after { animation: xlTwinkle 3.1s ease-in-out var(--d, 0s) infinite alternate; }
+@keyframes xlTwinkle { 0%, 35% { opacity: .85; } 100% { opacity: .15; } }
+@media print { .xl { display: none; } }
