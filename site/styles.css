@@ -2015,11 +2015,11 @@ p { text-wrap: pretty; }
 .xl svg { position: absolute; left: 0; top: 0; overflow: visible; }
 .xl-w { fill: none; stroke: var(--xl-wire); stroke-width: 2.4; stroke-linecap: round; }
 .xl-w2 { fill: none; stroke: var(--xl-wire2); stroke-width: .7; stroke-dasharray: 3 2.2; stroke-linecap: round; transform: translateY(-.5px); }
-.xl-o { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; opacity: .95; --c: var(--xl-r);
+.xl-o { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; opacity: .95; --c: var(--xl-r);
   background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 70%, transparent), color-mix(in srgb, var(--c) 26%, transparent) 42%, color-mix(in srgb, var(--c) 8%, transparent) 70%, transparent); }
 .xl-g { --c: var(--xl-g); }
 .xl-u { --c: var(--xl-u); }
-@media (max-width: 599px) { .xl-o { width: 64px; height: 64px; margin: -32px 0 0 -32px; } }
+@media (max-width: 599px) { .xl-o { width: 54px; height: 54px; margin: -27px 0 0 -27px; } }
 :root:not(.still) .xl-o { animation: xlTwinkle 3.4s ease-in-out var(--d, 0s) infinite alternate; }
 @keyframes xlTwinkle { 0%, 40% { opacity: 1; } 100% { opacity: .4; } }
 @media print { .xl { display: none; } }

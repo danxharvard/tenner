@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.69.3';
+  const version = '2.69.4';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1561,7 +1561,7 @@
       const hang = () => {
         const W = xl.clientWidth || innerWidth;
         if (W === w) return; w = W;
-        const sm = innerWidth < 600, U = sm ? 128 : 184, S = sm ? 15 : 20, sc = sm ? 1.02 : 1.3, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
+        const sm = innerWidth < 600, U = sm ? 112 : 158, S = sm ? 13 : 17, sc = sm ? .86 : 1.08, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
         const y = (t) => 1 + 4 * t * (1 - t) * S, H = 2 * S + 52;
         let path = '', bulbs = '', glows = '', k = 0;
         for (let i = 0; i < n; i++) {
