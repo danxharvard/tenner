@@ -451,9 +451,11 @@
   }
 
   // ---------- the rows ----------
-  const row = (id, title, sub, items, cls, more) => !items.length ? '' : `<section class="bx-sec" aria-labelledby="${id}">
+  // the way from the combined Top 10 to each service's own chart (Top 10 by Service), on the box and on the phone rows
+  const BY_SERVICE = `<a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a>`;
+  const row = (id, title, sub, items, cls, more, act = '') => !items.length ? '' : `<section class="bx-sec" aria-labelledby="${id}">
       <header class="bx-sec-hd"><div><h2 id="${id}">${title}</h2>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
-        <span class="bx-sec-acts">${more ? `<a class="bx-more" href="${more}">See all</a>` : ''}<button type="button" class="bx-r bx-r-s" data-scroll="-1" aria-label="Back">${I.left}</button><button type="button" class="bx-r bx-r-s" data-scroll="1" aria-label="More">${I.right}</button></span></header>
+        <span class="bx-sec-acts">${act}${more ? `<a class="bx-more" href="${more}">See all</a>` : ''}<button type="button" class="bx-r bx-r-s" data-scroll="-1" aria-label="Back">${I.left}</button><button type="button" class="bx-r bx-r-s" data-scroll="1" aria-label="More">${I.right}</button></span></header>
       <ul class="bx-row ${cls}">${items.join('')}</ul></section>`;
   // a poster card: the artwork, its score in a chip, the title and a second line, and a Watchlist button
   const card = (it, info, sub, n) => `<li class="bx-pc${n ? ' bx-pc-ranked' : ''}"><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-pc-art">${poster(it)}</span>${n ? `<span class="bx-pc-n" aria-label="No. ${n}">${n}</span>` : ''}${rating(it.rating).replace('bx-star', 'bx-star bx-chip')}
@@ -465,7 +467,7 @@
     const top = kinds().map((k) => row(`bxP10-${k}`, `Top 10 ${word(k)} in the UK`, 'Updated every hour', (state.data?.overall?.[k] || []).slice(0, 10).map((it0, i) => {
       const it = { ...it0, type: it0.type || k };
       return card(it, infoFor(it, `No. ${i + 1} ${word(k).slice(0, -1)} in the UK`), it.year, i + 1);
-    }), 'bx-row-p'));
+    }), 'bx-row-p', '', BY_SERVICE));
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const best = kinds().map((k) => row(`bxPTr-${k}`, `Top rated ${word(k)}${g ? ` in ${esc(g)}` : ''}`, 'The highest scores from viewers', topRated(k).map((it) => card(it, infoFor(it, 'Top rated'), it.year)),
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
@@ -722,7 +724,7 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2><a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2>${BY_SERVICE}</header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
   document.addEventListener('click', (e) => {
