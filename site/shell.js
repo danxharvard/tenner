@@ -884,9 +884,10 @@
   const hd = $('.bx-hd .bx-dds') ? $('.bx-hd') : null, mainEl = $('main');
   if (hd || mainEl) {
     const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    // its own row above the page; on About, over the top of the full-width artwork instead (never pushing it off the edge)
     const over = $('.ab-hero');
-    if (!hd) (over || mainEl).insertAdjacentHTML(over ? 'afterbegin' : 'beforebegin', `<div class="me-row${over ? ' me-over' : ''}" id="meRow"></div>`);
+    // its own row above the page; on About, over the top of the full-width artwork instead (never pushing it off the edge), just
+    // before it rather than inside it, so it stays above the Christmas lights (the artwork is a layer of its own)
+    if (!hd) (over || mainEl).insertAdjacentHTML('beforebegin', `<div class="me-row${over ? ' me-over' : ''}" id="meRow"></div>`);
     (hd || $('#meRow')).insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><a class="bx-me-card" id="bxMeCard" href="account.html"></a><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
     let dlg = null;
     const ask = () => {
