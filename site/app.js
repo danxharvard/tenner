@@ -274,17 +274,16 @@ const WLI = {
   play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.4-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6z" fill="currentColor"/></svg>',
   mark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18.4l-6-4.2-6 4.2z" fill="currentColor"/></svg>',
   shuffle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7h3.2c2 0 3.2.9 4.3 2.6l2 3c1.1 1.7 2.3 2.6 4.3 2.6h3.2M3.5 17h3.2c1.6 0 2.7-.6 3.6-1.7M14.2 8.7c.9-1.1 2-1.7 3.6-1.7h2.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m17.8 4.4 2.8 2.6-2.8 2.6M17.8 14.6l2.8 2.6-2.8 2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  sound: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path class="off" d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="on" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.7 7.7 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  film: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M10 9.2v5.6a.6.6 0 0 0 .9.5l4.5-2.8a.6.6 0 0 0 0-1l-4.5-2.8a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>',
 };
-const WL_LOGO = 'https://image.tmdb.org/t/p/w500', YT = 'https://www.youtube-nocookie.com';
-const wlh = { k: null, info: null, tries: new Set(), seen: true, playing: false, sound: false, run: 0 };
+const WL_LOGO = 'https://image.tmdb.org/t/p/w500';
+const wlh = { k: null, info: null, tries: new Set(), seen: true, cut: null, run: 0 };
 const wlApi = new Map();
 const wlFetch = (k) => { const api = window.tn.api; if (!api) return Promise.resolve(null);
   if (!wlApi.has(k)) wlApi.set(k, fetch(`${api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)); return wlApi.get(k); };
-const wlAuto = () => { const p = window.tn.prefs.get(); return p.autoplay !== false && p.trailers !== 'youtube' && !matchMedia('(prefers-reduced-motion: reduce)').matches && !navigator.connection?.saveData; };
 function wlHide() {
   const top = $('#wlTop'); if (!top || top.hidden) return;
-  top.hidden = true; $('#wlHero').replaceChildren(); $('#bxAmb').replaceChildren(); $('#bdExt').replaceChildren(); wlh.k = null; wlh.playing = false;
+  top.hidden = true; $('#wlHero').replaceChildren(); $('#bxAmb').replaceChildren(); $('#bdExt').replaceChildren(); wlh.k = null; wlh.cut?.stop(); wlh.cut = null;
 }
 async function wlHero(off, again) {
   const list = window.tn.saved.all();
@@ -293,27 +292,26 @@ async function wlHero(off, again) {
   const run = ++wlh.run;
   const d = state.titles || await window.tnSheet?.details?.();
   if (run !== wlh.run) return;
-  // the candidates: titles with a trailer first, in a random order, leaving out the one just shown
-  const has = (x) => det(x.k)?.tr, mix = (a) => a.map((x) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
+  // the candidates: in a random order, leaving out the one just shown; ones with wide artwork (fetched one by one) win
+  const mix = (a) => a.map((x) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
   const pool = mix(list.filter((x) => x.k !== wlh.k && !wlh.tries.has(x.k)));
-  const order = [...pool.filter(has), ...pool.filter((x) => !has(x))].slice(0, 5);
+  const order = pool.slice(0, 5);
   if (!order.length && wlh.k) { wlh.tries.clear(); return list.length > 1 ? wlHero(false, true) : undefined; }
   for (const x of order) {
     const a = await wlFetch(x.k); if (run !== wlh.run) return;
     const it = { ...(d?.items?.[x.k] || {}), ...(a?.items?.[x.k] || {}) }, info = a?.info || {};
-    if (!it.tr) { wlh.tries.add(x.k); continue; }
     wlh.tries.add(x.k);
+    if (!info.backdrop) continue;
     return wlDraw(x, it, info);
   }
-  if (!wlh.k) wlHide();   // nothing on your list has a trailer yet
+  if (!wlh.k) wlHide();   // nothing on your list has wide artwork yet
 }
 function wlDraw(x, it, info) {
   const top = $('#wlTop'), box = $('#wlHero'); if (!top) return;
-  wlh.k = x.k; wlh.playing = false; wlh.sound = false;
+  wlh.k = x.k; wlh.cut?.stop(); wlh.cut = null;
   wlh.info = { ...wlInfo(x, 'From your Watchlist'), backdrop: info.backdrop || null };
   const art = info.backdrop || x.poster, title = info.title || x.title;
   const meta = [x.type === 'movie' ? 'Film' : it.se ? `${it.se} season${it.se === 1 ? '' : 's'}` : 'Series', info.year || x.year, x.type === 'movie' && it.rt ? `${Math.floor(it.rt / 60) ? `${Math.floor(it.rt / 60)}h ` : ''}${it.rt % 60}m` : ''].filter(Boolean);
-  const auto = wlAuto();
   box.innerHTML = `<div class="bx-h-art wl-art${info.backdrop ? '' : ' wl-soft'}" id="wlArt"><div class="bx-h-l in">${art ? `<img src="${esc(art)}" alt="" decoding="async">` : ''}</div></div>
     <div class="bx-h-copy wl-copy">
       <p class="bx-eye">${WLI.mark}<span>From your Watchlist</span></p>
@@ -322,46 +320,25 @@ function wlDraw(x, it, info) {
       <p class="bx-h-meta"><span>${meta.map(esc).join(' · ')}</span>${it.c ? `<b class="bx-cert">${esc(it.c)}</b>` : ''}</p>
       ${info.overview ? `<p class="bx-h-ov">${esc(info.overview)}</p>` : ''}
       <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" data-wl="open">${WLI.play}Where to watch</a>
-        <button type="button" class="bx-r bx-r-l wl-snd" data-wl="sound" aria-pressed="false" aria-label="${auto ? 'Turn the trailer’s sound on' : 'Play the trailer'}" title="${auto ? 'Sound' : 'Play the trailer'}">${auto ? WLI.sound : WLI.play}</button>
-        ${window.tn.saved.all().length > 1 ? `<button type="button" class="bx-r bx-r-l" id="wlShuffle" data-wl="shuffle" aria-label="Show another trailer from your Watchlist" title="Another trailer">${WLI.shuffle}</button>` : ''}</div>
+        ${it.tr ? `<button type="button" class="bx-r bx-r-l" data-wl="trailer" aria-label="Watch the official trailer" title="Trailer">${WLI.film}</button>` : ''}
+        ${window.tn.saved.all().length > 1 ? `<button type="button" class="bx-r bx-r-l" id="wlShuffle" data-wl="shuffle" aria-label="Show another title from your Watchlist" title="Another title">${WLI.shuffle}</button>` : ''}</div>
     </div>`;
   const lg = box.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => lg.replaceWith(document.createTextNode(title));
   // the colours: a soft glow behind the page, and under the sidebar's frost
   const glow = info.backdrop ? info.backdrop.replace('/w1280/', '/w780/') : x.poster;
   $('#bxAmb').innerHTML = glow ? `<img src="${esc(glow)}" alt="">` : ''; $('#bdExt').innerHTML = glow ? `<img class="bd-l in" src="${esc(glow)}" alt="">` : '';
   top.hidden = false;
-  wlh.tr = it.tr;
-  if (auto) setTimeout(() => wlh.k === x.k && wlPlay(false), 900);
-  window.tn.tip({ id: 'watchlist-trailer', for: box.querySelector('#wlShuffle') || box.querySelector('.wl-snd'), title: 'Trailers from your Watchlist',
-    text: 'When you’re signed in, the top of your Watchlist plays the trailer of something you’ve saved. Tap the speaker for sound, or shuffle for another.' });
-}
-// the trailer, from YouTube's privacy-enhanced player, filling the artwork; it fades in once it's ready, over the picture
-function wlPlay(sound) {
-  const art = $('#wlArt'); if (!art || !wlh.tr) return;
-  art.querySelector('iframe')?.remove(); art.classList.remove('on');
-  const k = encodeURIComponent(wlh.tr), f = document.createElement('iframe');
-  f.src = `${YT}/embed/${k}?autoplay=1&mute=${sound ? 0 : 1}&controls=0&disablekb=1&fs=0&iv_load_policy=3&loop=1&playlist=${k}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
-  f.title = `Trailer: ${wlh.info.title}`; f.tabIndex = -1; f.allow = 'autoplay; encrypted-media; picture-in-picture';
-  // YouTube writes the title over the first seconds; the artwork stays until it's gone
-  f.addEventListener('load', () => setTimeout(() => { if (f.isConnected) { art.classList.add('on'); wlh.playing = true; wlSync(); } }, 2400), { once: true });
-  art.append(f);
-  wlh.sound = sound; wlSoundBtn();
-}
-const wlCmd = (func, args = []) => $('#wlArt iframe')?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), YT);
-function wlSoundBtn() {
-  const b = $('#wlHero .wl-snd'); if (!b || !$('#wlArt iframe')) return;
-  b.innerHTML = WLI.sound; b.title = 'Sound';
-  b.setAttribute('aria-pressed', String(wlh.sound)); b.setAttribute('aria-label', wlh.sound ? 'Turn the trailer’s sound off' : 'Turn the trailer’s sound on');
+  // Tenner's own cut of its wordless stills (tn.cut in shell.js), in place of YouTube's trailer and its ads
+  const main = info.backdrop.split('/').pop(), frames = [...(info.bds || []).filter((f) => f.split('/').pop() !== main).map(window.tn.cut.src), info.backdrop];
+  setTimeout(() => { if (wlh.k === x.k && !wlh.cut) { wlh.cut = window.tn.cut(box.querySelector('.bx-h-l'), frames); wlSync(); } }, 1200);
+  window.tn.tip({ id: 'watchlist-cut', for: box.querySelector('#wlShuffle') || box.querySelector('.bx-cta'), title: 'Your Watchlist, in motion',
+    text: 'The top of your Watchlist moves through the pictures of something you’ve saved, with no ads. Shuffle for another, or tap the trailer button for the official one.' });
 }
 // paused while it's out of sight (scrolled away, another tab, a title's sheet over it), carrying on when it's back
-function wlSync() {
-  if (!wlh.playing) return;
-  wlCmd(wlh.seen && !document.hidden && !window.tnSheet?.isOpen?.() ? 'playVideo' : 'pauseVideo');
-}
+const wlSync = () => wlh.cut?.hold(!(wlh.seen && !document.hidden && !window.tnSheet?.isOpen?.()));
 new IntersectionObserver(([e]) => { wlh.seen = e.isIntersecting; wlSync(); }, { threshold: .25 }).observe($('#wlHero'));
 document.addEventListener('visibilitychange', wlSync);
 addEventListener('tn:sheet-closed', wlSync);
-addEventListener('tn:prefs', () => state.route === 'watchlist' && wlh.k && !wlAuto() && $('#wlArt iframe') && !wlh.sound && (wlCmd('pauseVideo'), wlh.playing = false));
 $('#wlHero').addEventListener('click', (e) => {
   const b = e.target.closest('[data-wl]'); if (!b) return;
   const act = b.dataset.wl;
@@ -371,11 +348,7 @@ $('#wlHero').addEventListener('click', (e) => {
   }
   window.tn.haptic?.();
   if (act === 'shuffle') { wlHero(false, true); return; }
-  if (act === 'sound') {
-    if (window.tn.prefs.get().trailers === 'youtube') { window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(wlh.tr)}`, '_blank', 'noopener'); return; }
-    if (!$('#wlArt iframe')) return wlPlay(true);   // not playing yet (it waits to be asked): start it, with the sound on
-    wlh.sound = !wlh.sound; wlCmd(wlh.sound ? 'unMute' : 'mute'); if (wlh.sound) wlCmd('setVolume', [100]); wlSoundBtn();
-  }
+  if (act === 'trailer') { window.tnSheet?.open({ ...wlh.info }, false, { trailer: true }); setTimeout(wlSync, 60); }
 });
 // Shows, Films or both, without redrawing
 function wlKindInit() {

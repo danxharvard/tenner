@@ -43,8 +43,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.54.1">
-  <link rel="stylesheet" href="settings.css?v=2.54.1">
+  <link rel="stylesheet" href="styles.css?v=2.55.0">
+  <link rel="stylesheet" href="settings.css?v=2.55.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -90,7 +90,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.54.1</span>
+      <span class="side-ver">Tenner 2.55.0</span>
     </div>
   </div>
 
@@ -153,7 +153,7 @@
             <details class="set-more">
               <summary class="set-row set-row-ic"><i class="set-ic set-ic-s" style="--c:#8e8e93" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.5 12h.01M12 12h.01M17.5 12h.01" style="stroke-width:3.2"/></svg></i><span class="set-l">More<small>Trailers starting by themselves, and titles rated 18</small></span><span class="set-chev" aria-hidden="true"></span></summary>
               <div class="set-more-in">
-                <label class="set-row"><span class="set-l">Start trailers by themselves<small>When a title opens on a computer, with the sound off</small></span>
+                <label class="set-row"><span class="set-l">Start trailers by themselves<small>On computers when a title opens (sound off), and the moving pictures at the top of Home</small></span>
                   <input type="checkbox" switch role="switch" name="autoplay"><i class="sw" aria-hidden="true"></i></label>
                 <label class="set-row"><span class="set-l">Hide titles rated 18<small>On the charts and in Browse</small></span>
                   <input type="checkbox" switch role="switch" name="no18"><i class="sw" aria-hidden="true"></i></label>
@@ -250,7 +250,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.54.1" defer></script>
-  <script src="settings.js?v=2.54.1" defer></script>
+  <script src="shell.js?v=2.55.0" defer></script>
+  <script src="settings.js?v=2.55.0" defer></script>
 </body>
 </html>

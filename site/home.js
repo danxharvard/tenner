@@ -44,7 +44,7 @@
     mark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18.4l-6-4.2-6 4.2z" fill="currentColor"/></svg>',
     share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.8 7.6 12 3.4l4.2 4.2M6.5 11H6a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 18 11h-.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     sparkle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.5 4.6 2.9 7 7.5 7.5-4.6.5-7 2.9-7.5 7.5-.5-4.6-2.9-7-7.5-7.5 4.6-.5 7-2.9 7.5-7.5zM19 15.5c.2 1.9 1.1 2.8 3 3-1.9.2-2.8 1.1-3 3-.2-1.9-1.1-2.8-3-3 1.9-.2 2.8-1.1 3-3z" fill="currentColor"/></svg>',
-    sound: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path class="off" d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="on" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.7 7.7 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    film: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M10 9.2v5.6a.6.6 0 0 0 .9.5l4.5-2.8a.6.6 0 0 0 0-1l-4.5-2.8a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>',
     install: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.8 10.4 12 14.6l4.2-4.2M5 15.5v2A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
 
@@ -212,19 +212,20 @@
   // same featured titles to swipe through, Christmas first. Never any snow when the device asks for Reduce Motion.
   const XMAS = (() => { const d = new Date(); return d.getMonth() === 10 || (d.getMonth() === 11 && d.getDate() <= 26); })();
   const XMAS_IT = { title: 'Christmas on Tenner', poster: 'xmas-poster.webp', xmas: true };
-  // the trailer slide (the owner's pick): American Horror Story, its trailer playing in the featured title with the sound
-  // off, ahead of the Christmas slide. Its artwork, words and trailer come from the search service; until they arrive (or
-  // if it's down, or the title has no trailer) the carousel simply goes without it.
-  const TR_K = 't1413', TR_IT = { id: 1413, type: 'tv', title: 'American Horror Story', url: tmdbUrl('tv', 1413), trailer: true };
-  let trDet = null;
+  // the moving slide (the owner's pick): American Horror Story, ahead of the Christmas slide. Not YouTube's trailer (its
+  // ads, and words over the footage) but Tenner's own cut of the title's wordless stills (tn.cut in shell.js); the official
+  // trailer is a button away, in the title's sheet. Its artwork, words and stills come from the search service; until
+  // they arrive (or if it's down) the carousel simply goes without it.
+  const TR_K = 't1413', TR_IT = { id: 1413, type: 'tv', title: 'American Horror Story', url: tmdbUrl('tv', 1413), cut: true };
+  let trDet = null, trCut = null;
   if (window.tn.api) fetch(`${window.tn.api}/title/${TR_K}`).then((r) => (r.ok ? r.json() : null)).then((a) => {
-    const x = a?.items?.[TR_K], i = a?.info; if (!x?.tr || !i) return;
-    trDet = x; Object.assign(TR_IT, { title: i.title || TR_IT.title, year: i.year, rating: i.rating, overview: i.overview, poster: i.poster, backdrop: i.backdrop });
-    if (heroList.length) { state.hero = heroList[state.hero]?.it.trailer ? state.hero : 0; drawHero(); }
+    const x = a?.items?.[TR_K], i = a?.info; if (!x || !i?.backdrop) return;
+    trDet = x; Object.assign(TR_IT, { title: i.title || TR_IT.title, year: i.year, rating: i.rating, overview: i.overview, poster: i.poster, backdrop: i.backdrop, bds: i.bds });
+    if (heroList.length) { state.hero = heroList[state.hero]?.it.cut ? state.hero : 0; drawHero(); }
   }).catch(() => {});
-  const trAuto = () => { const p = window.tn.prefs.get(); return p.autoplay !== false && p.trailers !== 'youtube' && !matchMedia('(prefers-reduced-motion: reduce)').matches && !navigator.connection?.saveData; };
-  const YT = 'https://www.youtube-nocookie.com';
-  let trSound = false;
+  // the stills for the cut: the wordless ones first, the main artwork (already on screen) last, so it comes round again
+  const cutFrames = (it) => { const main = it.backdrop?.split('/').pop();
+    return [...(it.bds || []).filter((f) => f.split('/').pop() !== main).map(window.tn.cut.src), it.backdrop]; };
   const xmasDays = () => {
     const now = new Date(), day = new Date(now.getFullYear(), 11, 25), ms = day - now;
     return ms <= 0 ? null : { d: Math.floor(ms / 864e5), h: Math.floor(ms / 36e5) % 24, m: Math.floor(ms / 6e4) % 60 };
@@ -255,7 +256,7 @@
   }
   // the winter night only while the slide's showing and the featured titles are on screen (scrolled past, it stops)
   let heroSeen = true;
-  new IntersectionObserver(([e]) => { heroSeen = e.intersectionRatio > .35; xmasMood(!!heroList[state.hero]?.it.xmas && heroSeen); if ($('#bxArt iframe')) trSync(); }, { threshold: [0, .35, .6] }).observe($('#bxHero'));
+  new IntersectionObserver(([e]) => { heroSeen = e.intersectionRatio > .35; xmasMood(!!heroList[state.hero]?.it.xmas && heroSeen); trSync(); }, { threshold: [0, .35, .6] }).observe($('#bxHero'));
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-xmas]'); if (!b) return;
     window.tn.haptic?.();
@@ -334,7 +335,7 @@
     const picks = popular(), withArt = picks.filter((p) => p.it.backdrop);
     heroList = (withArt.length >= 3 ? withArt : picks).slice(0, 10);
     if (XMAS && heroList.length) heroList.unshift({ it: XMAS_IT });   // first, so it greets you whether or not the carousel moves on by itself
-    if (trDet && heroList.length) heroList = [{ it: TR_IT }, ...heroList.filter((p) => keyOf(p.it) !== TR_K)];   // the trailer slide, before Christmas
+    if (trDet && heroList.length) heroList = [{ it: TR_IT }, ...heroList.filter((p) => keyOf(p.it) !== TR_K)];   // the moving slide, before Christmas
     const box = $('#bxHero'); box.classList.remove('sk');
     if (!heroList.length) { box.hidden = true; return; }
     box.hidden = false; state.hero = Math.min(state.hero, heroList.length - 1);
@@ -357,8 +358,8 @@
       setTimeout(() => [...art.children].slice(0, -1).forEach((c) => c.remove()), first || reduce() ? 0 : 900);
     };
     const img = layer.querySelector('img'); img?.decode ? img.decode().then(put, put) : put();
-    trSound = false;
-    if (it.trailer && trDet?.tr && trAuto()) setTimeout(() => layer.isConnected && heroList[state.hero]?.it === it && trPlay(layer, false), 900);
+    trCut?.stop(); trCut = null;
+    if (it.cut) setTimeout(() => { if (layer.isConnected && heroList[state.hero]?.it === it && !trCut) { trCut = window.tn.cut(layer, cutFrames(it)); trSync(); } }, first ? 1600 : 1200);
     ambient(it.xmas ? 'xmas.webp' : it.backdrop ? it.backdrop.replace('/w1280/', '/w780/') : it.poster);
     drawHeroCopy();
     xmasMood(!!it.xmas && heroSeen);
@@ -383,14 +384,14 @@
     const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
     const genres = (x.g || []).slice(0, 3);
     c.innerHTML = `<dl class="bx-score">${cells.map(([v, l]) => `<div><dt>${v}</dt><dd>${esc(l)}</dd></div>`).join('')}</dl>
-      ${it.trailer ? `<p class="bx-eye">${I.play}<span>Watch the trailer</span></p>` : `<p class="bx-eye">${I.flame}<span>Popular ${esc(where())} right now</span></p>`}
+      ${it.cut ? `<p class="bx-eye">${I.sparkle}<span>Tenner’s pick</span></p>` : `<p class="bx-eye">${I.flame}<span>Popular ${esc(where())} right now</span></p>`}
       ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}
       <h2 class="bx-h-t">${x.lg ? `<img class="bx-h-logo" src="${esc(LOGO + x.lg)}" alt="${esc(it.title)}">` : esc(it.title)}</h2>
       <p class="bx-h-meta">${svcIcon(on)}<span>${meta.map(esc).join(' · ')}</span>${x.c ? `<b class="bx-cert">${esc(x.c)}</b>` : ''}</p>
       ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
-      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.trailer ? trBtn() : ''}${saveBtn(info, ' bx-r-l')}</div>`;
-    if (it.trailer) window.tn.tip({ id: 'home-trailer', for: c.querySelector('.bx-snd'), title: 'Trailers on the homepage',
-      text: 'Some featured titles now play their trailer right here, with the sound off. Tap the speaker for sound.' });
+      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && trDet?.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
+    if (it.cut) window.tn.tip({ id: 'home-cut', for: c.querySelector('.bx-trl') || c.querySelector('.bx-cta'), title: 'Tenner’s pick, in motion',
+      text: 'The first featured title now moves through its own pictures, with no ads and nothing written over them. Want the official trailer? It’s one tap away.' });
     const lg = c.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
     markSaved();
   }
@@ -403,30 +404,11 @@
   $('#bxHero').addEventListener('click', (e) => {
     const a = e.target.closest('[data-harr]');
     if (a) { const s = $('#bxStrip'); s.scrollBy({ left: +a.dataset.harr * s.clientWidth, behavior: still() ? 'auto' : 'smooth' }); return; }
-    const s = e.target.closest('[data-hsnd]');
-    if (s) {
-      window.tn.haptic?.();
-      if (window.tn.prefs.get().trailers === 'youtube') { window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(trDet.tr)}`, '_blank', 'noopener'); return; }
-      const layer = $('#bxArt .bx-h-l:last-child');
-      if (!layer?.querySelector('iframe')) { if (layer) trPlay(layer, true); return; }   // not playing yet (it waits to be asked): start it with sound
-      trSound = !trSound; trCmd(trSound ? 'unMute' : 'mute'); if (trSound) trCmd('setVolume', [100]); s.outerHTML = trBtn(); return;
-    }
+    if (e.target.closest('[data-htr]')) { window.tn.haptic?.(); window.tnSheet?.open(infoFor(TR_IT, 'Tenner’s pick'), false, { trailer: true }); setTimeout(trSync, 60); return; }
     const b = e.target.closest('[data-hero]'); if (b) { showHero(+b.dataset.hero); }
   });
-  // the trailer slide's player: YouTube's privacy-enhanced one, filling the artwork like a picture, fading in over it once
-  // YouTube's own title has gone; paused while the featured title's scrolled away, the tab's hidden or a sheet is open
-  const trBtn = () => { const on = !!$('#bxArt iframe') || trAuto();
-    return `<button type="button" class="bx-r bx-r-l bx-snd" data-hsnd aria-pressed="${trSound}" aria-label="${on ? (trSound ? 'Turn the trailer’s sound off' : 'Turn the trailer’s sound on') : 'Play the trailer'}" title="${on ? 'Sound' : 'Play the trailer'}">${on ? I.sound : I.play}</button>`; };
-  function trPlay(layer, sound) {
-    const k = encodeURIComponent(trDet.tr), f = document.createElement('iframe');
-    f.src = `${YT}/embed/${k}?autoplay=1&mute=${sound ? 0 : 1}&controls=0&disablekb=1&fs=0&iv_load_policy=3&loop=1&playlist=${k}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
-    f.title = `Trailer: ${TR_IT.title}`; f.tabIndex = -1; f.allow = 'autoplay; encrypted-media; picture-in-picture';
-    f.addEventListener('load', () => setTimeout(() => { if (f.isConnected) { layer.classList.add('on'); trSync(); } }, 2400), { once: true });
-    layer.classList.add('bx-h-vid'); layer.append(f);
-    trSound = sound; const b = $('#bxCopy .bx-snd'); if (b) b.outerHTML = trBtn();
-  }
-  const trCmd = (func, args = []) => $('#bxArt iframe')?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), YT);
-  const trSync = () => trCmd(heroSeen && !document.hidden && !window.tnSheet?.isOpen() ? 'playVideo' : 'pauseVideo');
+  // the cut pauses while the featured title's scrolled away, the tab's hidden or a sheet is open
+  const trSync = () => trCut?.hold(!(heroSeen && !document.hidden && !window.tnSheet?.isOpen()));
   document.addEventListener('visibilitychange', trSync);
   addEventListener('tn:sheet-closed', trSync);
   $('#bxHero').addEventListener('click', (e) => { if (e.target.closest('[data-sheet]')) setTimeout(trSync, 60); });
@@ -448,10 +430,10 @@
   });
   window.tn.arrows($('#bxHero'), () => [...$('#bxHero').querySelectorAll('[data-hero]')], (b) => showHero(+b.dataset.hero));
   // it moves on by itself only with Settings → Animations on, and waits while you're reading or looking at a title
-  const held = () => (trSound && heroList[state.hero]?.it.trailer) || PHONE.matches || document.hidden || window.tnSheet?.isOpen() || $('#bxHero').matches(':hover, :focus-within') || document.documentElement.classList.contains('still') || reduce();
+  const held = () => PHONE.matches || document.hidden || window.tnSheet?.isOpen() || $('#bxHero').matches(':hover, :focus-within') || document.documentElement.classList.contains('still') || reduce();
   function startHero() {
     clearTimeout(heroTimer); if (heroList.length < 2) return;
-    heroTimer = setTimeout(function tick() { if (held()) { heroTimer = setTimeout(tick, 2000); return; } showHero((state.hero + 1) % heroList.length); }, heroList[state.hero]?.it.trailer ? 45000 : 9000);
+    heroTimer = setTimeout(function tick() { if (held()) { heroTimer = setTimeout(tick, 2000); return; } showHero((state.hero + 1) % heroList.length); }, heroList[state.hero]?.it.cut ? 40000 : 9000);
   }
 
   // ---------- the rows ----------

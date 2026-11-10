@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.54.1';
+  const version = '2.55.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1020,7 +1020,55 @@
   // how far a title climbed: a green badge (a round arrow, the places, and "up" beneath), as on Apple's Stocks
   const climb = (n) => `<span class="climb"><span class="sh-vh">, up ${+n || 0} ${+n === 1 ? 'place' : 'places'}</span><span class="climb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 12.6V4M4.4 7.4 8 3.8l3.6 3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="climb-n" aria-hidden="true"><b>${+n || 0}</b><small>${+n === 1 ? 'place' : 'places'}</small></span></span>`;
   const haptic = (ms = 8) => { try { navigator.vibrate?.(ms); } catch {} };   // a small buzz, where the device has one
-  window.tn = { prefs, tip: featureTip, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score };
+  // ---------- Tenner's own cut: the featured spots in motion, without YouTube ----------
+  // In place of a trailer (YouTube's ads, its player and the words written over the footage), the title's own wordless
+  // stills from TMDB, one after another: each drifts slowly (a push in or a pull out, panning a different way each time)
+  // and dissolves into the next, like the opening of a film. Pictures only, moved by the browser off the main thread (the
+  // Web Animations API, which Tenner's Animations-off switch for CSS leaves alone).
+  // Like the trailer it stands in for (and the Christmas snow), it's the slide's point, so it plays with Animations off;
+  // never with Reduce Motion or Settings → Start trailers by themselves off (it stays on the picture), on Data Saver it
+  // doesn't start, and it pauses while hold(true) (scrolled away, another tab, a sheet open). Stops once its card is gone.
+  const CUT_HOLD = 6500;   // each still's turn; the drift runs a little longer, under the dissolve
+  const CUT_MOVES = [   // [scale from, to, x from, to, y from, to] in % of the picture: never far enough to show an edge
+    [1.04, 1.16, -1.5, 1.5, 0, -1], [1.16, 1.04, 1.5, -1.5, -1, 0], [1.06, 1.18, 1.5, -1, 1, -.5],
+    [1.18, 1.06, 0, 0, -1.5, 1], [1.05, 1.15, 0, 1.5, 1, 1], [1.15, 1.05, -1, 1, .5, -1],
+  ];
+  function cut(host, srcs) {
+    srcs = [...new Set((srcs || []).filter(Boolean))];
+    if (!host || !srcs.length || navigator.connection?.saveData) return null;
+    const box = document.createElement('div'); box.className = 'cut'; box.setAttribute('aria-hidden', 'true'); host.append(box);
+    const anims = new Set();
+    let n = 0, t = 0, held = false, gone = false, left = CUT_HOLD, since = 0, m = Math.floor(Math.random() * CUT_MOVES.length);
+    const shot = (src) => { const img = new Image(); img.alt = ''; img.decoding = 'async'; img.className = 'cut-f'; img.src = src; return img.decode().then(() => img, () => null); };
+    async function next() {
+      if (gone) return;
+      if (!box.isConnected) { stop(); return; }
+      if (osStill.matches || prefs.get().autoplay === false) { anims.forEach((a) => a.pause()); t = setTimeout(next, 2000); return; }   // the picture on screen stays as it is
+      const img = await shot(srcs[n++ % srcs.length]); if (gone) return;
+      if (img) {
+        const v = CUT_MOVES[m++ % CUT_MOVES.length];
+        box.append(img);
+        for (const a of [
+          img.animate([{ transform: `scale(${v[0]}) translate(${v[2]}%, ${v[4]}%)` }, { transform: `scale(${v[1]}) translate(${v[3]}%, ${v[5]}%)` }], { duration: CUT_HOLD + 3000, fill: 'both' }),
+          img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1800, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' }),
+        ]) { anims.add(a); a.onfinish = () => anims.delete(a); }   // play() would start a finished one over
+        anims.forEach((a) => a.play());   // anything paused while it was calm carries on
+        setTimeout(() => [...box.children].slice(0, -1).forEach((c) => { c.getAnimations().forEach((a) => { a.cancel(); anims.delete(a); }); c.remove(); }), 2000);
+      }
+      left = img ? CUT_HOLD : 400; since = Date.now(); if (!held) t = setTimeout(next, left);
+    }
+    function hold(on) {
+      if (gone || on === held) return; held = on; anims.forEach((a) => (on ? a.pause() : a.play()));
+      if (on) { clearTimeout(t); left = Math.max(300, left - (Date.now() - since)); } else { since = Date.now(); t = setTimeout(next, left); }
+    }
+    function stop() { gone = true; clearTimeout(t); anims.forEach((a) => a.cancel()); box.remove(); }
+    next();
+    return { hold, stop };
+  }
+  // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
+  cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
+
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score };
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.
