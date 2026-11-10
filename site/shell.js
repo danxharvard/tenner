@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.56.2';
+  const version = '2.57.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -876,13 +876,16 @@
     const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'Sync your devices'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
     draw(); addEventListener('tn:account', draw);
   }
-  // signed in on the homepage (computers and tablets): your picture and name top right, above the dropdowns, with a round
-  // Sign out beside it. Signing out asks once, iOS-style; what's on this device stays.
-  const hd = $('.bx-hd');
-  if (hd && $('.bx-dds', hd)) {
+  // signed in (computers and tablets): your picture and name top right of every page (on the homepage, above the dropdowns)
+  // in one rounded pill, with a round Sign out inside it; the sidebar's own account entry then steps aside.
+  // Signing out asks once, iOS-style; what's on this device stays.
+  const hd = $('.bx-hd .bx-dds') ? $('.bx-hd') : null, mainEl = $('main');
+  if (hd || mainEl) {
     const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    hd.insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><a class="bx-me-card" id="bxMeCard" href="account.html"></a><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
-    hd.classList.add('has-me');
+    // its own row above the page; on About, over the top of the full-width artwork instead (never pushing it off the edge)
+    const over = $('.ab-hero');
+    if (!hd) (over || mainEl).insertAdjacentHTML(over ? 'afterbegin' : 'beforebegin', `<div class="me-row${over ? ' me-over' : ''}" id="meRow"></div>`);
+    (hd || $('#meRow')).insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><a class="bx-me-card" id="bxMeCard" href="account.html"></a><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
     let dlg = null;
     const ask = () => {
       if (!dlg) {
@@ -904,7 +907,7 @@
     $('#bxMeOut').addEventListener('click', ask);
     const drawMe = () => {
       const u = account.user(), box = $('#bxMe');
-      box.hidden = !u; hd.classList.toggle('me-on', !!u);
+      box.hidden = !u; hd?.classList.toggle('me-on', !!u); document.documentElement.classList.toggle('me-in', !!u);
       if (!u) return;
       $('#bxMeCard').innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>`;
       if (matchMedia('(min-width: 720px)').matches) setTimeout(() => featureTip({ id: 'home-account-card', for: '#bxMeCard', title: 'You, top right',

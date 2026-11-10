@@ -1905,3 +1905,47 @@ p { text-wrap: pretty; }
 }
 :root:not(.still) .tile-c:active { scale: .97; }
 @media (forced-colors: active) { .lit::before { display: none; } }
+
+/* ============================================================ signed in: your picture and name top right of every page (shell.js;
+   on the homepage above the dropdowns, home.css). The owner's pick: one rounded pill, like the round icon bar, with Sign out
+   as a circle inside it. Computers and tablets; phones keep the account in the menu. */
+.bx-me { display: none; }
+@media (min-width: 1000px) { :root { --me-r: 32px; } }
+@media (min-width: 720px) {
+  /* everywhere but the homepage: a row of its own above the page, its right edge in line with the homepage's */
+  .me-row:has(.bx-me:not([hidden])) { display: flex; justify-content: flex-end; max-width: var(--max); margin: 0 auto 0 var(--page-left); padding: 14px var(--me-r, var(--gutter-r)) 0 var(--gutter); }
+  .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 3; top: 0; right: 0; left: auto; margin: 0; }
+  :root.me-in .side-acct { display: none; }
+  .bx-me:not([hidden]) { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 8%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 30px -16px rgba(0, 0, 0, .5); }
+}
+.bx-me-card { display: flex; align-items: center; gap: 11px; min-width: 0; max-width: 280px; height: 46px; padding: 0 16px 0 4px; border-radius: 999px;
+  color: var(--label); text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform .35s var(--ease-spring), background-color .2s ease; }
+@media (hover: hover) { .bx-me-card:hover { text-decoration: none; background: var(--fr-in); } }
+.bx-me-card:active { transform: scale(.98); }
+.bx-me-card:focus-visible, .bx-me-out:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bx-me-card .av { width: 38px; height: 38px; font-size: 16px; }
+.bx-me-card > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.bx-me-card b { font: 600 15px/1.2 var(--font); letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bx-me-card small { font-size: 13px; line-height: 1.2; color: var(--label2); white-space: nowrap; }
+/* Sign out: a circle inside the pill, the owner's dark grey with a white icon */
+.bx-me-out { display: grid; place-items: center; flex: none; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
+  background: var(--bt-round); -webkit-tap-highlight-color: transparent; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .12);
+  transition: transform .35s var(--ease-spring), background-color .2s ease; }
+.bx-me-out svg { width: 20px; height: 20px; margin-left: 2px; }
+@media (hover: hover) { .bx-me-out:hover { background: var(--bt-round-hover); } }
+.bx-me-out:active { transform: scale(1.08); }
+/* the iOS-style alert that asks once */
+.out-dlg { width: min(330px, calc(100vw - 48px)); text-align: center; }
+.out-dlg form { padding: 24px 20px 18px; }
+.out-ic { display: inline-grid; place-items: center; width: 52px; height: 52px; margin-bottom: 12px; border-radius: 50%; color: #fff; background: var(--accent); }
+.out-ic svg { width: 26px; height: 26px; margin-left: 3px; }
+.out-dlg h2 { font-size: 20px; letter-spacing: -.02em; }
+.out-dlg p { margin: 0 auto 18px; max-width: 30ch; font-size: 15px; text-wrap: pretty; }
+.out-acts { display: grid; gap: 8px; }
+.out-acts .btn { justify-content: center; gap: 8px; height: 46px; font-size: 16px; }
+.out-acts .btn svg { width: 19px; height: 19px; }
+.out-dlg .out-stay { background: var(--bt-round) !important; }
+@media (hover: hover) { .out-dlg .out-stay:hover { background: var(--bt-round-hover) !important; } }
+@media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
