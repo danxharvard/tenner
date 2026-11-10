@@ -382,28 +382,29 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   .bx-h-acts:has(.bx-trl) .bx-cta { font-size: 15px; }
 }
 
-/* ---------- signed in: your picture and name top right, above the dropdowns, with a round Sign out beside it (shell.js) ---------- */
+/* ---------- signed in: your picture and name top right, above the dropdowns (shell.js). The owner's pick: one rounded
+   pill, like the round icon bar, with Sign out as a circle inside it ---------- */
 .bx-me { display: none; }
 @media (min-width: 720px) {
   .bx-hd.me-on { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; row-gap: 10px; align-items: start; }
   .bx-hd.me-on .bx-rail { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
   .bx-hd.me-on .bx-dds { grid-column: 2; grid-row: 2; justify-self: end; margin-top: 0; }
-  .bx-me:not([hidden]) { display: flex; grid-column: 2; grid-row: 1; justify-self: end; align-items: center; gap: 8px; min-width: 0; }
+  .bx-me:not([hidden]) { display: flex; grid-column: 2; grid-row: 1; justify-self: end; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 8%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 30px -16px rgba(0, 0, 0, .5); }
 }
-.bx-me-card { display: flex; align-items: center; gap: 11px; min-width: 0; max-width: 300px; height: 54px; padding: 0 18px 0 9px; border-radius: var(--r);
-  color: var(--label); text-decoration: none; -webkit-tap-highlight-color: transparent;
-  background: color-mix(in srgb, var(--accent) 10%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-  box-shadow: inset 0 0 0 1px var(--fr-rim); transition: transform .35s var(--ease-spring), background-color .2s ease; }
-@media (hover: hover) { .bx-me-card:hover { text-decoration: none; background: color-mix(in srgb, var(--accent) 18%, var(--fr-bg)); } }
+.bx-me-card { display: flex; align-items: center; gap: 11px; min-width: 0; max-width: 280px; height: 46px; padding: 0 16px 0 4px; border-radius: 999px;
+  color: var(--label); text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform .35s var(--ease-spring), background-color .2s ease; }
+@media (hover: hover) { .bx-me-card:hover { text-decoration: none; background: var(--fr-in); } }
 .bx-me-card:active { transform: scale(.98); }
 .bx-me-card:focus-visible, .bx-me-out:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bx-me-card .av { width: 38px; height: 38px; font-size: 16px; }
 .bx-me-card > span:last-child { display: grid; gap: 2px; min-width: 0; }
 .bx-me-card b { font: 600 15px/1.2 var(--font); letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bx-me-card small { font-size: 13px; line-height: 1.2; color: var(--label2); white-space: nowrap; }
-/* Sign out: an icon-only button, so a circle in the owner's dark grey, white icon */
-.bx-me-out { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
-  background: var(--bt-round); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); -webkit-tap-highlight-color: transparent;
+/* Sign out: a circle inside the pill, the owner's dark grey with a white icon */
+.bx-me-out { display: grid; place-items: center; flex: none; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
+  background: var(--bt-round); -webkit-tap-highlight-color: transparent; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .12);
   transition: transform .35s var(--ease-spring), background-color .2s ease; }
 .bx-me-out svg { width: 20px; height: 20px; margin-left: 2px; }
 @media (hover: hover) { .bx-me-out:hover { background: var(--bt-round-hover); } }
