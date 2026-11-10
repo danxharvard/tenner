@@ -156,8 +156,8 @@ main:focus { outline: none; }
 .th-sel { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; border: 0; appearance: none; cursor: pointer; }
 .th-wrap:has(.th-sel:focus-visible) .tb-btn { outline: 2px solid var(--accent); outline-offset: 2px; }
 a.tb-btn:hover { text-decoration: none; }
-/* --menu: the menu links' colour; your account's colour when you've picked one (shell.js), else the accent */
-.tb-about[aria-current] { color: var(--menu, var(--accent)); }
+/* the menu links take the accent: your account's colour when you've picked one (tnMe), else Tenner's blue */
+.tb-about[aria-current] { color: var(--accent); }
 
 /* the tabs: a capsule of glass with an even specular rim and a soft shadow below; the chosen tab sits under a pill of
    lighter glass that glides (and squashes a little) as it moves, inset evenly so the two shapes stay concentric */
@@ -184,9 +184,9 @@ a.tb-btn:hover { text-decoration: none; }
   .tabs button { padding: 0 9px; gap: 5px; font-size: 14px; }
   .top-brand .brand-name { display: none; }
 }
-.tabs button[aria-selected="true"] { color: var(--menu, var(--accent)); }
+.tabs button[aria-selected="true"] { color: var(--accent); }
 .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-@media (hover: hover) { .tabs button[aria-selected="false"]:hover { color: var(--menu, var(--accent)); } }
+@media (hover: hover) { .tabs button[aria-selected="false"]:hover { color: var(--accent); } }
 .tab-ind {
   position: absolute; z-index: 0; left: 0; top: 4px; bottom: 4px; width: 0; border-radius: var(--r); transform-origin: center; pointer-events: none;
   background: color-mix(in srgb, var(--pill) 100%, rgba(255, 255, 255, .1)); box-shadow: inset 0 .5px 0 rgba(255, 255, 255, .45), inset 0 0 0 .5px rgba(255, 255, 255, .12);
@@ -756,7 +756,7 @@ main { padding-bottom: 40px; }   /* breathing room at the end of every page */
     width: 100%; height: 38px; justify-content: flex-start; gap: 12px; padding: 0 10px; border-radius: var(--r);
     font: 500 15px/1 var(--font); letter-spacing: -.016em; color: var(--label);
   }
-  .tabs button svg { width: 20px; height: 20px; color: var(--menu, var(--accent)); }
+  .tabs button svg { width: 20px; height: 20px; color: var(--accent); }
   .tabs button[aria-selected="true"] { background: var(--fill); color: var(--label); font-weight: 600; }
   .tabs button:active { transform: none; filter: none; background: var(--fill-strong); }
   @media (hover: hover) { .tabs button[aria-selected="false"]:hover { color: var(--label); background: var(--fill); } }
@@ -769,7 +769,7 @@ main { padding-bottom: 40px; }   /* breathing room at the end of every page */
     color: var(--label); font: 500 15px/1 var(--font); letter-spacing: -.016em; text-decoration: none; transition: background-color .2s ease; }
   .side-h + .side-about { margin-top: -12px; }
   .side-about.side-settings { margin-top: -20px; }
-  .side-about svg, .tb-btn svg { width: 20px; height: 20px; flex: none; color: var(--menu, var(--accent)); }
+  .side-about svg, .tb-btn svg { width: 20px; height: 20px; flex: none; color: var(--accent); }
   .side-about:hover, .tb-btn:hover { text-decoration: none; background: var(--fill); }
   .side-about:active, .tb-btn:active { background: var(--fill-strong); transform: none; filter: none; }
   .tb-btn[aria-expanded="true"] { background: var(--fill); color: var(--label); }
@@ -1291,7 +1291,7 @@ button.ps-face:active { scale: .96; }
   .drawer .tabs button, .drawer .side-about, .drawer .tb-btn {
     flex: none; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; width: 100%; height: 48px; padding: 0 14px;
     border-radius: var(--r); font: 500 17px/1 var(--font); letter-spacing: -.02em; color: var(--label); text-decoration: none; background: none; }
-  .drawer .tabs button svg, .drawer .side-about svg, .drawer .tb-btn svg { width: 22px; height: 22px; flex: none; color: var(--menu, var(--accent)); }
+  .drawer .tabs button svg, .drawer .side-about svg, .drawer .tb-btn svg { width: 22px; height: 22px; flex: none; color: var(--accent); }
   .drawer .tabs button[aria-selected="true"], .drawer .side-about[aria-current] { background: var(--fill); font-weight: 600; color: var(--label); }
   .drawer .tabs button:active, .drawer .side-about:active, .drawer .tb-btn:active { transform: none; filter: none; background: var(--fill-strong); }
   /* More */
@@ -1377,6 +1377,9 @@ span.av:not([style*="--h"]) { background: var(--fill-strong); color: var(--label
   background: var(--gl-fill); box-shadow: inset 0 0 0 1px var(--gl-rim); transition: background-color .2s ease; }
 .side-acct:hover { text-decoration: none; background: var(--gl-hover); }
 .side-acct[aria-current] { box-shadow: inset 0 0 0 1.5px var(--accent); }
+/* your colour: a faint tint of it on your name in the sidebar and the phone's menu */
+:root[data-me] .side-acct { background: color-mix(in srgb, var(--accent) 12%, var(--gl-fill)); }
+@media (hover: hover) { :root[data-me] .side-acct:hover { background: color-mix(in srgb, var(--accent) 20%, var(--gl-hover)); } }
 .side-acct > span:last-child { display: grid; min-width: 0; }
 .side-acct b { font: 600 14px/1.25 var(--font); letter-spacing: -.012em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .side-acct small { font-size: 12px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1520,8 +1523,8 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .ss-t { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .ss-t b { font-weight: 500; font-size: 15px; letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ss-t small { font-size: 13px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ss-all-ic { width: 34px; height: 20px; flex: none; color: var(--menu, var(--accent)); }
-.ss-all b { color: var(--menu, var(--accent)); }
+.ss-all-ic { width: 34px; height: 20px; flex: none; color: var(--accent); }
+.ss-all b { color: var(--accent); }
 .ss-note { margin: 0; padding: 12px 10px; color: var(--label2); font-size: 14px; }
 @media (min-width: 1000px) {
   .top-row > .side-search { margin: -6px 0 -8px; }
@@ -1569,6 +1572,9 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
   .tabs button, .side-about, .tb-btn { font-weight: 400; }
   .tabs button svg, .side-about svg, .tb-btn svg { color: var(--label); }
   .tabs button[aria-selected="true"], .side-about[aria-current] { font-weight: 500; }
+  /* your colour: the page you're on is lit in it, as the Mac's sidebar takes its accent colour */
+  :root[data-me] :is(.tabs button[aria-selected="true"], .side-about[aria-current]) { background: color-mix(in srgb, var(--accent) 16%, var(--fill)); }
+  :root[data-me] :is(.tabs button[aria-selected="true"], .side-about[aria-current]) svg { color: var(--accent); }
 }
 @media (min-width: 1000px) and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { --side-bg: rgba(44, 40, 48, .5); }
@@ -1857,6 +1863,12 @@ p { text-wrap: pretty; }
   }
 }
 /* big page titles (Settings, Your account, Watchlist) ease back as the page scrolls under them, like iOS's large titles */
+/* your colour: with a colour picked on your account (data-me, set by tnMe in each page's head), it becomes the accent
+   everywhere --accent reaches (links, highlights, menu icons, focus rings, glows, notes) and tints the wash behind the
+   page. --me-d is the deeper shade for Day, --me-n the lighter one for Night; both keep text legible. */
+:root[data-me] { --accent: var(--me-d); --amb1: hsl(var(--me-h) 85% 55% / .13) }
+@media (prefers-color-scheme: dark) { :root[data-me]:not([data-theme="light"]) { --accent: var(--me-n); --amb1: hsl(var(--me-h) 85% 52% / .26); } }
+:root[data-me][data-theme="dark"] { --accent: var(--me-n); --amb1: hsl(var(--me-h) 85% 52% / .26); }
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
     :root:not(.still) :is(.large-title, #lsH) { transform-origin: 0 100%; animation: ltAway linear both; animation-timeline: scroll(root); animation-range: 0 180px; }
@@ -1872,7 +1884,8 @@ p { text-wrap: pretty; }
 :root { --lamp: color-mix(in srgb, var(--accent) 7%, transparent); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lamp: rgba(255, 255, 255, .06); } }
 :root[data-theme="dark"] { --lamp: rgba(255, 255, 255, .06); }
-@media (prefers-reduced-transparency: reduce) { :root { --lamp: transparent; } }
+:root[data-me] { --lamp: color-mix(in srgb, var(--accent) 9%, transparent) !important; }
+@media (prefers-reduced-transparency: reduce) { :root, :root[data-me] { --lamp: transparent !important; } }
 
 /* ============================================================ the Contact page's touches, shared (the owner loved them there).
    .lit: a box's lit edge, a fine line of its colour (--tone) along the top, fading out at both ends, and a soft glow of that
