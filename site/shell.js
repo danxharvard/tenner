@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.55.0';
+  const version = '2.56.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -875,6 +875,42 @@
     links.insertAdjacentHTML('afterbegin', '<a class="side-acct" id="sideAcct" href="account.html"></a>');
     const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'Sync your devices'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
     draw(); addEventListener('tn:account', draw);
+  }
+  // signed in on the homepage (computers and tablets): your picture and name top right, above the dropdowns, with a round
+  // Sign out beside it. Signing out asks once, iOS-style; what's on this device stays.
+  const hd = $('.bx-hd');
+  if (hd && $('.bx-dds', hd)) {
+    const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    hd.insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><a class="bx-me-card" id="bxMeCard" href="account.html"></a><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
+    hd.classList.add('has-me');
+    let dlg = null;
+    const ask = () => {
+      if (!dlg) {
+        document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg" id="outDlg" aria-labelledby="outH" aria-describedby="outP" closedby="any"><form method="dialog">
+          <span class="out-ic" aria-hidden="true">${OUT}</span><h2 id="outH">Sign out of Tenner?</h2>
+          <p id="outP">Your Watchlist and settings stay on this device. Sign in again any time to sync them.</p>
+          <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted out-stay" value="stay" autofocus>Cancel</button></div>
+        </form></dialog>`);
+        dlg = $('#outDlg');
+        dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close('stay'); });   // tap outside to close
+        dlg.addEventListener('close', async () => {
+          if (dlg.returnValue !== 'out') return;
+          haptic(); await account.signOut(false);
+          const t = $('#toast'); if (t) { t.textContent = 'Signed out'; t.hidden = false; clearTimeout(t.t); t.t = setTimeout(() => (t.hidden = true), 2600); }
+        });
+      }
+      dlg.returnValue = ''; dlg.showModal();
+    };
+    $('#bxMeOut').addEventListener('click', ask);
+    const drawMe = () => {
+      const u = account.user(), box = $('#bxMe');
+      box.hidden = !u; hd.classList.toggle('me-on', !!u);
+      if (!u) return;
+      $('#bxMeCard').innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>`;
+      if (matchMedia('(min-width: 720px)').matches) setTimeout(() => featureTip({ id: 'home-account-card', for: '#bxMeCard', title: 'You, top right',
+        text: 'You’re signed in, so your Watchlist and settings sync across your devices. Tap your name for your account, or the round button to sign out.' }));
+    };
+    drawMe(); addEventListener('tn:account', drawMe);
   }
   // the colour you picked for your account becomes Tenner's accent everywhere: links, highlights, the menu's icons, focus
   // rings, glows and the wash behind the page (tnMe, in each page's head, so it's there before the first paint).
