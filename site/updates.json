@@ -1,0 +1,1962 @@
+[
+ {
+  "version": "2.59.0",
+  "date": "2026-11-10",
+  "title": "The Update centre: every Tenner update in one place",
+  "changes": [
+   "A new page, the Update centre, lists every release with its build number, date, what changed and any notes",
+   "Tap the build number at the foot of the menu (or at the end of About and Settings) to open it",
+   "New releases add themselves to the list from each update’s notes, so it never needs updating by hand"
+  ],
+  "notes": "The list goes back to the very first Tenner on 16 October 2026."
+ },
+ {
+  "version": "2.58.2",
+  "date": "2026-11-10",
+  "title": "Fix 23 bugs in the account pill, sign out, accent colour, Christmas lights, Tenner's cut and more",
+  "changes": [
+   "Tenner's cut: no longer runs twice as fast after a pause mid-picture; stops asking when no still will load; the homepage's starts even when its first picture is slow",
+   "Signing out while a sync was on its way no longer signs you back in on screen",
+   "Signing in or out in another tab now updates this one (pill, menu, accent)",
+   "Deleting an account stops its profile photo being served at once",
+   "Only the six account colours become the accent (no muddy random shades); new accounts get a clean start colour",
+   "The account Worker no longer reads an empty colour as red",
+   "A title sheet no longer breaks when its extras have no videos",
+   "Crossfades cut short no longer throw errors",
+   "The Christmas countdown keeps time",
+   "The Watchlist hero asks again for a title that failed to load",
+   "Beside the account pill, the services stay on one line, fading at the edge",
+   "Tablets: the tabs no longer slide under the buttons at 720-779px; the search field uses the 9px corner",
+   "Sign out's Cancel gets its icon; page titles use one separator; settings copy; tidy-ups",
+   "Christmas lights under the bars' glass and the account pill; About's pill below the bar on tablets"
+  ],
+  "notes": "The lights hung over the tablet tab bar and over your name in the account pill. They now sit under the bars' glass and the pill, so the tabs and your name always read. On About (tablets), the pill sits below the floating bar rather than over its tabs."
+ },
+ {
+  "version": "2.58.1",
+  "date": "2026-11-10",
+  "title": "Bright old-fashioned Christmas bulbs, beside the sidebar",
+  "changes": [
+   "Red, green and blue Christmas lights strung along the top of every page",
+   "The Christmas lights become bright old-fashioned glass bulbs",
+   "Bigger, richer bulbs that hang beside the sidebar, not over it"
+  ],
+  "notes": "They hang from a sagging wire pinned to the top, twinkle only with Animations on (never under Reduce Motion), come down after Boxing Day, and introduce themselves once with a tip. Big C9-style bulbs in red, green and blue with ribbed sockets, lit glass, a highlight and a soft halo, on a dark green wire."
+ },
+ {
+  "version": "2.58.0",
+  "date": "2026-11-10",
+  "title": "Red, green and blue Christmas lights strung along the top of every page",
+  "changes": [],
+  "notes": "They hang from a sagging wire pinned to the top, twinkle only with Animations on (never under Reduce Motion), come down after Boxing Day, and introduce themselves once with a tip."
+ },
+ {
+  "version": "2.57.1",
+  "date": "2026-11-10",
+  "title": "The Christmas calendar lives on its slide only",
+  "changes": [
+   "Your account top right on the homepage, with a round Sign out",
+   "The account card becomes a rounded pill, with your round picture and a round Sign out inside",
+   "With your account top right, the sidebar's account entry steps aside",
+   "Your account pill top right on every page; the sidebar's account entry steps aside everywhere",
+   "The Christmas calendar lives on its slide only; its box in the right-hand column is gone"
+  ],
+  "notes": "Signed in on computers and tablets, the homepage shows your picture and name above the dropdowns (a frosted card tinted with your account colour, linking to your account) and a round Sign out button beside it, which asks once in an iOS-style alert. A one-time tip introduces it."
+ },
+ {
+  "version": "2.57.0",
+  "date": "2026-11-10",
+  "title": "Your account pill top right on every page",
+  "changes": [
+   "Your account top right on the homepage, with a round Sign out",
+   "The account card becomes a rounded pill, with your round picture and a round Sign out inside",
+   "With your account top right, the sidebar's account entry steps aside",
+   "Your account pill top right on every page; the sidebar's account entry steps aside everywhere"
+  ],
+  "notes": "Signed in on computers and tablets, the homepage shows your picture and name above the dropdowns (a frosted card tinted with your account colour, linking to your account) and a round Sign out button beside it, which asks once in an iOS-style alert. A one-time tip introduces it."
+ },
+ {
+  "version": "2.56.2",
+  "date": "2026-11-10",
+  "title": "With your account top right, the sidebar's account entry steps aside",
+  "changes": [
+   "Your account top right on the homepage, with a round Sign out",
+   "The account card becomes a rounded pill, with your round picture and a round Sign out inside"
+  ],
+  "notes": "Signed in on computers and tablets, the homepage shows your picture and name above the dropdowns (a frosted card tinted with your account colour, linking to your account) and a round Sign out button beside it, which asks once in an iOS-style alert. A one-time tip introduces it."
+ },
+ {
+  "version": "2.56.1",
+  "date": "2026-11-10",
+  "title": "The account card becomes a rounded pill with a round Sign out inside",
+  "changes": [
+   "Your account top right on the homepage, with a round Sign out",
+   "The account card becomes a rounded pill, with your round picture and a round Sign out inside"
+  ],
+  "notes": "Signed in on computers and tablets, the homepage shows your picture and name above the dropdowns (a frosted card tinted with your account colour, linking to your account) and a round Sign out button beside it, which asks once in an iOS-style alert. A one-time tip introduces it."
+ },
+ {
+  "version": "2.56.0",
+  "date": "2026-11-10",
+  "title": "Your account top right on the homepage, with a round Sign out",
+  "changes": [],
+  "notes": "Signed in on computers and tablets, the homepage shows your picture and name above the dropdowns (a frosted card tinted with your account colour, linking to your account) and a round Sign out button beside it, which asks once in an iOS-style alert. A one-time tip introduces it."
+ },
+ {
+  "version": "2.55.0",
+  "date": "2026-11-10",
+  "title": "Tenner's own cut in the featured spots, in place of YouTube trailers",
+  "changes": [],
+  "notes": "The homepage's top slide and the Watchlist's top card no longer play a YouTube trailer (ads, the player, words over the footage). Instead they move through the title's own wordless TMDB stills, each drifting slowly and dissolving into the next (tn.cut in shell.js, Web Animations off the main thread). The official trailer is still a button away in the title's sheet. The search Worker now returns those stills (info.bds). Paused when out of sight, a sheet is open or the tab is hidden; still with Reduce Motion or trailers set not to start."
+ },
+ {
+  "version": "2.54.1",
+  "date": "2026-11-10",
+  "title": "Take the Contact touches back off the homepage",
+  "changes": [
+   "The Contact page's touches across the site",
+   "/ Tenner TV 3.3.0: the Contact page's touches on the homepage and Tenner TV",
+   "Version after merging main (account colour landed as 2.53.0)",
+   "Take the lit edges and heading squares back off the homepage (too much there)"
+  ],
+  "notes": "Settings rows get iOS-style colour squares; Settings, Account and About's example boxes get the Contact card's lit top edge and glow (shared .lit); tiles in Settings, Account and About's promise take their own colour on hover (shared .tile-c); Account's sign-in fields get Contact's soft focus ring. Homepage side boxes are lit in their own colours with a colour square by each heading. Tenner TV's preview is a frosted card lit in the programme's genre colour, gliding between programmes, and On now's tiles take that colour on hover."
+ },
+ {
+  "version": "2.54.0",
+  "date": "2026-11-10",
+  "title": "The Contact page’s touches on the homepage and Tenner TV (Tenner TV 3.3.0)",
+  "changes": [
+   "The Contact page's touches across the site",
+   "Version after merging main (account colour landed as 2.53.0)"
+  ],
+  "notes": "Settings rows get iOS-style colour squares; Settings, Account and About's example boxes get the Contact card's lit top edge and glow (shared .lit); tiles in Settings, Account and About's promise take their own colour on hover (shared .tile-c); Account's sign-in fields get Contact's soft focus ring. Homepage side boxes are lit in their own colours with a colour square by each heading. Tenner TV's preview is a frosted card lit in the programme's genre colour, gliding between programmes, and On now's tiles take that colour on hover."
+ },
+ {
+  "version": "2.53.0",
+  "date": "2026-11-10",
+  "title": "Your account's colour as Tenner's accent across the site",
+  "changes": [],
+  "notes": "The colour picked on the Account page now becomes the accent everywhere: links, highlights, focus rings, the page wash, the hover glow, the selected menu row, the sidebar account chip and the profile card. A deeper shade by day and a lighter one by night keep text legible. Shown with a profile photo too; one-time tip on the picker."
+ },
+ {
+  "version": "2.52.1",
+  "date": "2026-11-10",
+  "title": "Fix saving a profile photo (the photos table was never made)",
+  "changes": [],
+  "notes": "The deploy's database step sent schema.sql as an import, which the Cloudflare token isn't allowed to do, so the new photos table was never created. It now runs as a query, and the Worker also makes the photos table itself the first time it's needed."
+ },
+ {
+  "version": "2.52.0",
+  "date": "2026-11-10",
+  "title": "The Contact page's touches across the site",
+  "changes": [],
+  "notes": "Settings rows get iOS-style colour squares; Settings, Account and About's example boxes get the Contact card's lit top edge and glow (shared .lit); tiles in Settings, Account and About's promise take their own colour on hover (shared .tile-c); Account's sign-in fields get Contact's soft focus ring."
+ },
+ {
+  "version": "2.51.0",
+  "date": "2026-11-10",
+  "title": "Profile photos for accounts",
+  "changes": [],
+  "notes": "Choose a photo on the Account page, move and scale it in a circle, and a small square JPEG is kept in the accounts database (photos table) and served from /photo/<id>. The server checks each photo's real type from its first bytes and its size (150 KB). Remove goes back to your initial. A new photo or name now reaches other devices on sync. Introduces itself once with the shared feature tip."
+ },
+ {
+  "version": "2.50.8",
+  "date": "2026-11-10",
+  "title": "Homepage: the scores box on the featured title is see-through frost, so the artwork shows through",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.50.7",
+  "date": "2026-11-10",
+  "title": "Fix 21 site bugs and cut how much the site asks of TMDB and Watchmode",
+  "changes": [
+   "Reduce Motion switched on while Tenner is open is now noticed straight away",
+   "A damaged Watchlist entry no longer stops the Watchlist page drawing",
+   "A failed fetch is no longer kept for the whole visit: title details, cast, episodes, extras, prices, On TV, people, What should I watch tonight and the Settings QR code all try again next time",
+   "The loading ring no longer leaves an unhandled error when data fails",
+   "The charts and Browse no longer show developer text or \"Failed to fetch\" when they can't load; Account and Contact say what went wrong in plain words",
+   "A key press with no key (autofill) no longer throws in the title sheet",
+   "Sign in, create account and reset password no longer break in browsers that give no submit button for Return",
+   "Closing the Christmas calendar puts focus back where it was",
+   "Settings import keeps the Watchlist's 500 limit and checks what it brings in",
+   "Browse left open picks up the day's arrivals and departures, not just the catalogue",
+   "Home left open no longer redraws (and restarts the featured titles) every 15 minutes when nothing has changed",
+   "Tapping an alert opens the title even when the open window can't be sent there",
+   "Settings' QR code works offline",
+   "Clearing the site's data in another tab is noticed",
+   "Loved titles' history no longer grows for ever",
+   "Browse's catalogue is rebuilt every 6 hours instead of hourly (60 TMDB requests each)",
+   "A charted title's details refresh every 3 hours instead of every hour",
+   "Watchmode prices are kept a week, at most five new lookups a run"
+  ],
+  "notes": "Bugs: API use:"
+ },
+ {
+  "version": "2.50.6",
+  "date": "2026-11-10",
+  "title": "Audit after the move: fix the hourly build, watchdog, alerts and Cloudflare serving",
+  "changes": [
+   "Temporary audit checks of the live site",
+   "Temporary audit checks, round 2",
+   "Temporary: try the new watchdog checks",
+   "Audit after the move: fix the hourly build, watchdog, alerts and Cloudflare serving (2.50.6)",
+   "The hourly build, its freshness gate, the watchdog and the alerts Worker read the live data from the site's workers.dev address: tenner.stream's bot check turned them away, so chart movement reset every hour, New This Week and the rent/buy prices were wiped, every title was re-fetched hourly and the watchdog raised false alarms",
+   "GitHub Pages is no longer built or deployed (a second copy at github.io); Cloudflare deploys queue one at a time",
+   "Keep-alive for the schedules runs on every run, not only scheduled ones",
+   ".html links are served straight away instead of redirected (faster taps, and the installed app opens pages offline)",
+   "A 404 page: a shared link to a title that has left Tenner's lists still opens it",
+   "Browsers keep scripts, styles, fonts and icons instead of re-checking them on every page",
+   "The search Worker no longer accepts the old github.io addresses",
+   "The watchdog also checks www.tenner.stream and New This Week, and still checks the domain's renewal after a failure"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.50.5",
+  "date": "2026-11-10",
+  "title": "Serve tenner.stream from Cloudflare instead of GitHub Pages",
+  "changes": [],
+  "notes": "GitHub Pages keeps tenner.stream tied to the old, lost account, so the hourly build now also deploys site/ as static files on a Cloudflare Worker (tenner-site) at tenner.stream, with tenner-www sending www.tenner.stream on to it. If the domain can't be connected yet, the site still goes up on workers.dev and the run says which DNS records to delete."
+ },
+ {
+  "version": "2.50.4",
+  "date": "2026-11-10",
+  "title": "Point repo references at the new danxharvard/tenner account",
+  "changes": [],
+  "notes": "Adds danxharvard.github.io to the worker's allowed origins (keeping the old one while the live site still serves from it), and updates the Mac app clone/download links and Wikidata user-agent strings."
+ },
+ {
+  "version": "2.50.3",
+  "date": "2026-11-08",
+  "title": "Title links find more titles and look after themselves",
+  "changes": [
+   "Wikidata is now searched by each title's IMDb ID as well as its TMDB ID (TMDB gives both in the same request), so titles whose Wikidata entry lacks a TMDB ID still open on the service itself",
+   "Malformed IDs on Wikidata are skipped at build time, so a good ID listed after a bad one is used instead of falling back to search; the search service does the same",
+   "The longest-unchecked titles are looked up first, in smaller batches with one more retry",
+   "Titles.json records when Wikidata last answered and how many places to stream open the title directly; the hourly notice reports both",
+   "The watchdog re-runs the hourly job if Wikidata hasn't answered for 48 hours or fewer than half the titles have a direct link"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.50.2",
+  "date": "2026-11-08",
+  "title": "Section subtitles always sit under their heading, never beside it: New, the chosen day, and Browse's For You",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.50.1",
+  "date": "2026-11-08",
+  "title": "New: the week in numbers as polished frosted tiles, each with its colour, icon and chevron",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.50.0",
+  "date": "2026-11-08",
+  "title": "New, redesigned: the week in numbers, Day by Day and the week on the charts",
+  "changes": [
+   "The week in numbers: one frosted box with four counts (new arrivals, on the way, new No. 1s, leaving soon) that count up and jump to their part of the page",
+   "Day by Day: a ribbon of days from last week to the month ahead, each with its posters fanned like cards; pick one and its titles show underneath in the chart list (Add to Calendar for days ahead). Scroll-driven lens, rainbow underline on the chosen day, arrow keys and arrows",
+   "The Week on the Charts: the UK's top 10 shows or films traced day by day as lines into their posters, drawn in as it comes into view; point at a title or line to follow it",
+   "Last Chance: what's leaving, as posters counting down",
+   "Each new part introduces itself once (tn.tip); old day-group and jump-link styles removed"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.49.1",
+  "date": "2026-11-08",
+  "title": "Christmas calendar box: the fairy lights wrap round the box itself, not the little calendar",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.49.0",
+  "date": "2026-11-08",
+  "title": "Homepage: an American Horror Story trailer slide ahead of the Christmas slide",
+  "changes": [],
+  "notes": "Plays its trailer muted in the featured title's card (same player as the Watchlist's), with a sound button and a one-time tip; the details come from the search service, and the slide is left out if they don't arrive."
+ },
+ {
+  "version": "2.48.0",
+  "date": "2026-11-07",
+  "title": "Motion and polish: a gentle spring for buttons, a frosted toast that springs up and fades away, sheets that ease away on close, Settings and the policies settling in as you scroll, large titles easing back, and a soft light under the pointer on frosted cards",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.47.2",
+  "date": "2026-11-07",
+  "title": "New shows proving popular: no rank numbers, since it isn't a Top 10",
+  "changes": [
+   "Audit: Animations on or off now applies at once everywhere; remove the expired suggestion card and the old Top 10 page's leftover styles and filters",
+   "Bug sweep: Discover box keeps its place after a Save, a cancelled swipe springs back, Settings refresh when your account syncs, dates use your local day, Copy link messages reset properly, page marking works with or without .html",
+   "Bug sweep: the Christmas calendar follows Settings → Animations, Browse's search hints stop at once when Animations go off, and a backup file is named with your local date"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.47.1",
+  "date": "2026-11-07",
+  "title": "Christmas calendar: closing it fades it gently away, and the first time its box fades in at the top of the right-hand column as Discover glides down; starts afresh for everyone",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.47.0",
+  "date": "2026-11-07",
+  "title": "Watchlist: a trailer from your list at the top when signed in",
+  "changes": [],
+  "notes": "Signed in, the Watchlist opens with a random saved title's trailer playing muted over its artwork, in the homepage hero's card, glow and sidebar extension. Sound and shuffle buttons, pauses when out of sight, respects Reduce Motion, Data Saver and the autoplay setting, with a one-time tip."
+ },
+ {
+  "version": "2.46.0",
+  "date": "2026-11-05",
+  "title": "New shows proving popular: a ranked 1-10 list under Top rated at a glance (a numbered row on phones), with its one-time tip",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.45.0",
+  "date": "2026-11-05",
+  "title": "Phones get the featured titles too, the Christmas slide first; and the Christmas calendar's landing in the right-hand column starts afresh for everyone",
+  "changes": [],
+  "notes": "The featured titles (with their dots, and swipe to the next) now show on phones as well, in place of the separate Christmas card; the winter night and snow follow the slide there too, and stop once you scroll past it. The calendar's box records its first landing under a new name, so everyone sees it land again."
+ },
+ {
+  "version": "2.44.1",
+  "date": "2026-11-05",
+  "title": "Christmas calendar: its box isn't in the right-hand column until you first close the calendar; then a space opens at the top, Discover slides down and the calendar lands in it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.44.0",
+  "date": "2026-11-05",
+  "title": "Christmas calendar like a real advent calendar: doors of every size, fairy lights wrapped round it, and its box a little calendar the size of Discover",
+  "changes": [],
+  "notes": "The doors sit on a 6 by 7 grid in all sizes (the 25th the biggest, then the 24th), with red, green and blue bulbs on a dark wire round the edge, each twinkling at its own pace. The box in the right-hand column is now the calendar in miniature, Discover's size: opened doors show their posters, today's glows, and tapping a door opens the calendar at it. A door that finds nothing of one kind tries the other."
+ },
+ {
+  "version": "2.43.1",
+  "date": "2026-11-05",
+  "title": "Christmas calendar: its box appears the first time you open it (not only once a door's open), so closing always shrinks it into the right-hand column; in November it counts down to 1 December",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.43.0",
+  "date": "2026-11-05",
+  "title": "Christmas calendar: 25 doors, one a day from 1 December, each hiding a film or show",
+  "changes": [],
+  "notes": "Open calendar on the Christmas slide (and its phone card) opens Tenner's Christmas calendar: a night-sky sheet with the Christmas scene, 25 doors in rich tones with gold drawings, the 25th big. A door can't open before its day; today's glows and gives a little nudge. Opening one swings it on its hinge with a burst of gold sparkles, and the pick comes forward on a card: mostly Christmas favourites (found in this hour's catalogue or by the search service), sometimes something popular we think you'll enjoy, picked at random and kept on this device. Where to watch opens its sheet; the round button adds it to the Watchlist. Closing the calendar shrinks it into its new box at the top of the right-hand column, above Discover, which shows today's door from then on. Plays unless the device asks for Reduce Motion."
+ },
+ {
+  "version": "2.42.2",
+  "date": "2026-11-05",
+  "title": "Christmas slide first among the featured titles, so it greets you even when the carousel doesn't move on by itself",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.42.1",
+  "date": "2026-11-05",
+  "title": "Christmas slide: no feature tip, at the owner's request; it explains itself",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.41.0",
+  "date": "2026-11-05",
+  "title": "Discover deals films from TMDB's whole catalogue, streaming or not; their sheet says when a film isn't streaming",
+  "changes": [
+   "Christmas: a festive slide among the featured titles, with a winter night and falling snow while it shows",
+   "Christmas slide: version 2.42.0 (2.41.0 went out with Discover's change just before)"
+  ],
+  "notes": "From 1 November to Boxing Day the homepage's featured titles gain a Christmas slide (second in line): its own artwork of a snowy village at night with a lit tree, a countdown to Christmas, a nudge to add Tenner to the Home Screen for the holidays and a Share button (the system's share sheet, or Tenner's share card with Copy link). While it shows, the page fades to a winter night (a pale winter morning by day) and snow falls from the top of the window; it all goes back when another title comes round. On phones it's a card above the charts, snowing while it's in view. No snow with Reduce Motion. Introduces itself once with the shared feature tip."
+ },
+ {
+  "version": "2.40.0",
+  "date": "2026-11-05",
+  "title": "Bug hunt and polish: a loading ring on computers, safer streaming links, new climbing badges and 20 fixes",
+  "changes": [
+   "Loading ring (computers only). Ten bars in Tenner's colours with a light running round them, in a frosted square in the middle of the page. It only appears if a page or its charts take more than a moment (about a third of a second), stays long enough not to flicker, and never shows on phones. With Animations on, the ring also turns slowly and springs in. With them off, only the light moves.",
+   "Climbing badges. \"Climbing this week\" and New's \"Biggest Climbers\" now show a green badge like Apple's Stocks app: a round arrow lit from above, then the number of places. The line under each title now reads \"Now No. 2 on Netflix\", so the number isn't repeated.",
+   "Each title's own ID from Wikidata (Netflix, Disney+, Prime Video, HBO Max, Apple TV) is now checked against the shape that service's addresses take before it's used. An old or mistyped ID used to open a broken page. Now it falls back to that service's search, with the title filled in.",
+   "Services TMDB lists under other names now get the right button and link instead of TMDB's page. This covers Max, HBO Max Free, Channel 5, My5, ITV Hub, ITVX Premium, U and Rakuten.",
+   "A chart's own Netflix link is checked before the Watch button uses it.",
+   "A title's sheet said \"1 seasons\" when the season count came from TMDB.",
+   "\"1 episodes to go\" now reads \"1 episode to go\", and \"0 episodes to go\" no longer appears.",
+   "Button icons that pages hadn't sized were invisible. Every button now shows its icon, as the house style requires.",
+   "The empty Watchlist's and New's \"See the top 10\" bounced through a redirect. It now goes straight to Home and has an icon.",
+   "Discover's \"You've seen them all\" card had a double space and a Watchlist button that wasn't in the house style.",
+   "New's phone banners could say \"undefined original\".",
+   "Browse redrew For You twice every time a sheet closed, which lost your place in the row.",
+   "A catalogue title with no release date could break Browse's Newest and Oldest sorts and the years filter.",
+   "The Home page asked for a haptic buzz that didn't exist. Saving and picking services now give a small buzz on phones that support it.",
+   "Account: the colour swatches were read out as \"Colour 210\". They're now called Blue, Purple, Pink, Red, Orange, Green and Teal.",
+   "Account: if a content blocker stops Google's sign-in script, the page no longer fails. The Google button just stays hidden.",
+   "\"What should I watch tonight?\": a failed load is now tried again next time instead of being remembered, and its buttons have icons.",
+   "A feature tip you've seen in one tab now stays seen in your other open tabs.",
+   "Privacy & Terms used to mark all three menu links (Terms, Privacy, Cookies) as the current page at once. Now only the part you're reading is marked, and the mark follows you as you scroll.",
+   "Very small placeholder posters (in the Top 10 box and Climbing) showed clipped letters. They now show just their colours."
+  ],
+  "notes": "Also tidied: unused code removed (the old arrow icon and its styles, and some empty lines)."
+ },
+ {
+  "version": "2.39.0",
+  "date": "2026-11-04",
+  "title": "Phones: the homepage adds For you (picks from what you've liked in Discover) between the Top 10s and Top rated, and Top rated drops its numbers",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.38.1",
+  "date": "2026-11-04",
+  "title": "Phones: the homepage's charts are numbered 1 to 10, a big still number on each card with the rating moved to the right",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.38.0",
+  "date": "2026-11-04",
+  "title": "Phones: the homepage is just the Top 10 and Top rated, each a row of poster cards to swipe; the featured title, services, For you and side boxes stay on bigger screens",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.37.0",
+  "date": "2026-11-04",
+  "title": "Tap a person's photo on their sheet to see it larger: a big round portrait over a blurred page, closed with a tap or Escape, with a one-time tip",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.36.2",
+  "date": "2026-11-04",
+  "title": "Phones: no hard line under the top bar once the page scrolls; the scroll edge is now a soft fade with no blur, which Safari was cutting off at the bar's edge",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.36.1",
+  "date": "2026-11-04",
+  "title": "Cast and crew photos are true circles: the photo itself is square and rounded, so a tall portrait never shows as an oval or square in Safari",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.36.0",
+  "date": "2026-11-04",
+  "title": "Polish and motion: Tonight's illustrations redrawn as a little stage with orbits and confetti, the same style on its invitation and empty pages; a ring of light on every tap, pop-up choices that glide in, switches that stretch, popups that rise; balanced headings and a touch more depth",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.35.0",
+  "date": "2026-11-04",
+  "title": "Browse, the next generation: a featured hero that blends into the page and under the sidebar, one search bar, filters in a native sheet with chips for what's on, a sort menu",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.34.1",
+  "date": "2026-11-04",
+  "title": "Title popup's words laid out like Apple TV: description, one grey details line, Starring beside it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.34.0",
+  "date": "2026-11-04",
+  "title": "Settings: the everyday settings stay in view and the rest fold under a More row in each group",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.33.3",
+  "date": "2026-11-04",
+  "title": "About: chart rows hover with straight ends, like the homepage's list",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.33.2",
+  "date": "2026-11-04",
+  "title": "Title popup a little larger on computers and tablets: 780px wide, up to 90% of the window tall",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.33.1",
+  "date": "2026-11-04",
+  "title": "One-time tips for the six signed-in features: Mark as watched, Not interested, notes, Spoiler shield, alert choices and Your Tenner",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.33.0",
+  "date": "2026-11-04",
+  "title": "One-time feature tips: tn.tip() for every new feature, shown once and synced with your account; Discover's Your picks gets the first",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.32.0",
+  "date": "2026-11-04",
+  "title": "Six signed-in features: Watched, Not interested, notes, Spoiler shield, alert choices and quiet hours, Your Tenner",
+  "changes": [],
+  "notes": "Signed in, a title's sheet gains Just for You: Mark as watched (and, by default, off the Watchlist), Not interested (left out of Home, Browse, Discover, Tonight and For You) and a private note. The Watchlist page shows notes and a Watched list. Spoiler shield blurs episodes after where you're up to. Settings gets a Just for you section and, under Alerts, which alerts to get and quiet hours, which the Worker honours. The account page gets Your Tenner stats. All of it syncs with the account, merged title by title (newest wins)."
+ },
+ {
+  "version": "2.31.0",
+  "date": "2026-11-04",
+  "title": "Discover: Your picks, ten titles ranked from your swipes that re-rank live as you go",
+  "changes": [],
+  "notes": "Beside the deck on computers and tablets (staying in view), under it on phones. Reuses For you's ranking; TMDB's More like this fetch moves into shell.js (moreLike)."
+ },
+ {
+  "version": "2.30.0",
+  "date": "2026-11-04",
+  "title": "About, reimagined: live charts, a chart made for you and Discover, each with a working example",
+  "changes": [],
+  "notes": "The splash, numbers, feature tiles, little things and app teaser make way for three chapters built from the hour's chart: the live top five with the six services, a try-it Top 10 that follows the services you tap, and a small deck to swipe. The promise (free, no adverts or tracking, no cookies) in one frosted box, and four questions. The handwriting font is no longer used, so it's gone."
+ },
+ {
+  "version": "2.28.1",
+  "date": "2026-11-04",
+  "title": "Update the privacy note and Cookies policy for accounts",
+  "changes": [
+   "Tenner Layout: publish the ready-made app as a direct download",
+   "Tenner Layout: make the download release reliably",
+   "Tenner Layout: one app for Intel and Apple-chip Macs",
+   "Contact: a new page and compose card",
+   "Version 2.29.0"
+  ],
+  "notes": "The note now says signing in syncs your Watchlist and settings, and is shown once more. The policy explains how a device stays signed in without cookies, Google's own cookies on its sign-in button, and what's kept on the device. Big friendly headline beside one frosted card: four topic tiles that tint the page's light, floating-label fields, a live character count, Cmd/Ctrl+Enter to send, the draft kept on this device until sent, name and email filled in when signed in, and a green tick when it's gone. Same /contact submission. Contact's old rules leave legal.css for their own contact.css."
+ },
+ {
+  "version": "2.28.0",
+  "date": "2026-11-03",
+  "title": "For you: picks from your Discover swipes",
+  "changes": [
+   "Tenner Layout: a small Mac app for dragging the site's sections about at computer and phone sizes"
+  ],
+  "notes": "Discover now remembers which way you swiped each title and keeps it with your account. Signed in, the homepage shows a For you row built from your right swipes (plus loves and the Watchlist), lifted by TMDB's More Like This for your latest likes; with no swipes yet it points you to Discover. Browse's For You uses the same picks. It never changes the site: moves stay in the app's window and are written out as instructions to paste to Claude."
+ },
+ {
+  "version": "2.27.1",
+  "date": "2026-11-03",
+  "title": "Phones: Top rated at a glance in boxes like the Top 10, a film scene in grey behind each heading",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.27.0",
+  "date": "2026-11-02",
+  "title": "Search finds cast and crew; the Cast & Crew page makes way",
+  "changes": [],
+  "notes": "The menu's search now finds people as well as shows and films, and a person opens in their own sheet (person.js): what they're best known for as the artwork, their portrait, a few facts, the biography, what's on the six services now, Known For and their career. A title opens its sheet over it, and Back comes home. The title sheet's Cast & Crew faces open the same sheet. The box says \"Search for shows, movies, cast\". The Cast & Crew page, its menu item (here and on Tenner TV), About's row and Browse's link are gone; old people.html?p= links land on the person's sheet. The search service only searches people by name now."
+ },
+ {
+  "version": "2.22.0",
+  "date": "2026-11-01",
+  "title": "Clean-up and polish after the new home page. On phones and tablets the boxes (Discover, Top 10, What should I watch tonight?, Genres) come straight after the rows instead of below the long Top rated lists, and picking a genre glides back up to the rows it changed. Settings: Featured artwork goes (it was the old Top 10 page's), Show now sets the home page's starting choice, and star ratings off now hides them on Home too. Tenner TV's menu links to Home, New and Watchlist directly. Leftover styles and code from the old pages removed",
+  "changes": [
+   "Keep Tenner updating itself while nobody's around",
+   "Update.yml is asked three times an hour; a scheduled try that finds the live chart under 40 minutes old stops at once. Only the deploy job queues on `pages`, so a spare try can never cancel a push waiting to go live.",
+   "The watchdog runs hourly (charts flagged after two hours, not two and a half), and fails a fortnight before tenner.stream's registration runs out.",
+   "Tenner TV gets a second scheduled try 90 minutes after each one, and fails a fortnight before the Cloudflare token's end date, if it has one.",
+   "Pick several services at once on the home page",
+   "Restore the people icon's path the version bump caught",
+   "Put genres in a dropdown beside Shows and films on the home page",
+   "Phones: every feature box edge to edge, all the same width, with no outlines",
+   "Phones: a Filters menu on the right, Search under the menu button",
+   "Top 10: a film scene in grey behind the heading, from the chart's leading films",
+   "Computers: every page sits beside the sidebar like the homepage"
+  ],
+  "notes": "GitHub was skipping most scheduled runs: the \"hourly\" chart build actually ran every five to seven hours, kept fresh only by the watchdog and by pushes. Workflow-only change, so the site's version isn't bumped. Tapping a service in the rail now turns it on or off, so you can pick, say, Prime Video and HBO Max together. Each chosen one gets the rainbow underline, All six clears them, and everything on the page (featured title, rows, Top 10, genres, Discover, climbers) follows the choice. Remembered on this device, starting from My services. The Genres box in the side column is gone; a genre dropdown now sits next to Shows and films, lists the genres there are titles for (A to Z), and keeps the rainbow underline while one is picked. Tenner 2.24.0. The right-hand round button opens a Filters menu that slides in like the left menu, holding Shows or films and Genre (any control marked data-filter joins it). Search moves to the left, under the menu button. Discover's round buttons take Tenner's round button style, and Help me choose gets an icon. Tenner 2.25.0. One shared page width (--max, 1560px) and one left edge (--page-left) for every page's content, so Browse, Settings, About, Contact, Cast & Crew, Discover, the account and legal pages and Tenner TV line up with the homepage. Phones unchanged."
+ },
+ {
+  "version": "2.21.2",
+  "date": "2026-11-01",
+  "title": "The home page drops its Home heading (kept for screen readers); the six services lead the page, with Shows and films beside them",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.21.1",
+  "date": "2026-11-01",
+  "title": "The services row moves to the top of the home page, under a slightly smaller Home heading",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.21.0",
+  "date": "2026-11-01",
+  "title": "The Top 10 lives on the home page only. Its own page goes (old links and the menu's Top 10 now open Home), leaving charts.html as New This Week and Watchlist, and the code and styles only it used are removed. The home page's Top 10 box is compact: all ten for shows or films, and for both the first five of each with See more to open out six to ten",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.20.0",
+  "date": "2026-11-01",
+  "title": "The home page's featured titles become what's popular for shows, films or both, without chart numbers; the Trending row goes, and the Top 10 itself gets a numbered box in the right-hand column that follows the same choice",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.19.0",
+  "date": "2026-11-01",
+  "title": "What should I watch tonight? moves out of the home page's rows into its own box in the right-hand column, under Discover",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.18.1",
+  "date": "2026-11-01",
+  "title": "Removes the big \"Tenner\" that zoomed across the screen when the site first opened",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.18.0",
+  "date": "2026-11-01",
+  "title": "The new home page goes live. The redesigned page becomes the homepage, with What should I watch tonight? in its rows; the Top 10 moves to charts.html, every menu gains Home, and old links (#new, #watchlist, beta.html, start-page settings) still land in the right place. Audit fixes: the Shows and films menu no longer cuts its label short on phones",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.17.2",
+  "date": "2026-11-01",
+  "title": "The beta home page's artwork glow runs the full width of the window, under the sidebar too, so it no longer stops in a hard line beside it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.17.1",
+  "date": "2026-11-01",
+  "title": "The beta home page's Discover card no longer pops out into a hover card, so it can be swiped and tapped",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.17.0",
+  "date": "2026-11-01",
+  "title": "Fixes the sidebar on every page (taking TV Guide out of the menu had left half a style rule behind, which switched off the computer layout). The beta home page's Keep watching box becomes Discover: a poster card to swipe right to save or left to skip, with skip, details and save buttons, sharing its skips with the Discover page",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.16.0",
+  "date": "2026-11-01",
+  "title": "TV Guide leaves the menu for now; the beta home page gets its own box inviting you to try it (it's in beta), with a button to visit. The beta page's side boxes are frostier and more see-through, so the artwork glows through",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.15.2",
+  "date": "2026-11-01",
+  "title": "The beta home page's featured title now has ten picks, five posters showing at a time (four on smaller computers), with little round arrows beside them to see the rest",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.15.1",
+  "date": "2026-11-01",
+  "title": "The beta home page gets the Top rated shows and films at a glance lists (the home page's two-column list), kept to the service and genre you pick. The poster row above becomes Most popular so the two don't repeat",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.15.0",
+  "date": "2026-11-01",
+  "title": "A beta home page to try. A hidden preview of a redesigned home (beta.html, not in the menu and noindex): a big featured title with its scores in a frosted box and its genres as pills, the six services as a rail of app icons that filter everything, rows of what's trending, top rated and newest, and a side column with the shows you're watching, genres to narrow the rows and this week's biggest climbers. Reached from a small Beta link at the very bottom of About",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.13.0",
+  "date": "2026-11-01",
+  "title": "One corner and one frost across the site. Every button, search bar, box, card, panel, sheet and poster now uses the same 9px corner (--r), and every box, bar, search box and popup shares the My services card's frosting (--fr-bg over --fr-blur, with --fr-rim), with boxes inside them a faint tint. Buttons keep their deep tint, now a touch see-through over the same blur",
+  "changes": [
+   "Title sheet: show which charts a title is No. 1 on now, or has been"
+  ],
+  "notes": "The hourly build now keeps, per title, the days it spent at No. 1 on the UK chart and on each service's own chart (filled in once from the last month kept), and trail.json marks the charts it tops right now plus each service's logo. The sheet's On the Chart section lists them under the stats, the ones it tops now first. Version 2.14.0."
+ },
+ {
+  "version": "2.12.3",
+  "date": "2026-11-01",
+  "title": "Buttons, bars and the search box a touch squarer again (9px corners on buttons, 12px on the hero button, 13 to 15px on bars and search boxes)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.12.2",
+  "date": "2026-11-01",
+  "title": "Buttons, bars and the search box are a touch squarer (11px corners on buttons, 14px on the hero button, 15 to 18px on bars and search boxes)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.12.1",
+  "date": "2026-11-01",
+  "title": "Buttons, pills, bars and Browse's search box are softly rounded rectangles instead of capsules (the search box, the collections bar, the phone tab bar, Shows / Films / Both, the segmented switches, Settings' menus and pills, the share card's buttons and the phone menu's rows). Icon-only buttons stay round",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.12.0",
+  "date": "2026-11-01",
+  "title": "The sidebar is a little wider (280px), and search results now fill it in place of the menu, as they do on phones. Clear the box and the menu comes back. Tablets keep the floating results",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.11.2",
+  "date": "2026-11-01",
+  "title": "The star in a title's sheet becomes a round heart button. It's a grey circle with an outline heart, and turns red with a filled heart once you love something (it still gives the same thanks and helps For You)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.11.1",
+  "date": "2026-11-01",
+  "title": "The sidebar goes back to its original shape (full height against the window's edge, no rounded pane, rim or row lines), keeping the lighter frost, regular-weight names and plain monochrome icons",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.11.0",
+  "date": "2026-11-01",
+  "title": "The liquid glass update is undone. Buttons now have solid, deep tinted fills with white words and icons, in softly rounded rectangles (circles for icon-only buttons). The sidebar is a fixed frosted pane with plain icons and thin lines between rows. My services is now laid out like the iOS Subscriptions card, with a round back button, Active and Inactive cards and the all-six switch at the foot",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.10.0",
+  "date": "2026-11-01",
+  "title": "Liquid Glass. Every pane of glass gets a specular rim that catches the light at its top-left and glints at its bottom-right, with a soft sheen inside the top edge. Buttons and pills become capsules, the sidebar floats as a pane of glass inside the window, the chart list sits on one glass slab with rounded hover tiles, and Settings, Browse's filters, the collections bar, sheets, menus and search results share the same glass",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.9.0",
+  "date": "2026-11-01",
+  "title": "Browse gets its big artwork and rainbow title back, with a new search: one deep pane of glass with a fine rainbow rim and a soft glow of Tenner's colours that lights up and slowly turns while you type, a hint that cycles through what's popular, and Shows / Films / Both as the system's own menu inside it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.8.0",
+  "date": "2026-11-01",
+  "title": "A calmer Browse header. A large title over the artwork with its tools beside it (a glass search field, Shows / Films / Both as the system's own pop-up menu, round Surprise me and Filters buttons), and the collections in one floating glass bar with the rainbow underline",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.7.0",
+  "date": "2026-11-01",
+  "title": "Tenner sticks to streaming. The buy-or-rent charts come out; prices and price-drop alerts stay",
+  "changes": [
+   "Gone: the Sky Store and Rakuten TV charts, the \"Buy or rent\" menu group, the combined Buy or rent chart and its home page card, Browse's Buy or rent collection, and buy-or-rent titles in Discover",
+   "Old links (#store, #skystore, #rakuten, Browse's c=store) fall back to the Top 10 and Browse's Popular",
+   "Kept: a title's sheet still shows where to rent or buy it and the cheapest price, and the Watchlist's cheaper-to-rent alerts carry on; the build still prices the popular new films to buy or rent, just without a chart",
+   "About's FAQ, the Terms page and the README no longer point at the buy-or-rent chart"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.6.0",
+  "date": "2026-11-01",
+  "title": "Search from any page, in the sidebar under the logo (top of the menu on phones), with results as you type",
+  "changes": [],
+  "notes": "Matches the way Browse does (the matching now lives in shell.js and Browse reuses it): this hour's catalogue first, then every other film and show from the search service, and a row for the full results in Browse. Results open the title sheet. / and Cmd+K focus it on every page but Browse, which keeps its own box."
+ },
+ {
+  "version": "2.5.0",
+  "date": "2026-11-01",
+  "title": "Much more from TMDB in every title's sheet: the title's logo over the artwork, Episodes by season (ticked off up to where you are), Trailers & Extras, the film series, More Like This, Reviews, Information, and IMDb and official site links",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.4.1",
+  "date": "2026-11-01",
+  "title": "Hover cards on every title on computers, including Top rated at a glance, the Watchlist, This Week, New, cinema rows and every credit on Cast & Crew (not the hero's own button)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.4.0",
+  "date": "2026-11-01",
+  "title": "A \"Buy or rent\" group in the menu, with Sky Store and Rakuten TV each opening its own chart",
+  "changes": [
+   "A store's chart says so everywhere: \"Top 10 Shows to buy or rent\", \"On Rakuten TV · Pay per title, no subscription\", and badges like \"No. 1 to buy or rent on Rakuten TV\"",
+   "On a store's chart the menu marks the store, not Top 10, and Choose your services steps aside (it's subscriptions only)",
+   "A store with no chart this hour drops out of the menu until it's back"
+  ],
+  "notes": "The stores' charts had no way in. Now they sit under the pages, in the sidebar on computers and the menu on phones, under a \"Buy or rent\" heading so they read differently from the subscription services, each with the store's logo."
+ },
+ {
+  "version": "2.3.0",
+  "date": "2026-11-01",
+  "title": "Hover cards get their own version number (2.2.0 was already Rakuten TV's)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.2.0",
+  "date": "2026-11-01",
+  "title": "Rakuten TV joins Sky Store as a store, with its own chart of shows and films to buy or rent",
+  "changes": [
+   "One more entry in SHOPS, matched to TMDB's UK where-to-watch providers; Browse's Where to watch filter picks it up too",
+   "Each store's run logs how many UK titles TMDB lists for it, and a store with fewer than 10 gets no chart (a warning instead)",
+   "The sheet's Rakuten TV links already go to rakuten.tv/uk/search",
+   "Take out a sample prices file committed by mistake (the hourly run writes the real one)",
+   "On computers, resting the pointer on a poster opens it up into a hover card (artwork, title, genre, age rating and length, Watch, Watchlist and Trailer, a short description and the lead cast); click it for the full sheet. Replaces Browse's old preview; touch screens unchanged"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.1.2",
+  "date": "2026-11-01",
+  "title": "About's handwritten note moves to the right, above trending?, its arrow curling down onto it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.1.1",
+  "date": "2026-11-01",
+  "title": "About's handwritten note now sits above What's trending?, the charts section in Dan's words, Features label, and 1,100+ no longer clipped",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.1.0",
+  "date": "2026-11-01",
+  "title": "On computers a title's trailer starts by itself, with the sound off, a moment after it opens, with a glass sound button beside Close (Trailer turns the sound on too); never on phones, with Reduce Motion or Data Saver, and it can be turned off in Settings",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "2.0.1",
+  "date": "2026-11-01",
+  "title": "About in Dan's words (What's trending?, the numbers, Something for everyone) and the Tenner app, coming soon",
+  "changes": [
+   "The splash leads with What's trending? and the six services; its No. 1 card sits above the words on phones, so a longer headline never runs under it",
+   "The numbers: 6 streaming services, 24 chart updates a day, 1,100+ shows and films (and thousands more to search), 0 adverts",
+   "Something for everyone heads the tiles; a new Coming soon card for the Tenner app, with how to add Tenner to the Home Screen meanwhile"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "2.0.0",
+  "date": "2026-11-01",
+  "title": "A new About page, more depth as you scroll, easier taps, and Browse without the welcome popup",
+  "changes": [
+   "About: keeps the splash and its No. 1 poster in the corner, then six services in one chart (their own icons), Tenner in numbers, a bento of everything Tenner does (each tile a way in), Private by design, the little things, and the FAQ in its own style, with answers brought up to date (accounts, alerts, feedback) and three new ones",
+   "Parallax, scroll-driven so it runs off the main thread, only with Animations on and never with Reduce Motion: About's splash zooms while its words lift away, the service icons and tiles settle in; Browse's spotlight zooms and its genre tiles fan out; the Cast & Crew wall sinks behind the page; New and the Watchlist settle in section by section",
+   "Taps: the Watchlist's remove buttons, Browse's + and Posters/List switch, Choose your services and Forgot password answer to a 44pt area",
+   "Cut: Browse's one-time \"Hey you!\" popup (it interrupted the first visit); what it kept on the device is tidied away"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.64.0",
+  "date": "2026-10-31",
+  "title": "Your account's colour now tints the menu links, and only them",
+  "changes": [
+   "Title sheet: Watch on the service it's actually on in the UK",
+   "Tenner TV 3.0: Liquid Glass facelift, On now, reminders, channel pages, films and new series, jump to a time, share, and sign in with Tenner (Tenner 1.65.0)",
+   "Facelift: one sticky bar of glass for the controls (view, channels menu, time menu, reminders, search), selectors with gliding thumbs, the artwork you point at washing the top of the page and on under the sidebar, frosted programme tiles with a progress line on what's live, sheets with their artwork blurred inside, iOS-style toasts and alert banners",
+   "On now: a glass tile for every channel, with how far in it is and what's next (or what's on at the time chosen)",
+   "Reminders: Remind me on anything to come; an alert and a notification 5 minutes before; Add to Calendar (.ics with its own alarm); a Reminders list with Add all to Calendar",
+   "Channel pages: tap a channel for its whole week, day by day; pin it to the top from there",
+   "Shelves: Films this week and New series, from the whole week's listings",
+   "Jump to a time (Now, 9am to 11pm) glides every channel there; Share sends a link that opens the programme's sheet",
+   "Sign in with your Tenner account: tenner.stream hands Tenner TV a session of its own (/me/handoff); pins and reminders are kept in the account (merged as tv, untouched by tenner.stream's syncs); your Watchlist's titles get a shelf when they're on TV this week",
+   "Tenner TV 3.1: no round glass, and a popular programme's artwork melting into the top-right corner",
+   "Controls are rounded rectangles now (the days, the view switch, the menus, buttons, close buttons, toasts), concentric inside their bar, with the menus as native pop-up menus",
+   "The corner: the evening's most popular programmes with artwork (Tonight's picks, best first), one at a time, cross-fading every 9 seconds (still with Reduce Motion), faded into the page; tap it for the programme's sheet",
+   "The old artwork wash behind the page is gone (the corner takes its place)",
+   "Tenner TV 3.2 (a test): borderless. No rims, outlines, hairlines or shadows round controls; plain icon-and-word buttons; boxes a faint tint; selections shown by the rainbow underline; the toolbar a soft frosted fade when stuck",
+   "Tenner TV 3.2.1: the toolbar is completely see-through (no fade behind it)",
+   "Tenner TV 3.2.2: the corner artwork runs to the edge of the screen on wide screens and fades softly at the bottom (no straight edges); phones show just the picture, and the days fade at the edge",
+   "Tenner TV 3.2.3: no empty boxes (a programme without a picture, or one that won't load, shows its title on its own colours, and the preview the channel's logo); the corner skips a picture that won't load, and reaches down into the top of the guide, fading as it goes",
+   "Tenner TV 3.2.4: the menu's Beta badge becomes a New badge in Apple's tinted style, matching tenner.stream's menu"
+  ],
+  "notes": "The main button showed Watch on Netflix whenever Wikidata had a Netflix ID, even for titles on Netflix only in other countries (Supernatural is on HBO Max here). It now follows TMDB's UK providers and names that service; the Netflix UK chart's own link is preferred for Netflix. Version 1.64.1."
+ },
+ {
+  "version": "1.63.0",
+  "date": "2026-10-31",
+  "title": "Your account: the Settings design (large title, panel in columns, picture card, grouped lists, coloured tiles), signed in and out",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.62.1",
+  "date": "2026-10-31",
+  "title": "Version bump so the delete warning and service names don't share a cache",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.62.0",
+  "date": "2026-10-31",
+  "title": "Service names: hover (or press and hold) a service logo to see its name",
+  "changes": [
+   "Delete account: a final \"Are you sure?\" warning after the reconsider popup; No goes back to Tenner, Yes deletes"
+  ],
+  "notes": "A small glass label over every logo-only service icon: the hero, New This Week's posters, the Watchlist, Browse and Discover tiles, New lists and Cast & Crew. Mouse hover, keyboard focus, or press and hold on a phone (a hold that shows the name doesn't also open the title)."
+ },
+ {
+  "version": "1.61.0",
+  "date": "2026-10-31",
+  "title": "Show password: an eye in each password box on the account page",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.60.1",
+  "date": "2026-10-30",
+  "title": "The title sheet's poster glides up and away as you scroll, and back at the top",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.60.0",
+  "date": "2026-10-30",
+  "title": "The title sheet's artwork stays put while the rest scrolls up underneath it",
+  "changes": [],
+  "notes": "Also drops the hairline rim on the sheet's close button."
+ },
+ {
+  "version": "1.59.2",
+  "date": "2026-10-30",
+  "title": "No hairline round any popup",
+  "changes": [],
+  "notes": "The title sheet, My services, the tonight picker, Browse's alerts, the account alerts, the share card, the phone menu, the theme menu and Browse's hover preview lose their thin edge; a soft shadow lifts them off the page instead."
+ },
+ {
+  "version": "1.59.1",
+  "date": "2026-10-30",
+  "title": "No hairline round the tonight picker, and no ring on its close button",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.59.0",
+  "date": "2026-10-30",
+  "title": "A version of its own for the descriptions (1.58.0 went to the tonight picker)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.58.0",
+  "date": "2026-10-30",
+  "title": "The tonight picker gets icons, illustrated steps and a phone sheet",
+  "changes": [
+   "Every title sheet shows its description"
+  ],
+  "notes": "Each answer has its own gradient icon, each step opens on a little scene of them, a rainbow progress bar replaces '1 of 3', answers become tiles on a computer, the picker is a bottom sheet with a grabber (pull down to close) on a phone, and the picks show as three posters across on a computer. The homepage card gets the icons too. Titles opened without one (the Watchlist, shared links, Cast & Crew) or with a shortened one fetch the full description from the search API, with placeholder lines meanwhile; long ones show four lines, then More."
+ },
+ {
+  "version": "1.57.1",
+  "date": "2026-10-29",
+  "title": "No gap at the top of the homepage",
+  "changes": [],
+  "notes": "The opening zoom put a class called intro on the whole page, which picked up the page header's .intro padding (22px on computers, 8px on phones) and pushed the sidebar artwork and hero down. It's now intro-on."
+ },
+ {
+  "version": "1.57.0",
+  "date": "2026-10-29",
+  "title": "Settings in columns, with an account card and data tiles",
+  "changes": [],
+  "notes": "Settings becomes one rounded panel in three columns on computers (two on tablets, one on phones): your account as a big picture card with a pill button, the settings as grouped lists, and your data as tiles with an icon, a line of help and a chevron. The Saved note floats up like a toast. The sidebar menu stays as it was."
+ },
+ {
+  "version": "1.56.4",
+  "date": "2026-10-25",
+  "title": "One look for every control, nothing out of line",
+  "changes": [
+   "Watchlist's alerts card: corners that echo the controls inside (24px), its button and close button centred and the same height, and on phones the words get the width with Turn on beneath them",
+   "Every pop-up menu (Settings, the title sheet, Contact) uses the same up-and-down chevron as the Shows/Films menu, and every control shares one 12px corner",
+   "Settings' menus are one width, so they line up down the page; 36px like the buttons",
+   "The Shows/Films menu matches the buttons' 36px height",
+   "\"Choose your services\" stays on one line beside the menu on the smallest phones",
+   "On computers, every page's title starts on the same line (Settings, Contact, Privacy, Discover and Cast & Crew were higher than the rest)"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.56.3",
+  "date": "2026-10-25",
+  "title": "Remove the outline from the tonight card and its button",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.56.2",
+  "date": "2026-10-25",
+  "title": "The title sheet's buttons take Tenner's frosting",
+  "changes": [],
+  "notes": "Not the glass sheen and rim: the same faint milky frost (blurred) as a list row you point at, a little stronger on hover; solid with Reduce Transparency."
+ },
+ {
+  "version": "1.56.1",
+  "date": "2026-10-25",
+  "title": "Frosted buttons on the title sheet",
+  "changes": [],
+  "notes": "The sheet's Trailer / Watch, Watchlist, star and Share buttons get a frosted glass finish: a milky sheen lighter at the top, a bright top edge and a soft shadow, in light and dark (solid when Reduce Transparency is on). README lists #appletv."
+ },
+ {
+  "version": "1.56.0",
+  "date": "2026-10-25",
+  "title": "Apple TV's own No. 1s in the hero and the splash",
+  "changes": [],
+  "notes": "On All, the UK-wide chart can leave a service out (Apple TV's titles are rarely the UK's most popular), so each service that isn't in it adds its own No. 1 show or film to the hero on computers, the banners on phones and About's splash, badged \"No. 1 show on Apple TV\". The share picture lists Apple TV too."
+ },
+ {
+  "version": "1.55.0",
+  "date": "2026-10-25",
+  "title": "Apple TV joins the services",
+  "changes": [],
+  "notes": "Apple TV (formerly Apple TV+) gets its own Top 10 of shows and films, a place in Browse, Choose your services, the title sheet, New and Leaving soon, Watchlist alerts and the Sunday email. It's matched by TMDB's provider 350 as well as its name, so the Apple TV store (also called \"Apple TV\") stays under buy or rent. Page text now says six services."
+ },
+ {
+  "version": "1.54.0",
+  "date": "2026-10-25",
+  "title": "TV Guide in the menu, with a New badge",
+  "changes": [],
+  "notes": "TV Guide (tv.tenner.stream) is the first row under More, in the sidebar on computers and the drawer on phones, with a small tinted New pill."
+ },
+ {
+  "version": "1.53.2",
+  "date": "2026-10-25",
+  "title": "The chart numbers stop shining again",
+  "changes": [
+   "Tenner TV 2.10.0: always dark, like tenner.stream's standard Night theme"
+  ],
+  "notes": "The rainbow turn on hover (rbTurn, a hue-rotate on the neon ranks) came back in the parallax trial's hover rule; take it out of both places, drop the will-change it needed, and note in CLAUDE.md and styles.css that the numbers never shine."
+ },
+ {
+  "version": "1.53.1",
+  "date": "2026-10-25",
+  "title": "No underline on the Settings Account row",
+  "changes": [],
+  "notes": "The Account row is the only Settings row that's a link, so it picked up the site-wide link underline on hover. Rows now keep their frosted hover without it."
+ },
+ {
+  "version": "1.53.0",
+  "date": "2026-10-25",
+  "title": "A kind \"are you sure?\" before deleting your account",
+  "changes": [],
+  "notes": "Keep my account is the clear primary; Delete account is one tap below it in system red. It says what goes (with the Watchlist count) and offers signing out as a break instead. Tap outside or Escape keeps the account."
+ },
+ {
+  "version": "1.52.1",
+  "date": "2026-10-25",
+  "title": "No jump while pages load, bigger taps, tidier words",
+  "changes": [
+   "Homepage: the heading is there from the first paint, so the chart no longer pushes the page down when it arrives (layout shift 0.11 → 0)",
+   "Browse: the collections keep their height before they arrive (layout shift 0.13 → 0.02)",
+   "44pt taps on Browse's collections, the row headings' links and See all, with the same look",
+   "The hero says Series like the rest of Tenner; the sidebar's Sign in line fits (\"Sync your devices\")"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.52.0",
+  "date": "2026-10-25",
+  "title": "Remove a device you're signed in on",
+  "changes": [],
+  "notes": "Each other device in the list gets a Remove button. It asks first, then signs that device out on the server (DELETE /me/sessions/:id), so its token stops working straight away. This device still signs out with the slide."
+ },
+ {
+  "version": "1.51.1",
+  "date": "2026-10-25",
+  "title": "Shared Watchlist uses the site's list, privacy note stays on screen",
+  "changes": [],
+  "notes": "A Watchlist opened from a shared link now shows its titles in the same two-column list as the Watchlist tab (one column on phones), across a wide centred column, instead of a shrunken grid of big posters. The privacy note on computers is capped to the window's width so it can't run off the right edge."
+ },
+ {
+  "version": "1.50.0",
+  "date": "2026-10-25",
+  "title": "The About page's indie note looks written on in pen",
+  "changes": [
+   "Tenner 1.51: ten new features in the existing design",
+   "Link previews for every title: an hourly page per title (t/<key>/) gives shared links its artwork, name and where it streams; Share uses it",
+   "Tenner offline: Watchlist titles' details and posters kept by the service worker, recent sheets work offline, data cached on install, background refresh in the installed app",
+   "Paste (⌘V) or drop an IMDb, TMDB, Letterboxd, JustWatch or Tenner link anywhere to open its sheet",
+   "Drop an export file onto Settings to import it",
+   "Search Tenner from the browser's address bar (OpenSearch), and a Search shortcut on the app icon",
+   "Home Screen badge: Watchlist shows with a new episode out today",
+   "Sheet keyboard shortcuts: W Watchlist, T trailer, S share, E mark watched",
+   "Morning alerts: Watchlist titles on Freeview today, and films that got cheaper to rent or buy",
+   "Faster page changes: pages prefetched as you point at a link",
+   "Watchdog checks the title pages"
+  ],
+  "notes": "The note beside the headline is now Caveat handwriting (self-hosted, one weight, trimmed to Latin) in solid ink, with a slight hand's wobble from an SVG filter, a clean drawn arrow and an underline under \"independently\". With animations on, it writes itself word by word, then the underline, then the arrow."
+ },
+ {
+  "version": "1.49.1",
+  "date": "2026-10-25",
+  "title": "And Tenner TV 2.9.1: On TV this week loads on tenner.stream, and the sheet never waits on it; the services planner asks for each title once",
+  "changes": [],
+  "notes": "On TV this week is now read from /api/onair, which runs through the Worker and carries the cross-site header (a file in public/ is served without the Worker, so /data/onair.json never had it). The watchdog and a new Tenner TV check follow the new address."
+ },
+ {
+  "version": "1.47.2",
+  "date": "2026-10-25",
+  "title": "Tighter spacing across the site, so pages show more and the search no longer takes half a phone screen",
+  "changes": [
+   "Tenner 1.48: varied titles in every hero, and no card over Browse's spotlight",
+   "Tenner 1.49 and Tenner TV 2.9: five new features in the existing design",
+   "Smarter Watchlist alerts: each morning, a notification when a show on your Watchlist has a new episode out today, or a title on it leaves its service within three days",
+   "Subscription planner: My services shows how much of your Watchlist each service has, and which one you could pause",
+   "On TV this week: a title's sheet lists its next Freeview showings, opening Tenner TV's search for it (Tenner TV builds the list every 3 hours; the watchdog checks it)",
+   "Bring your history in: Import also reads Letterboxd, IMDb, Trakt and Netflix exports; Tenner is a share target for IMDb, Letterboxd, JustWatch and TMDB links",
+   "Sunday email: an opt-in weekly round-up of your Watchlist (Resend, confirmed addresses only, one-tap unsubscribe)",
+   "Sweep: no console error on page changes, Inter fetched only where it's used, fonts kept across updates, Watchlist and Contact offline"
+  ],
+  "notes": "Browse's header on phones no longer reserves 46% of the screen, and its title is a little smaller, so the search bar sits near the top. Section headings, the top bar, page titles, cards, lists and page ends all have a little less space around them on every page (Top 10, New, Browse, Discover, Cast & Crew, Watchlist, Settings, Account, About, Contact and the policies). Tap targets are unchanged. Each device remembers when a title last had the spotlight (tenner-featured). The homepage hero picks 8 of the whole chart, the phone banners 6, and Browse's spotlight 5 of its top 24, those featured longest ago (or never) first, ties shuffled, each title once. A redraw keeps the same line-up and the title that's showing. Browse's spotlight is now just the artwork: the frosted card (poster, rank, title, dots, play) is gone. The WhatsApp icon's path is spaced out so the version bump stops rewriting it."
+ },
+ {
+  "version": "1.47.1",
+  "date": "2026-10-25",
+  "title": "The opening Tenner zoom plays for everyone (still never with Reduce Motion)",
+  "changes": [
+   "Tenner TV 2.8: a weather alert in the top right when the Met Office has a warning out",
+   "/api/warnings on the Tenner TV Worker reads the Met Office's public UK warnings RSS feed (no key), keeps it 10 minutes at the edge and the last good copy in KV; it's refreshed on the half-hourly schedule too",
+   "Tv/test.mjs checks the feed is read correctly (UK times, worst first, finished ones dropped) and that an outage falls back to the last copy, or to no warnings",
+   "The watchdog checks the warnings keep coming through"
+  ],
+  "notes": "Bad weather can knock a satellite dish or an aerial out, so when the Met Office has a warning in force or coming up, a notification box glides in beside the headline (above it on smaller screens), flashes red twice and gives the warning: its level and type, where, when, what it can do to the TV signal, and a link to the full warning on the Met Office site. The worst warning leads, with any others listed below it. Closed with its ×, it stays closed until a new warning appears (or one is raised or extended). Reduce Motion: it just appears, with a steady red rim."
+ },
+ {
+  "version": "1.40.1",
+  "date": "2026-10-24",
+  "title": "Discover deals from the whole catalogue: every service, and to buy or rent",
+  "changes": [
+   "Discover: easier desktop swiping, trackpad swipes, mostly the five services",
+   "Cast & Crew: round portraits, calmer hero, the house list for careers",
+   "Keynote gradient on page headlines; Cast & Crew's wall shows random faces from all of TMDB",
+   "New: At the Cinema and Coming to Cinemas (UK dates and certificates, from TMDB)",
+   "Cast & Crew: the Top 10 People first, no faces row; list rows frost faintly on hover",
+   "Watchlist: \"You have N titles on your Watchlist\", the count in bold",
+   "About: a handwritten note with a drawn arrow, pointing at \"every hour.\"",
+   "One text font everywhere; the display font only for big headlines",
+   "Browse on phones: one glass layer, every control 36px with concentric corners, collections in one scrolling line",
+   "Stars: a star beside Watchlist in the title sheet (phones), synced with your account, feeding For You",
+   "Suggestion cards in Browse, starting with an American Horror Story 13 card (with short synthesised sounds)",
+   "AHS card: an original title-sequence-style sound (glitch pulse, scrape, swell, hard cut); the creak made audible",
+   "AHS card: just the heartbeat",
+   "Tenner TV: what's on UK TV tonight, at tv.tenner.stream (a Cloudflare Worker with TVmaze listings)",
+   "Tenner TV: a real guide (preview panel, channels against the clock, now line, categories, pinned channels)",
+   "Tenner TV: each channel scrolls through its day on its own (as on Pluto TV), titles held at the edge, softer preview art",
+   "Tenner TV: glass guide over a wash of the previewed artwork, channel logos from TMDB, full-size pictures (posters never cropped)",
+   "Tenner TV: fix the missing descriptions and genres; shared listings in KV kept fresh every half hour; last good copy during an outage",
+   "Tenner TV: Watch live buttons (official players), a test before every deploy; a self-healing watchdog for all of Tenner",
+   "Watchdog: full link addresses; keep checking after a network hiccup",
+   "Tenner TV: strips run on through the whole week, logos beside channel names, a Beta badge",
+   "Watchdog: say it's from Tenner to the search service; check Tenner TV at its own Cloudflare address",
+   "Notes: how Tenner runs by itself",
+   "Tenner TV 2.0: complete Freeview listings for the 35 main channels (rebuilt every 3 hours), sharp logos on dark tiles, smoother scrolling",
+   "Tenner TV 2.1: two review passes. Borderless guide that blends into the page; cached time formatting; settled hover preview; no oversized glass blur; calm retry after a failed day; midnight rollover; arrow-key grid navigation; swipe-down sheet; duplicate programmes dropped",
+   "Tenner TV 2.2: a calm static wallpaper for both themes, and the preview artwork blends into the page like the homepage hero",
+   "Tenner TV 2.3: compact preview card with a small still; nothing moves behind the guide any more",
+   "Tenner TV 2.4: smooth day switching. Every channel glides to the day together on one curve, with a small bounce where it lands; no flicker through the days in between; the last tap wins; the preview follows the day; the page never jumps; no snap-back on swipes; new days drawn without stalling; spring presses, a rising headline, rows that rise in and pins that glide to the top",
+   "Tenner TV 2.5: Tenner's sidebar on computers, with the guide to its right; the guide runs on to the edge of the screen and fades there; rows near the end of tonight reach their place once tomorrow loads; pins and categories reorder rows in place (instant, and each keeps its place in the week); one-line hint and fading categories",
+   "Tenner TV 2.6: search every channel all week (/ or ⌘K); opens instantly and works offline (service worker); add to Home Screen as an app; listings start downloading with the page; compact listings (26% smaller); logos sized for where they're shown (half the weight)",
+   "Watchdog: check Tenner TV's compact listings by title and start time",
+   "Tenner TV 2.7: when search finds nothing on TV this week, it suggests the films and shows of that name you can stream, each opening its page on tenner.stream (the search service now answers tv.tenner.stream)",
+   "Watchdog: check the search service keeps answering Tenner TV",
+   "Tenner 1.47: a big Tenner zooms in when the homepage opens (once a visit, only with animations on, never with Reduce Motion)"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.40.0",
+  "date": "2026-10-24",
+  "title": "Discover in the menu on every screen; Browse loses Recently Viewed and the Discover card",
+  "changes": [
+   "CLAUDE.md: the owner's HIG references, Apple's three principles and the areas every design is checked against"
+  ],
+  "notes": "The tab bar on tablets and small laptops is a touch tighter (and shows just the logo) so all five tabs fit."
+ },
+ {
+  "version": "1.39.1",
+  "date": "2026-10-24",
+  "title": "Browse: remove the Only on… collection; add CLAUDE.md, the design and working rules every session follows",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.39.0",
+  "date": "2026-10-24",
+  "title": "Discover on computers, found from a card on Browse",
+  "changes": [],
+  "notes": "Drag with the mouse or use the arrow keys. It stays out of the computer sidebar; Browse is the way in."
+ },
+ {
+  "version": "1.38.3",
+  "date": "2026-10-24",
+  "title": "Security hardening and the Browse collections bar fitting the page",
+  "changes": [
+   "Forgot password: at most one email a minute and three an hour per account",
+   "Confirmation emails: at most one a minute and five a day",
+   "Email links always point at tenner.stream, never at the address a request claims to come from",
+   "An address attached to someone else's account but never confirmed gets its own account when its owner resets the password (no pre-hijacking)",
+   "Sign-ins unused for six months expire"
+  ],
+  "notes": "Accounts: Deploy workflow: read-only GitHub permissions; the Cloudflare action pinned to the exact v3.15.0 commit. Site: the poster year is escaped like everything else. Browse: every collection fits on the page; words size to one line on computers and wrap on smaller screens."
+ },
+ {
+  "version": "1.38.2",
+  "date": "2026-10-24",
+  "title": "Watchlist: the alerts card can be closed with an ×, and stays closed",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.38.1",
+  "date": "2026-10-24",
+  "title": "Watchlist: Saved first, Coming Up below it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.38.0",
+  "date": "2026-10-24",
+  "title": "Browse: save from the grid, list view, For You, Recently Viewed, Surprise me, new collections and filters",
+  "changes": [
+   "+ on every poster adds it to the Watchlist without opening it",
+   "Collections: New this week, Only on…, Leaving soon",
+   "Filters: released (two-thumb slider), age rating, length",
+   "Posters or list view, remembered on the device",
+   "For You (from your Watchlist) and Recently Viewed rows",
+   "Surprise me picks a good one at random from what you're browsing"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.37.2",
+  "date": "2026-10-24",
+  "title": "Browse note: reworded",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.37.1",
+  "date": "2026-10-24",
+  "title": "Parallax: the top picture stays pinned and zooms in its frame instead of sliding away; phone banners no longer shrink back",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.37.0",
+  "date": "2026-10-24",
+  "title": "Browse: a one-time note that it's a work in progress, with a link to send feedback",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.36.0",
+  "date": "2026-10-24",
+  "title": "Homepage: parallax trial, scroll-driven layers with no script",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.35.2",
+  "date": "2026-10-24",
+  "title": "Tidy-up pass, new Browse wording, Sci-Fi instead of Animation",
+  "changes": [
+   "Browse: 'Search Netflix, HBO Max, Prime Video, Paramount+, Disney+ and more. Also, see Cast & Crew'",
+   "Explore by genre: Animation left out, Sci-Fi always has a tile",
+   "Dates on the chart pages use UK time throughout (Today was off between midnight and 1am in summer)",
+   "Offline: Settings and the legal page now work without a connection",
+   "Tonight picker reuses the catalogue the page already has",
+   "Privacy/Terms boxes fade out at the bottom instead of cutting off",
+   "Removed leftovers: unused helpers, an unused style, stale comments"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.35.1",
+  "date": "2026-10-23",
+  "title": "Watchlist: the homepage's chart list design, with a Shows/Films dropdown",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.35.0",
+  "date": "2026-10-23",
+  "title": "New: This Week's round-up (No. 1s, Biggest Climbers, New Arrivals) now heads the New page, with releases below",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.7",
+  "date": "2026-10-23",
+  "title": "New This Week: rows use the homepage's chart list design",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.6",
+  "date": "2026-10-23",
+  "title": "Menu: drop the Search tab, Browse is where you search",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.5",
+  "date": "2026-10-23",
+  "title": "Browse and Cast & Crew: hero artwork runs the full width and fades out, no hard edges",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.4",
+  "date": "2026-10-23",
+  "title": "Cast & Crew: the Top 10 People uses the homepage's chart list design",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.3",
+  "date": "2026-10-23",
+  "title": "Browse: genre tiles keep their rounded corners in Safari",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.2",
+  "date": "2026-10-23",
+  "title": "Contact: Return home after sending, instead of Send another message",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.1",
+  "date": "2026-10-23",
+  "title": "Discover: Shows, Films or Both as a native dropdown, like the Top 10",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.34.0",
+  "date": "2026-10-23",
+  "title": "Discover: swipe through shows and films on your services, phones only",
+  "changes": [],
+  "notes": "Right to add to your Watchlist, left to skip, down or tap for details, with Undo. On computers it shows a QR code to open it on your phone."
+ },
+ {
+  "version": "1.33.1",
+  "date": "2026-10-23",
+  "title": "Accounts: remove Sign in with Apple and Facebook Login",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.33.0",
+  "date": "2026-10-23",
+  "title": "Watchlist: a poster grid with glass badges, Shows/Films filter, stats and a softer alert card",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.32.1",
+  "date": "2026-10-23",
+  "title": "Cast & Crew: tidy the person hero — Back above the name, Best known for beside Share",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.32.0",
+  "date": "2026-10-23",
+  "title": "Cast & Crew redesigned: this week's faces drifting behind a big title, Browse's glass search bar, portrait cards with the title they're in, the Top 10 People This Week ranked Tenner-style; a person gets a cinematic splash with a large portrait, glass chips of facts, big figures (credits, years working, streaming now), Share, Watch them now (their titles on the five services, with the service icons), bigger Known For, and their career by decade with Shows and Films filters",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.31.1",
+  "date": "2026-10-23",
+  "title": "Cast & Crew in the menu works from the homepage (it went back to the Top 10); search history taken out for now, and any saved searches cleared from devices",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.31.0",
+  "date": "2026-10-23",
+  "title": "Recent searches on Browse: your last ten under the search box when you tap into it (tap one to search again, remove one, or Clear), kept on this device; the share button at the top right on phones has its icon centred",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.30.4",
+  "date": "2026-10-23",
+  "title": "Browse bar: Shows | Films | Both and Filters the same height and shape on every screen",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.30.3",
+  "date": "2026-10-23",
+  "title": "Browse search always covers everything as you type: matches on the five services first, then every other film and show, more as you scroll; no choice to make",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.30.2",
+  "date": "2026-10-23",
+  "title": "Browse search: no more '0 results' when only the full catalogue has it (the results say 'Not on your services right now' with Search everything); the Filters badge counts your services as one filter",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.30.1",
+  "date": "2026-10-23",
+  "title": "Shows | Films | Both (and the other switches) in the same glass as the Filters button beside it: soft corners, thin light rim, the chosen option a lighter glass tile; both the same height in Browse's bar",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.30.0",
+  "date": "2026-10-23",
+  "title": "Browse search can look through every film and show there is, not just the five services: a choice under the search box (remembered), with Every film and show loading more results as you scroll; the search API now pages",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.29.0",
+  "date": "2026-10-23",
+  "title": "Slide to sign out (the iPhone's slide-to-power-off way, Enter works too), with a switch to also remove your data from the device; Browse: genre tiles glow with their own top poster's colours behind dark glass instead of flat green and brown, and collections show a faint rainbow underline on hover instead of a grey box",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.28.0",
+  "date": "2026-10-23",
+  "title": "Email and password accounts confirm their email: a welcome email with a link (a day to use it), Check your inbox with Send it again, and no password sign-in until it's confirmed; a reset link counts as confirming; adding a password to an account confirms its address too; existing password accounts count as confirmed",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.27.0",
+  "date": "2026-10-23",
+  "title": "Sign up and sign in with an email and password too (stretched on the device, salted and hashed again on the server, a pause after repeated wrong tries); Forgot password? emails an hour-long reset link (through Resend, once its key is added); add, change or remove a password from your account; privacy policy updated",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.26.1",
+  "date": "2026-10-23",
+  "title": "Buttons in regular weight with smoothed lettering, not bold",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.26.0",
+  "date": "2026-10-23",
+  "title": "Continue with Apple and Continue with Facebook on the Account page (shown once their app IDs are set), alongside Google and passkeys; link or unlink either from your account; Facebook signs in on Facebook's own page with nothing from Facebook loaded on Tenner; privacy policy updated",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.25.3",
+  "date": "2026-10-23",
+  "title": "No white box around the Continue with Google button on a dark page",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.25.2",
+  "date": "2026-10-23",
+  "title": "Continue with Google switched on (the site's Google sign-in client ID, which is public)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.25.1",
+  "date": "2026-10-23",
+  "title": "Continue with Google is the first way to sign in on the Account page, with passkeys underneath",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.25.0",
+  "date": "2026-10-23",
+  "title": "Accounts (optional): sign in with a passkey (Face ID, Touch ID) or Google; your Watchlist, progress, services and settings kept in step on every device (newest change wins, removals included); alerts on every signed-in device follow your Watchlist; a profile with your name and picture or coloured initial; a public link to share your Watchlist; manage passkeys, linked Google and signed-in devices, sign out, delete; account in the sidebar and menu; privacy policy updated",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.24.0",
+  "date": "2026-10-23",
+  "title": "Browse, spatial: a full-width spotlight of the best five in whatever you're browsing (swipe it on a phone), a floating glass command bar with search, Shows/Films and Filters that holds at the top, collections as big type with a gliding rainbow underline, Explore by genre tiles of fanned posters, and posters that lean towards the pointer under a sheen of light and float in as you scroll",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.23.1",
+  "date": "2026-10-23",
+  "title": "The What should I watch tonight? card is see-through glass, so the artwork shows through",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.23.0",
+  "date": "2026-10-23",
+  "title": "Coming soon (the next month, with Add to Calendar) and Leaving soon on the New page; Watchlist alerts (web push through the Worker, set up by the deploy); What should I watch tonight? on the homepage; chart history on each title (days in a Top 10, peak, days at No. 1, a month's graph); cheapest rent and buy prices; Move to another device (QR code or link, nothing uploaded); a one-time Add to Home Screen tip on iPhone; glass buttons and pills everywhere; privacy policy updated",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.6",
+  "date": "2026-10-23",
+  "title": "A little less frosting on the row you point at in the Top rated list",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.5",
+  "date": "2026-10-23",
+  "title": "No panel behind the Top rated list; just the row you point at frosts over, a touch more solid, with square corners",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.4",
+  "date": "2026-10-23",
+  "title": "Smoother with animations on: the rainbow on a poster's number turns on the graphics card instead of redrawing its glow every frame (hovering posters was down to ~30fps, now 60), and no blur in the card and page entrances; Use all five always shows every switch turning on before the picker closes",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.3",
+  "date": "2026-10-23",
+  "title": "In the My services picker, Use all five switches every service on (and the picker shows all five on when none are chosen)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.2",
+  "date": "2026-10-23",
+  "title": "Choose your services sits closer to the Shows/Films drop-down",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.1",
+  "date": "2026-10-23",
+  "title": "Over the big artwork the Top rated list sits on a frosted panel and the row you point at frosts more strongly, so it reads in the light theme; a favicon.ico and 96px PNG icon so Google shows Tenner's icon in results",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.22.0",
+  "date": "2026-10-23",
+  "title": "The services are now a 'Choose your services' link (like 'See more in Browse') that opens the picker, and reads 'Your Services' once you've chosen; the icon stack and the services pop-up are gone; Shows/Films stays",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.21.1",
+  "date": "2026-10-22",
+  "title": "Phones go back to the homepage banners from 1.20.0 (the full-screen splash was too much on a small screen)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.21.0",
+  "date": "2026-10-22",
+  "title": "The homepage on phones opens like About: the top titles' artwork fills the top of the screen one after another, washed with Tenner's colours and melting into the page, a frosted card naming each one with dots (tap for where to watch, swipe the artwork to go back and forth), and the chart's heading big and bold over the faded part",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.20.0",
+  "date": "2026-10-22",
+  "title": "New This Week on phones matches the homepage: banners of the new arrivals (poster on the right, its colours behind, the words on the left), then each day as a bold heading over a list like Top rated at a glance (poster, title, service and what it is, the service's logo); clearer frosting behind the bar when scrolling",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.19.0",
+  "date": "2026-10-22",
+  "title": "Phones get a Rakuten-style menu: a round menu button opens a slide-out drawer laid out like the computer sidebar (pages, More, small print) as a floating glass panel with fully rounded rows; Share (or Search) is a round button at the top right; no tab bar along the bottom",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.18.0",
+  "date": "2026-10-22",
+  "title": "Phones get a Rakuten TV-style layout in Tenner's Apple style: wide artwork banners to swipe through (neighbours peeking, dots), posters three across with small gaps, bold section headings with round arrows, and the logo centred in the bar. Computers and tablets unchanged",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.17.1",
+  "date": "2026-10-22",
+  "title": "Bug sweep. Arrow keys in the service icons keep your place; the hero makes room for the taller header so the first posters peek in again; checked every page, route and control on phone, tablet and computer",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.17.0",
+  "date": "2026-10-22",
+  "title": "Shows / Films / Shows and films is a native pop-up right above the service icons; the icons are iOS rounded squares again (thin see-through rim, no black border); Share sits in the top-right corner",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.16.0",
+  "date": "2026-10-22",
+  "title": "No All icon (choose the service you're on again to go back to all); a cog at the end of the stack, always showing, for choosing your services; Shows | Films | Both and the other switches become round-ended capsules to match the round icons",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.15.2",
+  "date": "2026-10-22",
+  "title": "Share is a round button at the end of the controls row (beside the title on phones), so a long list of your services never pushes it onto a line of its own",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.15.1",
+  "date": "2026-10-22",
+  "title": "Service icons are circles (logos zoomed so they sit neatly inside), with a thin see-through rim instead of the black border; the phone pop-up button's icon matches",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.15.0",
+  "date": "2026-10-22",
+  "title": "Services as a stack of iOS app icons on computers and tablets: point at it and they fan out with a jiggle, the one you point at lifts and shows its name; All, Mine and choose-my-services included. Phones keep the native pop-up button",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.14.0",
+  "date": "2026-10-22",
+  "title": "The service bar is gone; services are one pop-up button beside Shows | Films | Both on every screen (the system's own menu), so nothing stretches across the artwork",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.13.3",
+  "date": "2026-10-22",
+  "title": "Support address is now support@tenner.stream (forwarded by Cloudflare Email Routing)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.13.2",
+  "date": "2026-10-20",
+  "title": "No more lines: the hero's text shade fades to nothing inside its own box (it was cut off into a vertical and a horizontal line), and no sidebar hairline over artwork",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.13.1",
+  "date": "2026-10-20",
+  "title": "Contact form as asked (What should we call you?, email, type of enquiry: Feedback, Suggestions, Support or Legal, message; Submit; thank-you with the 24-48 hour note), email required end to end; privacy note gets an app-style icon on the left",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.13.0",
+  "date": "2026-10-20",
+  "title": "Tenner's own privacy note: shown once, frosted, at the foot of the screen (no cookies or tracking; Watchlist and settings stay on this device), Got it puts it away for good; policy lists it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.12.3",
+  "date": "2026-10-20",
+  "title": "Sidebar keeps its Tenner name (the bar title is for phones and tablets); About loads its pictures one at a time, just before each one shows",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.12.2",
+  "date": "2026-10-20",
+  "title": "Every update arrives whole: pages always check for a newer copy, and scripts and styles carry the version, so a page never runs with an older version's files",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.12.1",
+  "date": "2026-10-20",
+  "title": "New This Week no longer stops at 'Loading' (a name clash in its list), checked with real-looking artwork",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.12.0",
+  "date": "2026-10-20",
+  "title": "Apple Beautify: iOS scroll edge and inline title in the phone bar; round Share beside the title on phones; shimmer placeholders while the chart loads; page-to-page View Transitions; Apple TV-style title card actions; On the Chart line fixed (flat lines vanished) with labels in a margin; Browse Filters beside Shows/Films/Both",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.11.0",
+  "date": "2026-10-20",
+  "title": "Share works as on Channel Crossings: the phone's own share sheet, or a black share card on computers (X, Facebook, WhatsApp, Telegram, Copy link, Save as picture) with a little drive-in scene; for charts and title cards",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.10.0",
+  "date": "2026-10-20",
+  "title": "Contact page is a form that sends straight to Tenner's inbox (via Cloudflare Email Routing; the address is a secret, never on the site); no To line; policy updated",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.9.3",
+  "date": "2026-10-20",
+  "title": "Title card label in plain words with a green/red movement badge; card artwork melts into the card (no hard line, poster no longer cut off) and fetches wide artwork when the hourly data has none; the blur at the end of poster rows fades top and bottom",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.9.2",
+  "date": "2026-10-20",
+  "title": "Tenner.stream. Link previews and the search service know the new address (the old one still works)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.9.1",
+  "date": "2026-10-20",
+  "title": "A soft shade behind the hero's words so they read on bright artwork",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.9.0",
+  "date": "2026-10-20",
+  "title": "Apple TV-style homepage hero (badge, big title, details with age rating, Where to watch and +, arrows, dots, autoplay with pause), keeping the artwork's fade into the page",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.8.0",
+  "date": "2026-10-19",
+  "title": "Bug sweep. Sidebar More section; Known For ranks by size of role; Back on splashes fixed with animations on; Forward reopens titles; faster, offline-sturdy service worker; responsive splash images; tidy-ups",
+  "changes": [
+   "API deploy check also tests Cast & Crew (Known For)",
+   "API check: show Known For as a notice",
+   "API workflow: checkout v5 (Node 24)"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.7.2",
+  "date": "2026-10-19",
+  "title": "Back on a person's splash always sits above the portrait and can be tapped",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.7.1",
+  "date": "2026-10-19",
+  "title": "Search API starts a fresh cache so person pages get their splash straight away",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.7.0",
+  "date": "2026-10-19",
+  "title": "Person pages open on a full-width splash of what they're best known for",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.6.3",
+  "date": "2026-10-19",
+  "title": "A filmography scrolls inside its own box, like the Terms",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.6.2",
+  "date": "2026-10-19",
+  "title": "Undated credits go to the end of a filmography",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.6.1",
+  "date": "2026-10-19",
+  "title": "Cast & Crew search icon sits above the frosted field in Safari",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.6.0",
+  "date": "2026-10-19",
+  "title": "Cast & Crew page, cast row in title sheets, people endpoints in the search API; Browse drops its title count",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.5.2",
+  "date": "2026-10-19",
+  "title": "The experimental version is gone, with all its code and the Settings row that opened it",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.5.1",
+  "date": "2026-10-19",
+  "title": "Every service in Where to Watch links somewhere that works (title pages, each service's tested search, or its home page), Sky Store included; one shared links.js for Tenner and the experimental version",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.5.0",
+  "date": "2026-10-19",
+  "title": "An experimental version, and the switch to it in Settings",
+  "changes": [],
+  "notes": "Site/lite/: just the Top 10 (Shows or Films, any service), Search, a title's sheet with where to watch, and the Watchlist, built from the system's own parts: its font and colours, inset grouped lists, the native pop-up button, search field and <dialog> sheet. No web fonts, no animations, about 30 KB in all. It reads the same hourly data and shares the Watchlist and theme. Settings > Tenner > Try an experimental version switches over: from then on the homepage sends you straight to it. Its own Settings > Tenner > Go back to the standard Tenner switches back. It's cached for offline use like the rest."
+ },
+ {
+  "version": "1.4.3",
+  "date": "2026-10-19",
+  "title": "Settings has a Tenner section for the experimental version row",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.4.2",
+  "date": "2026-10-19",
+  "title": "Every sheet is frosted glass; Settings ends with 'Try an experimental version of Tenner' (not linked yet)",
+  "changes": [],
+  "notes": "The title sheet, My services, the Theme card and Browse's filter sheet share one recipe (--sheet-bg, --sheet-blur), following Day and Night. Reduce Transparency turns them all solid."
+ },
+ {
+  "version": "1.4.1",
+  "date": "2026-10-19",
+  "title": "Browse's filter cards are frosted glass, and on phones the filter sheet is too",
+  "changes": [
+   "Every service in Where to Watch links somewhere that works (title pages, each service's tested search, or its home page), Sky Store included"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.4.0",
+  "date": "2026-10-18",
+  "title": "Sky Store as its own chart (shows and films to buy or rent) and a Browse filter; the phone tab highlight is back to its original shape",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.3.2",
+  "date": "2026-10-18",
+  "title": "Remove motion code the Animations setting has made redundant",
+  "changes": [],
+  "notes": "The per-page reduced-motion rules are covered by the one Animations switch (which is off whenever the device asks for reduced motion), and the old Reduce motion setting is dropped from saved settings and exports."
+ },
+ {
+  "version": "1.3.1",
+  "date": "2026-10-18",
+  "title": "With Animations off, nothing animates at all",
+  "changes": [],
+  "notes": "Animations and transitions are switched off outright rather than shortened to a blink, the backdrop no longer dims as you scroll, and page changes never crossfade. Settings > Animations brings them all back."
+ },
+ {
+  "version": "1.3.0",
+  "date": "2026-10-18",
+  "title": "No animations by default; turn them on with Settings > Animations",
+  "changes": [],
+  "notes": "The old Reduce motion switch becomes Animations, off to start. It's a new setting, so it starts off for everyone, including people who'd saved settings before. Every page marks itself still before it draws, so the opening animations never start; the device's own Reduce Motion still wins when Animations is on."
+ },
+ {
+  "version": "1.2.2",
+  "date": "2026-10-18",
+  "title": "Shows | Films | Both switches instantly (no glide, no crossfade)",
+  "changes": [
+   "Bump the shell cache and the version labels"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.2.1",
+  "date": "2026-10-18",
+  "title": "The chosen tab on phones is a circle; tidy-up (dead footer code, stale comments)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.2.0",
+  "date": "2026-10-18",
+  "title": "Settings (theme, reduce motion, start page, shows or films, My services, arrows, ratings, featured artwork, trailers, hide 18s, export, import and clear), from the sidebar and the phone's top bar",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.1.3",
+  "date": "2026-10-18",
+  "title": "The Theme card is a native popover; Safari shows real iOS switches in My services",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.1.2",
+  "date": "2026-10-18",
+  "title": "Native controls on phones (service and theme pickers are the phone's own, the title sheet is a native dialog, Browse filters make the page inert)",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.1.1",
+  "date": "2026-10-18",
+  "title": "Titles without direct links are re-checked daily",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.1.0",
+  "date": "2026-10-18",
+  "title": "Service links open the title itself (and the app on phones), using each title's IDs from Wikidata",
+  "changes": [
+   "Report direct-link coverage in the run summary"
+  ],
+  "notes": ""
+ },
+ {
+  "version": "1.0.1",
+  "date": "2026-10-18",
+  "title": "Footers removed (the small print lives in the sidebar, and at the end of About on phones); the version is set in one place",
+  "changes": [],
+  "notes": ""
+ },
+ {
+  "version": "1.0.0",
+  "date": "2026-10-16",
+  "title": "The first Tenner",
+  "changes": [
+   "The UK’s top 10 shows and films on each streaming service, rebuilt every hour",
+   "Netflix’s own official UK Top 10",
+   "Browse, with search",
+   "Where to watch: a sheet for every title, one entry per service",
+   "Chart movement: up, down, new and days at No. 1",
+   "Watchlist, kept on this device",
+   "My services: your own Top 10",
+   "An About page, Privacy Policy, Terms of Service and Contact",
+   "Install as an app, with an offline copy",
+   "Day and Night themes"
+  ],
+  "notes": "Tenner started life as Telly Top on 16 October 2026 and was renamed Tenner the same day. Version numbers began with 1.0.1."
+ }
+]

@@ -111,6 +111,10 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 ## How we work
 - Merge and push without asking. Always `git pull --rebase` first (the site is also edited from another device).
 - Bump the version with every update: patch for fixes, minor for features, with sed over `site/*.html site/shell.js site/sw.js`.
+- The Update centre (`updates.html`, opened from the build number in the menu) lists every release from `site/updates.json`.
+  Each build adds any new version by itself (`scripts/updates.mjs`): the commit subject `X.Y.Z: what changed` is the title,
+  `- ` lines in the body are the changes, other paragraphs the notes. So write release commits that way; to polish an
+  entry, edit it in `site/updates.json` (entries already there are never overwritten).
 - After each update: a quick code check, and remove any code that's no longer used.
 - Test what you change (Playwright on phone and computer sizes, both themes); run the worker's auth tests after touching accounts.
 
