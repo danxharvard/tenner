@@ -607,8 +607,8 @@
     if (!state.data) return;
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
-    if ($('#bxSide .bx-tt-i') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxSide .bx-tt-i', title: 'One Top 10 for the UK',
-      text: 'This chart combines every service, and the services you pick at the top only change the rows on the left. Tap the i to learn more, or By service for each one’s own chart.' });
+    if ($('#bxTt') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxTt', title: 'One Top 10 for the UK',
+      text: 'This chart combines every service. The services you pick at the top only change the rows on the left; By service has each one’s own chart.' });
   }
   // Tenner TV (the TV guide): its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {
@@ -722,27 +722,9 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2><button type="button" class="bx-r bx-tt-i" data-tt-info aria-label="About this chart" title="About this chart">${I.info}</button><a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2><a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
-  // the round i beside the Top 10: an iOS-style alert saying what this chart is, with the way on to each service's own
-  let ttDlg = null;
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('[data-tt-info]')) return;
-    if (!ttDlg) {
-      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg tt-dlg" id="ttDlg" aria-labelledby="ttDlgH" aria-describedby="ttDlgP" closedby="any"><form method="dialog">
-        <span class="tt-dlg-ic" aria-hidden="true">${I.info}</span><h2 id="ttDlgH">One chart for every service</h2>
-        <p id="ttDlgP"></p>
-        <div class="out-acts"><a class="btn btn-tinted" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>See each service’s chart</a>
-          <button class="btn btn-tinted" value="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>OK</button></div>
-      </form></dialog>`);
-      ttDlg = $('#ttDlg');
-      ttDlg.addEventListener('click', (ev) => { if (ev.target === ttDlg) ttDlg.close(); });   // tap outside to close
-    }
-    const names = services().map((x) => x.label);
-    $('#ttDlgP').textContent = `This Top 10 is the whole UK’s, combining ${names.length ? and(names) : 'every service'} into one chart. It stays the same whichever services you pick at the top of Home: those only change the rows on the left. For each service’s own top 10, see By service.`;
-    window.tn.haptic?.(); ttDlg.showModal();
-  });
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-tt]'); if (!b) return;
     ttOpen = !ttOpen; const box = b.closest('.bx-tt-box');
