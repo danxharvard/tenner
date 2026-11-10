@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.58.0';
+  const version = '2.58.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1325,32 +1325,49 @@
     document.addEventListener('pointerleave', () => { card?.style.removeProperty('--mx'); card?.style.removeProperty('--my'); card = null; });
   }
 
-  // ---------- Christmas lights: red, green and blue bulbs strung along the top of every page, from November until Boxing
-  // Day. A sagging wire with a bulb either side of each dip; they twinkle (a glow fading in and out, off the main thread)
-  // only when Animations are on, and stay softly lit otherwise. Never in the way: they can't be tapped and print nothing.
+  // ---------- Christmas lights: old-fashioned glass bulbs (the big C9 kind) in red, green and blue, strung on a sagging
+  // wire pinned to the top of every page (beside the sidebar on computers, never over it), from November until Boxing Day. The bulbs are drawn in one SVG (lit glass with a
+  // hot filament glow and a highlight); each bulb's halo is its own layer, so with Animations on it can twinkle (opacity
+  // only, off the main thread). Still otherwise, and under Reduce Motion. Never in the way: they can't be tapped.
   {
     const d = new Date(), m = d.getMonth();
     if (m === 10 || (m === 11 && d.getDate() <= 26)) {
       const xl = document.createElement('div');
       xl.className = 'xl'; xl.setAttribute('aria-hidden', 'true');
+      const C = { r: ['#fff6e8', '#ff5a47', '#e01b10', '#8f0c06'], g: ['#f4ffe9', '#4ef06e', '#16b23a', '#07601d'], u: ['#f1f8ff', '#55a6ff', '#1466f0', '#0a3590'] };
+      const defs = Object.entries(C).map(([k, [hot, lit, mid, deep]]) => `<radialGradient id="xl${k}" cx="46%" cy="40%" r="68%" fx="44%" fy="36%"><stop offset="0" stop-color="${hot}"/><stop offset=".18" stop-color="${lit}"/><stop offset=".62" stop-color="${mid}"/><stop offset="1" stop-color="${deep}"/></radialGradient>`).join('')
+        + '<linearGradient id="xlsk" x1="0" x2="1"><stop offset="0" stop-color="#16271d"/><stop offset=".38" stop-color="#3d6450"/><stop offset=".55" stop-color="#5f8a73"/><stop offset="1" stop-color="#101d15"/></linearGradient>'
+        + '<radialGradient id="xlhot"><stop offset="0" stop-color="#fffbe8"/><stop offset=".45" stop-color="#fff3c4" stop-opacity=".75"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>'
+        + '<linearGradient id="xlsh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>';
+      // a C9 bulb hanging from (0, 0): a metal socket with ribs, then the glass: lit colour, a warm filament core, a fine
+      // rim, a long highlight down one side and a glint
+      const glass = 'M-4.8 8C-8.8 11-9.4 18-6.7 23.8-4.7 28-1.9 31.7 0 33.2 1.9 31.7 4.7 28 6.7 23.8 9.4 18 8.8 11 4.8 8Z';
+      const bulb = (k) => `<path d="M-1.2-2.2h2.4v2.6h-2.4z" fill="#0d1811"/><rect x="-4.9" y="-.6" width="9.8" height="9.4" rx="2" fill="url(#xlsk)"/>
+        <path d="M-4.9 2.4h9.8M-4.9 5.2h9.8" stroke="rgba(0,0,0,.35)" stroke-width=".9"/><path d="M-4.9 3h9.8M-4.9 5.8h9.8" stroke="rgba(255,255,255,.18)" stroke-width=".5"/>
+        <path d="${glass}" fill="url(#xl${k})" stroke="${C[k][3]}" stroke-opacity=".55" stroke-width=".6"/>
+        <ellipse cx="0" cy="17" rx="3.6" ry="6" fill="url(#xlhot)"/>
+        <path d="M-5.6 12.2C-7.1 15.6-6.9 19.6-5.2 23.2-4.6 21-4.4 16.4-3.4 12.6-4 11.6-5 11.4-5.6 12.2Z" fill="url(#xlsh)" opacity=".8"/>
+        <circle cx="3.3" cy="12" r="1" fill="#fff" opacity=".7"/>`;
       let w = 0;
       const hang = () => {
-        if (innerWidth === w) return; w = innerWidth;
-        const U = w < 600 ? 92 : 124, S = w < 600 ? 13 : 16, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
-        const y = (t) => 1 + 4 * t * (1 - t) * S;
-        let path = '', bulbs = '', k = 0;
+        const W = xl.clientWidth || innerWidth;
+        if (W === w) return; w = W;
+        const sm = innerWidth < 600, U = sm ? 128 : 184, S = sm ? 15 : 20, sc = sm ? 1.02 : 1.3, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
+        const y = (t) => 1 + 4 * t * (1 - t) * S, H = 2 * S + 52;
+        let path = '', bulbs = '', glows = '', k = 0;
         for (let i = 0; i < n; i++) {
           const a = x0 + i * U;
           path += `${i ? '' : `M${a} 1`} Q${a + U / 2} ${1 + 2 * S} ${a + U} 1 `;
-          for (const t of [0.28, 0.72]) {
-            const tilt = [-7, 5, -3, 8, -5, 3][k % 6], c = ['r', 'g', 'u'][k % 3];
-            bulbs += `<i class="xl-o xl-${c}" style="left:${(a + t * U).toFixed(1)}px;top:${y(t).toFixed(1)}px;--tilt:${tilt}deg;--d:${(-(k * 0.83) % 3.1).toFixed(2)}s"></i>`;
+          for (const t of [0.27, 0.73]) {
+            const c = 'rgu'[k % 3], x = a + t * U, yy = y(t), tilt = [-8, 6, -4, 9, -6, 4][k % 6];
+            bulbs += `<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)}) rotate(${tilt}) scale(${sc})">${bulb(c)}</g>`;
+            glows += `<i class="xl-o xl-${c}" style="left:${x.toFixed(1)}px;top:${(yy + 20 * sc).toFixed(1)}px;--d:${(-(k * 0.83) % 3.1).toFixed(2)}s"></i>`;
             k++;
           }
         }
-        xl.innerHTML = `<svg width="${w}" height="${2 * S + 4}" viewBox="0 0 ${w} ${2 * S + 4}"><path d="${path}"/></svg>${bulbs}`;
+        xl.innerHTML = `${glows}<svg width="${w}" height="${H}" viewBox="0 0 ${w} ${H}"><defs>${defs}</defs><path class="xl-w" d="${path}"/><path class="xl-w2" d="${path}"/>${bulbs}</svg>`;
       };
-      hang(); document.body.append(xl);
+      document.body.append(xl); hang();
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
       featureTip({ id: 'xmas-lights', for: xl, title: 'Christmas lights', delay: 2400,
         text: 'Tenner\'s lit up for the season. The lights twinkle when Animations are on in Settings, and come down after Boxing Day.' });
