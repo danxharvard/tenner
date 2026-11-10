@@ -1,13 +1,18 @@
-# The website (tenner.stream), served by Cloudflare: the built site/ folder as static files on a Worker, no code.
+# The website (tenner.stream), served by Cloudflare: the built site/ folder as static files on a Worker. Only
+# addresses ending .html run index.js (so they're served straight away rather than redirected); the rest is plain files.
 # Deployed by .github/workflows/update.yml after every build. Moved here from GitHub Pages in November 2026, after the
 # old GitHub account was lost and GitHub Pages wouldn't release the domain.
 name = "tenner-site"
 compatibility_date = "2026-09-01"
 workers_dev = true
+main = "index.js"
 
 [assets]
 directory = "../site"
 html_handling = "auto-trailing-slash"
+binding = "ASSETS"
+not_found_handling = "404-page"   # 404.html: an old shared title link still opens that title
+run_worker_first = ["/*.html"]
 
 # tenner.stream, made by Cloudflare when this deploys (the workflow drops this if the domain can't be connected yet, and says so)
 [[routes]]

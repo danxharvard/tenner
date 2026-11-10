@@ -5,7 +5,7 @@
 // Google account's). Every email has a one-tap unsubscribe link (and the List-Unsubscribe header mail apps show).
 //   GET|POST /digest/off?u=…&s=…   turn it off (the link is signed, so it only works for that account)
 import { sendMail } from './auth.js';
-import { nextEpisode, ukNow } from './push.js';
+import { DATA, nextEpisode, ukNow } from './push.js';
 
 const SITE = 'https://tenner.stream', API = 'https://tenner-api.danseacroft.workers.dev';
 const enc = new TextEncoder();
@@ -37,7 +37,7 @@ export async function digestRun(env, force = false) {
   const { day, hour } = ukNow(), sunday = new Date(`${day}T12:00:00Z`).getUTCDay() === 0;
   if (!force && (!sunday || hour < 9 || (await env.PUSH.get('meta:digest')) === day)) return;
   await env.PUSH.put('meta:digest', day);
-  const get = (p) => fetch(`${SITE}/data/${p}?v=${Date.now()}`, { cf: { cacheTtl: 0 } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const get = (p) => fetch(`${DATA}/data/${p}?v=${Date.now()}`, { cf: { cacheTtl: 0 } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const [fresh, week] = await Promise.all([get('new.json'), get('week.json')]);
   // everyone with the Sunday email on, and the confirmed address to send it to
   const { results = [] } = await env.DB.prepare(`SELECT u.id, u.name, d.data, COALESCE(v.email, CASE WHEN u.google_sub IS NOT NULL THEN u.email END) AS email

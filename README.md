@@ -2,7 +2,7 @@
 
 Your top ten, every hour.
 
-The top 10 shows and films right now in the UK on Netflix, Disney+, Prime Video, HBO Max and Paramount+. Clean, Apple-style design with light and dark mode, rebuilt every hour on GitHub Pages.
+The top 10 shows and films right now in the UK on Netflix, Disney+, Prime Video, HBO Max and Paramount+. Clean, Apple-style design with light and dark mode, rebuilt every hour by GitHub Actions and served by Cloudflare.
 
 ## How it works
 
@@ -12,7 +12,7 @@ GitHub Actions (every hour)
        ├─ TMDB: most popular titles on each service in the UK  → site/data/trending.json
        ├─ TMDB: ~100 shows and films per service, for Browse       → site/data/browse.json
        └─ Watchmode: new releases, at most once a day           → site/data/new.json
-  └─ deploys site/ to GitHub Pages
+  └─ deploys site/ to Cloudflare (site-worker/: the tenner-site Worker at tenner.stream)
 ```
 
 Your API keys live only in GitHub Secrets. The browser just reads static JSON, so nothing secret is ever exposed.
@@ -25,8 +25,8 @@ Your API keys live only in GitHub Secrets. The browser just reads static JSON, s
 4. In the repo go to **Settings → Secrets and variables → Actions → New repository secret**:
    - `TMDB_TOKEN`: your TMDB token
    - `WATCHMODE_API_KEY`: your Watchmode key (optional)
-5. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-6. **Actions tab → Update and deploy → Run workflow.** Your site appears at `https://<you>.github.io/<repo>/`.
+   - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`: where the site is served from
+5. **Actions tab → Update and deploy → Run workflow.** The site appears at tenner.stream (and on its workers.dev address).
 
 After that it rebuilds every hour on its own.
 
@@ -54,7 +54,7 @@ npx serve site                                # then open http://localhost:3000
 ## Things to know
 
 - **"Popular" means TMDB popularity**, filtered to what's on each service in the UK. It isn't official viewing figures. For official Top 10s, look at FlixPatrol's paid API later.
-- **Provider names change.** If a service shows "No data yet", open `data/providers.json` on your live site to see what matched, and tweak the regex for that service in `SERVICES` at the top of `scripts/fetch-data.mjs`.
+- **Provider names change.** If a service shows "No data yet", open `data/providers.json` on the live site to see what matched, and tweak the regex for that service in `SERVICES` at the top of `scripts/fetch-data.mjs`.
 - **Watchmode's free plan has a monthly credit limit.** The script calls it at most once a day (about 30 credits a month) by reusing the copy already on your site.
 - **GitHub pauses scheduled workflows** in public repos after 60 days with no commits. Push any small change, or re-enable it in the Actions tab, if updates stop.
 - **Attribution:** keep the TMDB notice in the footer. TMDB's terms require it.

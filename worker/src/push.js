@@ -15,6 +15,9 @@
 import { linkAlerts } from './auth.js';
 
 const SITE = 'https://tenner.stream';
+// the site's hourly data is read from its own Cloudflare address: tenner.stream itself puts automated requests through
+// Cloudflare's bot check, which a Worker's fetch can't pass
+export const DATA = 'https://tenner-site.danseacroft.workers.dev';
 const enc = new TextEncoder();
 const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const unb64u = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
@@ -59,7 +62,7 @@ export const quietNow = (q, hour = ukNow().hour) => !!q && (q[0] > q[1] ? hour >
 // ---------- the hourly run ----------
 export async function pushRun(env, force = false) {
   if (!ready(env)) return;
-  const r = await fetch(`${SITE}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
+  const r = await fetch(`${DATA}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
   if (!r.ok) return;
   const fresh = await r.json();
   if (!force && fresh.generatedAt && (await env.PUSH.get('meta:new')) === fresh.generatedAt) return;   // nothing new since last time
@@ -76,7 +79,7 @@ export async function pushRun(env, force = false) {
 export async function pushSend(req, env) {
   if (req.headers.get('x-tenner-run') !== await sha(env.VAPID_JWK || '')) return new Response('No', { status: 403 });
   const { ids, kind } = await req.json();
-  const r = await fetch(`${SITE}/data/new.json`); if (!r.ok) return new Response('No list', { status: 502 });
+  const r = await fetch(`${DATA}/data/new.json`); if (!r.ok) return new Response('No list', { status: 502 });
   await (kind === 'morning' ? morningBatch : sendBatch)(env, ids, await r.json());
   return new Response('OK');
 }
@@ -95,7 +98,7 @@ export async function pushMorning(env, force = false) {
   const { day, hour } = ukNow();
   if (!force && (hour < 9 || (await env.PUSH.get('meta:morning')) === day)) return;
   await env.PUSH.put('meta:morning', day);
-  const r = await fetch(`${SITE}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
+  const r = await fetch(`${DATA}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
   const fresh = r.ok ? await r.json() : {};
   await priceDrops(env, day).catch(() => {});
   let cursor; const ids = [];
@@ -109,7 +112,7 @@ export async function pushMorning(env, force = false) {
 // Cheaper to rent or buy: the site's prices (data/prices.json: popular new films to buy or rent) against the
 // day before's. A drop of a tenth or more is kept for the day's batches (meta:drops); today's prices are remembered.
 async function priceDrops(env, day) {
-  const r = await fetch(`${SITE}/data/prices.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
+  const r = await fetch(`${DATA}/data/prices.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
   if (!r.ok) return;
   const items = (await r.json())?.items || {}, was = (await env.PUSH.get('meta:prices', 'json')) || {}, now = {}, drops = [];
   for (const [k, x] of Object.entries(items)) {
