@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.60.0';
+  const version = '2.61.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -896,7 +896,7 @@
     $('#meRow').insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><button type="button" class="bx-me-card" id="bxMeCard" aria-haspopup="true" aria-expanded="false" aria-controls="meMenu"></button><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
     // the dropdown lives at the end of the page rather than inside the pill, so its own frost blurs the page (glass inside
     // glass would only blur the pill); it's placed under the pill each time it opens
-    document.body.insertAdjacentHTML('beforeend', '<div class="me-menu" id="meMenu" role="dialog" aria-label="Your account" hidden></div>');
+    document.body.insertAdjacentHTML('beforeend', '<div class="me-menu" id="meMenu" role="dialog" aria-label="Your account" hidden><div class="me-body" id="meBody"></div></div>');
     // ---------- tap the pill: a dropdown with your account at a glance (status, numbers, links). It grows out of the pill
     // like a drop of liquid (springy scale and a softening blur, the rows following one after another), only with motion on.
     let syncedAt = 0;
@@ -916,7 +916,7 @@
       const n = (v, l, i) => `<div class="me-n" style="--i:${i}"><b>${v.toLocaleString('en-GB')}</b><small>${l}</small></div>`;
       const wl = saved.all().length, watched = seen.list().length, going = Object.keys(progress.all()).length, loved = stars.all().length, svc = mine.get().length || 6;
       const row = (href, ic, t, sub, i) => `<a class="me-row-l" href="${href}" style="--i:${i}"><i>${ic}</i><span><b>${t}</b><small>${sub}</small></span>${ME_I.chev}</a>`;
-      $('#meMenu').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
+      $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
         <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
         <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
         <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved · ${svc} service${svc === 1 ? '' : 's'}`, 5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
@@ -926,6 +926,7 @@
       fillMenu(); const m = menu(), r = $('#bxMe').getBoundingClientRect();
       m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
       m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
+      const on = m.querySelector('.me-seg [aria-checked="true"]'); if (on) { on.setAttribute('aria-checked', 'false'); on.setAttribute('aria-checked', 'true'); }   // its thumb finds its place now it's visible
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
       account.sync();   // freshen the numbers while it's open
     }
@@ -1254,6 +1255,7 @@
   function showTheme() {
     const m = mode();
     modeBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
+    document.querySelectorAll('.me-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
     const dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     $('#thIc').innerHTML = $(`.th-list [data-mode="${dark ? 'dark' : 'light'}"] i`).innerHTML; // the round button: a moon by night, a sun by day
   }
@@ -1302,6 +1304,14 @@
   const syncSel = () => { thSel.value = mode(); };
   modeBtns.forEach((b) => b.addEventListener('click', syncSel));
   syncSel();
+  // ...and in the account dropdown (the top-right pill): Auto, Day and Night as an iOS segmented control
+  if ($('#meMenu')) {
+    $('#meMenu').insertAdjacentHTML('beforeend', `<div class="me-theme"><span>Appearance</span><div class="segmented me-seg" role="radiogroup" aria-label="Theme"><span class="seg-thumb" aria-hidden="true"></span>${
+      [['auto', 'Auto'], ['light', 'Day'], ['dark', 'Night']].map(([m, l]) => `<button type="button" role="radio" data-mode="${m}" aria-checked="false">${$(`.th-list [data-mode="${m}"] i`)?.innerHTML || ''}${l}</button>`).join('')}</div></div>`);
+    const seg = $('.me-seg'), setMode = (b) => { window.tnTheme?.(b.dataset.mode); try { localStorage.setItem('tenner-theme', b.dataset.mode); } catch {} showTheme(); syncSel(); haptic(6); };
+    segment(seg, setMode); arrows(seg, () => [...seg.querySelectorAll('button')], setMode);
+    seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b); });
+  }
   showTheme();
 
   // ---------- a fade behind the floating bar once the page has scrolled ----------
