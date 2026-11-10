@@ -29,13 +29,6 @@
   try { const k = sessionStorage.getItem('tenner-home-kind') || localStorage.getItem('tenner-kind'); if (KINDS[k]) state.kind = k; } catch {}
 
   // ---------- icons ----------
-  // a little colour square for a side box's heading, the Contact page's way (.bx-gi in home.css)
-  const gi = (c, d) => `<span class="bx-gi" style="--c:${c}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${d}"/></svg></span>`;
-  const GI = {
-    dc: gi('#bf5af2', 'M7 7h10a1.5 1.5 0 0 1 1.5 1.5v10.5a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V8.5A1.5 1.5 0 0 1 7 7zM8.5 3.8h7'),
-    tt: gi('#0a84ff', 'M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10'),
-    up: gi('#30d158', 'M4 16.5l5.5-5.5 4 4L20 8.5M14.5 8.5H20V14'),
-  };
   const I = {
     play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.4-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6z" fill="currentColor"/></svg>',
     plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
@@ -622,7 +615,7 @@
   }
   // Tenner TV: its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {
-    return `<section class="bx-panel panel lit bx-tv" aria-labelledby="bxTv">
+    return `<section class="bx-panel panel bx-tv" aria-labelledby="bxTv">
       <div class="bx-tv-hd"><span class="bx-tv-ic" aria-hidden="true">${I.tv}</span><div><h2 id="bxTv">TV Guide</h2><span class="bx-tag">Beta</span></div></div>
       <p class="bx-panel-say">What’s on Freeview tonight and all week, with reminders for the shows you love. It’s new, so give it a try and tell us what you think.</p>
       <a class="btn btn-tinted bx-wide" href="https://tv.tenner.stream/">${I.tv}Try the TV Guide</a></section>`;
@@ -645,10 +638,10 @@
   }
   function discover() {
     const it = deck();
-    const head = `<header class="bx-panel-hd"><h2 id="bxDc">${GI.dc}Discover</h2><a class="bx-more" href="discover.html">Open</a></header>`;
-    if (!it) return `<section class="bx-panel panel lit" aria-labelledby="bxDc">${head}<p class="bx-panel-say">You’ve seen everything here for now. Try another service or genre, or come back after the next update.</p></section>`;
+    const head = `<header class="bx-panel-hd"><h2 id="bxDc">Discover</h2><a class="bx-more" href="discover.html">Open</a></header>`;
+    if (!it) return `<section class="bx-panel panel" aria-labelledby="bxDc">${head}<p class="bx-panel-say">You’ve seen everything here for now. Try another service or genre, or come back after the next update.</p></section>`;
     const info = infoFor(it, 'Discover'), labels = (it.on || []).map((k) => svcOf(k)?.label).filter(Boolean).slice(0, 2).join(', ');
-    return `<section class="bx-panel panel lit bx-dc" aria-labelledby="bxDc">${head}
+    return `<section class="bx-panel panel bx-dc" aria-labelledby="bxDc">${head}
       <p class="bx-panel-say bx-dc-say">Right to save, left to skip</p>
       <a class="bx-dc-card" id="bxDcCard" href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(info)} draggable="false">
         <span class="bx-dc-art">${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w500/'))}" alt="" draggable="false">` : ph(it.title)}</span>
@@ -734,7 +727,7 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel lit bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${GI.tt}${words} ${esc(where())}</h2></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2></header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
   document.addEventListener('click', (e) => {
@@ -763,7 +756,7 @@
     const items = w.climbers.filter((c) => (all() || state.picks.some((p) => c.c.startsWith(`${p}:`)) || c.c.startsWith('all:')) && ks.includes(c.c.split(':')[1]))
       .map((c) => ({ c, it: find(c.k) })).filter(({ it }) => it && !seen.has(it.title) && seen.add(it.title)).slice(0, 5);
     if (!items.length) return '';
-    return `<section class="bx-panel panel lit" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">${GI.up}Climbing this week</h2></header><ul class="bx-ups">${items.map(({ c, it }) => {
+    return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Climbing this week</h2></header><ul class="bx-ups">${items.map(({ c, it }) => {
       const label = w.labels?.[c.c.split(':')[0]] || '', info = infoFor(it, 'Climbing this week');
       return `<li><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-up-art">${poster(it)}</span>
         <span class="bx-up-copy"><b>${esc(it.title)}</b><small>Now No. ${c.to} ${label === 'the UK' ? 'in the UK' : `on ${esc(label)}`}</small></span>${window.tn.climb(c.by)}</a></li>`;
