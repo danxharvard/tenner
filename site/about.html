@@ -41,8 +41,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.51.0">
-  <link rel="stylesheet" href="about.css?v=2.51.0">
+  <link rel="stylesheet" href="styles.css?v=2.52.0">
+  <link rel="stylesheet" href="about.css?v=2.52.0">
 
 </head>
 <body class="about">
@@ -89,7 +89,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.51.0</span>
+      <span class="side-ver">Tenner 2.52.0</span>
     </div>
   </div>
 
@@ -124,7 +124,7 @@
         <p>The top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, rebuilt every hour from what people across the UK are watching, searching for and saving.</p>
         <a class="btn btn-tinted ab-btn" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10</a>
       </div>
-      <div class="ab-vis ab-box">
+      <div class="ab-vis ab-box lit">
         <div class="ab-box-hd"><h3>Top shows in the UK</h3><span class="ab-pill" id="abHour">This hour</span></div>
         <ol class="cl ab-cl" id="abTop"></ol>
         <ul class="ab-six" id="abSix" aria-label="The six services"></ul>
@@ -139,7 +139,7 @@
         <p>Tell Tenner which services you pay for and your Top 10 shows only what you can watch tonight. Swipe in Discover and For you picks out more to suit your taste.</p>
         <a class="btn btn-tinted ab-btn" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>Choose my services</a>
       </div>
-      <div class="ab-vis ab-box">
+      <div class="ab-vis ab-box lit">
         <div class="ab-box-hd"><h3>Try it: tap your services</h3></div>
         <div class="ab-pick" id="abPick" role="group" aria-label="Services to include"></div>
         <ol class="cl ab-cl" id="abMine" aria-live="polite"></ol>
@@ -165,9 +165,9 @@
 
     <!-- the promise, kept short -->
     <section class="ab-promise ab-box" aria-label="Free and private">
-      <div><b>Free, for good</b><span>Nothing to pay and nothing to unlock.</span></div>
-      <div><b>No adverts, no tracking</b><span>No analytics and no profiles.</span></div>
-      <div><b>No cookies</b><span>Not one, even with an account.</span></div>
+      <div class="tile-c" style="--c:#30d158"><i class="gi" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11.5" rx="1.6"/><path d="M3 9h18M12 9v11.5M12 9C10.5 5 6.5 5 7 7.5S12 9 12 9zm0 0c1.5-4 5.5-4 5-1.5S12 9 12 9z"/></svg></i><b>Free, for good</b><span>Nothing to pay and nothing to unlock.</span></div>
+      <div class="tile-c" style="--c:#0a84ff"><i class="gi" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4.5 4.5l15 15"/></svg></i><b>No adverts, no tracking</b><span>No analytics and no profiles.</span></div>
+      <div class="tile-c" style="--c:#ff9f0a"><i class="gi" style="--c:#ff9f0a" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 3.5 3.5 3 3 0 0 0 3 3 2.5 2.5 0 0 0 2.5 2.5z"/><path d="M8.5 10h.01M8 15h.01M12.5 13.5h.01M15.5 16.5h.01" style="stroke-width:2.8"/></svg></i><b>No cookies</b><span>Not one, even with an account.</span></div>
       <a class="ab-more" href="legal.html#privacy">Privacy Policy<span class="chev" aria-hidden="true"></span></a>
     </section>
 
@@ -188,7 +188,7 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver side-ver-text">Tenner 2.51.0</p>
+    <p class="more-ver side-ver-text">Tenner 2.52.0</p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
@@ -246,6 +246,6 @@
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.51.0" defer></script>
+  <script src="shell.js?v=2.52.0" defer></script>
 </body>
 </html>

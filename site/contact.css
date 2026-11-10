@@ -3,8 +3,6 @@
    type. Sending flies the paper plane off and turns the card into a green tick. Everything uses Tenner's one corner
    (--r) and one frost (--fr-bg over --fr-blur, --fr-in for boxes inside the card). */
 
-@property --tone { syntax: "<color>"; inherits: true; initial-value: #0a84ff; }
-
 .cx {
   --tone: #0a84ff;
   position: relative; max-width: 1180px; margin: 0 auto 0 var(--page-left);
@@ -60,10 +58,7 @@
 /* ---------- the compose card */
 .cx-card { position: relative; container-type: inline-size; min-width: 0; padding: clamp(18px, 3vw, 30px); border-radius: var(--r);
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 90px -40px color-mix(in srgb, var(--tone) 60%, transparent); }
-/* a fine line of the chosen colour along the top edge, fading out at both ends */
-.cx-card::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 1px; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--tone), transparent); }
+  box-shadow: inset 0 0 0 1px var(--fr-rim), var(--lit-glow); }   /* .lit (styles.css): the top line and glow in the chosen colour */
 .cx-card form { display: grid; gap: 12px; }
 
 /* what it's about: four tiles, a radio each */

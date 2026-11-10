@@ -1873,3 +1873,22 @@ p { text-wrap: pretty; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lamp: rgba(255, 255, 255, .06); } }
 :root[data-theme="dark"] { --lamp: rgba(255, 255, 255, .06); }
 @media (prefers-reduced-transparency: reduce) { :root { --lamp: transparent; } }
+
+/* ============================================================ the Contact page's touches, shared (the owner loved them there).
+   .lit: a box's lit edge, a fine line of its colour (--tone) along the top, fading out at both ends, and a soft glow of that
+   colour underneath. A box keeps its own rim and adds var(--lit-glow) to its box-shadow.
+   .tile-c: a tile that takes its own colour (--c, the same as its icon square) as you hover over it, with a faint ring and
+   glow of that colour, and its icon lifting a little; a press shrinks it a touch. */
+@property --tone { syntax: "<color>"; inherits: true; initial-value: #0a84ff; }
+.lit { position: relative; --lit-glow: 0 40px 90px -40px color-mix(in srgb, var(--tone) 60%, transparent); transition: --tone .8s ease; }
+.lit::before { content: ""; position: absolute; z-index: 1; top: 0; left: 12%; right: 12%; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--tone), transparent); }
+.tile-c { transition: background-color .25s ease, box-shadow .25s ease, scale .4s var(--ease-spring); }
+.tile-c :is(.set-ic, .gi) { transition: transform .45s var(--ease-spring); }
+@media (hover: hover) {
+  .tile-c:hover { background: color-mix(in srgb, var(--c) 12%, var(--fr-in)) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 38%, transparent), 0 16px 36px -22px color-mix(in srgb, var(--c) 80%, transparent) !important; }
+  :root:not(.still) .tile-c:hover :is(.set-ic, .gi) { transform: scale(1.08) rotate(-4deg); }
+}
+:root:not(.still) .tile-c:active { scale: .97; }
+@media (forced-colors: active) { .lit::before { display: none; } }
