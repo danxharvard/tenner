@@ -40,7 +40,7 @@
   form.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); form.requestSubmit(); } });
 
   // the card trades the form for the tick (and back), cross-fading where the browser can
-  const swap = (fn) => (document.startViewTransition && !still() ? document.startViewTransition(fn) : fn());
+  const swap = (fn) => (document.startViewTransition && !still() ? document.startViewTransition(fn).ready.catch(() => {}) : fn());
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

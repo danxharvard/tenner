@@ -117,6 +117,10 @@ async function newSession(env, userId, req) {
   await env.DB.prepare('INSERT INTO sessions (token, user_id, label, created, seen) VALUES (?, ?, ?, ?, ?)').bind(await hashToken(t), userId, label, now(), now()).run();
   return t;
 }
+// a new account's colour, for its initial: a clean shade (never a muddy olive or brown), and none of the six on the
+// account page, so Tenner keeps its own blue accent until you pick one there (tnMe, in each page's head)
+const START_HUES = [200, 220, 250, 285, 310, 350, 15, 160, 190];
+const startHue = () => START_HUES[Math.floor(Math.random() * START_HUES.length)];
 const publicUser = (u) => ({ name: u.name, picture: u.picture || null, hue: u.hue, google: !!u.google_sub, email: u.email || null, share_id: u.share_id || null, created: u.created });
 
 // ---------- merging what a device has with what the account has ----------
@@ -271,7 +275,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       const { alg, jwk } = coseToJwk(ad.cose), credId = b64u(ad.credId);
       const me = await sessionUser(req, env);
       if (me && me.id !== ch.user_id) throw new Error('Something went wrong');
-      if (!me) await env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(ch.user_id, ch.name, Math.floor(Math.random() * 360), now()).run();
+      if (!me) await env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(ch.user_id, ch.name, startHue(), now()).run();
       const ua = req.headers.get('user-agent') || '', label = /iPhone|iPad|Mac/.test(ua) ? 'iCloud Keychain' : /Android/.test(ua) ? 'Google Password Manager' : /Windows/.test(ua) ? 'Windows Hello' : 'Passkey';
       await env.DB.prepare('INSERT INTO passkeys (id, user_id, jwk, alg, counter, label, created) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(credId, ch.user_id, JSON.stringify(jwk), alg, ad.counter, label, now()).run();
       if (me) return ok({ ok: true });
@@ -312,7 +316,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       if (!u) {
         const id = rand(16);
         await env.DB.prepare('INSERT INTO users (id, name, picture, hue, google_sub, email, created) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .bind(id, String(g.given_name || g.name || 'You').slice(0, 40), g.picture || null, Math.floor(Math.random() * 360), g.sub, g.email || null, now()).run();
+          .bind(id, String(g.given_name || g.name || 'You').slice(0, 40), g.picture || null, startHue(), g.sub, g.email || null, now()).run();
         u = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
       }
       return ok({ token: await newSession(env, u.id, req), user: publicUser(u) });
@@ -361,7 +365,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
         const pw = await env.DB.prepare('SELECT email FROM passwords WHERE user_id = ?').bind(r.user_id).first();
         if (pw && !await isVerified(env, pw.email) && await ways(env, { id: r.user_id, google_sub: (await env.DB.prepare('SELECT google_sub FROM users WHERE id = ?').bind(r.user_id).first())?.google_sub }) > 1) {
           const uid = rand(16);
-          await env.DB.batch([env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(uid, pw.email.split('@')[0].slice(0, 40), Math.floor(Math.random() * 360), now()),
+          await env.DB.batch([env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(uid, pw.email.split('@')[0].slice(0, 40), startHue(), now()),
             env.DB.prepare('UPDATE passwords SET user_id = ? WHERE user_id = ?').bind(uid, r.user_id),
             env.DB.prepare('DELETE FROM resets WHERE user_id = ?').bind(r.user_id), env.DB.prepare('DELETE FROM verifies WHERE user_id = ?').bind(r.user_id)]);
           r.user_id = uid;
@@ -380,7 +384,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
         if (!name) return fail('Add your name first');
         if (await env.DB.prepare('SELECT 1 FROM passwords WHERE email = ?').bind(email).first()) return fail('There’s already an account with that email. Sign in instead', 409);
         const uid = rand(16), salt = rand(16);
-        await env.DB.batch([env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(uid, name, Math.floor(Math.random() * 360), now()),
+        await env.DB.batch([env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(uid, name, startHue(), now()),
           env.DB.prepare('INSERT INTO passwords (user_id, email, salt, hash, created) VALUES (?, ?, ?, ?, ?)').bind(uid, email, salt, await pwHash(salt, key), now())]);
         if (env.RESEND_API_KEY) { await sendVerify(env, uid, email); return ok({ verify: email }); }   // signed in once they've clicked the link
         const u = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(uid).first();
@@ -415,7 +419,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
           return { password: pw, password_ok: !pw || !env.RESEND_API_KEY || await isVerified(env, pw) }; })(), mail: !!env.RESEND_API_KEY });
     }
     if (p === '/me' && m === 'PATCH') {
-      const name = typeof body.name === 'string' ? body.name.trim().slice(0, 40) : null, hue = Number.isFinite(+body.hue) ? ((+body.hue % 360) + 360) % 360 : null;
+      const name = typeof body.name === 'string' ? body.name.trim().slice(0, 40) : null, hue = typeof body.hue === 'number' && Number.isFinite(body.hue) ? ((Math.round(body.hue) % 360) + 360) % 360 : null;   // (a null or empty hue was read as 0: red)
       if (name !== null && !name) return fail('Your name can’t be empty');
       await env.DB.prepare('UPDATE users SET name = COALESCE(?, name), hue = COALESCE(?, hue) WHERE id = ?').bind(name, hue, me.id).run();
       return ok({ user: publicUser(await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(me.id).first()) });
@@ -500,6 +504,9 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
     }
     if (p === '/me' && m === 'DELETE') {
       await photosTable(env);
+      // the profile photo stops being served at once (this data centre's copy; it isn't in the database any more either)
+      const pic = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
+      if (pic) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${pic.id}`)));
       const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(me.id).all()).results;
       await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
         .map((q) => env.DB.prepare(q).bind(me.id)));

@@ -184,6 +184,10 @@ a.tb-btn:hover { text-decoration: none; }
   .tabs button { padding: 0 9px; gap: 5px; font-size: 14px; }
   .top-brand .brand-name { display: none; }
 }
+/* the narrowest tablets (iPad mini upright, a narrow window): a little tighter still, so Watchlist isn't tucked under the buttons beside it */
+@media (min-width: 720px) and (max-width: 779px) {
+  .tabs button { padding: 0 6px; gap: 4px; font-size: 13.5px; }
+}
 .tabs button[aria-selected="true"] { color: var(--accent); }
 .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 @media (hover: hover) { .tabs button[aria-selected="false"]:hover { color: var(--accent); } }
@@ -1540,11 +1544,11 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
     background: var(--frost); box-shadow: var(--frost-line); -webkit-backdrop-filter: var(--frost-blur); backdrop-filter: var(--frost-blur); }
   .side-search input::placeholder { color: transparent; }
   .side-search .ss-ic { left: 11px; width: 18px; height: 18px; color: var(--label); }
-  .side-search input:focus, .side-search input:not(:placeholder-shown) { width: min(340px, calc(100vw - 150px)); padding-right: 10px; cursor: text; box-shadow: var(--frost-line), 0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);
+  .side-search input:focus, .side-search input:not(:placeholder-shown) { width: min(340px, calc(100vw - 150px)); padding-right: 10px; cursor: text; border-radius: var(--r); box-shadow: var(--frost-line), 0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);
     background: var(--sheet-bg); }
   .side-search input:focus::placeholder { color: var(--label2); }
   .top-row:has(.side-search input:focus, .side-search input:not(:placeholder-shown)) > .tabbar { opacity: 0; pointer-events: none; }   /* the field takes the tabs' place while you search */
-  :root:not(.still) .side-search input { transition: width .45s var(--ease-spring), background-color .2s ease, box-shadow .2s ease; }
+  :root:not(.still) .side-search input { transition: width .45s var(--ease-spring), border-radius .3s ease, background-color .2s ease, box-shadow .2s ease; }
 }
 /* phones: at the top of the menu; while you search, the results take the menu's place */
 @media (max-width: 719px) {
@@ -1914,9 +1918,12 @@ p { text-wrap: pretty; }
 @media (min-width: 720px) {
   /* everywhere but the homepage: a row of its own above the page, its right edge in line with the homepage's */
   .me-row:has(.bx-me:not([hidden])) { display: flex; justify-content: flex-end; max-width: var(--max); margin: 0 auto 0 var(--page-left); padding: 14px var(--me-r, var(--gutter-r)) 0 var(--gutter); }
-  .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 3; top: 0; right: 0; left: auto; margin: 0; }
+  .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 49; top: 0; right: 0; left: auto; margin: 0; }
+  /* tablets: below the floating bar, never over its tabs and buttons */
+  @media (max-width: 999px) { .me-row.me-over:has(.bx-me:not([hidden])) { top: calc(env(safe-area-inset-top, 0px) + 60px); } }
   :root.me-in .side-acct { display: none; }
-  .bx-me:not([hidden]) { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
+  /* (above the Christmas lights, as the bar's glass is: the lights never cover your name) */
+  .bx-me:not([hidden]) { position: relative; z-index: 49; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 8%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
     box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 30px -16px rgba(0, 0, 0, .5); }
 }
@@ -1951,9 +1958,9 @@ p { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
 
 /* Christmas lights (shell.js): old-fashioned C9 bulbs in red, green and blue, pinned along the top of every page in the
-   season, beside the sidebar on computers (never over it). Above the bars, below sheets and tips; never tappable. Each
+   season, beside the sidebar on computers (never over it). Under the bars' glass and your account pill (so the tabs and your name always read), below sheets and tips; never tappable. Each
    bulb's halo is drawn once; with Animations on it breathes (opacity only, so it runs off the main thread). */
-.xl { position: fixed; z-index: 60; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 100px; pointer-events: none; overflow: hidden;
+.xl { position: fixed; z-index: 48; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 100px; pointer-events: none; overflow: hidden;
   --xl-r: #ff3b30; --xl-g: #30d158; --xl-u: #0a84ff; --xl-wire: #17261d; --xl-wire2: rgba(120, 170, 140, .35); }
 @media (min-width: 1000px) { .xl { left: var(--side); } }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .xl { --xl-wire: #2b4436; --xl-wire2: rgba(150, 200, 170, .3); } }
