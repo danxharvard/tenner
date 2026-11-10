@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.58.0';
+  const version = '2.58.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1325,30 +1325,38 @@
     document.addEventListener('pointerleave', () => { card?.style.removeProperty('--mx'); card?.style.removeProperty('--my'); card = null; });
   }
 
-  // ---------- Christmas lights: red, green and blue bulbs strung along the top of every page, from November until Boxing
-  // Day. A sagging wire with a bulb either side of each dip; they twinkle (a glow fading in and out, off the main thread)
-  // only when Animations are on, and stay softly lit otherwise. Never in the way: they can't be tapped and print nothing.
+  // ---------- Christmas lights: old-fashioned glass bulbs (the big C9 kind) in red, green and blue, strung on a sagging
+  // wire pinned to the top of every page, from November until Boxing Day. The bulbs are drawn in one SVG (lit glass with a
+  // hot filament glow and a highlight); each bulb's halo is its own layer, so with Animations on it can twinkle (opacity
+  // only, off the main thread). Still otherwise, and under Reduce Motion. Never in the way: they can't be tapped.
   {
     const d = new Date(), m = d.getMonth();
     if (m === 10 || (m === 11 && d.getDate() <= 26)) {
       const xl = document.createElement('div');
       xl.className = 'xl'; xl.setAttribute('aria-hidden', 'true');
+      const C = { r: ['#fff1ec', '#ff4a3d', '#c4140b'], g: ['#f1fff2', '#34e05a', '#0f8a2c'], u: ['#eef6ff', '#2f8cff', '#0b4fc9'] };
+      const grad = Object.entries(C).map(([k, [hot, mid, deep]]) => `<radialGradient id="xl${k}" cx="45%" cy="38%" r="70%"><stop offset="0" stop-color="${hot}"/><stop offset=".28" stop-color="${mid}"/><stop offset="1" stop-color="${deep}"/></radialGradient>`).join('');
+      // a C9 bulb hanging from (0, 0): a ribbed socket, then the strawberry-shaped glass
+      const bulb = (k) => `<rect class="xl-sk" x="-4.6" y="-1" width="9.2" height="9" rx="1.8"/><path class="xl-rb" d="M-4.6 2.2h9.2M-4.6 5h9.2"/>
+        <path d="M-4.6 7.6C-8.4 10.6-9 17.5-6.4 23.2-4.5 27.4-1.8 31 0 32.4 1.8 31 4.5 27.4 6.4 23.2 9 17.5 8.4 10.6 4.6 7.6Z" fill="url(#xl${k})"/>
+        <ellipse cx="-3.1" cy="15" rx="1.5" ry="4.6" fill="#fff" opacity=".55" transform="rotate(12 -3.1 15)"/>`;
       let w = 0;
       const hang = () => {
         if (innerWidth === w) return; w = innerWidth;
-        const U = w < 600 ? 92 : 124, S = w < 600 ? 13 : 16, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
-        const y = (t) => 1 + 4 * t * (1 - t) * S;
-        let path = '', bulbs = '', k = 0;
+        const sm = w < 600, U = sm ? 116 : 156, S = sm ? 14 : 18, sc = sm ? 0.8 : 1, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
+        const y = (t) => 1 + 4 * t * (1 - t) * S, H = 2 * S + 40;
+        let path = '', bulbs = '', glows = '', k = 0;
         for (let i = 0; i < n; i++) {
           const a = x0 + i * U;
           path += `${i ? '' : `M${a} 1`} Q${a + U / 2} ${1 + 2 * S} ${a + U} 1 `;
-          for (const t of [0.28, 0.72]) {
-            const tilt = [-7, 5, -3, 8, -5, 3][k % 6], c = ['r', 'g', 'u'][k % 3];
-            bulbs += `<i class="xl-o xl-${c}" style="left:${(a + t * U).toFixed(1)}px;top:${y(t).toFixed(1)}px;--tilt:${tilt}deg;--d:${(-(k * 0.83) % 3.1).toFixed(2)}s"></i>`;
+          for (const t of [0.27, 0.73]) {
+            const c = 'rgu'[k % 3], x = a + t * U, yy = y(t), tilt = [-8, 6, -4, 9, -6, 4][k % 6];
+            bulbs += `<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)}) rotate(${tilt}) scale(${sc})">${bulb(c)}</g>`;
+            glows += `<i class="xl-o xl-${c}" style="left:${x.toFixed(1)}px;top:${(yy + 20 * sc).toFixed(1)}px;--d:${(-(k * 0.83) % 3.1).toFixed(2)}s"></i>`;
             k++;
           }
         }
-        xl.innerHTML = `<svg width="${w}" height="${2 * S + 4}" viewBox="0 0 ${w} ${2 * S + 4}"><path d="${path}"/></svg>${bulbs}`;
+        xl.innerHTML = `${glows}<svg width="${w}" height="${H}" viewBox="0 0 ${w} ${H}"><defs>${grad}</defs><path class="xl-w" d="${path}"/>${bulbs}</svg>`;
       };
       hang(); document.body.append(xl);
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
