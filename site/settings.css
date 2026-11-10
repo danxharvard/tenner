@@ -75,6 +75,10 @@
 .set-art { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--r);
   background: radial-gradient(60% 80% at 18% 20%, #0a84ff 0, transparent 70%), radial-gradient(55% 75% at 85% 25%, #bf5af2 0, transparent 70%),
     radial-gradient(70% 80% at 60% 105%, #ff375f 0, transparent 70%), #1c1c3a; box-shadow: inset 0 0 0 .5px var(--sp-rim); }
+/* your colour: the card behind your initial is lit in its shades (and a darker field of it) instead of Tenner's three */
+:root[data-me] .set-art { background: radial-gradient(60% 80% at 18% 20%, hsl(var(--me-h) 90% 58%) 0, transparent 70%),
+  radial-gradient(55% 75% at 85% 25%, hsl(calc(var(--me-h) + 35) 80% 60%) 0, transparent 70%),
+  radial-gradient(70% 80% at 60% 105%, hsl(calc(var(--me-h) - 30) 85% 55%) 0, transparent 70%), hsl(var(--me-h) 45% 14%); }
 .set-art::after { content: ""; position: absolute; inset: 0; background: radial-gradient(closest-side, rgba(255, 255, 255, .16), transparent); pointer-events: none; }
 .set-bg { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(40px) saturate(1.6) brightness(.85); }
 .set-art .set-av { position: relative; z-index: 1; width: 84px; height: 84px; font-size: 34px; box-shadow: 0 0 0 4px rgba(255, 255, 255, .22), 0 12px 30px rgba(0, 0, 0, .3); }

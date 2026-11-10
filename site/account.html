@@ -36,13 +36,16 @@
   <script>/* Night is the default; Day or Auto only when chosen */
   function tnTheme(t){var r=document.documentElement;if(t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);
     var c=t==="auto"?null:(t==="light"?"#ffffff":"#000000");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){if(!m.dataset.c)m.dataset.c=m.content;m.content=c||m.dataset.c;});}
-  try{var a=JSON.parse(localStorage.getItem("tenner-account")||"null");if(a&&!a.picture&&a.hue!=null&&a.hue!=210)document.documentElement.style.setProperty("--menu","hsl("+a.hue+" 72% 56%)")}catch(e){}
+  /* your account's colour as the accent (links, highlights, glows): a deeper shade by day, a lighter one by night, both legible */
+  function tnMe(a){var r=document.documentElement,s=r.style,h=a&&a.hue!=null?+a.hue:210;if(h===210||(a.picture&&[265,330,5,30,145,175].indexOf(h)<0)){r.removeAttribute("data-me");return}
+    r.setAttribute("data-me","");s.setProperty("--me-h",h);s.setProperty("--me-d","hsl("+h+" 80% "+(h<20||h>=215?44:h<35||h>=200?36:26)+"%)");s.setProperty("--me-n","hsl("+h+" 90% "+(h>=225&&h<=280?72:64)+"%)")}
+  try{tnMe(JSON.parse(localStorage.getItem("tenner-account")||"null"))}catch(e){}
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.52.1">
-  <link rel="stylesheet" href="settings.css?v=2.52.1">
-  <link rel="stylesheet" href="account.css?v=2.52.1">
+  <link rel="stylesheet" href="styles.css?v=2.53.0">
+  <link rel="stylesheet" href="settings.css?v=2.53.0">
+  <link rel="stylesheet" href="account.css?v=2.53.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +91,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.52.1</span>
+      <span class="side-ver">Tenner 2.53.0</span>
     </div>
   </div>
 
@@ -174,7 +177,7 @@
                 <span class="ac-btns"><button type="button" class="ac-x" id="acPhotoRm" hidden>Remove</button><button type="button" class="btn btn-tinted ac-pick" id="acPhotoPick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5h6l1.5 2H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.6" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span>Choose</span></button></span>
                 <input type="file" id="acPhotoFile" accept="image/*" hidden></div>
               <label class="set-row"><span class="set-l">Name</span><input class="ac-input" id="acEditName" maxlength="40" autocomplete="given-name"></label>
-              <div class="set-row ac-hues" id="acHues"><span class="set-l">Colour<small>For your initial, where there’s no picture</small></span><span class="ac-sw" id="acSw"></span></div>
+              <div class="set-row ac-hues" id="acHues"><span class="set-l">Colour<small>Your initial and your accent around Tenner</small></span><span class="ac-sw" id="acSw"></span></div>
             </div>
           </section>
           <!-- Your Tenner: what you've watched, your favourite genres and where you watch (Settings → Your Tenner) -->
@@ -258,7 +261,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.52.1" defer></script>
-  <script src="account.js?v=2.52.1" defer></script>
+  <script src="shell.js?v=2.53.0" defer></script>
+  <script src="account.js?v=2.53.0" defer></script>
 </body>
 </html>
