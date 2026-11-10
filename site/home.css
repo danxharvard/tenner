@@ -386,19 +386,3 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   .bx-h-acts:has(.bx-snd) .bx-r-l { width: 44px; height: 44px; }
   .bx-h-acts:has(.bx-snd) .bx-cta { font-size: 15px; }
 }
-
-/* ============================================================ the Contact page's touches on the side boxes: each is lit along
-   its top edge in its own colour with a soft glow beneath (.lit in styles.css), and its heading has a little colour square */
-.bx-panel[aria-labelledby="bxDc"] { --tone: #bf5af2; }
-.bx-panel[aria-labelledby="bxTt"] { --tone: #0a84ff; }
-.bx-panel[aria-labelledby="bxTn"] { --tone: #ff375f; }
-.bx-panel[aria-labelledby="bxUp"] { --tone: #30d158; }
-.bx-panel[aria-labelledby="bxTv"] { --tone: #5e5ce6; }
-.bx-side .bx-panel.lit { --lit-glow: 0 28px 56px -34px color-mix(in srgb, var(--tone) 70%, transparent);
-  box-shadow: inset 0 0 0 1px var(--fr-rim), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent), var(--lit-glow); }
-.bx-panel-hd h2 { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.bx-gi { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r); color: #fff; background: var(--c);
-  transition: transform .45s var(--ease-spring); }
-.bx-gi svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
-@media (hover: hover) { :root:not(.still) .bx-panel:hover .bx-gi { transform: scale(1.08) rotate(-4deg); } }
-@media (max-width: 719px) { .bx-side .bx-panel.lit { box-shadow: none; } }

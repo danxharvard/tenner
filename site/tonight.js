@@ -174,7 +174,7 @@
   });
   // the same invitation as a box for the home page's side column
   function tonightBox() {
-    return `<section class="bx-panel panel lit bx-tn" aria-labelledby="bxTn"><div class="bx-tn-art" aria-hidden="true">${tnIc('tv', 'tn-fl tn-c1')}${tnIc('feel', 'tn-fl tn-c2')}${tnIc('pop', 'tn-fl tn-c3')}</div>
+    return `<section class="bx-panel panel bx-tn" aria-labelledby="bxTn"><div class="bx-tn-art" aria-hidden="true">${tnIc('tv', 'tn-fl tn-c1')}${tnIc('feel', 'tn-fl tn-c2')}${tnIc('pop', 'tn-fl tn-c3')}</div>
       <h2 id="bxTn">What should I watch tonight?</h2>
       <p class="bx-panel-say">Three quick taps and Tenner picks from ${window.tn.mine.get().length ? 'your services' : 'all six services'}.</p>
       <button type="button" class="btn btn-tinted bx-wide" data-tonight><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z"/></svg>Help me choose</button></section>`;
