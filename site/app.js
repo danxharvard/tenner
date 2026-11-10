@@ -1,4 +1,4 @@
-// Tenner's New This Week (#new), Top 10 by Service (#top10) and Watchlist (#watchlist) pages. The Top 10 lives on the home page (home.js), and
+// Tenner's New This Week (#new), Top 10s (#top10) and Watchlist (#watchlist) pages. The Top 10 lives on the home page (home.js), and
 // anything else here goes there. Reads data/trending.json and data/new.json (rebuilt hourly by GitHub Actions).
 // Shared helpers (esc, hue) come from shell.js, which loads first.
 
@@ -79,10 +79,10 @@ function morph(fn) {
 }
 function draw() {
   selectTab(state.route);
-  if (state.route === 'watchlist') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageWatchlist()}</div>`; document.title = 'Watchlist | Tenner'; wlKindInit(); wlHero(); openFromUrl(); wantTitles(); alertCard(); return; }
+  if (state.route === 'watchlist') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageWatchlist()}</div>`; document.title = 'Watchlist · Tenner'; wlKindInit(); wlHero(); openFromUrl(); wantTitles(); alertCard(); return; }
   wlHero(true);
-  if (state.route === 'top10') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageTop10()}</div>`; document.title = 'Top 10 by Service | Tenner'; ttMount(); openFromUrl(); return; }
-  shown = new Map(); view.innerHTML = `<div class="wrap">${pageNew()}</div>`; newBanners((state.fresh?.items || []).filter((x) => x.date <= todayIso())); document.title = 'New This Week | Tenner'; nwMount(); openFromUrl();
+  if (state.route === 'top10') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageTop10()}</div>`; document.title = 'Top 10s · Tenner'; ttMount(); weekMount(); openFromUrl(); return; }
+  shown = new Map(); view.innerHTML = `<div class="wrap">${pageNew()}</div>`; newBanners((state.fresh?.items || []).filter((x) => x.date <= todayIso())); document.title = 'New This Week · Tenner'; nwMount(); openFromUrl();
 }
 
 // ---------- phones: New This Week's arrivals as wide banners, swiped one at a time, neighbours peeking in at the sides ----------
@@ -238,7 +238,7 @@ function pageWatchlist() {
   const body = !list.length
     ? `<div class="empty"><span class="empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18.4l-6-4.2-6 4.2z" fill="currentColor"/></svg></span>
         <h2>Nothing saved yet</h2><p>Open any title and press Watchlist to keep it here, with where to watch it.</p>
-        <a class="btn btn-tinted" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.4 12 4l8 6.4V20h-5v-5.6H9V20H4z" fill="currentColor"/></svg>See the top 10</a></div>`
+        <a class="btn btn-tinted" href="charts.html#top10">${TOP10_IC}See the Top 10s</a></div>`
     : `<section class="wk" aria-labelledby="wl-saved"><div class="row-hd wl-hd"><h2 class="row-h" id="wl-saved">Saved</h2>${both ? `<label class="dd dd-kind"><span class="dd-l" id="wlKindL">${{ tv: 'Shows', movie: 'Films', both: 'Shows and films' }[kind]}</span><span class="dd-chev" aria-hidden="true"></span>
         <select id="wlKind" aria-label="Shows, films or both">${[['tv', 'Shows'], ['movie', 'Films'], ['both', 'Shows and films']].map(([k, l]) => `<option value="${k}"${k === kind ? ' selected' : ''}>${l}</option>`).join('')}</select></label>` : ''}</div>
       <ol class="cl nw-cl wl-cl" data-kind="${both ? kind : 'both'}">${rows}</ol></section>`;
@@ -372,7 +372,7 @@ function comingUp(list) {
   const items = list.filter((x) => x.type === 'tv' && det(x.k)?.nx && det(x.k).nx[0] >= today && det(x.k).nx[0] <= soon)
     .sort((a, b) => det(a.k).nx[0].localeCompare(det(b.k).nx[0]));
   if (!items.length) return '';
-  return `<section class="nrow wl-soon" aria-labelledby="cu-h"><div class="wk-hd"><h2 class="row-h" id="cu-h">Coming Up</h2><p>New episodes of your shows this month</p></div>
+  return `<section class="nrow wl-soon" aria-labelledby="cu-h"><div class="wk-hd"><h2 class="row-h" id="cu-h">Coming up</h2><p>New episodes of your shows this month</p></div>
     <ul class="nr">${items.map((x) => { const n = det(x.k).nx; return `<li><a href="${esc(tmdbUrl('tv', x.k.slice(1)))}" target="_blank" rel="noopener" ${reg(wlInfo(x, `New episode ${window.tn.whenText(n[0])}`))}>
       <span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : placeholder({ title: x.title })}<span class="cu-when">${esc(window.tn.whenText(n[0]))}</span></span>
       <b>${esc(x.title)}</b><small>Season ${n[1]}, episode ${n[2]}</small></a></li>`; }).join('')}</ul></section>`;
@@ -430,19 +430,18 @@ const IC = {
 };
 
 // The week in numbers: four counts in one frosted box, each a way into its part of the page
-function nwStats(f, w, today, leaving) {
+function nwStats(f, cinemaNow, today, leaving) {
   const past = f ? f.items.filter((x) => x.date <= today && x.date > isoAdd(today, -7)) : [], ahead = f ? f.items.filter((x) => x.date > today && x.date <= isoAdd(today, 30)) : [];
-  const ones = (w?.ones || []).filter((x, i, all) => x.fresh && all.findIndex((y) => y.k === x.k) === i).length;
   const ic = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
   const cells = [
     [past.length, past.length === 1 ? 'New arrival' : 'New arrivals', 'in the last seven days', 'nwDays', '#0a84ff', past.length ? today : null,
       ic('<path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z" fill="currentColor"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z" fill="currentColor"/>')],
     [ahead.length, 'On the way', 'over the next month', 'nwDays', '#bf5af2', ahead[0]?.date,
       ic('<rect x="3.5" y="5" width="17" height="15.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>')],
-    [ones, ones === 1 ? 'New No. 1' : 'New No. 1s', 'at the top of a chart', 'wk-1', '#30d158', null,
-      ic('<path d="M4 8l4 3.5L12 5l4 6.5L20 8l-1.6 10H5.6z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>')],
     [leaving.length, 'Leaving soon', 'catch them before they go', 'leaving', '#ff375f', null,
       ic('<path d="M7 3.5h10M7 20.5h10M8 3.5c0 4 8 5 8 8.5s-8 4.5-8 8.5M16 3.5c0 4-8 5-8 8.5s8 4.5 8 8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>')],
+    [cinemaNow, cinemaNow === 1 ? 'Film in cinemas' : 'Films in cinemas', 'showing in the UK now', 'cinema', '#30d158', null,
+      ic('<rect x="3.5" y="6" width="17" height="12.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10.2h17M8 6l2.2 4.2M13 6l2.2 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>')],
   ].filter((c) => c[0]);
   if (cells.length < 2) return '';
   return `<nav class="nw-stats" aria-label="This week in numbers">${cells.map(([n, label, sub, to, c, day, icon]) => `<a class="nw-stat" href="#${to}" data-jump="${to}"${day ? ` data-day="${day}"` : ''} style="--c:${c}">
@@ -473,7 +472,7 @@ function nwRibbon(f, today) {
       <span class="rb-c">${l.length ? plural(l.length, 'title', 'titles') : 'Quiet day'}</span></button>`;
   }).join('');
   return `<section class="wk rb" id="nwDays" aria-labelledby="rbH">
-    <div class="wk-hd rb-hd"><h2 class="row-h" id="rbH">Day by Day</h2><p>Last week's arrivals and the month ahead</p>
+    <div class="wk-hd rb-hd"><h2 class="row-h" id="rbH">Day by day</h2><p>Last week's arrivals and the month ahead</p>
       <div class="rb-ctl"><button type="button" class="btn btn-tinted rb-today" data-rb="today">${IC.today}Today</button>
         <button type="button" class="rb-arw" data-rb="-1" aria-label="Earlier days">${IC.prev}</button><button type="button" class="rb-arw" data-rb="1" aria-label="Later days">${IC.next}</button></div></div>
     <div class="rb-track" id="rbTrack" role="tablist" aria-label="Days">${cols}</div>
@@ -516,7 +515,7 @@ function raceRows(type) {
 function nwRace() {
   const r = raceRows(NW.race) || raceRows(NW.race = NW.race === 'tv' ? 'movie' : 'tv'); if (!r) return '';
   return `<section class="wk race" id="nwRace" aria-labelledby="raceH">
-    <div class="wk-hd race-hd"><h2 class="row-h" id="raceH">The Week on the Charts</h2><p>How the UK's top 10 moved, day by day</p>
+    <div class="wk-hd race-hd"><h2 class="row-h" id="raceH">The week on the charts</h2><p>How the UK's top 10 moved, day by day</p>
       <label class="dd dd-kind race-dd"><span class="dd-l" id="raceL">${NW.race === 'movie' ? 'Films' : 'Shows'}</span><span class="dd-chev" aria-hidden="true"></span>
         <select id="raceKind" aria-label="Shows or films"><option value="tv"${NW.race === 'tv' ? ' selected' : ''}>Shows</option><option value="movie"${NW.race === 'movie' ? ' selected' : ''}>Films</option></select></label></div>
     <div class="race-box" id="raceBox">${raceInner(r)}</div></section>`;
@@ -561,7 +560,7 @@ function raceMount() {
 function nwLeaving(leaving, today) {
   if (!leaving.length) return '';
   const left = (d) => { const n = Math.round((Date.parse(d + 'T12:00:00Z') - Date.parse(today + 'T12:00:00Z')) / 864e5); return n <= 0 ? 'Last day' : n === 1 ? '1 day left' : `${n} days left`; };
-  return `<section class="wk" id="leaving" aria-labelledby="lvH"><div class="wk-hd"><h2 class="row-h" id="lvH">Last Chance</h2><p>Leaving the services soon</p></div>
+  return `<section class="wk" id="leaving" aria-labelledby="lvH"><div class="wk-hd"><h2 class="row-h" id="lvH">Last chance</h2><p>Leaving the services soon</p></div>
     <ul class="nr">${leaving.map((x) => {
       const s = svc(x.service), on = fmtDate(new Date(x.date + 'T12:00:00'), { weekday: 'short', day: 'numeric', month: 'short' });
       const inner = `<span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : placeholder(x)}<span class="cu-when lv-when">${esc(left(x.date))}</span></span>
@@ -575,20 +574,23 @@ function nwLeaving(leaving, today) {
 function nwMount() {
   NW.io?.disconnect();
   if ($('#rbTrack')) pickDay(NW.day, 'auto');
-  raceMount();
-  const g = $('#raceG'), counts = view.querySelectorAll('[data-count]');
-  if (reduceMotion()) g?.classList.add('in');
-  else {
-    NW.io = new IntersectionObserver((es) => es.forEach((e) => {
-      if (!e.isIntersecting) return; NW.io.unobserve(e.target);
-      if (e.target === g) g.classList.add('in'); else countUp(e.target);
-    }), { threshold: .25 });
-    if (g) NW.io.observe(g); counts.forEach((b) => NW.io.observe(b));
+  const counts = view.querySelectorAll('[data-count]');
+  if (!reduceMotion()) {
+    NW.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { NW.io.unobserve(e.target); countUp(e.target); } }), { threshold: .25 });
+    counts.forEach((b) => NW.io.observe(b));
   }
   const tip = window.tn.tip;
-  if ($('.nw-stats')) tip({ id: 'new-week-numbers', for: '.nw-stats', title: 'The week in numbers', text: 'What arrived, what’s on the way, the new No. 1s and what’s about to leave. Tap a number to jump straight to it.' });
+  if ($('.nw-stats')) tip({ id: 'new-week-numbers', for: '.nw-stats', title: 'The week in numbers', text: 'What arrived, what’s on the way, what’s about to leave and what’s in cinemas. Tap a number to jump straight to it.' });
   if ($('#rbTrack')) tip({ id: 'new-day-by-day', for: '#rbTrack', title: 'Day by day', text: 'Swipe along the days, or use the arrows. Pick one to see what landed on the services that day, or what’s on the way, with a calendar reminder for anything ahead.' });
-  if (g) tip({ id: 'new-chart-race', for: '#raceBox', title: 'The week on the charts', text: 'Each line is one of the UK’s top 10, traced through its place each day this week. Point at a title or its line to follow it, and tap a title to see where to watch.' });
+}
+// Top 10s: the week on the charts draws its lines in as it scrolls into view
+function weekMount() {
+  NW.io?.disconnect();
+  raceMount();
+  const g = $('#raceG'); if (!g) return;
+  if (reduceMotion()) g.classList.add('in');
+  else { NW.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { NW.io.unobserve(g); g.classList.add('in'); } }), { threshold: .25 }); NW.io.observe(g); }
+  window.tn.tip({ id: 'new-chart-race', for: '#raceBox', title: 'The week on the charts', text: 'Each line is one of the UK’s top 10, traced through its place each day this week. Point at a title or its line to follow it, and tap a title to see where to watch.' });
 }
 function countUp(b) {
   const to = +b.dataset.count, t0 = performance.now(), dur = 900 + Math.min(600, to * 20);
@@ -617,50 +619,60 @@ view.addEventListener('change', (e) => {
 view.addEventListener('pointerover', (e) => { const k = e.target.closest?.('#raceG [data-k]')?.dataset.k; if (k) raceHl(k); });
 view.addEventListener('pointerout', (e) => { if (e.target.closest?.('#raceG') && !e.relatedTarget?.closest?.('#raceG [data-k]')) raceHl(null); });
 view.addEventListener('focusin', (e) => { if (e.target.closest?.('#raceG')) raceHl(e.target.closest('[data-k]')?.dataset.k || null); });
-// New: the week on the charts (the No. 1s, the biggest climbers, new arrivals), then new on the services, coming soon
-// and leaving soon. All in the homepage's styles: rows of posters and the chart list.
+// New: what's new to watch. The week in numbers, Day by day on the services, Last chance, then the cinema. How the
+// charts moved lives on Top 10s (weekCharts, below). All in the homepage's styles: rows of posters and the chart list.
+const wkSec = (id, title, sub, inner) => inner ? `<section class="wk" aria-labelledby="${id}"><div class="wk-hd"><h2 class="row-h" id="${id}">${title}</h2>${sub ? `<p>${esc(sub)}</p>` : ''}</div>${inner}</section>` : '';
 function pageNew() {
-  const f = state.fresh, w = state.week, today = todayIso();
+  const f = state.fresh, today = todayIso();
   calItems = [];
-  const sec = (id, title, sub, inner) => inner ? `<section class="wk" aria-labelledby="${id}"><div class="wk-hd"><h2 class="row-h" id="${id}">${title}</h2>${sub ? `<p>${esc(sub)}</p>` : ''}</div>${inner}</section>` : '';
-  let charts = '';
-  if (w && (w.climbers?.length || w.ones?.length)) {
-    const ones = (w.ones || []).filter((x, i, all) => w.items[x.k] && all.findIndex((y) => y.k === x.k) === i);   // once each, its biggest chart first
-    const climbers = (w.climbers || []).filter((x) => w.items[x.k]);
-    charts = sec('wk-1', 'The No. 1s', 'Top of each chart right now, and for how long', ones.length ? `<ul class="nr">${ones.map((x) => weekCard(x, `${x.fresh ? 'New No. 1 ' : 'No. 1 '}${chartName(x.c)}${x.days > 1 ? ` · ${x.days} days` : ''}`)).join('')}</ul>` : '')
-      + sec('wk-2', 'Biggest Climbers', `Up the most places ${sinceText(w)}`, climbers.length ? `<ol class="cl nw-cl">${climbers.map((x) => {
-        const it = w.items[x.k];
-        return `<li><a href="${esc(tmdbUrl(it.type, it.id))}" target="_blank" rel="noopener" ${reg(weekInfo(x, `Up ${x.by} to No. ${x.to} ${chartName(x.c)}`))}>
-          ${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
-          <span class="cl-t"><b>${esc(it.title)}</b><small>No. ${x.from} → No. ${x.to} ${esc(chartName(x.c))}</small></span>
-          ${window.tn.climb(x.by)}</a></li>`; }).join('')}</ol>` : '')
-      + sec('wk-3', 'New Arrivals', `In the UK's top 10 now, nowhere in the charts ${w.days >= 6 ? 'a week ago' : 'before'}`, w.arrivals?.length ? `<ul class="nr">${w.arrivals.map((x) => weekCard(x, `New at No. ${x.to} ${chartName(x.c)}`)).join('')}</ul>` : '');
-  }
+  const sec = wkSec;
   // At the cinema: what's showing in UK cinemas, then what's coming (each with its UK date and certificate)
   const c = state.cinema, inCinemas = (c?.now || []).filter((x) => x.date <= today), toCinemas = (c?.soon || []).filter((x) => x.date > today);
   const out = (x) => fmtDate(new Date(x.date + 'T12:00:00'), { day: 'numeric', month: 'short' });
   const filmCard = (x, sub, badge) => `<li><a href="${esc(tmdbUrl('movie', x.id))}" target="_blank" rel="noopener" ${reg(infoFor(x, 'movie', badge ? `In cinemas ${out(x)}` : 'In cinemas now'))}>
     <span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : placeholder(x)}${badge ? `<span class="cu-when">${esc(badge)}</span>` : ''}</span>
     <b>${esc(x.title)}</b><small>${esc(sub)}</small></a></li>`;
-  const cinema = sec('cinema', 'At the Cinema', 'Showing in UK cinemas now', inCinemas.length ? `<ul class="nr">${inCinemas.map((x) => filmCard(x, [x.cert, `Out ${out(x)}`].filter(Boolean).join(' · '))).join('')}</ul>` : '')
-    + sec('cinema-soon', 'Coming to Cinemas', 'Out in the UK over the next three months', toCinemas.length ? `<ul class="nr">${toCinemas.map((x) => filmCard(x, [x.cert, out(x)].filter(Boolean).join(' · '), window.tn.whenText(x.date))).join('')}</ul>` : '');
+  const cinema = sec('cinema', 'At the cinema', 'Showing in UK cinemas now', inCinemas.length ? `<ul class="nr">${inCinemas.map((x) => filmCard(x, [x.cert, `Out ${out(x)}`].filter(Boolean).join(' · '))).join('')}</ul>` : '')
+    + sec('cinema-soon', 'Coming to cinemas', 'Out in the UK over the next three months', toCinemas.length ? `<ul class="nr">${toCinemas.map((x) => filmCard(x, [x.cert, out(x)].filter(Boolean).join(' · '), window.tn.whenText(x.date))).join('')}</ul>` : '');
   const leaving = f && !f.disabled && !f.error ? (f.leaving || []).filter((x) => x.date >= today) : [];
-  const ribbon = nwRibbon(f, today), race = nwRace();
-  if (!charts && !ribbon && !cinema && !race) return `<h1 class="large-title page-title">New <em class="grad">This Week</em></h1>
+  const ribbon = nwRibbon(f, today);
+  if (!ribbon && !cinema && !leaving.length) return `<h1 class="large-title page-title">New <em class="grad">This Week</em></h1>
     <div class="empty"><span class="empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z" fill="currentColor"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z" fill="currentColor"/></svg></span>
-      <h2>${f?.error ? 'Back shortly' : 'Building up'}</h2><p>${f?.error ? "This week's round-up didn't load this time. It'll be back after the next hourly update." : 'The week fills in as Tenner keeps an eye on the charts and the services. Check back tomorrow.'}</p>
-      <a class="btn btn-tinted" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.4 12 4l8 6.4V20h-5v-5.6H9V20H4z" fill="currentColor"/></svg>See the top 10</a></div>`;
+      <h2>${f?.error ? 'Back shortly' : 'Building up'}</h2><p>${f?.error ? "This week's round-up didn't load this time. It'll be back after the next hourly update." : 'The week fills in as Tenner keeps an eye on the services. Check back tomorrow.'}</p>
+      <a class="btn btn-tinted" href="charts.html#top10">${TOP10_IC}See the Top 10s</a></div>`;
   return `<h1 class="large-title page-title">New <em class="grad">This Week</em></h1>
-    <p class="lede">${w?.climbers?.length ? `What moved on the UK's charts ${esc(sinceText(w))}, and what's new on the services.` : 'What’s new on the services.'} Rebuilt every hour; a few UK dates may differ from the US listings they come from.</p>
+    <p class="lede">What's arrived on the services, what's on the way, what's leaving and what's on at the cinema. Updated every hour; a few UK dates may differ from the US listings they come from.</p>
     ${state.trending.sample ? `<p class="notice"><strong>Sample data.</strong> These titles are made up.</p>` : ''}
-    ${nwStats(f, w, today, leaving)}${ribbon}${race}${charts}${nwLeaving(leaving, today)}${cinema}`;
+    ${nwStats(f, inCinemas.length, today, leaving)}${ribbon}${nwLeaving(leaving, today)}${cinema}`;
 }
-// ---------- Top 10 by Service: each service's own top 10, in boxes lined up side by side so you can see what's charting
+const TOP10_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+// How the charts moved this week, under the services' boxes on Top 10s: the UK's top 10 traced day by day, the No. 1s,
+// the biggest climbers and the titles new to the top 10 (data/week.json and data/trail.json, rebuilt hourly)
+function weekCharts() {
+  const w = state.week, sec = wkSec, okK = (x) => TT.kind === 'both' || x.c.split(':')[1] === TT.kind;   // kept to Shows or Films when the page is
+  if (TT.kind !== 'both') NW.race = TT.kind;
+  let charts = '';
+  if (w && (w.climbers?.length || w.ones?.length)) {
+    const ones = (w.ones || []).filter((x, i, all) => w.items[x.k] && okK(x) && all.findIndex((y) => y.k === x.k) === i);   // once each, its biggest chart first
+    const climbers = (w.climbers || []).filter((x) => w.items[x.k] && okK(x));
+    const arrivals = (w.arrivals || []).filter((x) => w.items[x.k] && okK(x));
+    charts = sec('wk-1', 'The No. 1s', 'Top of each chart right now, and for how long', ones.length ? `<ul class="nr">${ones.map((x) => weekCard(x, `${x.fresh ? 'New No. 1 ' : 'No. 1 '}${chartName(x.c)}${x.days > 1 ? ` · ${x.days} days` : ''}`)).join('')}</ul>` : '')
+      + sec('wk-2', 'Biggest climbers', `Up the most places ${sinceText(w)}`, climbers.length ? `<ol class="cl nw-cl">${climbers.map((x) => {
+        const it = w.items[x.k];
+        return `<li><a href="${esc(tmdbUrl(it.type, it.id))}" target="_blank" rel="noopener" ${reg(weekInfo(x, `Up ${x.by} to No. ${x.to} ${chartName(x.c)}`))}>
+          ${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
+          <span class="cl-t"><b>${esc(it.title)}</b><small>No. ${x.from} → No. ${x.to} ${esc(chartName(x.c))}</small></span>
+          ${window.tn.climb(x.by)}</a></li>`; }).join('')}</ol>` : '')
+      + sec('wk-3', 'New in the top 10', `Charting now, nowhere in the charts ${w.days >= 6 ? 'a week ago' : 'before'}`, arrivals.length ? `<ul class="nr">${arrivals.map((x) => weekCard(x, `New at No. ${x.to} ${chartName(x.c)}`)).join('')}</ul>` : '');
+  }
+  return nwRace() + charts;
+}
+// ---------- Top 10s: each service's own top 10, in boxes lined up side by side so you can see what's charting
 // everywhere at once. The boxes are the homepage's Top 10 box; the charts are rebuilt every hour, and the page redraws
 // itself when a new one lands (refresh, above). With shows and films, each box has five of each and See more opens every
 // box out to ten together, so the rows stay level across the services. ----------
 const TT = { kind: 'both', open: false };
-try { const k = localStorage.getItem('tenner-tt-kind'); if (['tv', 'movie', 'both'].includes(k)) TT.kind = k; } catch {}
+try { const k = localStorage.getItem('tenner-tt-kind') || localStorage.getItem('tenner-kind'); if (['tv', 'movie', 'both'].includes(k)) TT.kind = k; } catch {}   // your own pick here, or Settings' Show
 const TT_WORDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
 const ttArrow = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d < 0 ? 'M14.5 5.5 8 12l6.5 6.5' : 'm9.5 5.5 6.5 6.5-6.5 6.5'}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function ttBox(s) {
@@ -688,11 +700,11 @@ function pageTop10() {
   const boxes = list.map(ttBox).filter(Boolean);
   const at = new Date(state.trending.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   const more = TT.kind === 'both' && list.some((s) => (s.tv || []).length > 5 || (s.movie || []).length > 5);
-  return `<h1 class="large-title page-title">Top 10 <em class="grad">by Service</em></h1>
-    <p class="lede">What's charting on each service right now, side by side. Updated every hour${when ? `, last at ${esc(when)}` : ''}.</p>
+  return `<h1 class="large-title page-title">The <em class="grad">Top 10s</em></h1>
+    <p class="lede">What's charting on each service right now, side by side, and how the charts moved this week. Updated every hour${when ? `, last at ${esc(when)}` : ''}.</p>
     ${state.trending.sample ? `<p class="notice"><strong>Sample data.</strong> These titles are made up.</p>` : ''}
     <section class="wk tt" aria-labelledby="ttH">
-      <div class="wk-hd tt-hd"><h2 class="row-h" id="ttH">The Charts</h2><p>${list.length} services, from No. 1 down</p>
+      <div class="wk-hd tt-hd"><h2 class="row-h" id="ttH">By service</h2><p>${list.length} services, from No. 1 down</p>
         <span class="tt-acts">
           <label class="dd dd-kind"><span class="dd-l" id="ttKindL">${TT_WORDS[TT.kind]}</span><span class="dd-chev" aria-hidden="true"></span>
             <select id="ttKind" aria-label="Shows, films or both">${Object.entries(TT_WORDS).map(([k, l]) => `<option value="${k}"${k === TT.kind ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
@@ -700,7 +712,7 @@ function pageTop10() {
       ${boxes.length ? `<div class="tt-row" id="ttRow">${boxes.join('')}</div>
       ${more ? `<button type="button" class="bx-more tt-more" id="ttMore" aria-controls="ttRow" aria-expanded="${TT.open}">${TT.open ? 'Show less' : 'See more'}</button>` : ''}`
       : `<p class="lede">The services' charts are on their way. They'll be here after the next hourly update.</p>`}
-    </section>`;
+    </section>${weekCharts()}`;
 }
 function ttMount() {
   const row = $('#ttRow'), go = [...view.querySelectorAll('[data-tgo]')];
@@ -708,6 +720,7 @@ function ttMount() {
     TT.kind = e.target.value; try { localStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
     const x = row?.scrollLeft || 0; render(); requestAnimationFrame(() => { const r = $('#ttRow'); if (r) r.scrollLeft = x; });
   });
+  window.tn.tip({ id: 'top10s-every-chart', for: '#ttH', title: 'Every chart in one place', text: 'Each service’s top 10 side by side, then how the UK’s charts moved this week: the No. 1s, the biggest climbers and what’s new in the top 10.' });
   if (!row) { go.forEach((b) => (b.hidden = true)); return; }
   const ends = () => {
     const max = row.scrollWidth - row.clientWidth - 2;

@@ -35,13 +35,15 @@
   ];
 
   let cat = null, logos = {}, labels = {}, shown = 0, list = [];
-  const state = { c: 'popular', k: 'tv', s: [], g: [], sort: null, r: 0, q: '', y: null, a: '', rt: '' };
+  // Shows, films or both starts from Settings' Show (shows if you haven't chosen); the address only says so when it differs
+  const KIND0 = (() => { try { const k = localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'tv'; } catch { return 'tv'; } })();
+  const state = { c: 'popular', k: KIND0, s: [], g: [], sort: null, r: 0, q: '', y: null, a: '', rt: '' };
 
   // ---------- URL <-> state ----------
   function readHash() {
     const q = new URLSearchParams(location.hash.slice(1));
     state.c = COLLECTIONS.some((c) => c.key === q.get('c')) ? q.get('c') : 'popular';
-    state.k = ['movie', 'both'].includes(q.get('k')) ? q.get('k') : 'tv';
+    state.k = ['tv', 'movie', 'both'].includes(q.get('k')) ? q.get('k') : KIND0;
     // no services in the address: your own (My services), if you've chosen them; "all" means all six
     const mine = window.tn.mine.get().filter((k) => labels[k]);
     state.s = q.get('s') === 'all' ? [] : q.has('s') ? q.get('s').split(',').filter((k) => labels[k]) : mine;
@@ -57,7 +59,7 @@
   function writeHash() {
     const q = new URLSearchParams();
     if (state.c !== 'popular') q.set('c', state.c);
-    if (state.k !== 'tv') q.set('k', state.k);
+    if (state.k !== KIND0) q.set('k', state.k);
     const mine = window.tn.mine.get().filter((k) => labels[k]);
     const same = state.s.length === mine.length && state.s.every((k) => mine.includes(k));
     if (!same) q.set('s', state.s.length ? state.s.join(',') : 'all');
@@ -303,7 +305,7 @@
     document.querySelectorAll('.coll-b').forEach((b) => b.setAttribute('aria-checked', b.dataset.c === state.c));
     { const tr = $('#coll'), on = tr.querySelector('[aria-checked="true"]');   // phones: the chosen one slides into view
       if (on && tr.scrollWidth > tr.clientWidth + 1) tr.scrollTo({ left: Math.max(0, on.offsetLeft - tr.clientWidth / 2 + on.offsetWidth / 2), behavior: reduce() ? 'auto' : 'smooth' }); }
-    $('#kindSel').value = state.k; $('#kindL').textContent = { tv: 'Shows', movie: 'Films', both: 'Both' }[state.k];
+    $('#kindSel').value = state.k; $('#kindL').textContent = { tv: 'Shows', movie: 'Films', both: 'Shows and films' }[state.k];
     document.querySelectorAll('#where input').forEach((i) => { i.checked = state.s.includes(i.dataset.s); });
     const sk = q && !state.sort ? '' : sortKey();   // searching: best match first unless you pick a sort
     const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : 'By day'; o0.hidden = !q && !collection().order;

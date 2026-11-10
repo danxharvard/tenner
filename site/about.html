@@ -44,8 +44,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.65.0">
-  <link rel="stylesheet" href="about.css?v=2.65.0">
+  <link rel="stylesheet" href="styles.css?v=2.66.0">
+  <link rel="stylesheet" href="about.css?v=2.66.0">
 
 </head>
 <body class="about">
@@ -96,7 +96,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.65.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.66.0</a>
     </div>
   </div>
 
@@ -115,7 +115,7 @@
       <h1 id="h-about" data-title="About">Find your next <span class="grad">favourite.</span></h1>
       <p class="ab-lede">Live charts from the six biggest streamers, a Top 10 made just for you, and a quicker way to discover something new. Free, and all in one place.</p>
       <div class="ab-acts">
-        <a class="btn btn-tinted ab-btn" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10</a>
+        <a class="btn btn-tinted ab-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10s</a>
         <a class="btn btn-tinted ab-btn" href="discover.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>Start discovering</a>
       </div>
     </div>
@@ -128,8 +128,8 @@
       <div class="ab-copy">
         <p class="ab-k ab-k1"><i class="ab-live" aria-hidden="true"></i><span id="abUpd">Live charts</span></p>
         <h2 id="h-live">What everyone’s watching. <span class="dim">Right now.</span></h2>
-        <p>The top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, rebuilt every hour from what people across the UK are watching, searching for and saving.</p>
-        <a class="btn btn-tinted ab-btn" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10</a>
+        <p>The top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, rebuilt every hour from what people are watching, searching for and saving, kept to what’s streaming in the UK.</p>
+        <a class="btn btn-tinted ab-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10s</a>
       </div>
       <div class="ab-vis ab-box lit">
         <div class="ab-box-hd"><h3>Top shows in the UK</h3><span class="ab-pill" id="abHour">This hour</span></div>
@@ -195,7 +195,7 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.65.0</a></p>
+    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.66.0</a></p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
@@ -253,6 +253,6 @@
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.65.0" defer></script>
+  <script src="shell.js?v=2.66.0" defer></script>
 </body>
 </html>

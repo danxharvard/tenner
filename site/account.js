@@ -274,7 +274,7 @@
       const inPill = tn.signIn({ ...signInWith, lede }, $('#acSignIn'));
       signInWith = {};
       $('#acSignIn').hidden = inPill;
-      $('#acOutLede').textContent = inPill ? 'Sign in or make a free account at the top right. It keeps your Watchlist, progress and settings in step on every device.'
+      $('#acOutLede').textContent = inPill ? 'Sign in or sign up for free at the top right. It keeps your Watchlist, progress and settings in step on every device.'
         : lede || 'Your Tenner, everywhere. It’s optional: Tenner works just the same without.';
     }
   }
