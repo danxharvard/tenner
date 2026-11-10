@@ -9,14 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for p in / /index.html /about.html /about /browse.html /people.html /sw.js /styles.css?v=2.50.5 /data/trending.json /nope.html /t/t1399/ /t/t1399 /manifest.webmanifest /fonts/ /favicon.svg; do
-            echo "== $p"; curl -s -o /dev/null -D - -m 20 -w 'time %{time_total}s size %{size_download}\n' "https://tenner.stream$p" | grep -iE '^(HTTP|location|cache-control|content-type|content-encoding|etag|time)'
+          SA='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
+          echo "== 403 body"; curl -s -D - https://tenner.stream/ | grep -iE '^(cf-mitigated|server|HTTP)|<title>' | head
+          echo "== safari UA"; curl -s -o /dev/null -w '%{http_code}\n' -A "$SA" https://tenner.stream/
+          echo "== imessage UA"; curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1 Facebot Twitterbot/1.0' https://tenner.stream/t/t1399/
+          echo "== whatsapp UA"; curl -s -o /dev/null -w '%{http_code}\n' -A 'WhatsApp/2.23.20.0' https://tenner.stream/t/t1399/
+          W=https://tenner-site.danseacroft.workers.dev
+          for p in / /index.html /about.html /about /browse.html /people.html /data/trending.json /nope.html /t/t1399/ /t/t1399 /manifest.webmanifest /?t=t1399; do
+            echo "== $p"; curl -s -o /dev/null -D - -m 20 -w 'time %{time_total}s size %{size_download}\n' "$W$p" | grep -iE '^(HTTP|location|cache-control|content-type|time)'
           done
-          echo "== www"; curl -s -o /dev/null -D - "https://www.tenner.stream/browse.html?x=1" | grep -iE '^(HTTP|location)'
-          echo "== gzip"; curl -s -o /dev/null -H 'Accept-Encoding: br, gzip' -D - https://tenner.stream/shell.js | grep -iE '^(HTTP|content-encoding|cache-control)'
-          echo "== pages copy"; curl -s -o /dev/null -w '%{http_code}\n' https://danxharvard.github.io/tenner/
-          echo "== api"; curl -s -o /dev/null -w '%{http_code} %{time_total}\n' -H 'Origin: https://tenner.stream' https://tenner-api.danseacroft.workers.dev/title/t1399
-          curl -s -D - -o /dev/null -H 'Origin: https://www.tenner.stream' https://tenner-api.danseacroft.workers.dev/title/t1399 | grep -iE '^(HTTP|access-control)'
-          echo "== onair"; curl -s -D - -o /dev/null -H 'Origin: https://tenner.stream' https://tenner-tv.danseacroft.workers.dev/api/onair | grep -iE '^(HTTP|access-control|cache-control)'
-          echo "== trending age"; curl -s "https://tenner.stream/data/trending.json?v=$(date +%s)" | jq -r .generatedAt
-          ls -la; for f in trending titles browse browse-more new week cinema prices history trail; do echo "$f $(curl -s -o /dev/null -w '%{size_download}' https://tenner.stream/data/$f.json)"; done
+          echo "== age"; curl -s "$W/data/trending.json?v=$(date +%s)" | jq -r .generatedAt
+          echo "== new"; curl -s "$W/data/new.json" | jq -c '{generatedAt, error, n: (.items|length)}'
+          echo "== history"; curl -s "$W/data/history.json" | jq -c '{h: (.hours|keys), d: (.days|keys)}'
+          for f in trending titles browse browse-more new week cinema prices history trail; do echo "$f $(curl -s -o /dev/null -w '%{size_download}' $W/data/$f.json)"; done
+          echo "== tv"; curl -s -o /dev/null -w '%{http_code}\n' -A "$SA" https://tv.tenner.stream/
