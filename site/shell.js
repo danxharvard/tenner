@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.59.0';
+  const version = '2.60.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -889,8 +889,58 @@
     const over = $('.ab-hero');
     // its own row above the page; on About, over the top of the full-width artwork instead (never pushing it off the edge), just
     // before it rather than inside it, so it stays above the Christmas lights (the artwork is a layer of its own)
-    if (!hd) (over || mainEl).insertAdjacentHTML('beforebegin', `<div class="me-row${over ? ' me-over' : ''}" id="meRow"></div>`);
-    (hd || $('#meRow')).insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><a class="bx-me-card" id="bxMeCard" href="account.html"></a><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
+    // On the homepage a slot in its header keeps the place above the dropdowns, and the pill floats over that slot from
+    // outside the page's own layer, so the Christmas lights hang behind it there too
+    if (hd) hd.insertAdjacentHTML('beforeend', '<div class="bx-me-slot" id="meSlot" aria-hidden="true"></div>');
+    (over || mainEl).insertAdjacentHTML('beforebegin', `<div class="me-row${over ? ' me-over' : hd ? ' me-abs' : ''}" id="meRow"></div>`);
+    $('#meRow').insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><button type="button" class="bx-me-card" id="bxMeCard" aria-haspopup="true" aria-expanded="false" aria-controls="meMenu"></button><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
+    // the dropdown lives at the end of the page rather than inside the pill, so its own frost blurs the page (glass inside
+    // glass would only blur the pill); it's placed under the pill each time it opens
+    document.body.insertAdjacentHTML('beforeend', '<div class="me-menu" id="meMenu" role="dialog" aria-label="Your account" hidden></div>');
+    // ---------- tap the pill: a dropdown with your account at a glance (status, numbers, links). It grows out of the pill
+    // like a drop of liquid (springy scale and a softening blur, the rows following one after another), only with motion on.
+    let syncedAt = 0;
+    addEventListener('tn:synced', () => { syncedAt = Date.now(); if (!$('#meMenu').hidden) fillMenu(); });
+    const ago = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : `${Math.round(m / 60)} hr ago`; };
+    const ME_I = {
+      acct: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.8 19.5c1.2-3.6 4-5.3 7.2-5.3s6 1.7 7.2 5.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+      list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+      set: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+      chev: '<svg class="me-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    };
+    function fillMenu() {
+      const u = account.user(); if (!u) return;
+      const off = navigator.onLine === false;
+      const status = off ? ['off', 'Offline', 'Changes sync when you’re back online'] : ['on', 'Synced', syncedAt ? `Updated ${ago(syncedAt)}` : 'On all your devices'];
+      const since = u.created ? new Date(u.created).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
+      const n = (v, l, i) => `<div class="me-n" style="--i:${i}"><b>${v.toLocaleString('en-GB')}</b><small>${l}</small></div>`;
+      const wl = saved.all().length, watched = seen.list().length, going = Object.keys(progress.all()).length, loved = stars.all().length, svc = mine.get().length || 6;
+      const row = (href, ic, t, sub, i) => `<a class="me-row-l" href="${href}" style="--i:${i}"><i>${ic}</i><span><b>${t}</b><small>${sub}</small></span>${ME_I.chev}</a>`;
+      $('#meMenu').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
+        <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
+        <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
+        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved · ${svc} service${svc === 1 ? '' : 's'}`, 5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
+    }
+    const menu = () => $('#meMenu'), card = () => $('#bxMeCard');
+    function openMenu() {
+      fillMenu(); const m = menu(), r = $('#bxMe').getBoundingClientRect();
+      m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
+      m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
+      requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
+      account.sync();   // freshen the numbers while it's open
+    }
+    function closeMenu(focus) {
+      const m = menu(); if (m.hidden) return;
+      m.classList.remove('in'); card().setAttribute('aria-expanded', 'false');
+      const end = () => { if (!m.classList.contains('in')) m.hidden = true; };
+      if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 260);
+      if (focus) card().focus();
+    }
+    $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu() : closeMenu()));
+    document.addEventListener('click', (e) => { if (!e.target.closest('#bxMe, #meMenu')) closeMenu(); });
+    addEventListener('resize', () => closeMenu());
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu().hidden) closeMenu(true); });
+    addEventListener('online', () => { if (!menu().hidden) fillMenu(); }); addEventListener('offline', () => { if (!menu().hidden) fillMenu(); });
     let dlg = null;
     const ask = () => {
       if (!dlg) {
@@ -909,15 +959,22 @@
       }
       dlg.returnValue = ''; dlg.showModal();
     };
-    $('#bxMeOut').addEventListener('click', ask);
+    $('#bxMeOut').addEventListener('click', () => { closeMenu(); ask(); });
     const drawMe = () => {
       const u = account.user(), box = $('#bxMe');
-      box.hidden = !u; hd?.classList.toggle('me-on', !!u); document.documentElement.classList.toggle('me-in', !!u);
+      box.hidden = !u; if (!u) closeMenu(); hd?.classList.toggle('me-on', !!u); placeMe(); document.documentElement.classList.toggle('me-in', !!u);
       if (!u) return;
-      $('#bxMeCard').innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>`;
-      if (matchMedia('(min-width: 720px)').matches) setTimeout(() => featureTip({ id: 'home-account-card', for: '#bxMeCard', title: 'You, top right',
-        text: 'You’re signed in, so your Watchlist and settings sync across your devices. Tap your name for your account, or the round button to sign out.' }));
+      $('#bxMeCard').innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span><svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      if (!menu().hidden) fillMenu();
+      if (matchMedia('(min-width: 720px)').matches) setTimeout(() => featureTip({ id: 'account-dropdown', for: '#bxMeCard', title: 'Your account at a glance',
+        text: 'Tap your name to see your sync status and your Tenner in numbers, with quick links to your account, Watchlist and settings.' }));
     };
+    function placeMe() {
+      const sl = $('#meSlot'); if (!sl) return;
+      const r = sl.getBoundingClientRect(), row = $('#meRow');
+      row.style.top = `${r.top + scrollY}px`; row.style.right = `${document.documentElement.clientWidth - r.right}px`;
+    }
+    addEventListener('resize', placeMe); new ResizeObserver(placeMe).observe(hd || document.body);
     drawMe(); addEventListener('tn:account', drawMe);
   }
   // the colour you picked for your account becomes Tenner's accent everywhere: links, highlights, the menu's icons, focus

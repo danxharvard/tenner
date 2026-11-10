@@ -1918,6 +1918,7 @@ p { text-wrap: pretty; }
 @media (min-width: 720px) {
   /* everywhere but the homepage: a row of its own above the page, its right edge in line with the homepage's */
   .me-row:has(.bx-me:not([hidden])) { display: flex; justify-content: flex-end; max-width: var(--max); margin: 0 auto 0 var(--page-left); padding: 14px var(--me-r, var(--gutter-r)) 0 var(--gutter); }
+  .me-row.me-abs:has(.bx-me:not([hidden])) { position: absolute; z-index: 49; left: auto; max-width: none; margin: 0; padding: 0; }
   .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 49; top: 0; right: 0; left: auto; margin: 0; }
   /* tablets: below the floating bar, never over its tabs and buttons */
   @media (max-width: 999px) { .me-row.me-over:has(.bx-me:not([hidden])) { top: calc(env(safe-area-inset-top, 0px) + 60px); } }
@@ -1933,7 +1934,7 @@ p { text-wrap: pretty; }
 .bx-me-card:active { transform: scale(.98); }
 .bx-me-card:focus-visible, .bx-me-out:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bx-me-card .av { width: 38px; height: 38px; font-size: 16px; }
-.bx-me-card > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.bx-me-card > span { display: grid; gap: 2px; min-width: 0; }
 .bx-me-card b { font: 600 15px/1.2 var(--font); letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bx-me-card small { font-size: 13px; line-height: 1.2; color: var(--label2); white-space: nowrap; }
 /* Sign out: a circle inside the pill, the owner's dark grey with a white icon */
@@ -1983,3 +1984,49 @@ a.side-ver-text { color: inherit; }
 @media (hover: hover) { a.side-ver:hover, a.side-ver-text:hover { color: var(--label); text-decoration: underline; } }
 a.side-ver:focus-visible, a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
+
+/* ---------- the account dropdown: tap the pill (shell.js). Frosted, the one corner, rows like the chart list; it grows
+   out of the pill like a drop of liquid (a springy scale from its top right, a blur that clears, rows following on) ---------- */
+.bx-me-card { border: 0; cursor: pointer; font: inherit; text-align: left; background: none; }
+.bx-me-card .me-dn { flex: none; width: 16px; height: 16px; margin-left: -4px; color: var(--label2); transition: transform .45s var(--ease-spring); }
+.bx-me-card[aria-expanded="true"] { background: var(--fr-in); }
+.bx-me-card[aria-expanded="true"] .me-dn { transform: rotate(180deg); }
+.me-menu { position: absolute; z-index: 60; width: 330px; max-width: calc(100vw - 32px); padding: 14px; border-radius: var(--r);
+  color: var(--label); text-align: left; background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 30px 70px -24px rgba(0, 0, 0, .55); transform-origin: calc(100% - 120px) -10px; }
+.me-menu[hidden] { display: none; }
+.me-hd { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px; }
+.me-hd .av { width: 52px; height: 52px; font-size: 22px; }
+.me-hd > span { display: grid; gap: 2px; min-width: 0; }
+.me-hd b { font: 600 17px/1.2 var(--font); letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-hd small { font-size: 13px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-st { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: var(--r); background: var(--fr-in); font-size: 13px; line-height: 1.3; }
+.me-st i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 0 3px color-mix(in srgb, #30d158 25%, transparent); }
+.me-st-off i { background: #ff9f0a; box-shadow: 0 0 0 3px color-mix(in srgb, #ff9f0a 25%, transparent); }
+.me-st b { font-weight: 600; }
+.me-st span { min-width: 0; color: var(--label2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.me-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.me-n { display: grid; gap: 3px; padding: 11px 12px; border-radius: var(--r); background: var(--fr-in); }
+.me-n b { font: 700 22px/1 var(--font); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.me-n small { font-size: 12px; color: var(--label2); }
+.me-links { display: grid; }
+.me-row-l { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 8px; border-radius: var(--r); color: var(--label); text-decoration: none; transition: background-color .2s ease; }
+.me-row-l + .me-row-l { box-shadow: 0 -.5px 0 var(--sep); }
+@media (hover: hover) { .me-row-l:hover { text-decoration: none; background: var(--fr-in); box-shadow: none; } .me-row-l:hover + .me-row-l { box-shadow: none; } }
+.me-row-l:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.me-row-l > i { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; color: #fff; background: var(--bt-round); }
+.me-row-l > i svg { width: 18px; height: 18px; }
+.me-row-l > span { display: grid; gap: 1px; flex: 1; min-width: 0; }
+.me-row-l b { font: 500 15px/1.25 var(--font); }
+.me-row-l small { font-size: 12.5px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-chev { flex: none; width: 15px; height: 15px; color: var(--label3, var(--label2)); }
+/* the motion: only with Settings → Animations on and no Reduce Motion (both give :root.still) */
+:root:not(.still) .me-menu { opacity: 0; transform: translateY(-14px) scale(.55, .35); filter: blur(10px); border-radius: 28px;
+  transition: opacity .22s ease, transform .26s cubic-bezier(.4, 0, .6, 1), filter .26s ease, border-radius .26s ease; }
+:root:not(.still) .me-menu.in { opacity: 1; transform: none; filter: none; border-radius: var(--r);
+  transition: opacity .25s ease, transform .62s cubic-bezier(.2, 1.35, .35, 1), filter .4s ease, border-radius .55s cubic-bezier(.2, 1.2, .35, 1); }
+:root:not(.still) .me-menu > *, :root:not(.still) .me-nums > *, :root:not(.still) .me-links > * { opacity: 0; transform: translateY(8px); }
+:root:not(.still) .me-menu.in > *, :root:not(.still) .me-menu.in .me-nums > *, :root:not(.still) .me-menu.in .me-links > * { opacity: 1; transform: none;
+  transition: opacity .35s ease calc(60ms + var(--i, 0) * 40ms), transform .55s cubic-bezier(.2, 1.3, .35, 1) calc(60ms + var(--i, 0) * 40ms); }
+:root:not(.still) .me-menu.in > .me-nums, :root:not(.still) .me-menu.in > .me-links { transition: none; }
+@media (prefers-reduced-transparency: reduce) { .me-menu { background: var(--bg2); } }
