@@ -422,3 +422,5 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 .out-dlg .out-stay { background: var(--bt-round) !important; }
 @media (hover: hover) { .out-dlg .out-stay:hover { background: var(--bt-round-hover) !important; } }
 @media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
+/* with you top right, the sidebar's own account entry steps aside (phones keep it in the menu) */
+@media (min-width: 720px) { body.home:has(.bx-hd.me-on) .side-acct { display: none; } }
