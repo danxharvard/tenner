@@ -43,3 +43,4 @@
 @media (min-width: 1000px) { .lwrap { padding-top: 20px; } }
 /* phones: the boxes filled, with no outline round them */
 @media (max-width: 719px) { .policy-box { border-color: transparent; } }
+@media (max-width: 719px) { .policy-box p, .policy-box li { font-size: 16px; } }   /* phones: reading size, no pinching */

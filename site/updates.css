@@ -26,3 +26,4 @@
   .u-row { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 12px 14px; }
   .u-meta { flex-direction: row; flex-wrap: wrap; gap: 0 10px; }
 }
+@media (max-width: 719px) { .u-body li, .u-notes { font-size: 15px; } }   /* phones: a touch bigger to read */
