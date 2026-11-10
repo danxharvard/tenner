@@ -30,9 +30,9 @@
     mark(id) { const o = tips.all(); if (o[id]) return; o[id] = Date.now(); try { localStorage.setItem(TIPS, JSON.stringify(o)); } catch {} dispatchEvent(new Event('tn:tips')); },
   };
   // no animations unless you switch them on in Settings (and never when the device asks for reduced motion)
-  const osStill = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const apply = () => { const p = prefs.get(); root.classList.toggle('still', !p.anim || osStill); root.classList.toggle('no-moves', !p.moves); root.classList.toggle('no-ratings', !p.ratings); };
-  apply();
+  const osStill = matchMedia('(prefers-reduced-motion: reduce)');
+  const apply = () => { const p = prefs.get(); root.classList.toggle('still', !p.anim || osStill.matches); root.classList.toggle('no-moves', !p.moves); root.classList.toggle('no-ratings', !p.ratings); };
+  apply(); osStill.addEventListener?.('change', apply);   // the device's Reduce Motion, switched while Tenner is open
   const reduce = () => root.classList.contains('still');   // read live: Settings, another tab or a sync can switch Animations on or off at any moment
   // every tap answers (styles.css, "polish and motion"): a ring of light from a button, the new choice gliding into a
   // pop-up button, and a small buzz from a switch where the device has one. Restarting a class replays its animation.
@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.50.6';
+  const version = '2.50.7';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -121,7 +121,7 @@
   // Each entry: { k, type, title, year, poster, at }. Pages hear "tn:saved" whenever it changes, here or in another tab.
   const WL = 'tenner-watchlist';
   const saved = {
-    all() { try { const l = JSON.parse(localStorage.getItem(WL) || '[]'); return Array.isArray(l) ? l.filter((x) => x?.k) : []; } catch { return []; } },
+    all() { try { const l = JSON.parse(localStorage.getItem(WL) || '[]'); return Array.isArray(l) ? l.filter((x) => typeof x?.k === 'string' && x.k) : []; } catch { return []; } },
     has(k) { return !!k && saved.all().some((x) => x.k === k); },
     set(l) {
       const keep = new Set(l.map((x) => x.k)), gone = saved.all().filter((x) => !keep.has(x.k));
@@ -147,6 +147,9 @@
     toggle(k) {
       if (!k) return false;
       const m = stars.map(), on = !m[k]?.[0]; m[k] = [on ? 1 : 0, Date.now()];
+      // kept from growing for ever: an unstar is let go after 120 days (other devices have heard by then), and only the newest 2,000 stay
+      const cut = Date.now() - 120 * 864e5; for (const [x, v] of Object.entries(m)) if (!v?.[0] && v?.[1] < cut) delete m[x];
+      const ks = Object.keys(m); if (ks.length > 2000) ks.sort((a, b) => (m[a]?.[1] || 0) - (m[b]?.[1] || 0)).slice(0, ks.length - 2000).forEach((x) => delete m[x]);
       try { localStorage.setItem(ST, JSON.stringify(m)); } catch {} dispatchEvent(new Event('tn:saved')); return on;
     },
   };
@@ -244,7 +247,9 @@
     return n <= 0 ? (n === 0 ? 'Today' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) : n === 1 ? 'Tomorrow'
       : n < 7 ? d.toLocaleDateString('en-GB', { weekday: 'long' }) : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   };
-  addEventListener('storage', (e) => { if (e.key === WL || e.key === PR || e.key === ST) dispatchEvent(new Event('tn:saved')); if (e.key === MS) dispatchEvent(new Event('tn:mine')); if (Object.values(MARKS).includes(e.key)) dispatchEvent(new Event('tn:marks')); if (e.key === PREFS) { apply(); dispatchEvent(new Event('tn:prefs')); } if (e.key === TIPS) tipQ.splice(0, tipQ.length, ...tipQ.filter((x) => !tips.seen(x.id))); });
+  addEventListener('storage', (e) => {
+    const is = (...k) => e.key === null || k.includes(e.key);   // null: everything was cleared (in another tab)
+    if (is(WL, PR, ST)) dispatchEvent(new Event('tn:saved')); if (is(MS)) dispatchEvent(new Event('tn:mine')); if (is(...Object.values(MARKS))) dispatchEvent(new Event('tn:marks')); if (is(PREFS)) { apply(); dispatchEvent(new Event('tn:prefs')); } if (e.key === TIPS) tipQ.splice(0, tipQ.length, ...tipQ.filter((x) => !tips.seen(x.id))); });
 
   // ---------- My services: the ones you pay for, on this device. The Top 10 gets a chart of just those, and Browse
   // starts filtered to them. Empty means "all six". ----------
@@ -807,7 +812,8 @@
     user() { try { return JSON.parse(lsGet(ACC) || 'null'); } catch { return null; } },
     async call(method, path, body) {
       const t = account.token();
-      const r = await fetch(`${api}${path}`, { method, headers: { 'content-type': 'application/json', ...(t ? { authorization: `Bearer ${t}` } : {}) }, body: body ? JSON.stringify(body) : undefined });
+      const r = await fetch(`${api}${path}`, { method, headers: { 'content-type': 'application/json', ...(t ? { authorization: `Bearer ${t}` } : {}) }, body: body ? JSON.stringify(body) : undefined })
+        .catch(() => { throw new Error(navigator.onLine === false ? 'You’re offline. Try again when you’re back online' : 'Couldn’t reach Tenner. Check your connection and try again'); });   // not the browser's "Failed to fetch"
       const d = await r.json().catch(() => ({}));
       if (r.status === 401 && t) { account.forget(); }   // signed out elsewhere (or the account was deleted)
       if (!r.ok) throw Object.assign(new Error(d.error || 'Something went wrong'), { status: r.status, data: d });
@@ -994,7 +1000,7 @@
   const loading = {
     show(k = 'page') { ldOn.add(k); ldSync(); },
     hide(k = 'page') { ldOn.delete(k); ldSync(); },
-    wrap(p, k = 'page') { loading.show(k); Promise.resolve(p).finally(() => loading.hide(k)); return p; },
+    wrap(p, k = 'page') { loading.show(k); Promise.resolve(p).finally(() => loading.hide(k)).catch(() => {}); return p; },   // the page handles its own failure
   };
   // leaving for another of Tenner's pages: the ring, should it take a moment (pages that open a sheet instead say so first)
   addEventListener('click', (e) => {

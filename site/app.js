@@ -30,8 +30,9 @@ async function load() {
   try {
     Object.assign(state, await window.tn.loading.wrap(fetchData(false)));
   } catch (err) {
-    view.innerHTML = `<div class="wrap"><h1 class="large-title">The chart didn't load</h1>
-      <p class="lede">${esc(err.message)}. If you've just set the site up, run the "Update and deploy" workflow once, then refresh.</p></div>`;
+    view.innerHTML = `<div class="wrap"><h1 class="large-title">The charts didn’t load</h1>
+      <p class="lede">${navigator.onLine === false ? 'You’re offline. They’ll be here when you’re back online.' : 'Check your connection and try again in a moment.'}</p></div>`;
+    console.warn('Tenner: the charts didn’t load', err);
     return;
   }
   if (window.tn.prefs.get().no18) state.titles = await window.tnSheet?.details();   // certificates, before the first chart

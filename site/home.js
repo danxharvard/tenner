@@ -53,6 +53,9 @@
   async function load(bust) {
     const [data, cat, week] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust)]);
     if (!data) { if (!state.data) $('#bxRows').innerHTML = '<p class="bx-empty">The charts didn’t load. Check your connection and try again.</p>'; return; }
+    // the quarter-hour check: nothing new this hour, so nothing moves (the featured titles carry on where they were)
+    const same = (a, b) => !a || a.generatedAt === b?.generatedAt;
+    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week)) return;
     Object.assign(state, { data, cat: cat || state.cat, week: week || state.week });
     state.picks = state.picks.filter((k) => services().some((s) => s.key === k));
     if (state.picks.length >= services().length) state.picks = [];

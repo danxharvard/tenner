@@ -116,9 +116,12 @@
     let d = null; try { d = JSON.parse(text); } catch {}
     if (d?.tenner === 1) {
       const have = saved.all(), keys = new Set(have.map((x) => x.k));
-      const add = (d.watchlist || []).filter((x) => x?.k && !keys.has(x.k));
-      saved.set([...have, ...add]);
-      for (const [k, p] of Object.entries(d.progress || {})) if (!progress.get(k)) progress.set(k, p);
+      // only what looks like Tenner's own: a title key, and progress as [season, episode]; the Watchlist keeps its 500 limit
+      const ok = (k) => typeof k === 'string' && /^[mt]\d{1,9}$/.test(k);
+      const add = (Array.isArray(d.watchlist) ? d.watchlist : []).filter((x) => ok(x?.k) && !keys.has(x.k) && keys.add(x.k))
+        .map((x) => ({ k: x.k, type: x.k[0] === 'm' ? 'movie' : 'tv', title: String(x.title || '').slice(0, 200), year: x.year || null, poster: typeof x.poster === 'string' ? x.poster : null, at: +x.at || Date.now() }));
+      saved.set([...have, ...add].slice(0, 500));
+      for (const [k, p] of Object.entries(d.progress || {})) if (ok(k) && Array.isArray(p) && p.length === 2 && p.every((n) => Number.isInteger(n) && n > 0 && n < 1000) && !progress.get(k)) progress.set(k, p);
       if (!mine.get().length && d.services?.length) mine.set(d.services);
       show(); say(`Imported ${add.length} new title${add.length === 1 ? '' : 's'}`); return;
     }
@@ -169,7 +172,7 @@
     return `${location.origin}${location.pathname.replace(/[^/]*$/, '')}settings.html#take=${await squeeze(JSON.stringify(data))}`;
   }
   let qrLib = null;
-  const loadQr = () => (qrLib ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qrcode.js'; sc.onload = () => res(window.qrcode); sc.onerror = rej; document.head.append(sc); }));
+  const loadQr = () => (qrLib ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qrcode.js'; sc.onload = () => res(window.qrcode); sc.onerror = (e) => { qrLib = null; sc.remove(); rej(e); }; document.head.append(sc); }));
   document.getElementById('setMove').addEventListener('click', async () => {
     const dlg = document.getElementById('moveDlg'), box = document.getElementById('moveQr');
     let link = await moveLink(true);
