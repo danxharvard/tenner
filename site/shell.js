@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.61.0';
+  const version = '2.61.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -893,7 +893,7 @@
     // outside the page's own layer, so the Christmas lights hang behind it there too
     if (hd) hd.insertAdjacentHTML('beforeend', '<div class="bx-me-slot" id="meSlot" aria-hidden="true"></div>');
     (over || mainEl).insertAdjacentHTML('beforebegin', `<div class="me-row${over ? ' me-over' : hd ? ' me-abs' : ''}" id="meRow"></div>`);
-    $('#meRow').insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><button type="button" class="bx-me-card" id="bxMeCard" aria-haspopup="true" aria-expanded="false" aria-controls="meMenu"></button><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
+    $('#meRow').insertAdjacentHTML('beforeend', `<div class="bx-me" id="bxMe" hidden><button type="button" class="bx-me-card" id="bxMeCard" aria-haspopup="true" aria-expanded="false" aria-controls="meMenu"></button><button type="button" class="bx-me-out bx-me-th" id="bxMeTh" aria-label="Switch to Day" title="Switch to Day"></button><button type="button" class="bx-me-out" id="bxMeOut" aria-label="Sign out" title="Sign out">${OUT}</button></div>`);
     // the dropdown lives at the end of the page rather than inside the pill, so its own frost blurs the page (glass inside
     // glass would only blur the pill); it's placed under the pill each time it opens
     document.body.insertAdjacentHTML('beforeend', '<div class="me-menu" id="meMenu" role="dialog" aria-label="Your account" hidden><div class="me-body" id="meBody"></div></div>');
@@ -926,7 +926,6 @@
       fillMenu(); const m = menu(), r = $('#bxMe').getBoundingClientRect();
       m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
       m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
-      const on = m.querySelector('.me-seg [aria-checked="true"]'); if (on) { on.setAttribute('aria-checked', 'false'); on.setAttribute('aria-checked', 'true'); }   // its thumb finds its place now it's visible
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
       account.sync();   // freshen the numbers while it's open
     }
@@ -1255,9 +1254,10 @@
   function showTheme() {
     const m = mode();
     modeBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
-    document.querySelectorAll('.me-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
     const dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     $('#thIc').innerHTML = $(`.th-list [data-mode="${dark ? 'dark' : 'light'}"] i`).innerHTML; // the round button: a moon by night, a sun by day
+    const meTh = $('#bxMeTh');   // ...and the same in the account pill, which flips between Day and Night
+    if (meTh) { meTh.innerHTML = $('#thIc').innerHTML; meTh.setAttribute('aria-label', dark ? 'Switch to Day' : 'Switch to Night'); meTh.title = meTh.getAttribute('aria-label'); }
   }
   // the round button opens a card just under it, lined up with its right edge
   // The card is a native popover (the browser's top layer, with its own tap-outside and Escape to close)
@@ -1304,14 +1304,12 @@
   const syncSel = () => { thSel.value = mode(); };
   modeBtns.forEach((b) => b.addEventListener('click', syncSel));
   syncSel();
-  // ...and in the account dropdown (the top-right pill): Auto, Day and Night as an iOS segmented control
-  if ($('#meMenu')) {
-    $('#meMenu').insertAdjacentHTML('beforeend', `<div class="me-theme"><span>Appearance</span><div class="segmented me-seg" role="radiogroup" aria-label="Theme"><span class="seg-thumb" aria-hidden="true"></span>${
-      [['auto', 'Auto'], ['light', 'Day'], ['dark', 'Night']].map(([m, l]) => `<button type="button" role="radio" data-mode="${m}" aria-checked="false">${$(`.th-list [data-mode="${m}"] i`)?.innerHTML || ''}${l}</button>`).join('')}</div></div>`);
-    const seg = $('.me-seg'), setMode = (b) => { window.tnTheme?.(b.dataset.mode); try { localStorage.setItem('tenner-theme', b.dataset.mode); } catch {} showTheme(); syncSel(); haptic(6); };
-    segment(seg, setMode); arrows(seg, () => [...seg.querySelectorAll('button')], setMode);
-    seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b); });
-  }
+  // ...and the round button in the account pill (top right): one tap flips between Day and Night (Auto stays in the Theme menu)
+  $('#bxMeTh')?.addEventListener('click', () => {
+    const n = $('#bxMeTh').getAttribute('aria-label') === 'Switch to Day' ? 'light' : 'dark';
+    window.tnTheme?.(n); try { localStorage.setItem('tenner-theme', n); } catch {} showTheme(); syncSel(); haptic(6);
+    if (!reduce()) replay($('#bxMeTh'), 'me-th-spin');
+  });
   showTheme();
 
   // ---------- a fade behind the floating bar once the page has scrolled ----------
