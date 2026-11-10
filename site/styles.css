@@ -1922,7 +1922,7 @@ p { text-wrap: pretty; }
   .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 49; top: 0; right: 0; left: auto; margin: 0; }
   /* tablets: below the floating bar, never over its tabs and buttons */
   @media (max-width: 999px) { .me-row.me-over:has(.bx-me:not([hidden])) { top: calc(env(safe-area-inset-top, 0px) + 60px); } }
-  :root.me-in .side-acct { display: none; }
+  body:has(#bxMe) .side-acct { display: none; }   /* the pill speaks for your account (or invites you to make one) */
   /* ...and so does the Theme button: the pill's own sun or moon does its job (Auto is in Settings) */
   :root.me-in .th-wrap, :root.me-in #thBtn { display: none; }
   /* (above the Christmas lights, as the bar's glass is: the lights never cover your name) */
@@ -2046,6 +2046,10 @@ a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
 :root:not(.still) .me-menu.in .me-body > *, :root:not(.still) .me-menu.in .me-nums > *, :root:not(.still) .me-menu.in .me-links > * { opacity: 1; transform: none;
   transition: opacity .35s ease calc(60ms + var(--i, 0) * 40ms), transform .55s cubic-bezier(.2, 1.3, .35, 1) calc(60ms + var(--i, 0) * 40ms); }
 :root:not(.still) .me-menu.in .me-body > .me-nums, :root:not(.still) .me-menu.in .me-body > .me-links { transition: none; }
+/* signed out: just the invitation (the Theme button in the sidebar is still there) */
+.bx-me.me-guest .bx-me-out { display: none; }
+.bx-me.me-guest .bx-me-card { padding-right: 14px; }
+.bx-me-card .me-go { margin-left: 0; }
 /* the pill's Day / Night button: a circle like Sign out, its sun or moon turning as it changes */
 .bx-me-th svg { width: 20px; height: 20px; margin: 0; }
 .me-th-spin svg { animation: meThSpin .55s var(--ease-spring); }
