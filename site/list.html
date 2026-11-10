@@ -43,10 +43,10 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.65.0">
-  <link rel="stylesheet" href="legal.css?v=2.65.0">
-  <link rel="stylesheet" href="settings.css?v=2.65.0">
-  <link rel="stylesheet" href="account.css?v=2.65.0">
+  <link rel="stylesheet" href="styles.css?v=2.66.0">
+  <link rel="stylesheet" href="legal.css?v=2.66.0">
+  <link rel="stylesheet" href="settings.css?v=2.66.0">
+  <link rel="stylesheet" href="account.css?v=2.66.0">
   <meta name="robots" content="noindex">
 </head>
 <body class="legal">
@@ -97,7 +97,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.65.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.66.0</a>
     </div>
   </div>
 
@@ -110,11 +110,11 @@
   <main id="main" class="lwrap set acct ls" tabindex="-1">
     <div class="ac-me"><span id="lsAv"></span><div class="ac-who"><h1 id="lsH">Watchlist</h1><p class="ls-sub" id="lsSub">Loading…</p></div></div>
     <ol class="cl nw-cl ls-list" id="lsGrid"></ol>
-    <a class="btn btn-tinted ls-cta" href="./">See what’s in the UK Top 10 on Tenner</a>
+    <a class="btn btn-tinted ls-cta" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>See the UK’s Top 10s on Tenner</a>
   </main>
 
 
-  <script src="shell.js?v=2.65.0" defer></script>
-  <script src="list.js?v=2.65.0" defer></script>
+  <script src="shell.js?v=2.66.0" defer></script>
+  <script src="list.js?v=2.66.0" defer></script>
 </body>
 </html>

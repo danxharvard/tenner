@@ -22,7 +22,7 @@
 
   // ---------- data ----------
   let known = new Set(), cat = null, more = null, certs = null, labels = {}, logos = {}, deck = [], cards = [], hist = [], added = 0;
-  let kind = (() => { try { const k = localStorage.getItem(KIND); return ['tv', 'movie', 'both'].includes(k) ? k : 'both'; } catch { return 'both'; } })();
+  let kind = (() => { try { const k = localStorage.getItem(KIND) || localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'both'; } catch { return 'both'; } })();
   const keyOf = (x) => `${x.t[0]}${x.i}`;
   const img = (x, w) => (!x.img ? null : x.wide ? `${TMDB_IMG}/${w}${x.img}` : x.img.startsWith('/') ? cat.img.replace(/\/w\d+$/, `/${w}`) + x.img : x.img);
   const year = (x) => (x.d || '').slice(0, 4) || null;

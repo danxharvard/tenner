@@ -13,7 +13,7 @@
     const h = location.hash.slice(1), start = window.tn.prefs.get().start;
     const chart = /^(new|top10|watchlist|week)$/.test(h);
     let first = true; try { first = !sessionStorage.getItem('tenner-opened'); sessionStorage.setItem('tenner-opened', '1'); } catch {}
-    const opener = first && !h && !location.search && ['new', 'watchlist'].includes(start);
+    const opener = first && !h && !location.search && ['new', 'top10', 'watchlist'].includes(start);
     if (chart || opener) { location.replace(`charts.html${location.search}#${chart ? h : start}`); return; }
   }
   const { esc, hue } = window.tn;
@@ -22,9 +22,18 @@
   const LOGO = 'https://image.tmdb.org/t/p/w500';
   const KINDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
   const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, titles: null };
-  // the services you've picked in the rail (none means all six): your last choice here, or else My services
+  // the services you've picked in the rail (none means all six): this visit's choice, or else My services, as with Show.
+  // Changing My services (in Settings, or on another device) starts the rail from them again.
   const PICKS = 'tenner-home-svc';
-  try { const l = JSON.parse(localStorage.getItem(PICKS) || 'null'); state.picks = Array.isArray(l) ? l : window.tn.mine.get(); } catch {}
+  try { localStorage.removeItem(PICKS); } catch {}   // kept for good before 2.66.0, where it hid later changes to My services
+  try { const l = JSON.parse(sessionStorage.getItem(PICKS) || 'null'); state.picks = Array.isArray(l) ? l : window.tn.mine.get(); } catch {}
+  let mineWas = JSON.stringify(window.tn.mine.get());
+  addEventListener('tn:mine', () => {
+    const m = JSON.stringify(window.tn.mine.get()); if (m === mineWas) return; mineWas = m;
+    try { sessionStorage.removeItem(PICKS); } catch {}
+    state.picks = window.tn.mine.get(); state.hero = 0;
+    if (state.data) { state.picks = state.picks.filter((k) => services().some((s) => s.key === k)); if (state.picks.length >= services().length) state.picks = []; morph(draw); }
+  });
   // this visit's choice, or else Settings' "Show"
   try { const k = sessionStorage.getItem('tenner-home-kind') || localStorage.getItem('tenner-kind'); if (KINDS[k]) state.kind = k; } catch {}
 
@@ -169,7 +178,7 @@
     const b = e.target.closest('[data-svc]'), k = b?.dataset.svc; if (!b || (k === 'all' && all())) return;
     const l = k === 'all' ? [] : state.picks.includes(k) ? state.picks.filter((x) => x !== k) : [...state.picks, k];
     state.picks = l.length >= services().length ? [] : l; state.hero = 0;
-    try { localStorage.setItem(PICKS, JSON.stringify(state.picks)); } catch {}
+    try { sessionStorage.setItem(PICKS, JSON.stringify(state.picks)); } catch {}
     window.tn.haptic?.(); morph(draw);
     $(`#bxRail [data-svc="${CSS.escape(k)}"]`)?.focus({ preventScroll: true });
   });
@@ -248,7 +257,7 @@
     const c = $('#bxCopy'); if (!c || !heroList[state.hero]?.it.xmas) return;
     const here = !xmasDays();
     c.innerHTML = `${xmasCount()}
-      <p class="bx-eye bx-eye-x">${I.sparkle}<span>${here ? 'Merry Christmas' : 'Christmas is coming'}</span></p>
+      <p class="bx-eye bx-eye-x">${I.sparkle}<span>Christmas on Tenner</span></p>
       <h2 class="bx-h-t">${here ? 'Merry Christmas from Tenner' : 'Christmas is nearly here'}</h2>
       <p class="bx-h-ov bx-h-ov-x">${esc(xmasSay())}</p>
       ${xmasHow() ? `<p class="bx-h-how">${esc(xmasHow())}</p>` : ''}
@@ -562,15 +571,15 @@
   }
   function newList() {
     const l = newShows(); if (!l.length) return '';
-    const q = new URLSearchParams({ c: 'new', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
+    const q = new URLSearchParams({ c: 'new', k: 'tv', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
     return clList('bxNs', NS(), l, () => `New show proving popular${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`, false);
   }
   function topList(k) {
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const l = topRated(k);
     if (!l.length) return '';
-    const q = new URLSearchParams({ c: 'top', ...(k === 'movie' ? { k: 'movie' } : {}), ...(all() ? {} : { s: state.picks.join(',') }) });
-    return clList(`bxCl-${k}`, `Top rated ${k === 'movie' ? 'films' : 'shows'}${g ? ` in ${esc(g)}` : ''} at a glance`, l,
+    const q = new URLSearchParams({ c: 'top', k, ...(all() ? {} : { s: state.picks.join(',') }) });
+    return clList(`bxCl-${k}`, `Top rated ${k === 'movie' ? 'films' : 'shows'}${g ? ` in ${esc(g)}` : ''}`, l,
       (i) => `No. ${i + 1} top rated${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);
   }
   // a chart list (.cl), numbered when it's a ranking, its heading linking on to Browse
@@ -578,7 +587,7 @@
     const label = (it) => (it.on || []).filter(picked).map((x) => svcOf(x)?.label).filter(Boolean).slice(0, 2).join(', ');
     return `<section class="clist bx-clist" aria-labelledby="${id}">
       <div class="row-hd"><h2 class="row-h" id="${id}">${head}</h2>
-        <a class="see-all" href="${href}">See more in Browse<span class="chev" aria-hidden="true"></span></a></div>
+        <a class="see-all" href="${href}">See all<span class="chev" aria-hidden="true"></span></a></div>
       <ol class="cl">${l.map((it, i) => `<li><a href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(infoFor(it, eye(i)))}>
         ${ranked ? `<span class="cl-n">${i + 1}</span>` : ''}
         ${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
@@ -603,12 +612,12 @@
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
   }
-  // Tenner TV: its own box here instead of a place in the menu, while it's in beta
+  // Tenner TV (the TV guide): its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {
     return `<section class="bx-panel panel bx-tv" aria-labelledby="bxTv">
-      <div class="bx-tv-hd"><span class="bx-tv-ic" aria-hidden="true">${I.tv}</span><div><h2 id="bxTv">TV Guide</h2><span class="bx-tag">Beta</span></div></div>
+      <div class="bx-tv-hd"><span class="bx-tv-ic" aria-hidden="true">${I.tv}</span><div><h2 id="bxTv">Tenner TV</h2><span class="bx-tag">Beta</span></div></div>
       <p class="bx-panel-say">What’s on Freeview tonight and all week, with reminders for the shows you love. It’s new, so give it a try and tell us what you think.</p>
-      <a class="btn btn-tinted bx-wide" href="https://tv.tenner.stream/">${I.tv}Try the TV Guide</a></section>`;
+      <a class="btn btn-tinted bx-wide" href="https://tv.tenner.stream/">${I.tv}Open Tenner TV</a></section>`;
   }
   // Discover, in a box: Tenner's swipe deck from Discover, one card at a time. Swipe right (or the bookmark) to add it to
   // your Watchlist, left (or the cross) to skip it, tap for its details. Skips are shared with the Discover page.
@@ -746,8 +755,8 @@
     const items = w.climbers.filter((c) => (all() || state.picks.some((p) => c.c.startsWith(`${p}:`)) || c.c.startsWith('all:')) && ks.includes(c.c.split(':')[1]))
       .map((c) => ({ c, it: find(c.k) })).filter(({ it }) => it && !seen.has(it.title) && seen.add(it.title)).slice(0, 5);
     if (!items.length) return '';
-    return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Climbing this week</h2></header><ul class="bx-ups">${items.map(({ c, it }) => {
-      const label = w.labels?.[c.c.split(':')[0]] || '', info = infoFor(it, 'Climbing this week');
+    return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Biggest climbers</h2><a class="bx-more" href="charts.html#top10">See all</a></header><ul class="bx-ups">${items.map(({ c, it }) => {
+      const label = w.labels?.[c.c.split(':')[0]] || '', info = infoFor(it, 'Biggest climber this week');
       return `<li><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-up-art">${poster(it)}</span>
         <span class="bx-up-copy"><b>${esc(it.title)}</b><small>Now No. ${c.to} ${label === 'the UK' ? 'in the UK' : `on ${esc(label)}`}</small></span>${window.tn.climb(c.by)}</a></li>`;
     }).join('')}</ul></section>`;

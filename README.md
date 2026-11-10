@@ -2,10 +2,10 @@
 
 **Your top ten. Every hour. Every day.**
 
-Discover what's trending right now across the UK's biggest streaming platforms. Tenner brings you the **Top 10 films and TV shows** on Netflix, Disney+, Prime Video, HBO Max and Paramount+, all in one beautifully simple place.
+Discover what's trending right now across the UK's biggest streaming platforms. Tenner brings you the **Top 10 films and TV shows** on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, all in one beautifully simple place.
 
 ✨ **What's inside?**
-- 🎬 Live Top 10 streaming charts across five major platforms
+- 🎬 Live Top 10 streaming charts across six major platforms
 - 🇬🇧 UK-focused rankings, updated every hour
 - 🍎 Sleek, minimalist, Apple-inspired design
 - 🌗 Beautiful light and dark modes

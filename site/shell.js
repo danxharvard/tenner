@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.65.0';
+  const version = '2.66.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -452,7 +452,7 @@
   if (brandEl) {
     const GLASS = '<svg class="ss-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
     brandEl.insertAdjacentHTML('afterend', `<div class="side-search" role="search">${GLASS}
-      <input id="ssQ" type="search" placeholder="Search for shows, movies, cast" aria-label="Search for shows, movies and cast" autocomplete="off" spellcheck="false" enterkeyhint="search"
+      <input id="ssQ" type="search" placeholder="Search shows, films and cast" aria-label="Search shows, films and cast" autocomplete="off" spellcheck="false" enterkeyhint="search"
         role="combobox" aria-expanded="false" aria-controls="ssRes" aria-autocomplete="list">
       <div class="ss-res" id="ssRes" role="listbox" aria-label="Search results" hidden></div></div>`);
     const box = $('.side-search'), qi = $('#ssQ'), res = $('#ssRes'), phone = matchMedia('(max-width: 719px)'), inline = matchMedia('(max-width: 719px), (min-width: 1000px)');
@@ -921,7 +921,7 @@
   const links = $('.side-links');
   if (links) {
     links.insertAdjacentHTML('afterbegin', '<a class="side-acct" id="sideAcct" href="account.html"></a>');
-    const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'Sync your devices'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
+    const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'or sign up, free'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
     draw(); addEventListener('tn:account', draw);
   }
   // signed in (computers and tablets): your picture and name top right of every page (on the homepage, above the dropdowns)
@@ -963,7 +963,7 @@
     let guest = { mode: 'in' };   // in, up, check (confirm your email), reset (from the email's link)
     function guestForm(root, o = guest) {
       const m = o.mode, up = m === 'up', q = (c) => root.querySelector(c);
-      const heads = { in: ['Sign in to Tenner', 'Your Watchlist and settings, everywhere'], up: ['Make your Tenner account', 'Free, and it keeps every device in step'],
+      const heads = { in: ['Sign in to Tenner', 'Your Watchlist and settings on every device'], up: ['Sign up for Tenner', 'Free, and it keeps every device in step'],
         check: ['Check your inbox', 'One tap on the link and you’re in'], reset: ['Choose a new password', 'Then you’re straight back in'] };
       const field = (c, type, ac, ph, extra = '') => `<input class="me-in ${c}" type="${type}" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph.replace(/ \(.*/, '')}" ${extra}>`;
       const body = m === 'check'
@@ -974,10 +974,10 @@
            <button class="btn btn-tinted me-go-btn">${TICK}Save and sign in</button></form>`
         : `${GOOGLE_ID ? '<div class="me-google" hidden></div><p class="me-or" hidden><span>or</span></p>' : ''}
            <form class="me-form" novalidate>${up ? field('me-nm', 'text', 'given-name', 'Your name', 'maxlength="40"') : ''}${field('me-e', 'email', up ? 'email' : 'username', 'Email')}${field('me-p', 'password', up ? 'new-password' : 'current-password', up ? 'Password (8 or more characters)' : 'Password')}
-           ${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}<button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Create account' : 'Sign in'}</button>
+           ${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}<button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Sign up' : 'Sign in'}</button>
            ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}</form>`;
       const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
-        : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Create an account</button>'
+        : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
       root.innerHTML = `<div class="me-hd" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
         <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>`;
@@ -1093,7 +1093,7 @@
       if (!u) {   // signed out: the same pill, inviting you to make an account or sign in, right in its dropdown
         c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span>${DN}`;
         if (wide) setTimeout(() => featureTip({ id: 'account-signup-pill', for: '#bxMeCard', title: 'Your own Tenner account',
-          text: 'Tap here to sign in or make a free account, without leaving the page. It keeps your Watchlist, progress and settings in step on every device.' }));
+          text: 'Tap here to sign in or sign up for free, without leaving the page. It keeps your Watchlist, progress and settings in step on every device.' }));
         return;
       }
       c.innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>${DN}`;
