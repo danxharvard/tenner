@@ -102,11 +102,11 @@
     }
     return out.sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).map((it) => ({ it }));
   }
-  // the catalogue (Browse's), kept to the kind, service and genre you've picked
-  function catalogue() {
+  // the catalogue (Browse's), kept to the kind, service and genre you've picked (every service for the right-hand column)
+  function catalogue(everySvc) {
     const c = state.cat; if (!c?.items) return [];
     const ks = kinds(), hid = window.tn.hidden.keys();   // Not interested (signed in): left out
-    return c.items.filter((x) => !hid.has(`${x.t[0]}${x.i}`) && ks.includes(x.t) && x.s?.length && pickedAny(x.s) && (state.genre == null || (x.g || []).includes(+state.genre)));
+    return c.items.filter((x) => !hid.has(`${x.t[0]}${x.i}`) && ks.includes(x.t) && x.s?.length && (everySvc || pickedAny(x.s)) && (state.genre == null || (x.g || []).includes(+state.genre)));
   }
   const fromCat = (x) => ({ id: x.i, type: x.t, title: x.n, year: (x.d || '').slice(0, 4), date: x.d, rating: x.r, on: x.s, url: tmdbUrl(x.t, x.i),
     poster: x.img ? (x.img.startsWith('/') ? state.cat.img + x.img : x.img) : null });
@@ -607,6 +607,8 @@
     if (!state.data) return;
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
+    if ($('#bxSide .bx-tt-i') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxSide .bx-tt-i', title: 'One Top 10 for the UK',
+      text: 'This chart combines every service, and the services you pick at the top only change the rows on the left. Tap the i to learn more, or By service for each one’s own chart.' });
   }
   // Tenner TV (the TV guide): its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {
@@ -622,10 +624,10 @@
     add(k) { const o = skips.all(); o[k] = Date.now(); try { localStorage.setItem(SKIP, JSON.stringify(o)); } catch {} } };
   let dk = { sig: '', list: [], at: 0 };
   function deck() {
-    const sig = [state.kind, state.picks.join(), state.genre, state.cat?.generatedAt].join('|');
+    const sig = [state.kind, state.genre, state.cat?.generatedAt].join('|');   // the right-hand column ignores the services above
     if (sig !== dk.sig) {
       const skip = skips.all(), have = new Set(window.tn.saved.all().map((x) => x.k));
-      const pool = catalogue().filter((x) => x.img && !skip[`${x.t[0]}${x.i}`] && !have.has(`${x.t[0]}${x.i}`)).sort((a, b) => b.p - a.p).slice(0, 120);
+      const pool = catalogue(true).filter((x) => x.img && !skip[`${x.t[0]}${x.i}`] && !have.has(`${x.t[0]}${x.i}`)).sort((a, b) => b.p - a.p).slice(0, 120);
       for (let i = pool.length - 1; i > 0; i--) { const j = Math.max(0, i - 1 - Math.floor(Math.random() * 6)); [pool[i], pool[j]] = [pool[j], pool[i]]; }   // popular first, shuffled a little
       dk = { sig, list: pool, at: 0 };
     }
@@ -696,20 +698,18 @@
     if (e.key === 'ArrowRight') { e.preventDefault(); decide(true); $('#bxSide [data-dc="yes"]')?.focus(); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); decide(false); $('#bxSide [data-dc="no"]')?.focus(); }
   });
-  // the Top 10 itself, numbered and compact, for the kind and service you've picked (with both, the shows then the films):
+  // the Top 10 itself, numbered and compact: always the combined chart for the whole UK, whatever services are picked above
+  // (those shape the left-hand column only; By service has each service's own). With both, the shows then the films:
   // all ten for shows or films; with both, the first five of each, and See more opens the box out to show six to ten
   let ttOpen = false;
   function topTen() {
-    // all six: the UK chart; one service: its chart; several: their charts together, most popular first
-    const merge = (k) => { const seen = new Set(); return state.picks.flatMap((p) => (svcOf(p)?.[k] || []).map((it) => ({ ...it, on: it.on || [p] })))
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).filter((it) => { const id = keyOf(it, it.type || k) || it.title; return !seen.has(id) && seen.add(id); }); };
-    const s = all() ? state.data.overall : state.picks.length === 1 ? svcOf(state.picks[0]) : { tv: merge('tv'), movie: merge('movie') }; if (!s) return '';
+    const s = state.data.overall; if (!s) return '';
     const ks = kinds();
     const part = (k) => {
       const l = (s[k] || []).slice(0, 10); if (!l.length) return '';
       const word = k === 'movie' ? 'film' : 'show';
       return `${ks.length > 1 ? `<h3 class="bx-tt-sub">${k === 'movie' ? 'Films' : 'Shows'}</h3>` : ''}<ol class="bx-ups bx-tt">${l.map((it0, i) => {
-        const it = { ...it0, type: it0.type || k, on: it0.on || (s.key ? [s.key] : undefined) }, info = infoFor(it, `No. ${i + 1} ${word} ${where()}`);
+        const it = { ...it0, type: it0.type || k, on: it0.on || (s.key ? [s.key] : undefined) }, info = infoFor(it, `No. ${i + 1} ${word} in the UK`);
         const sub = [it.type === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
         return `<li${i >= 5 && ks.length > 1 ? ' class="bx-tt-x"' : ''}><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-tt-n">${i + 1}</span><span class="bx-up-art">${poster(it)}</span>
           <span class="bx-up-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a></li>`;
@@ -722,9 +722,27 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2><a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2><button type="button" class="bx-r bx-tt-i" data-tt-info aria-label="About this chart" title="About this chart">${I.info}</button><a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
+  // the round i beside the Top 10: an iOS-style alert saying what this chart is, with the way on to each service's own
+  let ttDlg = null;
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-tt-info]')) return;
+    if (!ttDlg) {
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg tt-dlg" id="ttDlg" aria-labelledby="ttDlgH" aria-describedby="ttDlgP" closedby="any"><form method="dialog">
+        <span class="tt-dlg-ic" aria-hidden="true">${I.info}</span><h2 id="ttDlgH">One chart for every service</h2>
+        <p id="ttDlgP"></p>
+        <div class="out-acts"><a class="btn btn-tinted" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>See each service’s chart</a>
+          <button class="btn btn-tinted" value="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>OK</button></div>
+      </form></dialog>`);
+      ttDlg = $('#ttDlg');
+      ttDlg.addEventListener('click', (ev) => { if (ev.target === ttDlg) ttDlg.close(); });   // tap outside to close
+    }
+    const names = services().map((x) => x.label);
+    $('#ttDlgP').textContent = `This Top 10 is the whole UK’s, combining ${names.length ? and(names) : 'every service'} into one chart. It stays the same whichever services you pick at the top of Home: those only change the rows on the left. For each service’s own top 10, see By service.`;
+    window.tn.haptic?.(); ttDlg.showModal();
+  });
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-tt]'); if (!b) return;
     ttOpen = !ttOpen; const box = b.closest('.bx-tt-box');
@@ -748,7 +766,7 @@
       ...(state.data.services || []).flatMap((s) => ['tv', 'movie'].flatMap((t) => (s[t] || []).map((it) => ({ ...it, type: it.type || t, on: it.on || [s.key] }))))];
     const find = (k) => lists.find((it) => keyOf(it) === k);
     const ks = kinds(), seen = new Set();
-    const items = w.climbers.filter((c) => (all() || state.picks.some((p) => c.c.startsWith(`${p}:`)) || c.c.startsWith('all:')) && ks.includes(c.c.split(':')[1]))
+    const items = w.climbers.filter((c) => ks.includes(c.c.split(':')[1]))   // every chart: the right-hand column ignores the services above
       .map((c) => ({ c, it: find(c.k) })).filter(({ it }) => it && !seen.has(it.title) && seen.add(it.title)).slice(0, 5);
     if (!items.length) return '';
     return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Biggest climbers</h2><a class="bx-more" href="charts.html#top10">See all</a></header><ul class="bx-ups">${items.map(({ c, it }) => {
