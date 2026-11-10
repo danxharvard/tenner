@@ -397,3 +397,11 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 .bx-hd-btn { position: relative; flex: none; height: 32px; padding: 0 12px; gap: 6px; font-size: 14px; -webkit-font-smoothing: antialiased; text-shadow: none; }
 .bx-hd-btn svg { width: 15px; height: 15px; }
 .bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
+
+/* the Top 10's round i (what this chart is): beside its heading, the By service button still on the right */
+.bx-tt-box .bx-panel-hd .bx-tt-i { width: 30px; height: 30px; margin-right: auto; }
+.bx-tt-box .bx-panel-hd .bx-tt-i svg { width: 16px; height: 16px; }
+.bx-tt-i::after { inset: -7px; }   /* a 44pt target */
+.tt-dlg-ic { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; background: var(--bt-round); color: #fff; }
+.tt-dlg-ic svg { width: 26px; height: 26px; }
+.tt-dlg .out-acts a.btn { text-decoration: none; }
