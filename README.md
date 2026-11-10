@@ -1,60 +1,17 @@
-# Tenner
+# 🍿 Tenner
 
-Your top ten, every hour.
+**Your top ten. Every hour. Every day.**
 
-The top 10 shows and films right now in the UK on Netflix, Disney+, Prime Video, HBO Max and Paramount+. Clean, Apple-style design with light and dark mode, rebuilt every hour by GitHub Actions and served by Cloudflare.
+Discover what's trending right now across the UK's biggest streaming platforms. Tenner brings you the **Top 10 films and TV shows** on Netflix, Disney+, Prime Video, HBO Max and Paramount+, all in one beautifully simple place.
 
-## How it works
+✨ **What's inside?**
+- 🎬 Live Top 10 streaming charts across five major platforms
+- 🇬🇧 UK-focused rankings, updated every hour
+- 🍎 Sleek, minimalist, Apple-inspired design
+- 🌗 Beautiful light and dark modes
+- ⚡ Fully automated hourly updates powered by GitHub Actions
+- ☁️ Fast, reliable delivery through Cloudflare
 
-```
-GitHub Actions (every hour)
-  └─ scripts/fetch-data.mjs
-       ├─ TMDB: most popular titles on each service in the UK  → site/data/trending.json
-       ├─ TMDB: ~100 shows and films per service, for Browse       → site/data/browse.json
-       └─ Watchmode: new releases, at most once a day           → site/data/new.json
-  └─ deploys site/ to Cloudflare (site-worker/: the tenner-site Worker at tenner.stream)
-```
+No endless scrolling. No jumping between apps. Just the ten things everyone's watching, right now.
 
-Your API keys live only in GitHub Secrets. The browser just reads static JSON, so nothing secret is ever exposed.
-
-## Set it up (about 10 minutes)
-
-1. **Get a TMDB key.** Sign up at themoviedb.org, then Settings → API. Copy the **API Read Access Token** (the long one).
-2. **Optional: get a Watchmode key** at api.watchmode.com/requestApiKey (powers the "New this week" page, P200).
-3. **Create a GitHub repo** and upload everything in this folder (including the hidden `.github` folder).
-4. In the repo go to **Settings → Secrets and variables → Actions → New repository secret**:
-   - `TMDB_TOKEN`: your TMDB token
-   - `WATCHMODE_API_KEY`: your Watchmode key (optional)
-   - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`: where the site is served from
-5. **Actions tab → Update and deploy → Run workflow.** The site appears at tenner.stream (and on its workers.dev address).
-
-After that it rebuilds every hour on its own.
-
-## Pages
-
-| Tab | What |
-| --- | --- |
-| Top 10 (`./`) | Highlights, the neon top 10 row, the ten at a glance, and new this week. Pick Shows or Films, and a service (`#netflix`, `#disney`, `#prime`, `#hbomax`, `#paramount`, `#appletv`) |
-| New (`#new`) | Releases from the last and next seven days |
-| Browse (`browse.html`) | Search, collections and filters over each service's most popular titles |
-| About (`about.html`) | About Tenner and FAQs |
-| Privacy & Terms (`legal.html`) | Privacy Policy (with Cookies) and Terms of Service, each in its own scrolling box |
-| Contact (`contact.html`) | A compose sheet that opens your email app; the address is set once in `shell.js` (`contact`) |
-
-To add a service, add a line to `SERVICES` at the top of `scripts/fetch-data.mjs`.
-
-## Run locally
-
-```bash
-node scripts/fetch-data.mjs --sample          # fake data, no keys needed
-TMDB_TOKEN=xxx node scripts/fetch-data.mjs    # real data
-npx serve site                                # then open http://localhost:3000
-```
-
-## Things to know
-
-- **"Popular" means TMDB popularity**, filtered to what's on each service in the UK. It isn't official viewing figures. For official Top 10s, look at FlixPatrol's paid API later.
-- **Provider names change.** If a service shows "No data yet", open `data/providers.json` on the live site to see what matched, and tweak the regex for that service in `SERVICES` at the top of `scripts/fetch-data.mjs`.
-- **Watchmode's free plan has a monthly credit limit.** The script builds New at most once a day (a few credits) by reusing the copy already on your site, and keeps each film's prices for a week, pricing at most five films a run: well under 2,500 a month.
-- **GitHub pauses scheduled workflows** in public repos after 60 days with no commits. Push any small change, or re-enable it in the Actions tab, if updates stop.
-- **Attribution:** keep the TMDB notice in the footer. TMDB's terms require it.
+**Tenner. What's worth watching?** 🚀
