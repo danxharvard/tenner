@@ -420,6 +420,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       await env.DB.prepare('UPDATE users SET name = COALESCE(?, name), hue = COALESCE(?, hue) WHERE id = ?').bind(name, hue, me.id).run();
       return ok({ user: publicUser(await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(me.id).first()) });
     }
+    if (p === '/me/photo') await photosTable(env);
     if (p === '/me/photo' && m === 'POST') {
       const img = photoCheck(body.image);
       if (!img) return fail('That photo couldn’t be used. Try another photo');
@@ -498,6 +499,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       return ok({ ok: true });
     }
     if (p === '/me' && m === 'DELETE') {
+      await photosTable(env);
       const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(me.id).all()).results;
       await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
         .map((q) => env.DB.prepare(q).bind(me.id)));
@@ -511,6 +513,10 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
 }
 // ---------- profile photos: kept in D1 beside the account (small: the page sends a square of at most 512px) ----------
 const PHOTO_MAX = 150000;   // bytes, once decoded
+// the table is made here too, the first time it's needed, so photos work even if the deploy couldn't update the database
+let photosReady = null;
+const photosTable = (env) => (photosReady ||= env.DB.prepare('CREATE TABLE IF NOT EXISTS photos (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, type TEXT NOT NULL, data TEXT NOT NULL, created INTEGER NOT NULL)').run()
+  .catch((e) => { photosReady = null; throw e; }));
 function photoCheck(v) {
   const m = String(v || '').match(/^(?:data:image\/(?:jpeg|png|webp);base64,)?([A-Za-z0-9+/]+={0,2})$/);
   if (!m || m[1].length > Math.ceil(PHOTO_MAX / 3) * 4) return null;
@@ -529,6 +535,7 @@ export async function photoGet(req, env, ctx, url) {
   if (!id || req.method !== 'GET' || !env.DB) return none();
   const cache = caches.default, key = new Request(`https://tenner-cache/photo/${id}`);
   const hit = await cache.match(key); if (hit) return hit;
+  await photosTable(env);
   const row = await env.DB.prepare('SELECT type, data FROM photos WHERE id = ?').bind(id).first();
   if (!row) return none();
   const res = new Response(Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0)), { headers: { 'content-type': row.type, 'cache-control': 'public, max-age=604800, immutable',
