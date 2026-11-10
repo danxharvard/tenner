@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.62.1';
+  const version = '2.63.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -809,6 +809,8 @@
   const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch {} };
   let applying = false, acctT = 0, syncing = null;
+  const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const unb64u = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4)), (c) => c.charCodeAt(0));
   const account = {
     token: () => lsGet(SESS),
     user() { try { return JSON.parse(lsGet(ACC) || 'null'); } catch { return null; } },
@@ -826,6 +828,30 @@
       dispatchEvent(new Event('tn:account')); return account.sync();
     },
     setUser(user) { lsSet(ACC, JSON.stringify(user)); dispatchEvent(new Event('tn:account')); },
+    // signing in, shared by the account page and the account pill's dropdown. The password is stretched here first
+    // (PBKDF2, 310,000 rounds, salted with the email), so what's sent is a key, never the password; the account server
+    // salts and hashes that once more.
+    async pwKey(email, pw) {
+      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw.normalize('NFKC')), 'PBKDF2', false, ['deriveBits']);
+      return b64u(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(`tenner.stream:${email.trim().toLowerCase()}`), iterations: 310000 }, base, 256));
+    },
+    async passkeyIn() {
+      const { id, options: o } = await account.call('POST', '/auth/login/start');
+      const cred = await navigator.credentials.get({ publicKey: { challenge: unb64u(o.challenge), rpId: o.rpId, timeout: o.timeout, userVerification: o.userVerification, allowCredentials: [] } });
+      const r = cred.response;
+      const out = await account.call('POST', '/auth/login/finish', { id, credential: { id: cred.id, type: cred.type,
+        response: { clientDataJSON: b64u(r.clientDataJSON), authenticatorData: b64u(r.authenticatorData), signature: b64u(r.signature), userHandle: r.userHandle ? b64u(r.userHandle) : null } } });
+      await account.signedIn(out.token, out.user);
+    },
+    async passkeyNew(name) {   // a new account (name given), or another passkey for yours (signed in)
+      const { id, options: o } = await account.call('POST', '/auth/passkey/start', name ? { name } : {});
+      const cred = await navigator.credentials.create({ publicKey: { ...o, challenge: unb64u(o.challenge), user: { ...o.user, id: unb64u(o.user.id) },
+        excludeCredentials: (o.excludeCredentials || []).map((c) => ({ ...c, id: unb64u(c.id) })) } });
+      const out = await account.call('POST', '/auth/passkey/finish', { id, credential: { id: cred.id, type: cred.type,
+        response: { clientDataJSON: b64u(cred.response.clientDataJSON), attestationObject: b64u(cred.response.attestationObject) } } });
+      if (out.token) await account.signedIn(out.token, out.user);
+    },
+    friendly: (e) => e?.name === 'NotAllowedError' ? 'Cancelled' : e?.name === 'InvalidStateError' ? 'This device already has a passkey for your account' : e?.message || 'Something went wrong',
     forget() { lsSet(SESS, null); lsSet(ACC, null); dispatchEvent(new Event('tn:account')); },
     async signOut(clear) {
       try { await account.call('POST', '/auth/logout'); } catch {}
@@ -908,8 +934,57 @@
       set: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
       chev: '<svg class="me-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
+    // signed out: the dropdown signs you in (email and password, or a passkey) or makes you an account, right here
+    let guestMode = 'in';
+    const KEY = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12h9M18 12v3.5M21 12v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    const IN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 4.5H17a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6.5M3.5 12h10M10 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+    function fillGuest(note) {
+      const up = guestMode === 'up';
+      $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(null, 'me-av')}<span><b>${up ? 'Make your Tenner account' : 'Sign in to Tenner'}</b><small>${up ? 'Free, and it keeps every device in step' : 'Your Watchlist and settings, everywhere'}</small></span></div>
+        <form class="me-form" id="meForm" style="--i:1" novalidate>
+          ${up ? '<input class="me-in" id="meName" autocomplete="name" placeholder="Your name" aria-label="Your name" maxlength="40" required>' : ''}
+          <input class="me-in" type="email" id="meEmail" autocomplete="${up ? 'email' : 'username'}" placeholder="Email" aria-label="Email" required>
+          <input class="me-in" type="password" id="mePw" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Password (8 or more characters)' : 'Password'}" aria-label="Password" minlength="${up ? 8 : 1}" required>
+          <button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Create account' : 'Sign in'}</button>
+          ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk" id="mePk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}
+        </form>
+        <p class="me-msg" id="meMsg" role="status" aria-live="polite">${note ? esc(note) : ''}</p>
+        <p class="me-alt" style="--i:2">${up ? 'Already have an account?' : 'New to Tenner?'} <button type="button" class="me-link" id="meSwap">${up ? 'Sign in' : 'Create an account'}</button>
+          <span aria-hidden="true">·</span> <a class="me-link" href="account.html">More ways</a></p>`;
+      const say = (t, bad) => { const m = $('#meMsg'); m.textContent = t; m.classList.toggle('bad', !!bad); };
+      $('#meSwap').addEventListener('click', () => { guestMode = up ? 'in' : 'up'; fillGuest(); $('#meMenu .me-in')?.focus(); });
+      $('#mePk')?.addEventListener('click', async (e) => {
+        const b = e.currentTarget; b.disabled = true;
+        try { if (up) { const name = $('#meName').value.trim(); if (!name) { $('#meName').focus(); throw new Error('Enter your name first'); } await account.passkeyNew(name); } else await account.passkeyIn(); }
+        catch (err) { say(err.status === 404 ? 'That passkey isn’t linked to an account. Create one instead' : account.friendly(err), err.name !== 'NotAllowedError'); }
+        b.disabled = false;
+      });
+      $('#meForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); const b = $('#meForm .me-go-btn'), email = $('#meEmail').value.trim(), pw = $('#mePw').value;
+        if (up && !$('#meName').value.trim()) return $('#meName').focus();
+        if (!email) return $('#meEmail').focus();
+        if (up && pw.length < 8) { $('#mePw').focus(); return say('Use 8 or more characters for your password', true); }
+        if (!pw) return $('#mePw').focus();
+        b.disabled = true; say(up ? 'Making your account…' : 'Signing you in…');
+        try {
+          if (up) {
+            const out = await account.call('POST', '/auth/password/signup', { email, name: $('#meName').value.trim(), key: await account.pwKey(email, pw) });
+            if (out.verify) { guestMode = 'in'; fillGuest(`Nearly there: we’ve emailed ${out.verify} a link. Tap it to confirm your email, then sign in.`); return; }
+            await account.signedIn(out.token, out.user);
+          } else {
+            const out = await account.call('POST', '/auth/password/login', { email, key: await account.pwKey(email, pw) });
+            await account.signedIn(out.token, out.user);
+          }
+          haptic(10);
+        } catch (err) {
+          say(err.data?.unverified ? `${err.data.unverified} isn’t confirmed yet. Tap the link we emailed you (or open your account page to send it again).` : account.friendly(err), true);
+          b.disabled = false;
+        }
+      });
+    }
     function fillMenu() {
-      const u = account.user(); if (!u) return;
+      const u = account.user(); if (!u) return fillGuest();
       const off = navigator.onLine === false;
       const status = off ? ['off', 'Offline', 'Changes sync when you’re back online'] : ['on', 'Synced', syncedAt ? `Updated ${ago(syncedAt)}` : 'On all your devices'];
       const since = u.created ? new Date(u.created).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
@@ -927,7 +1002,8 @@
       m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
       m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
-      account.sync();   // freshen the numbers while it's open
+      if (account.user()) account.sync();   // freshen the numbers while it's open
+      else setTimeout(() => $('#meMenu .me-in')?.focus({ preventScroll: true }), 120);
     }
     function closeMenu(focus) {
       const m = menu(); if (m.hidden) return;
@@ -936,9 +1012,9 @@
       if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 260);
       if (focus) card().focus();
     }
-    $('#bxMeCard').addEventListener('click', () => { if (!account.user()) { location.href = 'account.html'; return; } if (menu().hidden) openMenu(); else closeMenu(); });
-    document.addEventListener('click', (e) => { if (!e.target.closest('#bxMe, #meMenu')) closeMenu(); });
-    addEventListener('resize', () => closeMenu());
+    $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu() : closeMenu()));
+    document.addEventListener('click', (e) => { if (e.target.isConnected && !e.target.closest('#bxMe, #meMenu')) closeMenu(); });
+    let lastW = innerWidth; addEventListener('resize', () => { if (innerWidth !== lastW) { lastW = innerWidth; closeMenu(); } });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu().hidden) closeMenu(true); });
     addEventListener('online', () => { if (!menu().hidden) fillMenu(); }); addEventListener('offline', () => { if (!menu().hidden) fillMenu(); });
     let dlg = null;
@@ -964,16 +1040,15 @@
       const u = account.user(), box = $('#bxMe');
       box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('me-in', !!u);
       const c = $('#bxMeCard'), wide = matchMedia('(min-width: 720px)').matches;
-      if (!u) {   // signed out: the same pill, inviting you to make an account (or sign in), straight to the account page
-        closeMenu(); c.removeAttribute('aria-haspopup'); c.removeAttribute('aria-expanded');
-        c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span><svg class="me-dn me-go" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const DN = '<svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      if (!menu().hidden) fillMenu();   // signing in (or out) inside the dropdown: it turns into the other view where it is
+      if (!u) {   // signed out: the same pill, inviting you to make an account or sign in, right in its dropdown
+        c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span>${DN}`;
         if (wide) setTimeout(() => featureTip({ id: 'account-signup-pill', for: '#bxMeCard', title: 'Your own Tenner account',
-          text: 'Sign up free to keep your Watchlist, progress and settings in step on every device, with alerts when your titles arrive. Already have one? Sign in here.' }));
+          text: 'Tap here to sign in or make a free account, without leaving the page. It keeps your Watchlist, progress and settings in step on every device.' }));
         return;
       }
-      c.setAttribute('aria-haspopup', 'true'); c.setAttribute('aria-expanded', menu().hidden ? 'false' : 'true');
-      c.innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span><svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      if (!menu().hidden) fillMenu();
+      c.innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>${DN}`;
       if (wide) setTimeout(() => featureTip({ id: 'account-dropdown', for: '#bxMeCard', title: 'Your account at a glance',
         text: 'Tap your name to see your sync status and your Tenner in numbers, with quick links to your account, Watchlist and settings.' }));
     };

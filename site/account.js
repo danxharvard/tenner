@@ -6,8 +6,6 @@
   const $ = (s) => document.querySelector(s);
   // Sign in with Google: the OAuth client ID from Google Cloud (public). Empty: the Google button stays hidden.
   const GOOGLE_CLIENT_ID = '573684167951-69isfjep31v7kl8hs0083228flhbq53e.apps.googleusercontent.com';
-  const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const unb64u = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
   const say = (el, t, bad) => { const n = $(el); n.textContent = t; n.classList.toggle('bad', !!bad); clearTimeout(n.t); n.t = setTimeout(() => (n.textContent = ''), bad ? 7000 : 3500); };   // a toast, so even a problem fades in time
   const passkeys = !!window.PublicKeyCredential;
   // Show password: an eye inside each password box, so you can check what you've typed
@@ -25,23 +23,8 @@
   eyes(document);
 
   // ---------- signed out ----------
-  async function signIn() {
-    const { id, options: o } = await account.call('POST', '/auth/login/start');
-    const cred = await navigator.credentials.get({ publicKey: { challenge: unb64u(o.challenge), rpId: o.rpId, timeout: o.timeout, userVerification: o.userVerification, allowCredentials: [] } });
-    const r = cred.response;
-    const out = await account.call('POST', '/auth/login/finish', { id, credential: { id: cred.id, type: cred.type,
-      response: { clientDataJSON: b64u(r.clientDataJSON), authenticatorData: b64u(r.authenticatorData), signature: b64u(r.signature), userHandle: r.userHandle ? b64u(r.userHandle) : null } } });
-    await account.signedIn(out.token, out.user);
-  }
-  async function makePasskey(name) {   // a new account (name given), or another passkey for yours (signed in)
-    const { id, options: o } = await account.call('POST', '/auth/passkey/start', name ? { name } : {});
-    const cred = await navigator.credentials.create({ publicKey: { ...o, challenge: unb64u(o.challenge), user: { ...o.user, id: unb64u(o.user.id) },
-      excludeCredentials: (o.excludeCredentials || []).map((c) => ({ ...c, id: unb64u(c.id) })) } });
-    const out = await account.call('POST', '/auth/passkey/finish', { id, credential: { id: cred.id, type: cred.type,
-      response: { clientDataJSON: b64u(cred.response.clientDataJSON), attestationObject: b64u(cred.response.attestationObject) } } });
-    if (out.token) await account.signedIn(out.token, out.user);
-  }
-  const friendly = (e) => e?.name === 'NotAllowedError' ? 'Cancelled' : e?.name === 'InvalidStateError' ? 'This device already has a passkey for your account' : e?.message || 'Something went wrong';
+  const signIn = () => account.passkeyIn(), makePasskey = (name) => account.passkeyNew(name), pwKey = (email, pw) => account.pwKey(email, pw);   // shared with the account pill (shell.js)
+  const friendly = account.friendly;
   $('#acPasskey').addEventListener('click', async (e) => {
     if (!passkeys) { say('#acMsg', 'This browser can’t use passkeys. Try Safari, Chrome or Edge', true); return; }
     const b = e.currentTarget; b.disabled = true;
@@ -70,13 +53,7 @@
   $('#acMakePk').addEventListener('click', () => { $('#acNewEmail').required = false; $('#acNewPw').required = false; });
   $('#acMakePw').addEventListener('click', () => { $('#acNewEmail').required = true; $('#acNewPw').required = true; });
 
-  // ---------- email and password ----------
-  // The password is stretched here first (PBKDF2, 310,000 rounds, salted with the email), so what's sent is a key, never
-  // the password; the account server salts and hashes that once more.
-  async function pwKey(email, pw) {
-    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw.normalize('NFKC')), 'PBKDF2', false, ['deriveBits']);
-    return b64u(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(`tenner.stream:${email.trim().toLowerCase()}`), iterations: 310000 }, base, 256));
-  }
+  // ---------- email and password (the key-stretching is tn.account.pwKey) ----------
   $('#acLogin').addEventListener('submit', async (e) => {
     e.preventDefault(); const b = e.submitter || e.target.querySelector('button:not([type=button])'); if (b) b.disabled = true;
     try {
