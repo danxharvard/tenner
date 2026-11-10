@@ -40,9 +40,9 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.51.0">
-  <link rel="stylesheet" href="settings.css?v=2.51.0">
-  <link rel="stylesheet" href="account.css?v=2.51.0">
+  <link rel="stylesheet" href="styles.css?v=2.52.0">
+  <link rel="stylesheet" href="settings.css?v=2.52.0">
+  <link rel="stylesheet" href="account.css?v=2.52.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +88,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.51.0</span>
+      <span class="side-ver">Tenner 2.52.0</span>
     </div>
   </div>
 
@@ -103,7 +103,7 @@
     <section class="ac-out" id="acOut" hidden>
       <h1 class="large-title">Your account</h1>
       <p class="set-lede">Your Tenner, everywhere. It’s optional: Tenner works just the same without.</p>
-      <div class="set-form"><div class="set-panel ac-panel2">
+      <div class="set-form"><div class="set-panel ac-panel2 lit">
         <div class="set-col">
           <section class="set-sec" aria-labelledby="acHIn">
             <h2 class="set-h" id="acHIn">Sign in</h2>
@@ -148,10 +148,10 @@
           <section class="set-sec" aria-labelledby="acHWhy">
             <h2 class="set-h" id="acHWhy">What you get</h2>
             <div class="set-tiles">
-              <div class="set-tile"><i class="set-ic" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z"/></svg></i><span class="set-l">Your Watchlist everywhere<small>What you’ve saved, where you’re up to, your services and settings, in step on every phone and computer</small></span></div>
-              <div class="set-tile"><i class="set-ic" style="--c:#ff375f" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2.2 2.2 0 0 0 4 0"/></svg></i><span class="set-l">Alerts on each device<small>When something you’ve saved arrives, has a new episode or is about to leave</small></span></div>
-              <div class="set-tile"><i class="set-ic" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14V3.5M8 7.2l4-3.7 4 3.7M7.5 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1.5"/></svg></i><span class="set-l">Share your Watchlist<small>A link for friends and family, if you like</small></span></div>
-              <div class="set-tile"><i class="set-ic" style="--c:#bf5af2" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="3.5"/><path d="M11.5 12h9M17.5 12v3M20.5 12v2"/></svg></i><span class="set-l">No password needed<small>A passkey is a key your device keeps in iCloud Keychain (or Google Password Manager, or Windows Hello), unlocked with Face ID, Touch ID or your screen lock. Passwords are scrambled on your device first, so we never see them. <a href="legal.html#privacy">What we keep</a></small></span></div>
+              <div class="set-tile tile-c" style="--c:#0a84ff"><i class="set-ic" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z"/></svg></i><span class="set-l">Your Watchlist everywhere<small>What you’ve saved, where you’re up to, your services and settings, in step on every phone and computer</small></span></div>
+              <div class="set-tile tile-c" style="--c:#ff375f"><i class="set-ic" style="--c:#ff375f" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2.2 2.2 0 0 0 4 0"/></svg></i><span class="set-l">Alerts on each device<small>When something you’ve saved arrives, has a new episode or is about to leave</small></span></div>
+              <div class="set-tile tile-c" style="--c:#30d158"><i class="set-ic" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14V3.5M8 7.2l4-3.7 4 3.7M7.5 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1.5"/></svg></i><span class="set-l">Share your Watchlist<small>A link for friends and family, if you like</small></span></div>
+              <div class="set-tile tile-c" style="--c:#bf5af2"><i class="set-ic" style="--c:#bf5af2" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="3.5"/><path d="M11.5 12h9M17.5 12v3M20.5 12v2"/></svg></i><span class="set-l">No password needed<small>A passkey is a key your device keeps in iCloud Keychain (or Google Password Manager, or Windows Hello), unlocked with Face ID, Touch ID or your screen lock. Passwords are scrambled on your device first, so we never see them. <a href="legal.html#privacy">What we keep</a></small></span></div>
             </div>
           </section>
         </div>
@@ -163,7 +163,7 @@
     <section class="ac-in" id="acIn" hidden>
       <h1 class="large-title" id="acHello">Your account</h1>
       <p class="set-lede ac-sync" id="acSync">Synced</p>
-      <div class="set-form"><div class="set-panel">
+      <div class="set-form"><div class="set-panel lit">
         <div class="set-col">
           <section class="set-sec" aria-labelledby="acHMe">
             <h2 class="set-h" id="acHMe">Profile</h2>
@@ -219,7 +219,7 @@
                 <input type="checkbox" switch role="switch" id="acClear"><i class="sw" aria-hidden="true"></i></label>
             </div>
             <div class="set-tiles">
-              <button type="button" class="set-tile set-danger" id="acDelete"><i class="set-ic" style="--c:#ff375f" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6.5h16M9.5 6.5V4.5h5v2M6 6.5l1 13a1.6 1.6 0 0 0 1.6 1.5h6.8a1.6 1.6 0 0 0 1.6-1.5l1-13M10 10.5v6.5M14 10.5v6.5"/></svg></i><span class="set-l">Delete account<small>Removes it and everything in it from Tenner. What’s on this device stays</small></span><span class="set-chev" aria-hidden="true"></span></button>
+              <button type="button" class="set-tile set-danger tile-c" id="acDelete" style="--c:#ff375f"><i class="set-ic" style="--c:#ff375f" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6.5h16M9.5 6.5V4.5h5v2M6 6.5l1 13a1.6 1.6 0 0 0 1.6 1.5h6.8a1.6 1.6 0 0 0 1.6-1.5l1-13M10 10.5v6.5M14 10.5v6.5"/></svg></i><span class="set-l">Delete account<small>Removes it and everything in it from Tenner. What’s on this device stays</small></span><span class="set-chev" aria-hidden="true"></span></button>
             </div>
           </section>
         </div>
@@ -258,7 +258,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.51.0" defer></script>
-  <script src="account.js?v=2.51.0" defer></script>
+  <script src="shell.js?v=2.52.0" defer></script>
+  <script src="account.js?v=2.52.0" defer></script>
 </body>
 </html>

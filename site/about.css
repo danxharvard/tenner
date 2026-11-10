@@ -68,7 +68,10 @@
 .ab-ch:nth-child(3) { --g1: rgba(191, 90, 242, .55); --g2: rgba(10, 132, 255, .45); }
 
 /* the one frost: the page colour at 80% over the 40px blur, with the fine edge */
-.ab-box { border-radius: var(--r); padding: 16px 12px 12px; background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), 0 30px 70px -34px rgba(0, 0, 0, .45); }
+.ab-box { border-radius: var(--r); padding: 16px 12px 12px; background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), 0 30px 70px -34px rgba(0, 0, 0, .45), var(--lit-glow, 0 0 #0000); }
+/* each example box is lit in its chapter's colour, the way the Contact card is (.lit in styles.css) */
+.ab-ch:nth-child(1) { --tone: #30d158; }
+.ab-ch:nth-child(2) { --tone: #ff375f; }
 .ab-box-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px 10px; }
 .ab-box-hd h3 { margin: 0; font: 600 17px/1.25 var(--font); letter-spacing: -.02em; }
 .ab-pill { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: var(--r); background: var(--fr-in); color: var(--label2); font: 500 13px/1 var(--font); white-space: nowrap; }
@@ -121,12 +124,14 @@
 @media (hover: hover) { .ab-round:hover { background: var(--bt-round-hover); } }
 
 /* ============================================================ the promise: three short lines in one frosted box */
-.ab-promise { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1240px; margin-top: clamp(64px, 9vw, 132px); padding: 0; }
-.ab-promise > div { display: grid; gap: 4px; align-content: start; padding: 24px 24px 22px; }
-.ab-promise > div + div { box-shadow: -.5px 0 0 var(--sep); }
+.ab-promise { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1240px; margin-top: clamp(64px, 9vw, 132px); gap: 8px; padding: 8px; }
+.ab-promise > div { display: grid; gap: 4px; align-content: start; padding: 18px 18px 20px; border-radius: var(--r); }
+/* each promise is a tile with its own colour square, and takes that colour as you hover (.tile-c) */
+.ab-promise .gi { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 10px; border-radius: var(--r); color: #fff; background: var(--c); }
+.ab-promise .gi svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .ab-promise b { font: 600 18px/1.25 var(--font); letter-spacing: -.02em; }
 .ab-promise span:not(.chev) { color: var(--label2); font-size: 15px; line-height: 1.4; }
-.ab-more { grid-column: 1 / -1; display: flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 24px; border-top: .5px solid var(--sep); color: var(--accent); font: 500 16px/1 var(--font); }
+.ab-more { grid-column: 1 / -1; display: flex; align-items: center; gap: 4px; min-height: 48px; margin: 0 -8px -8px; padding: 0 24px; border-top: .5px solid var(--sep); color: var(--accent); font: 500 16px/1 var(--font); }
 
 /* ============================================================ the questions, the apple.com way: big questions, hairlines, a chevron */
 .faq { max-width: 1240px; margin: clamp(64px, 9vw, 120px) 0 8px; }
@@ -162,10 +167,10 @@
   .ab-pick { padding-inline: 0; gap: 2px; }
   .ab-pick button { font-size: 11px; }
   .ab-cl { min-height: 0; }
-  .ab-promise { grid-template-columns: minmax(0, 1fr); margin-top: 56px; }
-  .ab-promise > div { padding: 16px 16px 14px; }
-  .ab-promise > div + div { box-shadow: 0 -.5px 0 var(--sep); }
-  .ab-more { padding: 0 16px; }
+  .ab-promise { grid-template-columns: minmax(0, 1fr); margin-top: 56px; gap: 4px; padding: 6px; }
+  .ab-promise > div { grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; padding: 12px 10px; }
+  .ab-promise .gi { grid-row: span 2; margin: 2px 0 0; }
+  .ab-more { margin: 0 -6px -6px; padding: 0 16px; }
   .faq { margin-top: 56px; }
   .faq-list summary { padding: 16px 2px; }
   .faq-list .a { padding: 0 8px 18px 2px; }
