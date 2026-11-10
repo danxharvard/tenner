@@ -1,20 +1,10 @@
 /* Account: laid out like Settings. A large title, then one rounded panel in columns (three on computers, two on tablets,
-   one on phones): your picture in the big card, grouped lists, and tiles with a coloured icon. Signed out, the ways in sit
-   in a card beside what an account gives you. The panel, groups, tiles and toast are settings.css's. */
+   one on phones): your picture in the big card, grouped lists, and tiles with a coloured icon. Signed out, the account
+   pill's sign-in form (shell.js) sits here on phones. The panel, groups, tiles and toast are settings.css's. */
+.ac-sheet:not([hidden]) { max-width: 420px; margin: 8px 0 24px; padding: 16px; border-radius: var(--r); background: var(--fr-bg);
+  -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
 .acct .set-art { aspect-ratio: 2 / 1; }
 .acct .set-art .set-av { width: 92px; height: 92px; font-size: 38px; }
-.ac-card { padding: 20px 18px; }
-.ac-ways { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; justify-items: center; width: 100%; max-width: 380px; margin: 0 auto; }
-.ac-form input { min-width: 0; width: 100%; }
-.ac-main { width: 100%; height: 50px; font-size: 17px; gap: 10px; }
-.ac-google:not([hidden]) { display: flex; justify-content: center; width: 100%; min-height: 44px; }
-.ac-new { margin-top: 2px; padding: 8px; border: 0; background: none; cursor: pointer; color: var(--label2); font: 400 15px/1.3 var(--font); }
-.ac-new b { color: var(--accent); font-weight: 500; }
-.set-tile .set-l small a { color: var(--accent); }
-div.set-tile { cursor: default; }
-@media (hover: hover) { div.set-tile:hover { background: var(--sp-group); } }
-/* two columns, not three, for the signed-out page */
-@container (min-width: 1000px) { .ac-panel2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .acct .set-note { max-width: calc(100vw - 32px); text-align: center; text-wrap: balance; }
 .ac-input { height: 36px; max-width: 55%; padding: 0 14px; border: 0; border-radius: var(--r); background: transparent; color: var(--label); font: 400 17px/1 var(--font); text-align: right; }
 .ac-input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
@@ -41,24 +31,11 @@ div.set-tile { cursor: default; }
 .ls .ac-me { margin-bottom: 22px; }
 .ls-list { width: 100%; }
 .ls-cta { align-self: center; margin-top: 28px; }
-.ac-or { display: flex; align-items: center; gap: 12px; width: 100%; margin: 2px 0; color: var(--label3); font-size: 13px; }
-.ac-or::before, .ac-or::after { content: ""; flex: 1; height: .5px; background: var(--sep); }
 /* Google's button is a light-scheme frame; on a dark page the browser paints a white box behind it unless the frame is
    told it's light too, so it stays see-through */
-.ac-google, .ac-google *, #acGLink, #acGLink * { color-scheme: light; }
-.ac-google iframe, #acGLink iframe { background: transparent !important; }
-/* email and password */
-.ac-form:not([hidden]) { display: grid; gap: 10px; width: 100%; text-align: left; }
-.ac-form h2 { margin: 6px 0 2px; font: 700 20px/1.2 var(--font); }
-.ac-form input { height: 46px; padding: 0 14px; border: 0; border-radius: var(--r); background: var(--fill); color: var(--label); font: 400 17px/1 var(--font); }
-/* focus: the Contact page's soft ring, in the box's colour */
-.ac-form input { transition: background-color .2s, box-shadow .25s; }
-.ac-form input:focus { outline: none; background: color-mix(in srgb, var(--tone) 7%, var(--fill));
-  box-shadow: inset 0 0 0 1.5px var(--tone), 0 0 0 4px color-mix(in srgb, var(--tone) 18%, transparent); }
-.ac-form input[readonly] { color: var(--label2); }
+#acGLink, #acGLink *, .me-google, .me-google * { color-scheme: light; }
+#acGLink iframe { background: transparent !important; }
 .ac-link { justify-self: center; padding: 6px; border: 0; background: none; cursor: pointer; color: var(--accent); font: 400 14px/1.3 var(--font); }
-.ac-alt { width: 100%; height: 44px; gap: 9px; }
-.ac-alt svg { width: 20px; height: 20px; }
 .ac-btns { display: flex; gap: 14px; flex: none; }
 .ac-ok { color: var(--accent); }
 .ac-pwform:not([hidden]) { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
@@ -76,12 +53,6 @@ div.set-tile { cursor: default; }
 .ac-eye[aria-pressed="true"] .ac-eye-off { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .ac-eye, .ac-eye-off { transition: none; } }
 @media (max-width: 560px) { .ac-pwform:not([hidden]) { grid-template-columns: 1fr; } }
-/* "Check your inbox" */
-.ac-check:not([hidden]) { display: grid; justify-items: center; gap: 10px; width: 100%; }
-.ac-check h2 { margin: 6px 0 0; font: 700 22px/1.2 var(--font); }
-.ac-check p { margin: 0 0 8px; color: var(--label2); line-height: 1.45; }
-.ac-mail { display: grid; place-items: center; width: 64px; height: 64px; border-radius: var(--r); color: #fff; background: linear-gradient(180deg, #4aa3ff, #0a6cff); box-shadow: 0 10px 30px rgba(10, 108, 255, .35); }
-.ac-mail svg { width: 34px; height: 34px; }
 .ac-warn { color: #ff9f0a; font-weight: 600; }
 .ac-inline { display: inline; padding: 0; font-size: inherit; }
 /* slide to sign out */
@@ -162,3 +133,4 @@ div.set-tile { cursor: default; }
 :root:not(.still) .ac-crop-dlg[open] { animation: acDelIn .42s cubic-bezier(.2, 1.2, .3, 1); }
 :root:not(.still) .ac-crop-dlg[open]::backdrop { animation: acDelFade .3s ease; }
 @media (max-width: 420px) { .ac-photo .set-l small { display: none; } }
+@media (min-width: 720px) { #acOutLede { max-width: min(34em, calc(100% - 360px)); } }

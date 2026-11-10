@@ -1392,7 +1392,7 @@ span.av:not([style*="--h"]) { background: var(--fill-strong); color: var(--label
 /* buttons: regular weight, smoothed (greyscale antialiasing, as on Apple's own) rather than bold */
 button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .segmented button {
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.btn, .sh-main .btn, .pv-ok, .dd-kind, .segmented button, .ac-main { font-weight: 500 !important; }
+.btn, .sh-main .btn, .pv-ok, .dd-kind, .segmented button { font-weight: 500 !important; }
 
 /* Shows | Films | Both and the other segmented switches: the same glass as the buttons beside them (Filters), with
    softly rounded corners, and the chosen option a lighter glass tile */
@@ -1949,33 +1949,48 @@ p { text-wrap: pretty; }
 /* the iOS-style alert that asks once */
 .out-dlg { width: min(330px, calc(100vw - 48px)); text-align: center; }
 .out-dlg form { padding: 24px 20px 18px; }
-/* goodbye: an orb of glowing energy, Tenner's own: four soft lights (your colour, pink, indigo and cyan) drift and swirl
-   round each other inside a dark glass ball, blending where they meet, with a soft halo. Still when Animations are off. */
-.out-ic { position: relative; isolation: isolate; display: block; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #0d0d18, #050509 72%);
-  box-shadow: 0 0 22px -4px color-mix(in srgb, var(--accent) 65%, #bf5af2), 0 0 0 1px rgba(255, 255, 255, .1); }
-.out-ic::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 34% 24%, rgba(255, 255, 255, .45), transparent 32%), radial-gradient(circle at 50% 50%, transparent 58%, rgba(255, 255, 255, .12) 72%, transparent 76%); }
-.out-ic i { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px; border-radius: 50%; mix-blend-mode: screen; filter: blur(5px) saturate(1.5);
-  background: radial-gradient(circle, var(--c) 0 38%, transparent 72%); transform: translate(var(--x), var(--y)); }
-.out-ic i:nth-child(1) { --c: var(--accent); --x: -7px; --y: -5px; }
-.out-ic i:nth-child(2) { --c: #ff2d92; --x: 8px; --y: -3px; }
-.out-ic i:nth-child(3) { --c: #5e5ce6; --x: -4px; --y: 8px; }
-.out-ic i:nth-child(4) { --c: #32d7ff; --x: 6px; --y: 7px; width: 30px; height: 30px; margin: -15px; }
-:root:not(.still) .out-ic i { animation: outOrb var(--t, 3.6s) ease-in-out infinite; transform-origin: 50% 50%; }
-:root:not(.still) .out-ic i:nth-child(1) { --t: 3.4s; }
-:root:not(.still) .out-ic i:nth-child(2) { --t: 4.1s; animation-direction: reverse; animation-delay: -1.2s; }
-:root:not(.still) .out-ic i:nth-child(3) { --t: 3.8s; animation-delay: -2.4s; }
-:root:not(.still) .out-ic i:nth-child(4) { --t: 2.9s; animation-direction: reverse; animation-delay: -.7s; }
-:root:not(.still) .out-ic { animation: outPop .6s var(--ease-spring), outGlow 2.6s ease-in-out .6s infinite; }
-/* each light circles the middle while it breathes in and out, so the colours swirl and pool like flowing energy */
-@keyframes outOrb {
-  0% { transform: rotate(0turn) translate(var(--x), var(--y)) scale(1); }
-  33% { transform: rotate(.34turn) translate(calc(var(--y) * -1), var(--x)) scale(1.35, .8); }
-  66% { transform: rotate(.68turn) translate(var(--y), calc(var(--x) * -1)) scale(.8, 1.3); }
-  100% { transform: rotate(1turn) translate(var(--x), var(--y)) scale(1); } }
-@keyframes outGlow { 50% { box-shadow: 0 0 30px 0 color-mix(in srgb, var(--accent) 75%, #40c8e0), 0 0 0 1px rgba(255, 255, 255, .14); } }
-@keyframes outPop { from { transform: scale(.4); opacity: 0; } }
+/* goodbye: an orb of glowing energy, Tenner's own. A dark glass sphere with light moving slowly inside it: two ribbons of
+   light (blue into cyan, violet into pink) turning in opposite directions at their own unhurried pace, a soft current
+   that changes shape as it drifts, and a white-blue core that breathes. A lit rim and a glass highlight sit on top, and
+   a halo breathes with the core. Everything is slow (14 to 26 seconds a turn), so it feels calm, never busy. It rests,
+   still and lit, when Animations are off or the device asks for Reduce Motion. */
+.out-ic { position: relative; isolation: isolate; display: block; width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #100e22 0%, #05040c 60%, #010103 100%);
+  box-shadow: 0 0 18px -2px rgba(10, 132, 255, .45), 0 0 34px -6px rgba(191, 90, 242, .4), 0 0 0 .5px rgba(255, 255, 255, .16); }
+/* the rim: light caught at the sphere's edge, brighter at the bottom like light passing through glass */
+.out-ic::before { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(140, 200, 255, .1) 68%, rgba(255, 255, 255, .28) 74%, transparent 76%);
+  box-shadow: inset 0 -5px 10px -4px rgba(100, 210, 255, .55), inset 0 3px 8px -3px rgba(255, 255, 255, .2), inset 0 0 14px rgba(0, 0, 0, .55); }
+/* the glass: a soft window highlight top left and a tiny glint */
+.out-ic::after { content: ""; position: absolute; inset: 0; z-index: 3; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(ellipse 42% 26% at 36% 20%, rgba(255, 255, 255, .42), rgba(255, 255, 255, .08) 60%, transparent 72%),
+    radial-gradient(circle 1.6px at 31% 19%, rgba(255, 255, 255, .95), transparent); }
+.out-ic i { position: absolute; z-index: 1; left: 50%; top: 50%; border-radius: 50%; mix-blend-mode: plus-lighter; pointer-events: none; }
+/* two ribbons of light: half-lit rings, turning */
+.out-ic i:nth-child(1), .out-ic i:nth-child(2) { width: 64px; height: 64px; margin: -32px; filter: blur(2.6px);
+  -webkit-mask: radial-gradient(circle, transparent 27%, #000 39%, #000 47%, transparent 60%); mask: radial-gradient(circle, transparent 27%, #000 39%, #000 47%, transparent 60%); }
+.out-ic i:nth-child(1) { background: conic-gradient(from 0deg, transparent 0deg, #0a84ff 80deg, #8fe3ff 150deg, transparent 215deg, transparent 360deg); }
+.out-ic i:nth-child(2) { background: conic-gradient(from 180deg, transparent 0deg, #bf5af2 70deg, #ff4f8b 140deg, transparent 205deg, transparent 360deg); opacity: .95; }
+/* a current that changes shape as it drifts */
+.out-ic i:nth-child(3) { width: 30px; height: 26px; margin: -13px -15px; filter: blur(6px); opacity: .55;
+  background: radial-gradient(circle at 40% 40%, #5e5ce6, #7d3cff 55%, transparent 75%); border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; transform: translate(4px, 5px); }
+/* the core: white at the heart, blue around it */
+.out-ic i:nth-child(4) { width: 18px; height: 18px; margin: -9px; filter: blur(3px);
+  background: radial-gradient(circle, rgba(255, 255, 255, .9) 0 14%, rgba(150, 215, 255, .55) 38%, rgba(10, 132, 255, .18) 62%, transparent 74%); }
+:root:not(.still) .out-ic { animation: outPop .9s cubic-bezier(.2, 1.1, .3, 1), outHalo 7s ease-in-out .9s infinite; }
+:root:not(.still) .out-ic i:nth-child(1) { animation: outTurn 14s linear infinite; }
+:root:not(.still) .out-ic i:nth-child(2) { animation: outTurn 19s linear infinite reverse; }
+:root:not(.still) .out-ic i:nth-child(3) { animation: outDrift 26s ease-in-out infinite; }
+:root:not(.still) .out-ic i:nth-child(4) { animation: outBreathe 7s ease-in-out .9s infinite; }
+@keyframes outTurn { to { rotate: 1turn; } }
+@keyframes outDrift {
+  0%, 100% { transform: translate(4px, 5px) rotate(0deg); border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
+  25% { transform: translate(-5px, 3px) rotate(80deg); border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%; }
+  50% { transform: translate(-3px, -5px) rotate(170deg); border-radius: 40% 60% 54% 46% / 38% 52% 48% 62%; }
+  75% { transform: translate(5px, -2px) rotate(260deg); border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; } }
+@keyframes outBreathe { 0%, 100% { transform: scale(.82); opacity: .75; } 50% { transform: scale(1.12); opacity: 1; } }
+@keyframes outHalo { 50% { box-shadow: 0 0 26px 0 rgba(10, 132, 255, .55), 0 0 46px -4px rgba(191, 90, 242, .5), 0 0 0 .5px rgba(255, 255, 255, .22); } }
+@keyframes outPop { from { transform: scale(.5); opacity: 0; filter: blur(6px); } }
 .out-dlg h2 { font-size: 20px; letter-spacing: -.02em; }
 .out-dlg p { margin: 0 auto 18px; max-width: 30ch; font-size: 15px; text-wrap: pretty; }
 .out-acts { display: grid; gap: 8px; }
@@ -2081,3 +2096,12 @@ a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
 .me-alt { margin: 12px 0 0; padding-top: 12px; box-shadow: 0 -.5px 0 var(--sep); font-size: 13.5px; color: var(--label2); text-align: center; }
 .me-link { padding: 4px 2px; border: 0; background: none; color: var(--accent); font: 500 13.5px/1.3 var(--font); cursor: pointer; text-decoration: none; }
 .me-link:hover { text-decoration: underline; }
+.me-ways { display: grid; gap: 8px; }
+.me-google:not([hidden]) { display: flex; justify-content: center; min-height: 44px; }
+.me-or:not([hidden]) { display: flex; align-items: center; gap: 12px; margin: 2px 0; color: var(--label2); font-size: 12.5px; }
+.me-or::before, .me-or::after { content: ""; flex: 1; height: .5px; background: var(--sep); }
+.me-in[readonly] { color: var(--label2); }
+.me-note { margin: 0 2px 4px; font-size: 14px; line-height: 1.45; color: var(--label2); }
+.me-mail { display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #4aa3ff, #0a6cff); }
+.me-mail svg { width: 26px; height: 26px; }
+.me-forgot { justify-self: end; margin: -2px 2px -4px; font-size: 13px; }

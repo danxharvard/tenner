@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.63.0';
+  const version = '2.64.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -811,6 +811,9 @@
   let applying = false, acctT = 0, syncing = null;
   const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const unb64u = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4)), (c) => c.charCodeAt(0));
+  // Sign in with Google: the OAuth client ID from Google Cloud (public)
+  const GOOGLE_ID = '573684167951-69isfjep31v7kl8hs0083228flhbq53e.apps.googleusercontent.com';
+  let gReady = null;
   const account = {
     token: () => lsGet(SESS),
     user() { try { return JSON.parse(lsGet(ACC) || 'null'); } catch { return null; } },
@@ -850,6 +853,21 @@
       const out = await account.call('POST', '/auth/passkey/finish', { id, credential: { id: cred.id, type: cred.type,
         response: { clientDataJSON: b64u(cred.response.clientDataJSON), attestationObject: b64u(cred.response.attestationObject) } } });
       if (out.token) await account.signedIn(out.token, out.user);
+    },
+    // Google's own button (their script loads only when a sign-in form or the account page asks for it). Signing in with
+    // it, or linking it to your account (signed in: onLinked); Google's button is drawn light or dark to match Tenner.
+    google(into, { onError, onShown, onLinked } = {}) {
+      gReady ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.onload = res; sc.onerror = rej; document.head.append(sc); });
+      gReady.then(() => {
+        if (!window.google?.accounts?.id || !into.isConnected) return;   // blocked by a content blocker, say, or the form has moved on
+        window.google.accounts.id.initialize({ client_id: GOOGLE_ID, ux_mode: 'popup', callback: async ({ credential }) => {
+          try { const out = await account.call('POST', '/auth/google', { credential }); if (out.token) await account.signedIn(out.token, out.user); else onLinked?.(); }
+          catch (err) { onError?.(err); }
+        } });
+        const th = document.documentElement.dataset.theme, dark = th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        into.innerHTML = ''; onShown?.();
+        window.google.accounts.id.renderButton(into, { type: 'standard', theme: dark ? 'filled_black' : 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', width: Math.min(360, into.clientWidth || into.parentElement.clientWidth || 300) });
+      }).catch(() => {});
     },
     friendly: (e) => e?.name === 'NotAllowedError' ? 'Cancelled' : e?.name === 'InvalidStateError' ? 'This device already has a passkey for your account' : e?.message || 'Something went wrong',
     forget() { lsSet(SESS, null); lsSet(ACC, null); dispatchEvent(new Event('tn:account')); },
@@ -909,6 +927,7 @@
   // signed in (computers and tablets): your picture and name top right of every page (on the homepage, above the dropdowns)
   // in one rounded pill, with a round Sign out inside it; the sidebar's own account entry then steps aside.
   // Signing out asks once, iOS-style; what's on this device stays.
+  let tnSignIn = () => false;
   const hd = $('.bx-hd .bx-dds') ? $('.bx-hd') : null, mainEl = $('main');
   if (hd || mainEl) {
     const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -934,57 +953,79 @@
       set: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
       chev: '<svg class="me-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
-    // signed out: the dropdown signs you in (email and password, or a passkey) or makes you an account, right here
-    let guestMode = 'in';
+    // signed out: the dropdown signs you in (Google, email and password, or a passkey) or makes you an account, right
+    // here; it's the only way in. On phones (no pill) and on the account page the same form sits in the page instead.
     const KEY = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12h9M18 12v3.5M21 12v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
     const IN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 4.5H17a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6.5M3.5 12h10M10 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
-    function fillGuest(note) {
-      const up = guestMode === 'up';
-      $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(null, 'me-av')}<span><b>${up ? 'Make your Tenner account' : 'Sign in to Tenner'}</b><small>${up ? 'Free, and it keeps every device in step' : 'Your Watchlist and settings, everywhere'}</small></span></div>
-        <form class="me-form" id="meForm" style="--i:1" novalidate>
-          ${up ? '<input class="me-in" id="meName" autocomplete="name" placeholder="Your name" aria-label="Your name" maxlength="40" required>' : ''}
-          <input class="me-in" type="email" id="meEmail" autocomplete="${up ? 'email' : 'username'}" placeholder="Email" aria-label="Email" required>
-          <input class="me-in" type="password" id="mePw" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Password (8 or more characters)' : 'Password'}" aria-label="Password" minlength="${up ? 8 : 1}" required>
-          <button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Create account' : 'Sign in'}</button>
-          ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk" id="mePk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}
-        </form>
-        <p class="me-msg" id="meMsg" role="status" aria-live="polite">${note ? esc(note) : ''}</p>
-        <p class="me-alt" style="--i:2">${up ? 'Already have an account?' : 'New to Tenner?'} <button type="button" class="me-link" id="meSwap">${up ? 'Sign in' : 'Create an account'}</button>
-          <span aria-hidden="true">·</span> <a class="me-link" href="account.html">More ways</a></p>`;
-      const say = (t, bad) => { const m = $('#meMsg'); m.textContent = t; m.classList.toggle('bad', !!bad); };
-      $('#meSwap').addEventListener('click', () => { guestMode = up ? 'in' : 'up'; fillGuest(); $('#meMenu .me-in')?.focus(); });
-      $('#mePk')?.addEventListener('click', async (e) => {
+    const MAIL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m4 7.5 8 5.5 8-5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    let guest = { mode: 'in' };   // in, up, check (confirm your email), reset (from the email's link)
+    function guestForm(root, o = guest) {
+      const m = o.mode, up = m === 'up', q = (c) => root.querySelector(c);
+      const heads = { in: ['Sign in to Tenner', 'Your Watchlist and settings, everywhere'], up: ['Make your Tenner account', 'Free, and it keeps every device in step'],
+        check: ['Check your inbox', 'One tap on the link and you’re in'], reset: ['Choose a new password', 'Then you’re straight back in'] };
+      const field = (c, type, ac, ph, extra = '') => `<input class="me-in ${c}" type="${type}" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph.replace(/ \(.*/, '')}" ${extra}>`;
+      const body = m === 'check'
+        ? `<p class="me-note">${esc(o.fresh ? `We’ve sent a link to ${o.email}. Tap it to confirm your email and finish making your account.` : `${o.email} isn’t confirmed yet. Tap the link we emailed you, or have it sent again.`)}</p>
+           <div class="me-form"><button type="button" class="btn btn-tinted me-go-btn me-resend">${MAIL}Send it again</button></div>`
+        : m === 'reset'
+        ? `<form class="me-form" novalidate>${field('me-e', 'email', 'username', 'Email', `value="${esc(o.email || '')}" readonly`)}${field('me-p', 'password', 'new-password', 'New password (8 or more characters)')}
+           <button class="btn btn-tinted me-go-btn">${TICK}Save and sign in</button></form>`
+        : `${GOOGLE_ID ? '<div class="me-google" hidden></div><p class="me-or" hidden><span>or</span></p>' : ''}
+           <form class="me-form" novalidate>${up ? field('me-nm', 'text', 'given-name', 'Your name', 'maxlength="40"') : ''}${field('me-e', 'email', up ? 'email' : 'username', 'Email')}${field('me-p', 'password', up ? 'new-password' : 'current-password', up ? 'Password (8 or more characters)' : 'Password')}
+           ${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}<button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Create account' : 'Sign in'}</button>
+           ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}</form>`;
+      const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
+        : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Create an account</button>'
+        : '<button type="button" class="me-link me-swap">Back to sign in</button>';
+      root.innerHTML = `<div class="me-hd" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
+        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>`;
+      const say = (t, bad) => { const n = q('.me-msg'); n.textContent = t; n.classList.toggle('bad', !!bad); };
+      if (o.note) say(o.note, o.bad);
+      const go = (mode, more = {}) => { Object.assign(o, { note: '', bad: false }, more, { mode }); guestForm(root, o); q('.me-in:not([readonly])')?.focus(); };
+      const inbox = (email, fresh) => go('check', { email, fresh });
+      q('.me-swap').addEventListener('click', () => go(m === 'in' ? 'up' : 'in'));
+      q('.me-forgot')?.addEventListener('click', async () => {
+        const email = q('.me-e').value.trim();
+        if (!email) { q('.me-e').focus(); return say('Enter your email above, then tap Forgot password again'); }
+        try { await account.call('POST', '/auth/password/forgot', { email }); say(`If there’s a Tenner account for ${email}, we’ve emailed it a link to choose a new password. Check your inbox (and junk).`); }
+        catch (err) { say(account.friendly(err), true); }
+      });
+      q('.me-resend')?.addEventListener('click', async (e) => {
+        try { await account.call('POST', '/auth/password/resend', { email: o.email }); say('Sent. It can take a minute to arrive'); e.currentTarget.disabled = true; }
+        catch (err) { say(account.friendly(err), true); }
+      });
+      const g = q('.me-google');
+      if (g) account.google(g, { onError: (err) => say(account.friendly(err), true), onShown: () => { g.hidden = false; q('.me-or').hidden = false; } });
+      q('.me-pk')?.addEventListener('click', async (e) => {
         const b = e.currentTarget; b.disabled = true;
-        try { if (up) { const name = $('#meName').value.trim(); if (!name) { $('#meName').focus(); throw new Error('Enter your name first'); } await account.passkeyNew(name); } else await account.passkeyIn(); }
+        try { if (up) { const name = q('.me-nm').value.trim(); if (!name) { q('.me-nm').focus(); throw new Error('Enter your name first'); } await account.passkeyNew(name); } else await account.passkeyIn(); }
         catch (err) { say(err.status === 404 ? 'That passkey isn’t linked to an account. Create one instead' : account.friendly(err), err.name !== 'NotAllowedError'); }
         b.disabled = false;
       });
-      $('#meForm').addEventListener('submit', async (e) => {
-        e.preventDefault(); const b = $('#meForm .me-go-btn'), email = $('#meEmail').value.trim(), pw = $('#mePw').value;
-        if (up && !$('#meName').value.trim()) return $('#meName').focus();
-        if (!email) return $('#meEmail').focus();
-        if (up && pw.length < 8) { $('#mePw').focus(); return say('Use 8 or more characters for your password', true); }
-        if (!pw) return $('#mePw').focus();
-        b.disabled = true; say(up ? 'Making your account…' : 'Signing you in…');
+      q('form')?.addEventListener('submit', async (e) => {
+        e.preventDefault(); const b = q('.me-go-btn'), email = q('.me-e').value.trim(), pw = q('.me-p').value;
+        if (up && !q('.me-nm').value.trim()) return q('.me-nm').focus();
+        if (!email) return q('.me-e').focus();
+        if (m !== 'in' && pw.length < 8) { q('.me-p').focus(); return say('Use 8 or more characters for your password', true); }
+        if (!pw) return q('.me-p').focus();
+        b.disabled = true; say(up ? 'Making your account…' : m === 'reset' ? 'Saving…' : 'Signing you in…');
         try {
-          if (up) {
-            const out = await account.call('POST', '/auth/password/signup', { email, name: $('#meName').value.trim(), key: await account.pwKey(email, pw) });
-            if (out.verify) { guestMode = 'in'; fillGuest(`Nearly there: we’ve emailed ${out.verify} a link. Tap it to confirm your email, then sign in.`); return; }
-            await account.signedIn(out.token, out.user);
-          } else {
-            const out = await account.call('POST', '/auth/password/login', { email, key: await account.pwKey(email, pw) });
-            await account.signedIn(out.token, out.user);
-          }
-          haptic(10);
+          const key = await account.pwKey(email, pw);
+          const out = up ? await account.call('POST', '/auth/password/signup', { email, name: q('.me-nm').value.trim(), key })
+            : m === 'reset' ? await account.call('POST', '/auth/password/reset', { token: o.token, key })
+            : await account.call('POST', '/auth/password/login', { email, key });
+          if (out.verify) return inbox(out.verify, true);
+          guest = { mode: 'in' }; await account.signedIn(out.token, out.user); haptic(10);
         } catch (err) {
-          say(err.data?.unverified ? `${err.data.unverified} isn’t confirmed yet. Tap the link we emailed you (or open your account page to send it again).` : account.friendly(err), true);
-          b.disabled = false;
+          if (err.data?.unverified) return inbox(err.data.unverified, false);
+          say(account.friendly(err), true); b.disabled = false;
         }
       });
     }
     function fillMenu() {
-      const u = account.user(); if (!u) return fillGuest();
+      const u = account.user(); if (!u) return guestForm($('#meBody'));
       const off = navigator.onLine === false;
       const status = off ? ['off', 'Offline', 'Changes sync when you’re back online'] : ['on', 'Synced', syncedAt ? `Updated ${ago(syncedAt)}` : 'On all your devices'];
       const since = u.created ? new Date(u.created).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
@@ -1003,7 +1044,7 @@
       m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
       if (account.user()) account.sync();   // freshen the numbers while it's open
-      else setTimeout(() => $('#meMenu .me-in')?.focus({ preventScroll: true }), 120);
+      else setTimeout(() => $('#meMenu .me-in:not([readonly])')?.focus({ preventScroll: true }), 120);
     }
     function closeMenu(focus) {
       const m = menu(); if (m.hidden) return;
@@ -1013,6 +1054,13 @@
       if (focus) card().focus();
     }
     $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu() : closeMenu()));
+    // the account page (signed out) opens the dropdown where there's a pill, or draws the same form into the page
+    tnSignIn = (o, inline) => {
+      guest = { mode: 'in', ...o };
+      if (!account.user() && matchMedia('(min-width: 720px)').matches && !$('#bxMe').hidden) { openMenu(); return true; }
+      if (inline) guestForm(inline, guest);
+      return false;
+    };
     document.addEventListener('click', (e) => { if (e.target.isConnected && !e.target.closest('#bxMe, #meMenu')) closeMenu(); });
     let lastW = innerWidth; addEventListener('resize', () => { if (innerWidth !== lastW) { lastW = innerWidth; closeMenu(); } });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu().hidden) closeMenu(true); });
@@ -1257,7 +1305,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score };
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
   // the Update centre introduces itself once, at the build number in the menu (on phones, when the menu's open)
   if (!onPage('updates')) featureTip({ id: 'update-centre', for: '.side-ver', title: 'What’s new', text: 'Tap the build number to open the Update centre: every Tenner update, with its date, what changed and any notes.' });
 

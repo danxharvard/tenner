@@ -2,12 +2,9 @@
 // sign in, the devices you're signed in on, sign out and delete. The account itself lives in the Worker (auth.js);
 // keeping devices in step is shell.js's (tn.account).
 (() => {
-  const { esc, account, avatar } = window.tn;
+  const tn = window.tn, { esc, account, avatar } = tn;
   const $ = (s) => document.querySelector(s);
-  // Sign in with Google: the OAuth client ID from Google Cloud (public). Empty: the Google button stays hidden.
-  const GOOGLE_CLIENT_ID = '573684167951-69isfjep31v7kl8hs0083228flhbq53e.apps.googleusercontent.com';
   const say = (el, t, bad) => { const n = $(el); n.textContent = t; n.classList.toggle('bad', !!bad); clearTimeout(n.t); n.t = setTimeout(() => (n.textContent = ''), bad ? 7000 : 3500); };   // a toast, so even a problem fades in time
-  const passkeys = !!window.PublicKeyCredential;
   // Show password: an eye inside each password box, so you can check what you've typed
   const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path class="ac-eye-off" d="M4 4l16 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
   function eyes(root) {
@@ -23,108 +20,19 @@
   eyes(document);
 
   // ---------- signed out ----------
-  const signIn = () => account.passkeyIn(), makePasskey = (name) => account.passkeyNew(name), pwKey = (email, pw) => account.pwKey(email, pw);   // shared with the account pill (shell.js)
-  const friendly = account.friendly;
-  $('#acPasskey').addEventListener('click', async (e) => {
-    if (!passkeys) { say('#acMsg', 'This browser can’t use passkeys. Try Safari, Chrome or Edge', true); return; }
-    const b = e.currentTarget; b.disabled = true;
-    try { await signIn(); } catch (err) { say('#acMsg', err.status === 404 ? 'That passkey isn’t linked to an account. Create one below' : friendly(err), err.name !== 'NotAllowedError'); }
-    b.disabled = false;
-  });
-  $('#acNewOpen').addEventListener('click', () => { $('#acNew').hidden = false; $('#acNewOpen').hidden = true; $('#acName').focus(); });
-  $('#acNew').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const b = e.submitter || $('#acMakePw'), name = $('#acName').value.trim(); b.disabled = true;   // (older Safari gives no submitter for Return)
-    try {
-      if (b?.id === 'acMakePk') {   // a passkey instead of a password
-        if (!passkeys) throw new Error('This browser can’t make passkeys. Try Safari, Chrome or Edge');
-        await makePasskey(name);
-      } else {
-        const email = $('#acNewEmail').value.trim(), pw = $('#acNewPw').value;
-        if (!email) { $('#acNewEmail').focus(); throw new Error('Enter your email address'); }
-        if (pw.length < 8) { $('#acNewPw').focus(); throw new Error('Use 8 or more characters for your password'); }
-        const out = await account.call('POST', '/auth/password/signup', { email, name, key: await pwKey(email, pw) });
-        if (out.verify) checkInbox(out.verify, true); else await account.signedIn(out.token, out.user);
-      }
-    } catch (err) { say('#acMsg', friendly(err), err.name !== 'NotAllowedError'); }
-    b.disabled = false;
-  });
-  // the name is all a passkey account needs; email and password only for a password one
-  $('#acMakePk').addEventListener('click', () => { $('#acNewEmail').required = false; $('#acNewPw').required = false; });
-  $('#acMakePw').addEventListener('click', () => { $('#acNewEmail').required = true; $('#acNewPw').required = true; });
-
-  // ---------- email and password (the key-stretching is tn.account.pwKey) ----------
-  $('#acLogin').addEventListener('submit', async (e) => {
-    e.preventDefault(); const b = e.submitter || e.target.querySelector('button:not([type=button])'); if (b) b.disabled = true;
-    try {
-      const email = $('#acEmail').value.trim(), out = await account.call('POST', '/auth/password/login', { email, key: await pwKey(email, $('#acPw').value) });
-      await account.signedIn(out.token, out.user);
-    } catch (err) { if (err.data?.unverified) checkInbox(err.data.unverified, false); else say('#acMsg', friendly(err), true); }
-    if (b) b.disabled = false;
-  });
-  // confirming the email: after signing up (or signing in before confirming), a "Check your inbox" screen
-  let checkEmail = '';
-  function checkInbox(email, fresh) {
-    checkEmail = email;
-    $('#acCheckP').textContent = fresh ? `We’ve sent a link to ${email}. Tap it to confirm your email and finish making your account.`
-      : `${email} isn’t confirmed yet. Tap the link we emailed you, or have it sent again.`;
-    for (const id of ['#acLogin', '#acNew', '#acNewOpen', '#acPasskey', '#acGoogle', '#acOr']) $(id).hidden = true;
-    $('#acCheck').hidden = false; $('#acMsg').textContent = '';
-  }
-  $('#acResend').addEventListener('click', async (e) => {
-    try { await account.call('POST', '/auth/password/resend', { email: checkEmail }); e.target.textContent = 'Sent'; setTimeout(() => { e.target.textContent = 'Send it again'; }, 4000); }
-    catch (err) { say('#acMsg', friendly(err), true); }
-  });
-  $('#acBack').addEventListener('click', () => { $('#acCheck').hidden = true; show(); });
-  // arriving from the welcome email's link: account.html#verify=…
-  const verifyIn = new URLSearchParams(location.hash.slice(1)).get('verify');
-  if (verifyIn) {
-    history.replaceState(null, '', location.pathname);
-    account.call('POST', '/auth/password/verify', { token: verifyIn })
-      .then(async (out) => { await account.signedIn(out.token, out.user); say('#acNote', 'Email confirmed. You’re in'); })
-      .catch((err) => say('#acMsg', friendly(err), true));
-  }
-  $('#acForgot').addEventListener('click', async () => {
-    const email = $('#acEmail').value.trim();
-    if (!email) { $('#acEmail').focus(); say('#acMsg', 'Enter your email above, then tap Forgot password again'); return; }
-    try { await account.call('POST', '/auth/password/forgot', { email }); say('#acMsg', `If there’s a Tenner account for ${email}, we’ve emailed it a link to choose a new password. Check your inbox (and junk)`); }
-    catch (err) { say('#acMsg', friendly(err), true); }
-  });
-  // arriving from the email's link: account.html#reset=…&e=…
+  // The form itself is the account pill's (shell.js, tn.signIn): its dropdown opens on computers, and on phones it's drawn
+  // here. The email links land here: #verify=… (confirming your email) and #reset=…&e=… (a new password).
+  const makePasskey = (name) => account.passkeyNew(name), pwKey = (email, pw) => account.pwKey(email, pw), friendly = account.friendly;
+  const hash = new URLSearchParams(location.hash.slice(1));
+  let signInWith = {};
+  if (hash.has('reset')) signInWith = { mode: 'reset', token: hash.get('reset'), email: hash.get('e') || '' };
+  if (hash.has('reset') || hash.has('verify')) history.replaceState(null, '', location.pathname + location.search);
   addEventListener('hashchange', () => { if (/^#(reset|verify)=/.test(location.hash)) location.reload(); });   // the link opened in a tab already on this page
-  const resetIn = new URLSearchParams(location.hash.slice(1));
-  if (resetIn.has('reset')) {
-    history.replaceState(null, '', location.pathname);
-    $('#acReset').hidden = false; $('#acLogin').hidden = true; $('#acResetEmail').value = resetIn.get('e') || '';
-    $('#acReset').addEventListener('submit', async (e) => {
-      e.preventDefault(); const b = e.submitter || e.target.querySelector('button:not([type=button])') || {}, pw = $('#acResetPw').value;
-      if (pw.length < 8) { say('#acMsg', 'Use 8 or more characters for your password', true); return; }
-      b.disabled = true;
-      try { const out = await account.call('POST', '/auth/password/reset', { token: resetIn.get('reset'), key: await pwKey($('#acResetEmail').value, pw) }); $('#acReset').hidden = true; $('#acLogin').hidden = false; await account.signedIn(out.token, out.user); }
-      catch (err) { say('#acMsg', friendly(err), true); }
-      b.disabled = false;
-    });
+  if (hash.has('verify')) {
+    account.call('POST', '/auth/password/verify', { token: hash.get('verify') })
+      .then(async (out) => { await account.signedIn(out.token, out.user); say('#acNote', 'Email confirmed. You’re in'); })
+      .catch((err) => { if (!account.token()) tn.signIn({ note: friendly(err), bad: true }, $('#acSignIn')); });
   }
-
-  // Google's own button (their script loads only on this page, and only once the client ID is set)
-  let gReady = null;
-  function google(into, linking) {
-    if (!GOOGLE_CLIENT_ID) return;
-    gReady ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.onload = res; sc.onerror = rej; document.head.append(sc); });
-    gReady.then(() => {
-      if (!window.google?.accounts?.id) throw new Error('Google sign-in didn’t load');   // blocked by a content blocker, say
-      window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, ux_mode: 'popup', callback: async ({ credential }) => {
-        try {
-          const out = await account.call('POST', '/auth/google', { credential });
-          if (out.token) await account.signedIn(out.token, out.user); else { say('#acNote', 'Google linked'); load(); }
-        } catch (err) { say(linking ? '#acNote' : '#acMsg', friendly(err), true); }
-      } });
-      const th = document.documentElement.dataset.theme, dark = th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-      into.hidden = false; into.innerHTML = ''; if (!linking) $('#acOr').hidden = false;
-      window.google.accounts.id.renderButton(into, { type: 'standard', theme: dark ? 'filled_black' : 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', width: Math.min(360, into.parentElement.clientWidth || 320) });
-    }).catch(() => {});
-  }
-
 
   // ---------- signed in ----------
   const HUES = [210, 265, 330, 5, 30, 145, 175], HUE_NAME = { 210: 'Blue', 265: 'Purple', 330: 'Pink', 5: 'Red', 30: 'Orange', 145: 'Green', 175: 'Teal' };
@@ -155,8 +63,8 @@
         : '<button type="button" class="set-row set-link" data-pw-open><span class="set-l">Add a password<small>Sign in with your email and a password too</small></span><span class="set-chev" aria-hidden="true"></span></button>')
       + `<form class="set-row ac-pwform" id="acPwForm" hidden><input type="email" id="acSetEmail" autocomplete="username" placeholder="Email" aria-label="Email" required value="${esc(me.password || '')}"><input type="password" id="acSetPw" autocomplete="new-password" minlength="8" placeholder="New password" aria-label="New password" required><button class="btn btn-tinted">Save</button></form>`
       + `<button type="button" class="set-row set-link" id="acAddPk"><span class="set-l">Add a passkey<small>For another device, or a password manager</small></span><span class="set-chev" aria-hidden="true"></span></button>`
-      + (!u.google && GOOGLE_CLIENT_ID ? '<div class="set-row ac-glink"><span class="set-l">Link Google</span><div id="acGLink"></div></div>' : '');
-    if (!u.google && GOOGLE_CLIENT_ID) google($('#acGLink'), true);
+      + (!u.google ? '<div class="set-row ac-glink"><span class="set-l">Link Google</span><div id="acGLink"></div></div>' : '');
+    if (!u.google) account.google($('#acGLink'), { onError: (err) => say('#acNote', friendly(err), true), onLinked: () => { say('#acNote', 'Google linked'); load(); } });
     eyes($('#acWays'));
     $('#acDevices').innerHTML = me.sessions.map((x) => `<div class="set-row"><span class="set-l"><span>${esc(x.label)}${x.here ? ' <em class="ac-here">This device</em>' : ''}</span><small>Signed in ${esc(when(x.created).toLowerCase())}${x.here ? '' : ` · seen ${esc(when(x.seen).toLowerCase())}`}</small></span>${x.here || !x.id ? '' : `<button type="button" class="ac-x" data-ses="${+x.id}" aria-label="Sign out ${esc(x.label)}">Remove</button>`}</div>`).join('')
       + (me.sessions.length > 1 ? '<button type="button" class="set-row set-link" id="acOthers"><span class="set-l">Sign out everywhere else</span></button>' : '');
@@ -313,7 +221,7 @@
   del2Dlg.addEventListener('click', (e) => { if (e.target === del2Dlg) del2Dlg.close(); });
   del2Dlg.addEventListener('close', async () => {
     if (del2Dlg.returnValue !== 'delete') { location.href = '/'; return; }
-    try { await account.call('DELETE', '/me'); account.forget(); show(); say('#acMsg', 'Your account has been deleted'); }
+    try { await account.call('DELETE', '/me'); account.forget(); show(); tn.signIn({ note: 'Your account has been deleted' }, $('#acSignIn')); }
     catch (err) { say('#acNote', friendly(err), true); }
   });
   $('#acIn').addEventListener('submit', async (e) => {
@@ -331,7 +239,7 @@
   async function goOut() {
     slide.classList.add('done'); setX(travel());
     await account.signOut($('#acClear').checked);
-    setTimeout(() => { slide.classList.remove('done'); setX(0); $('#acClear').checked = false; show(); say('#acMsg', 'Signed out'); }, 350);
+    setTimeout(() => { slide.classList.remove('done'); setX(0); $('#acClear').checked = false; show(); }, 350);
   }
   knob.addEventListener('pointerdown', (e) => { drag = { x0: e.clientX, id: e.pointerId }; knob.setPointerCapture(e.pointerId); slide.classList.add('held'); });
   knob.addEventListener('pointermove', (e) => { if (drag && e.pointerId === drag.id) setX(e.clientX - drag.x0); });
@@ -350,7 +258,6 @@
   // Tenner TV sends you here to sign in (?to=tv): once you're in, it gets a session of its own and you go straight back
   const toTv = new URLSearchParams(location.search).get('to') === 'tv';
   let handing = false;
-  if (toTv) $('#acOut .set-lede').textContent = 'Sign in, and you’ll go straight back to Tenner TV with your reminders and pinned channels.';
   async function handOff() {
     if (!toTv || handing || !account.token()) return;
     handing = true;
@@ -363,9 +270,12 @@
     $('#acOut').hidden = inn; $('#acIn').hidden = !inn;
     if (inn) { const u = account.user(); if (u) { me ||= { user: u, passkeys: [], sessions: [] }; draw(); } load(); }
     else {
-      $('#acNew').hidden = true; $('#acNewOpen').hidden = false; $('#acPasskey').hidden = false; $('#acCheck').hidden = true;
-      if ($('#acReset').hidden) $('#acLogin').hidden = false;
-      google($('#acGoogle'), false);
+      const lede = toTv ? 'Sign in, and you’ll go straight back to Tenner TV with your reminders and pinned channels.' : '';
+      const inPill = tn.signIn({ ...signInWith, lede }, $('#acSignIn'));
+      signInWith = {};
+      $('#acSignIn').hidden = inPill;
+      $('#acOutLede').textContent = inPill ? 'Sign in or make a free account at the top right. It keeps your Watchlist, progress and settings in step on every device.'
+        : lede || 'Your Tenner, everywhere. It’s optional: Tenner works just the same without.';
     }
   }
   addEventListener('tn:account', () => { if (!!account.token() === $('#acOut').hidden) return; show(); });
