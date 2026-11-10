@@ -394,5 +394,6 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   .bx-hd.me-on .bx-me-slot { display: block; grid-column: 2; grid-row: 1; height: 56px; }
 }
 /* the Top 10 box's way to each service's own chart (Top 10 by Service) */
-.bx-tt-by { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 44px; margin: -12px -4px -12px 0; }
-.bx-tt-by .chev { width: 7px; height: 7px; border-width: 0 2px 2px 0; }
+.bx-tt-by { position: relative; flex: none; height: 32px; padding: 0 12px; gap: 6px; font-size: 14px; -webkit-font-smoothing: antialiased; text-shadow: none; }
+.bx-tt-by svg { width: 15px; height: 15px; }
+.bx-tt-by::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
