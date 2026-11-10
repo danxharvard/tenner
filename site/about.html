@@ -44,8 +44,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.64.0">
-  <link rel="stylesheet" href="about.css?v=2.64.0">
+  <link rel="stylesheet" href="styles.css?v=2.65.0">
+  <link rel="stylesheet" href="about.css?v=2.65.0">
 
 </head>
 <body class="about">
@@ -66,6 +66,10 @@
         <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z"/></svg>
         <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M10.5 2.5l2.1 5.4 5.4 2.1-5.4 2.1-2.1 5.4-2.1-5.4L3 10l5.4-2.1z"/><path class="solid" d="M18 13.5l1.1 2.4 2.4 1.1-2.4 1.1L18 20.5l-1.1-2.4-2.4-1.1 2.4-1.1z"/></svg>
         <span>New</span></button>
+      <button type="button" role="tab" data-tab="top10" aria-selected="false" tabindex="-1">
+        <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="11" width="4.6" height="9.5" rx="1.6"/><rect x="9.7" y="3.5" width="4.6" height="17" rx="1.6"/><rect x="15.9" y="7.5" width="4.6" height="13" rx="1.6"/></svg>
+        <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><rect class="solid" x="3" y="10.5" width="5.4" height="10.5" rx="1.8"/><rect class="solid" x="9.3" y="3" width="5.4" height="18" rx="1.8"/><rect class="solid" x="15.6" y="7" width="5.4" height="14" rx="1.8"/></svg>
+        <span>Top 10s</span></button>
       <button type="button" role="tab" data-tab="browse" aria-selected="false" tabindex="-1">
         <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>
         <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><rect class="solid" x="3" y="3" width="8" height="8" rx="2.2"/><rect class="solid" x="13" y="3" width="8" height="8" rx="2.2"/><rect class="solid" x="3" y="13" width="8" height="8" rx="2.2"/><rect class="solid" x="13" y="13" width="8" height="8" rx="2.2"/></svg>
@@ -92,7 +96,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.64.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.65.0</a>
     </div>
   </div>
 
@@ -191,7 +195,7 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.64.0</a></p>
+    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.65.0</a></p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
@@ -249,6 +253,6 @@
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.64.0" defer></script>
+  <script src="shell.js?v=2.65.0" defer></script>
 </body>
 </html>

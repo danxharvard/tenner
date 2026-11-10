@@ -11,7 +11,7 @@
   // Tenner on" go straight to the charts
   {
     const h = location.hash.slice(1), start = window.tn.prefs.get().start;
-    const chart = /^(new|watchlist|week)$/.test(h);
+    const chart = /^(new|top10|watchlist|week)$/.test(h);
     let first = true; try { first = !sessionStorage.getItem('tenner-opened'); sessionStorage.setItem('tenner-opened', '1'); } catch {}
     const opener = first && !h && !location.search && ['new', 'watchlist'].includes(start);
     if (chart || opener) { location.replace(`charts.html${location.search}#${chart ? h : start}`); return; }
@@ -717,7 +717,7 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2><a class="bx-more bx-tt-by" href="charts.html#top10">By service<span class="chev" aria-hidden="true"></span></a></header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
   document.addEventListener('click', (e) => {

@@ -181,12 +181,15 @@ a.tb-btn:hover { text-decoration: none; }
 .tabs button svg { display: block; width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 /* tablets and small laptops (the floating bar at the top): tighter tabs and just the logo, so all of them fit */
 @media (min-width: 720px) and (max-width: 999px) {
-  .tabs button { padding: 0 9px; gap: 5px; font-size: 14px; }
+  .tabs button { padding: 0 7px; gap: 4px; font-size: 14px; }
   .top-brand .brand-name { display: none; }
 }
 /* the narrowest tablets (iPad mini upright, a narrow window): a little tighter still, so Watchlist isn't tucked under the buttons beside it */
 @media (min-width: 720px) and (max-width: 779px) {
-  .tabs button { padding: 0 6px; gap: 4px; font-size: 13.5px; }
+  .top-row:has(> .side-search) { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .top-row:has(> .side-search) > .top-brand { visibility: hidden; }   /* Home is a tab, so the logo makes room for all six */
+  .tabs button span { white-space: nowrap; }
+  .tabs button { padding: 0 4px; gap: 3px; font-size: 13px; letter-spacing: -.02em; }
 }
 .tabs button[aria-selected="true"] { color: var(--accent); }
 .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -1535,8 +1538,9 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 }
 /* tablets: a round glass button beside the tabs that opens into a field over them while you search */
 @media (min-width: 720px) and (max-width: 999px) {
+  .top-row { grid-template-columns: 84px minmax(0, 1fr) auto; gap: 12px; }   /* the logo and Search, then the tabs in the room between, so all six fit beside the buttons */
   .top-row > .top-brand { grid-area: 1 / 1; }
-  .top-row > .tabbar { grid-area: 1 / 2; }
+  .top-row > .tabbar { grid-area: 1 / 2; justify-self: center; min-width: 0; }
   .top-row > .top-act { grid-area: 1 / 3; }
   .top-row > .side-search { grid-area: 1 / 1; justify-self: end; width: 40px; height: 40px; z-index: 3; }
   .bar-title { right: 48px; }

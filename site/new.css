@@ -160,3 +160,33 @@
 .lv-when { background: color-mix(in srgb, #ff375f 78%, transparent); box-shadow: none; }
 
 @media (forced-colors: active) { .race-line { stroke: CanvasText; } .race-end, .race-dot { fill: CanvasText; } .rb-day::after { background: Highlight; } }
+
+/* ============================================================ Top 10 by Service (#top10): the homepage's Top 10 box, one per
+   service, lined up in a row you swipe (or step through with the arrows) so the same places sit level across the services.
+   Boxes use the site's one frost; the row runs into the page's margins and fades softly where there's more to see. */
+.tt-hd .tt-acts { display: flex; align-items: center; gap: 8px; }
+.tt-go:disabled { opacity: .35; cursor: default; }
+.tt-go[hidden] { display: none; }
+.tt-row {
+  --tt-fade: 28px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: clamp(272px, calc((100% - var(--gutter) - var(--gutter-r) - 32px) / 3), 360px); gap: 16px; align-items: start;
+  margin: 0 calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter)); padding: 2px var(--gutter-r) 8px var(--gutter);
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter) var(--gutter-r); scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--tt-fade), #000 calc(100% - var(--tt-fade)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--tt-fade), #000 calc(100% - var(--tt-fade)), transparent);
+}
+.tt-row::-webkit-scrollbar { display: none; }
+.tt-row.at-start { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--tt-fade)), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - var(--tt-fade)), transparent); }
+.tt-row.at-end { -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--tt-fade)); mask-image: linear-gradient(90deg, transparent, #000 var(--tt-fade)); }
+.tt-row.at-start.at-end { -webkit-mask-image: none; mask-image: none; }
+.tt-box { scroll-snap-align: start; min-width: 0; }
+.tt-box.panel { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.tt-box h2 { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tt-box h2 span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-logo { flex: none; width: 28px; height: 28px; border-radius: 7px; object-fit: cover; box-shadow: 0 0 0 .5px var(--sep); }
+.tt-more { display: block; margin: 8px auto 0; min-height: 44px; padding: 0 12px; }
+@media (max-width: 719px) {
+  .tt-hd .tt-go { display: none; }   /* phones swipe */
+  .tt-row { grid-auto-columns: calc(100% - var(--gutter) - var(--gutter-r) - 28px); gap: 12px; --tt-fade: 16px; }
+}
+@media (prefers-reduced-transparency: reduce) { .tt-box.panel { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
