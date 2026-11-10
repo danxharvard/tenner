@@ -184,6 +184,10 @@ a.tb-btn:hover { text-decoration: none; }
   .tabs button { padding: 0 9px; gap: 5px; font-size: 14px; }
   .top-brand .brand-name { display: none; }
 }
+/* the narrowest tablets (iPad mini upright, a narrow window): a little tighter still, so Watchlist isn't tucked under the buttons beside it */
+@media (min-width: 720px) and (max-width: 779px) {
+  .tabs button { padding: 0 6px; gap: 4px; font-size: 13.5px; }
+}
 .tabs button[aria-selected="true"] { color: var(--accent); }
 .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 @media (hover: hover) { .tabs button[aria-selected="false"]:hover { color: var(--accent); } }
@@ -1540,11 +1544,11 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
     background: var(--frost); box-shadow: var(--frost-line); -webkit-backdrop-filter: var(--frost-blur); backdrop-filter: var(--frost-blur); }
   .side-search input::placeholder { color: transparent; }
   .side-search .ss-ic { left: 11px; width: 18px; height: 18px; color: var(--label); }
-  .side-search input:focus, .side-search input:not(:placeholder-shown) { width: min(340px, calc(100vw - 150px)); padding-right: 10px; cursor: text; box-shadow: var(--frost-line), 0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);
+  .side-search input:focus, .side-search input:not(:placeholder-shown) { width: min(340px, calc(100vw - 150px)); padding-right: 10px; cursor: text; border-radius: var(--r); box-shadow: var(--frost-line), 0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);
     background: var(--sheet-bg); }
   .side-search input:focus::placeholder { color: var(--label2); }
   .top-row:has(.side-search input:focus, .side-search input:not(:placeholder-shown)) > .tabbar { opacity: 0; pointer-events: none; }   /* the field takes the tabs' place while you search */
-  :root:not(.still) .side-search input { transition: width .45s var(--ease-spring), background-color .2s ease, box-shadow .2s ease; }
+  :root:not(.still) .side-search input { transition: width .45s var(--ease-spring), border-radius .3s ease, background-color .2s ease, box-shadow .2s ease; }
 }
 /* phones: at the top of the menu; while you search, the results take the menu's place */
 @media (max-width: 719px) {

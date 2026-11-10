@@ -280,7 +280,7 @@ const WL_LOGO = 'https://image.tmdb.org/t/p/w500';
 const wlh = { k: null, info: null, tries: new Set(), seen: true, cut: null, run: 0 };
 const wlApi = new Map();
 const wlFetch = (k) => { const api = window.tn.api; if (!api) return Promise.resolve(null);
-  if (!wlApi.has(k)) wlApi.set(k, fetch(`${api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)); return wlApi.get(k); };
+  if (!wlApi.has(k)) wlApi.set(k, fetch(`${api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((d) => { if (!d) wlApi.delete(k); return d; })); return wlApi.get(k); };   // a miss (offline, say) is asked again next time
 function wlHide() {
   const top = $('#wlTop'); if (!top || top.hidden) return;
   top.hidden = true; $('#wlHero').replaceChildren(); $('#bxAmb').replaceChildren(); $('#bdExt').replaceChildren(); wlh.k = null; wlh.cut?.stop(); wlh.cut = null;

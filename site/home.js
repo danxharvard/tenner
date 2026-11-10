@@ -203,7 +203,7 @@
     $('#bxGenDD').classList.toggle('on', state.genre != null);
     morph(() => { drawRows(); drawSide(); markSaved(); });
   });
-  const morph = (fn) => (document.startViewTransition && !document.documentElement.classList.contains('still') ? document.startViewTransition(fn) : fn());
+  const morph = (fn) => (document.startViewTransition && !document.documentElement.classList.contains('still') ? document.startViewTransition(fn).ready.catch(() => {}) : fn());   // one cut short by a newer change is fine
 
   // ---------- Christmas (1 November to Boxing Day): a festive slide among the featured titles ----------
   // Its own artwork (a snowy village at night, a lit tree), a countdown in the scores' box, a nudge to add Tenner to the
@@ -254,6 +254,13 @@
       ${xmasHow() ? `<p class="bx-h-how">${esc(xmasHow())}</p>` : ''}
       <div class="bx-h-acts">${xmasActs()}</div>`;
   }
+  // the countdown keeps time while the slide's up (it used to stay at the minute the page opened)
+  setInterval(() => {
+    if (document.hidden || !heroList[state.hero]?.it.xmas) return;
+    const box = $('#bxCopy .bx-score'), now = xmasCount(); if (!box) return;
+    if (!now) { xmasCopy(); return; }   // Christmas Day: the slide says so
+    const t = document.createElement('div'); t.innerHTML = now; if (box.outerHTML !== t.firstElementChild.outerHTML) box.replaceWith(t.firstElementChild);
+  }, 20000);
   // the winter night only while the slide's showing and the featured titles are on screen (scrolled past, it stops)
   let heroSeen = true;
   new IntersectionObserver(([e]) => { heroSeen = e.intersectionRatio > .35; xmasMood(!!heroList[state.hero]?.it.xmas && heroSeen); trSync(); }, { threshold: [0, .35, .6] }).observe($('#bxHero'));
@@ -356,10 +363,11 @@
     const put = () => {
       art.append(layer); requestAnimationFrame(() => layer.classList.add('in'));
       setTimeout(() => [...art.children].slice(0, -1).forEach((c) => c.remove()), first || reduce() ? 0 : 900);
+      // the cut starts a moment after its picture is up (a slow picture once meant it never started at all)
+      if (it.cut) setTimeout(() => { if (layer.isConnected && heroList[state.hero]?.it === it && !trCut) { trCut = window.tn.cut(layer, cutFrames(it)); trSync(); } }, first ? 1600 : 1200);
     };
-    const img = layer.querySelector('img'); img?.decode ? img.decode().then(put, put) : put();
     trCut?.stop(); trCut = null;
-    if (it.cut) setTimeout(() => { if (layer.isConnected && heroList[state.hero]?.it === it && !trCut) { trCut = window.tn.cut(layer, cutFrames(it)); trSync(); } }, first ? 1600 : 1200);
+    const img = layer.querySelector('img'); img?.decode ? img.decode().then(put, put) : put();
     ambient(it.xmas ? 'xmas.webp' : it.backdrop ? it.backdrop.replace('/w1280/', '/w780/') : it.poster);
     drawHeroCopy();
     xmasMood(!!it.xmas && heroSeen);

@@ -120,7 +120,7 @@
     if (current !== id) return;
     cat = c; pd = d;
     if (!d) { body.innerHTML = `<div class="sh-body ps-body ps-none"><h2 id="psT">Couldn’t load this person</h2><p class="sh-genres">Check your connection and try again.</p></div>`; return; }
-    document.title = `${d.name} | Tenner`;
+    document.title = `${d.name} · Tenner`;
     render();
   }
   function close(fromHistory) {

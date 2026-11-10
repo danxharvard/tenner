@@ -37,16 +37,16 @@
   function tnTheme(t){var r=document.documentElement;if(t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);
     var c=t==="auto"?null:(t==="light"?"#ffffff":"#000000");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){if(!m.dataset.c)m.dataset.c=m.content;m.content=c||m.dataset.c;});}
   /* your account's colour as the accent (links, highlights, glows): a deeper shade by day, a lighter one by night, both legible */
-  function tnMe(a){var r=document.documentElement,s=r.style,h=a&&a.hue!=null?+a.hue:210;if(h===210||(a.picture&&[265,330,5,30,145,175].indexOf(h)<0)){r.removeAttribute("data-me");return}
+  function tnMe(a){var r=document.documentElement,s=r.style,h=a&&a.hue!=null?+a.hue:210;if([265,330,5,30,145,175].indexOf(h)<0){r.removeAttribute("data-me");return}
     r.setAttribute("data-me","");s.setProperty("--me-h",h);s.setProperty("--me-d","hsl("+h+" 80% "+(h<20||h>=215?44:h<35||h>=200?36:26)+"%)");s.setProperty("--me-n","hsl("+h+" 90% "+(h>=225&&h<=280?72:64)+"%)")}
   try{tnMe(JSON.parse(localStorage.getItem("tenner-account")||"null"))}catch(e){}
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.56.1">
-  <link rel="stylesheet" href="legal.css?v=2.56.1">
-  <link rel="stylesheet" href="settings.css?v=2.56.1">
-  <link rel="stylesheet" href="account.css?v=2.56.1">
+  <link rel="stylesheet" href="styles.css?v=2.56.2">
+  <link rel="stylesheet" href="legal.css?v=2.56.2">
+  <link rel="stylesheet" href="settings.css?v=2.56.2">
+  <link rel="stylesheet" href="account.css?v=2.56.2">
   <meta name="robots" content="noindex">
 </head>
 <body class="legal">
@@ -93,7 +93,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.56.1</span>
+      <span class="side-ver">Tenner 2.56.2</span>
     </div>
   </div>
 
@@ -110,7 +110,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.56.1" defer></script>
-  <script src="list.js?v=2.56.1" defer></script>
+  <script src="shell.js?v=2.56.2" defer></script>
+  <script src="list.js?v=2.56.2" defer></script>
 </body>
 </html>
