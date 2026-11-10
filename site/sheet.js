@@ -335,7 +335,7 @@
   }
   // Trailers & Extras: YouTube's pictures for each, playing in the artwork like the Trailer button
   const VTYPE = { Trailer: 'Trailer', Teaser: 'Teaser', Clip: 'Clip', Featurette: 'Featurette', 'Behind the Scenes': 'Behind the scenes', Bloopers: 'Bloopers' };
-  const vidsHtml = (m) => (m?.vids?.length > (m.vids.length === 1 && m.vids[0].key === shown?.items?.[current?.k]?.tr ? 1 : 0) ? `<section class="sh-sec" aria-labelledby="shV"><h3 id="shV">Trailers &amp; Extras</h3>
+  const vidsHtml = (m) => ((m?.vids || []).length > (m.vids?.length === 1 && m.vids[0].key === shown?.items?.[current?.k]?.tr ? 1 : 0) ? `<section class="sh-sec" aria-labelledby="shV"><h3 id="shV">Trailers &amp; Extras</h3>
     <ul class="sh-vids">${m.vids.map((v) => `<li><button type="button" data-vid="${esc(v.key)}" data-vname="${esc(v.name)}"><span class="sh-vimg"><img src="https://i.ytimg.com/vi/${esc(v.key)}/mqdefault.jpg" alt="" loading="lazy" decoding="async"><i aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></i></span>
       <b>${esc(v.name)}</b><small>${esc(VTYPE[v.type] || v.type)}</small></button></li>`).join('')}</ul></section>` : '');
   // reviews: the start of each, the whole thing on TMDB
@@ -478,7 +478,7 @@
       const u = new URL(location.href); u.searchParams.set('t', info.k);
       history.pushState({ sheet: info.k }, '', u); pushed++;
     }
-    document.title = `${info.title} | Tenner`;
+    document.title = `${info.title} · Tenner`;
     let [d] = await Promise.all([details(), trail().then((t) => { trailD = t; }), prices().then((p) => { priceD = p; }), Promise.race([onAir().then((a) => { airD = a; }), new Promise((r) => setTimeout(r, 1500))])]);   // another site: never a reason to wait long
     if (current !== info) return;
     if (!d?.items?.[info.k] && window.tn.api) {

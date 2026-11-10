@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.58.1';
+  const version = '2.58.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -249,7 +249,7 @@
   };
   addEventListener('storage', (e) => {
     const is = (...k) => e.key === null || k.includes(e.key);   // null: everything was cleared (in another tab)
-    if (is(WL, PR, ST)) dispatchEvent(new Event('tn:saved')); if (is(MS)) dispatchEvent(new Event('tn:mine')); if (is(...Object.values(MARKS))) dispatchEvent(new Event('tn:marks')); if (is(PREFS)) { apply(); dispatchEvent(new Event('tn:prefs')); } if (e.key === TIPS) tipQ.splice(0, tipQ.length, ...tipQ.filter((x) => !tips.seen(x.id))); });
+    if (is(WL, PR, ST)) dispatchEvent(new Event('tn:saved')); if (is(MS)) dispatchEvent(new Event('tn:mine')); if (is(...Object.values(MARKS))) dispatchEvent(new Event('tn:marks')); if (is(PREFS)) { apply(); dispatchEvent(new Event('tn:prefs')); } if (is(SESS, ACC)) dispatchEvent(new Event('tn:account')); if (e.key === TIPS || e.key === null) tipQ.splice(0, tipQ.length, ...tipQ.filter((x) => !tips.seen(x.id))); });
 
   // ---------- My services: the ones you pay for, on this device. The Top 10 gets a chart of just those, and Browse
   // starts filtered to them. Empty means "all six". ----------
@@ -292,7 +292,7 @@
         dlg.querySelector('#mineAll').checked = rows.every((r) => r.querySelector('input').checked);
         for (const r of rows) r.querySelector('.mine-d').textContent = r.querySelector('input').checked ? 'In Top 10' : 'Add';
       };
-      const move = () => (!reduce() && document.startViewTransition ? document.startViewTransition(place) : place());
+      const move = () => (!reduce() && document.startViewTransition ? document.startViewTransition(place).ready.catch(() => {}) : place());
       dlg.addEventListener('change', (e) => {
         if (e.target.id === 'mineAll') { const v = e.target.checked; dlg.querySelectorAll('.mine-list input').forEach((i) => { i.checked = v; }); }
         move();
@@ -838,7 +838,9 @@
     sync() {
       if (!account.token()) return Promise.resolve(null);
       if (syncing) return syncing;
+      const was = account.token();
       syncing = account.call('PUT', '/me/data', { data: account.local() }).then(({ data, user }) => {
+        if (account.token() !== was) return null;   // signed out (or in as someone else) while it was on its way: that wins
         if (user && JSON.stringify(user) !== JSON.stringify(account.user())) account.setUser(user);   // a new name or photo from another device
         applyData(data); return data; })
         .catch(() => null).finally(() => { syncing = null; });
@@ -892,7 +894,7 @@
         document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg" id="outDlg" aria-labelledby="outH" aria-describedby="outP" closedby="any"><form method="dialog">
           <span class="out-ic" aria-hidden="true">${OUT}</span><h2 id="outH">Sign out of Tenner?</h2>
           <p id="outP">Your Watchlist and settings stay on this device. Sign in again any time to sync them.</p>
-          <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted out-stay" value="stay" autofocus>Cancel</button></div>
+          <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted out-stay" value="stay" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Cancel</button></div>
         </form></dialog>`);
         dlg = $('#outDlg');
         dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close('stay'); });   // tap outside to close
@@ -917,7 +919,8 @@
   }
   // the colour you picked for your account becomes Tenner's accent everywhere: links, highlights, the menu's icons, focus
   // rings, glows and the wash behind the page (tnMe, in each page's head, so it's there before the first paint).
-  // The first blue is Tenner's own; with a profile photo, only a colour you picked yourself counts.
+  // Only the six colours on the account page count (the first blue is Tenner's own): a new account's random shade, or an old
+  // one's, could be a muddy olive or brown, so those keep Tenner's blue until you pick one.
   const meHue = () => window.tnMe?.(account.user());
   meHue(); addEventListener('tn:account', meHue);
 
@@ -1077,14 +1080,17 @@
     if (!host || !srcs.length || navigator.connection?.saveData) return null;
     const box = document.createElement('div'); box.className = 'cut'; box.setAttribute('aria-hidden', 'true'); host.append(box);
     const anims = new Set();
-    let n = 0, t = 0, held = false, gone = false, left = CUT_HOLD, since = 0, m = Math.floor(Math.random() * CUT_MOVES.length);
+    let n = 0, t = 0, held = false, gone = false, busy = false, misses = 0, left = CUT_HOLD, since = 0, m = Math.floor(Math.random() * CUT_MOVES.length);
     const shot = (src) => { const img = new Image(); img.alt = ''; img.decoding = 'async'; img.className = 'cut-f'; img.src = src; return img.decode().then(() => img, () => null); };
     async function next() {
       if (gone) return;
       if (!box.isConnected) { stop(); return; }
       if (osStill.matches || prefs.get().autoplay === false) { anims.forEach((a) => a.pause()); t = setTimeout(next, 2000); return; }   // the picture on screen stays as it is
-      const img = await shot(srcs[n++ % srcs.length]); if (gone) return;
+      busy = true; const img = await shot(srcs[n++ % srcs.length]); busy = false; if (gone) return;
+      // none of the stills will load (offline, say): the picture beneath stays, and it stops asking
+      if (!img && ++misses >= srcs.length) { stop(); return; }
       if (img) {
+        misses = 0;
         const v = CUT_MOVES[m++ % CUT_MOVES.length];
         box.append(img);
         for (const a of [
@@ -1098,7 +1104,8 @@
     }
     function hold(on) {
       if (gone || on === held) return; held = on; anims.forEach((a) => (on ? a.pause() : a.play()));
-      if (on) { clearTimeout(t); left = Math.max(300, left - (Date.now() - since)); } else { since = Date.now(); t = setTimeout(next, left); }
+      // (while a still is on its way, next() itself carries on once it's here: a second timer would run the cut twice as fast)
+      if (on) { clearTimeout(t); left = Math.max(300, left - (Date.now() - since)); } else if (!busy) { since = Date.now(); clearTimeout(t); t = setTimeout(next, left); }
     }
     function stop() { gone = true; clearTimeout(t); anims.forEach((a) => a.cancel()); box.remove(); }
     next();
@@ -1373,6 +1380,9 @@
         text: 'Tenner\'s lit up for the season. The lights twinkle when Animations are on in Settings, and come down after Boxing Day.' });
     }
   }
+
+  // the crossfade between pages: one cut short (a tap or Escape mid-way) is fine, not an error
+  for (const ev of ['pageswap', 'pagereveal']) addEventListener(ev, (e) => { e.viewTransition?.ready.catch(() => {}); e.viewTransition?.finished.catch(() => {}); });
 
   // ---------- install as an app: the offline cache (sw.js) ----------
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

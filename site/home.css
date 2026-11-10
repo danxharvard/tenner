@@ -386,6 +386,9 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 @media (min-width: 720px) {
   .bx-hd.me-on { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; row-gap: 10px; align-items: start; }
   .bx-hd.me-on .bx-rail { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+  /* beside the pill there's room for one line of services: they scroll, fading at the edge, rather than leave one alone on a second line */
+  .bx-hd.me-on .bx-rail { flex-wrap: nowrap; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+  .bx-hd.me-on .bx-rail > :last-child { margin-right: 22px; }
   .bx-hd.me-on .bx-dds { grid-column: 2; grid-row: 2; justify-self: end; margin-top: 0; }
   .bx-hd .bx-me:not([hidden]) { grid-column: 2; grid-row: 1; justify-self: end; }
 }
