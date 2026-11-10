@@ -6,6 +6,13 @@
   'use strict';
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // a programme's colour, from its genre (Apple's system colours): the preview box is lit in it and glides from one to the
+  // next as you move around the guide, and On now's tiles take it as you hover, the way tenner.stream's Contact page does
+  const TONES = [[/film|movie/, '#0a84ff'], [/sport/, '#64d2ff'], [/news|current affairs|politic|weather/, '#8e8e93'],
+    [/child|kids|animat|cartoon/, '#ffd60a'], [/comedy|sitcom/, '#ff9f0a'], [/drama|soap|crime|thriller|mystery|detective/, '#bf5af2'],
+    [/entertain|game|quiz|music|talent|reality|talk|chat/, '#ff375f'], [/doc|factual|nature|wildlife|history|science|lifestyle|food|cook|home|garden|travel|arts|religio/, '#30d158']];
+  const tone = (x) => { const g = `${(x.g || []).join(' ')} ${x.type || ''}`.toLowerCase(); return (TONES.find(([re]) => re.test(g)) || [0, '#0a84ff'])[1]; };
+
   const hue = (s) => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const store = { get(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; } catch { return d; } }, set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
@@ -442,6 +449,7 @@
     const t = Date.now(), started = isLive(x, t);
     $('#pvCh').innerHTML = logo(x.ch) ? `<img class="pv-logo" src="${esc(logo(x.ch))}" alt="${esc(x.ch)}">` : esc(x.ch);
     $('#pvT').textContent = x.t;
+    $('#pv').style.setProperty('--tone', tone(x));
     $('#pvSum').textContent = x.sum || epLine(x) || (x.g || []).join(', ');
     $('#pvLive').innerHTML = liveBtn(x);
     $('#pvMeta').textContent = [started ? `Started at ${hm(x.at)}` : `${x.end <= t ? 'Was on' : `${x.at - t < 864e5 && ukDay(x.at) === today ? 'On' : dayName(ukDay(x.at), { weekday: 'long' })}`} at ${hm(x.at)}`,
@@ -730,7 +738,7 @@
     $('#tiles').innerHTML = names.map((n) => {
       const l = chItems(n), i = l.findIndex((o) => o.x.at <= at && at < o.end); if (i < 0) return '';
       const { x, end, next } = l[i], p = Math.round(((at - x.at) / (end - x.at)) * 100);
-      return `<li><button type="button" class="tile${live ? ' live' : ''}" ${reg(x, n, next)} aria-label="${esc(`${n}: ${x.t}, ${hm(x.at)} to ${hm(end)}${next ? `. Then ${next.t}` : ''}`)}">
+      return `<li><button type="button" class="tile${live ? ' live' : ''}" style="--c:${tone(x)}" ${reg(x, n, next)} aria-label="${esc(`${n}: ${x.t}, ${hm(x.at)} to ${hm(end)}${next ? `. Then ${next.t}` : ''}`)}">
         <span class="tile-art">${art(x)}<span class="tile-ch">${badge(n)}</span>${rem.has(x.id) ? `<span class="chip-bell">${BELL}</span>` : ''}</span>
         <span class="tile-copy"><b>${x.isNew ? '<i class="new">New</i>' : ''}${esc(x.t)}</b>
           <small>${hm(x.at)}–${hm(end)}${live ? ` · ${minsLeft({ end }, at)} min left` : ''}</small>
