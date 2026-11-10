@@ -11,7 +11,7 @@
   const cache = new Map();
   const get = (id) => {
     if (!api) return Promise.resolve(null);
-    if (!cache.has(id)) cache.set(id, fetch(`${api}/person/${id}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    if (!cache.has(id)) cache.set(id, fetch(`${api}/person/${id}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((d) => { if (!d) cache.delete(id); return d; }));   // a failure isn't kept, so trying again can work
     return cache.get(id);
   };
   // which titles are streaming on the six services right now (the Browse catalogue), and the services' names and logos
@@ -20,6 +20,7 @@
     fetch(`data/browse.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
     fetch(`data/trending.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
   ]).then(([c, t]) => {
+    if (!c) catP = null;   // try again next time
     const on = new Map(); for (const x of c?.items || []) if (x.s?.length) on.set(`${x.t[0]}${x.i}`, x.s);
     const svc = {}; for (const s of t?.services || []) svc[s.key] = { label: s.label, logo: s.logo };
     return { on, svc };

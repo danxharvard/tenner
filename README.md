@@ -55,6 +55,6 @@ npx serve site                                # then open http://localhost:3000
 
 - **"Popular" means TMDB popularity**, filtered to what's on each service in the UK. It isn't official viewing figures. For official Top 10s, look at FlixPatrol's paid API later.
 - **Provider names change.** If a service shows "No data yet", open `data/providers.json` on the live site to see what matched, and tweak the regex for that service in `SERVICES` at the top of `scripts/fetch-data.mjs`.
-- **Watchmode's free plan has a monthly credit limit.** The script calls it at most once a day (about 30 credits a month) by reusing the copy already on your site.
+- **Watchmode's free plan has a monthly credit limit.** The script builds New at most once a day (a few credits) by reusing the copy already on your site, and keeps each film's prices for a week, pricing at most five films a run: well under 2,500 a month.
 - **GitHub pauses scheduled workflows** in public repos after 60 days with no commits. Push any small change, or re-enable it in the Actions tab, if updates stop.
 - **Attribution:** keep the TMDB notice in the footer. TMDB's terms require it.

@@ -10,13 +10,15 @@
   const reduce = () => document.documentElement.classList.contains('still');   // Animations off, or Reduce Motion (read live)
   // the chart history (data/trail.json: each charted title's recent ranks), loaded with the first sheet
   let trailP = null;
-  const trail = () => (trailP ||= fetch(`data/trail.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  // a failed fetch isn't kept: the next sheet asks again (otherwise one dropped connection would last the whole visit)
+  const retry = (forget) => (d) => { if (!d) forget(); return d; };
+  const trail = () => (trailP ||= fetch(`data/trail.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => { trailP = null; })));
   // what it costs to rent or buy (data/prices.json: popular new films to buy or rent), loaded with the first sheet too
   let priceP = null, priceD = null;
-  const prices = () => (priceP ||= fetch(`data/prices.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  const prices = () => (priceP ||= fetch(`data/prices.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => { priceP = null; })));
   // On TV this week: Freeview showings from Tenner TV's listings (rebuilt every three hours), loaded with the first sheet
   let airP = null, airD = null;
-  const onAir = () => (airP ||= fetch('https://tenner-tv.danseacroft.workers.dev/api/onair').then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  const onAir = () => (airP ||= fetch('https://tenner-tv.danseacroft.workers.dev/api/onair').then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => { airP = null; })));
   addEventListener('tn:check', () => { trailP = null; priceP = null; airP = null; });
   let trailD = null;
   const CHART = { all: 'in the UK', netflix: 'on Netflix', disney: 'on Disney+', prime: 'on Prime Video', hbomax: 'on HBO Max', paramount: 'on Paramount+', appletv: 'on Apple TV' };
@@ -118,13 +120,14 @@
   const msay = (t) => { const el = $('#shMsay'); if (!el) return; el.textContent = t; clearTimeout(msayT); msayT = setTimeout(() => { if (el.isConnected) el.textContent = ''; }, 3500); };
   const $ = (s, el = document) => el.querySelector(s);
   let dataP = null, dataD = null;
-  const details = () => (dataP ||= fetch(`data/titles.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).then((d) => (dataD = d || dataD)).catch(() => null));
+  const details = () => (dataP ||= fetch(`data/titles.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+    .then((d) => { if (!d) dataP = null; return (dataD = d || dataD); }));
   addEventListener('tn:check', () => { dataP = null; });   // the next sheet picks up the new hour's details
   // titles Tenner doesn't follow (from searching everything) come live from the search API instead
   const apiCache = new Map();
   const fromApi = (k) => {
     if (!window.tn.api || !/^[mt]\d+$/.test(k || '')) return Promise.resolve(null);
-    if (!apiCache.has(k)) apiCache.set(k, fetch(`${window.tn.api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    if (!apiCache.has(k)) apiCache.set(k, fetch(`${window.tn.api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => apiCache.delete(k))));
     return apiCache.get(k);
   };
   let shown = null;   // the details the open sheet was drawn from
@@ -238,13 +241,13 @@
   const castCache = new Map();
   const castFor = (k) => {
     if (!window.tn.api || !/^[mt]\d+$/.test(k || '')) return Promise.resolve(null);
-    if (!castCache.has(k)) castCache.set(k, fetch(`${window.tn.api}/credits/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    if (!castCache.has(k)) castCache.set(k, fetch(`${window.tn.api}/credits/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => castCache.delete(k))));
     return castCache.get(k);
   };
   // the rest of TMDB's page for a title, a season's episodes, and a film series, each fetched once from the search API
   const getOnce = (cache, path) => {
     if (!window.tn.api) return Promise.resolve(null);
-    if (!cache.has(path)) cache.set(path, fetch(`${window.tn.api}${path}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    if (!cache.has(path)) cache.set(path, fetch(`${window.tn.api}${path}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => cache.delete(path))));
     return cache.get(path);
   };
   const moreC = new Map(), moreD = new Map();
@@ -633,7 +636,7 @@
   // the keyboard, as in Apple's apps: W for Watchlist, T for the trailer, S to share, E to mark the next episode watched
   const KEYS = { w: 'save', t: 'trailer', s: 'share', e: 'watched' };
   sheet.addEventListener('keydown', (e) => {
-    const act = KEYS[e.key.toLowerCase()];
+    const act = KEYS[String(e.key || '').toLowerCase()];   // (autofill sends key-less key presses)
     if (!act || e.metaKey || e.ctrlKey || e.altKey || e.repeat || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const b = sheet.querySelector(`[data-act="${act}"]`); if (!b) return;
     e.preventDefault(); b.click();

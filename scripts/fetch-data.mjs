@@ -492,7 +492,9 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
   const old = prev?.v === TITLE_V ? prev : null;
   const providers = { ...(old?.providers || {}) }, items = {};
   const want = [...new Set([...chartKeys, ...catalogueKeys])];
-  const due = want.filter((k) => chartKeys.has(k) || !old?.items?.[k] || hoursAgo(old.items[k].at) > 24);
+  // a charted title's details every 3 hours (where to watch and the next episode barely move in an hour), the rest daily:
+  // about a third of the TMDB requests a run that refreshing every charted title hourly took
+  const due = want.filter((k) => !old?.items?.[k] || hoursAgo(old.items[k].at) > (chartKeys.has(k) ? 3 : 24));
   // charted titles first, then the catalogue's oldest, up to 350 requests a run
   const order = due.sort((a, b) => (chartKeys.has(b) - chartKeys.has(a)) || ((old?.items?.[a]?.at || 0) - (old?.items?.[b]?.at || 0))).slice(0, 350);
   const fetched = await pool(order.map((k) => async () => {
@@ -603,8 +605,8 @@ async function buildLeaving(key) {
 
 // ---------- What it costs to rent or buy: new films to buy or rent, from Watchmode ----------
 // Watchmode lists each title's rental and purchase offers with prices. Each title costs two credits (one to look it up by
-// its TMDB number), so prices are kept for three days and only the new films to buy or rent are priced: about 15 credits a day,
-// well inside the free 2,500 a month. prices.json: { k: { at, o: [[service, 'rent'|'buy', price, quality, link]] } }.
+// its TMDB number), so prices are kept for a week (rental prices rarely change) and at most five films are priced a run: a few
+// credits a day, well inside the free 2,500 a month. prices.json: { k: { at, o: [[service, 'rent'|'buy', price, quality, link]] } }.
 export async function buildPrices(films, prev) {
   const key = process.env.WATCHMODE_API_KEY; if (!key) return null;
   const out = { generatedAt: new Date().toISOString(), items: {} }, now = Date.now();
@@ -613,8 +615,8 @@ export async function buildPrices(films, prev) {
   let asked = 0;
   for (const [k, t] of want) {
     const old = prev?.items?.[k];
-    if (old && now - old.at < 3 * 864e5) { out.items[k] = old; continue; }
-    if (asked >= 12) { if (old) out.items[k] = old; continue; }   // a dozen new lookups a run at most
+    if (old && now - old.at < 7 * 864e5) { out.items[k] = old; continue; }
+    if (asked >= 5) { if (old) out.items[k] = old; continue; }   // five new lookups a run at most
     asked++;
     try {
       const list = await getJSON(`https://api.watchmode.com/v1/title/${t === 'movie' ? 'movie' : 'tv'}-${k.slice(1)}/sources/?regions=${REGION}`, { 'X-API-Key': key }, 2);
@@ -917,23 +919,29 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     await write('trending.json', data);
     if (built) await write('providers.json', built.providers);
 
-    // 2. The Browse catalogue, rebuilt with the chart; otherwise the live one carries on.
+    // 2. The Browse catalogue: the most popular hundred on each service shift slowly, so it's rebuilt every six hours
+    //    (60 TMDB requests each time) and the live one carries on in between, or whenever a rebuild fails.
     let catalogue = null, newList = null;
+    const [liveCat, liveMore] = await Promise.all([liveCopy('browse.json'), liveCopy('browse-more.json')]);
+    const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6;
     try {
       if (!built) throw new Error('the chart was not rebuilt this hour');
-      const { cat, more } = await buildCatalogue(built.ids);
-      if (cat.items.length < 100) throw new Error(`only ${cat.items.length} titles came back`);
-      await write('browse.json', cat);
-      await write('browse-more.json', more);
-      catalogue = cat;
-      console.log(`Browse catalogue: ${cat.items.length} titles`);
+      if (keepCat) {
+        catalogue = liveCat;
+        console.log(`Browse catalogue: reusing the live one from ${liveCat.generatedAt}`);
+      } else {
+        const { cat, more } = await buildCatalogue(built.ids);
+        if (cat.items.length < 100) throw new Error(`only ${cat.items.length} titles came back`);
+        await write('browse.json', cat);
+        await write('browse-more.json', more);
+        catalogue = cat;
+        console.log(`Browse catalogue: ${cat.items.length} titles`);
+      }
     } catch (err) {
-      const prev = await liveCopy('browse.json'), prevMore = await liveCopy('browse-more.json');
-      warn('Browse', `catalogue not rebuilt (${err.message}), ${prev ? 'keeping the live one' : 'and there is no live one yet'}`);
-      if (prev) await write('browse.json', prev);
-      if (prevMore) await write('browse-more.json', prevMore);
-      catalogue = prev;
+      warn('Browse', `catalogue not rebuilt (${err.message}), ${liveCat ? 'keeping the live one' : 'and there is no live one yet'}`);
+      catalogue = liveCat;
     }
+    if (catalogue === liveCat && liveCat) { await write('browse.json', liveCat); if (liveMore) await write('browse-more.json', liveMore); }
 
     // 3. New this week (Watchmode, once a day). If it fails, the live list carries on for up to three days.
     try {

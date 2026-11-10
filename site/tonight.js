@@ -9,7 +9,8 @@
   const tmdbUrl = (type, id) => `https://www.themoviedb.org/${type}/${id}`;
   const thumb = (u) => String(u).replace('/t/p/w342/', '/t/p/w154/');
   let svcP = null;
-  const services = () => (opts.services?.()?.length ? Promise.resolve(opts.services()) : (svcP ||= fetch('data/trending.json').then((r) => (r.ok ? r.json() : null)).then((d) => (d?.services || []).filter((s) => !s.shop && !s.store)).catch(() => [])));
+  const services = () => (opts.services?.()?.length ? Promise.resolve(opts.services()) : (svcP ||= fetch('data/trending.json').then((r) => (r.ok ? r.json() : null)).then((d) => (d?.services || []).filter((s) => !s.shop && !s.store)).catch(() => [])
+    .then((l) => { if (!l.length) svcP = null; return l; })));   // a failure isn't kept: the next try asks again
   const titles = () => opts.titles?.() || null;
 
   // How long you've got (an episode or two, a film, either), the mood, and who's watching; then the best-rated, most-watched

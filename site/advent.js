@@ -284,7 +284,9 @@
     closing = true;
     const st = store.get(), first = !st.placed;
     if (first) { st.placed = Date.now(); store.set(st); }
-    const done = () => { dlg.close(); $('#advRv').hidden = true; closing = false; dlg.getAnimations().forEach((a) => a.cancel()); };
+    // focus goes back to the button that opened it (or, once its box has been redrawn, that box's Open button)
+    const done = () => { dlg.close(); $('#advRv').hidden = true; closing = false; dlg.getAnimations().forEach((a) => a.cancel());
+      (opener?.isConnected ? opener : $('#bxAdv [data-adv="open"]'))?.focus({ preventScroll: true }); };
     if (!motion()) { done(); if (first) opts.redraw?.(); return; }
     dlg.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.97)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(done);
     if (first) {

@@ -116,6 +116,8 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 
 ## Runs by itself (keep it that way)
 - **Hourly** (`update.yml`): charts, Browse, New, cinema and title details rebuilt and deployed; keeps its own schedule alive.
+  To spare the APIs: Browse's catalogue is rebuilt every 6 hours, a charted title's details every 3 hours (others daily),
+  New once a day, and Watchmode prices are kept a week (at most five new lookups a run). Keep new data on the same footing.
   The site is served by Cloudflare (`site-worker/`: the `site/` folder as static files on the `tenner-site` Worker at
   tenner.stream, and `tenner-www` sending www.tenner.stream on to it), not GitHub Pages, since the old GitHub account was lost.
   GitHub skips many scheduled runs, so it's asked three times an hour and a try that finds the live chart under 40 minutes

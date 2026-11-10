@@ -51,7 +51,7 @@
   $('#acNewOpen').addEventListener('click', () => { $('#acNew').hidden = false; $('#acNewOpen').hidden = true; $('#acName').focus(); });
   $('#acNew').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const b = e.submitter, name = $('#acName').value.trim(); b.disabled = true;
+    const b = e.submitter || $('#acMakePw'), name = $('#acName').value.trim(); b.disabled = true;   // (older Safari gives no submitter for Return)
     try {
       if (b?.id === 'acMakePk') {   // a passkey instead of a password
         if (!passkeys) throw new Error('This browser can’t make passkeys. Try Safari, Chrome or Edge');
@@ -78,12 +78,12 @@
     return b64u(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(`tenner.stream:${email.trim().toLowerCase()}`), iterations: 310000 }, base, 256));
   }
   $('#acLogin').addEventListener('submit', async (e) => {
-    e.preventDefault(); const b = e.submitter; b.disabled = true;
+    e.preventDefault(); const b = e.submitter || e.target.querySelector('button:not([type=button])'); if (b) b.disabled = true;
     try {
       const email = $('#acEmail').value.trim(), out = await account.call('POST', '/auth/password/login', { email, key: await pwKey(email, $('#acPw').value) });
       await account.signedIn(out.token, out.user);
     } catch (err) { if (err.data?.unverified) checkInbox(err.data.unverified, false); else say('#acMsg', friendly(err), true); }
-    b.disabled = false;
+    if (b) b.disabled = false;
   });
   // confirming the email: after signing up (or signing in before confirming), a "Check your inbox" screen
   let checkEmail = '';
@@ -120,7 +120,7 @@
     history.replaceState(null, '', location.pathname);
     $('#acReset').hidden = false; $('#acLogin').hidden = true; $('#acResetEmail').value = resetIn.get('e') || '';
     $('#acReset').addEventListener('submit', async (e) => {
-      e.preventDefault(); const b = e.submitter, pw = $('#acResetPw').value;
+      e.preventDefault(); const b = e.submitter || e.target.querySelector('button:not([type=button])') || {}, pw = $('#acResetPw').value;
       if (pw.length < 8) { say('#acMsg', 'Use 8 or more characters for your password', true); return; }
       b.disabled = true;
       try { const out = await account.call('POST', '/auth/password/reset', { token: resetIn.get('reset'), key: await pwKey($('#acResetEmail').value, pw) }); $('#acReset').hidden = true; $('#acLogin').hidden = false; await account.signedIn(out.token, out.user); }

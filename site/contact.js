@@ -51,7 +51,8 @@
     send.disabled = true; send.classList.add('busy'); send.querySelector('span').textContent = 'Sending…'; say('Sending…');
     try {
       const r = await fetch(`${api}/contact`, { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ topic: topic(), name: nameI.value, email, msg, website: $('#cWeb').value }) });
+        body: JSON.stringify({ topic: topic(), name: nameI.value, email, msg, website: $('#cWeb').value }) })
+        .catch(() => { throw new Error('Couldn’t send right now. Check your connection and try again.'); });   // not the browser's "Failed to fetch"
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || 'Couldn’t send right now. Please try again in a little while.');
       const first = nameI.value.trim().split(/\s+/)[0];
