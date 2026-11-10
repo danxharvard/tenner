@@ -22,7 +22,9 @@
 
   // ---------- data ----------
   let known = new Set(), cat = null, more = null, certs = null, labels = {}, logos = {}, deck = [], cards = [], hist = [], added = 0;
-  let kind = (() => { try { const k = localStorage.getItem(KIND) || localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'both'; } catch { return 'both'; } })();
+  // this visit's pick, or else Settings' Show (kept for good, a pick here would hide a later change in Settings)
+  try { localStorage.removeItem(KIND); } catch {}   // kept for good before 2.69.4
+  let kind = (() => { try { const k = sessionStorage.getItem(KIND) || localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'both'; } catch { return 'both'; } })();
   const keyOf = (x) => `${x.t[0]}${x.i}`;
   const img = (x, w) => (!x.img ? null : x.wide ? `${TMDB_IMG}/${w}${x.img}` : x.img.startsWith('/') ? cat.img.replace(/\/w\d+$/, `/${w}`) + x.img : x.img);
   const year = (x) => (x.d || '').slice(0, 4) || null;
@@ -345,7 +347,7 @@
   $('#dKind').value = kind; $('#dKindL').textContent = NAMES[kind];
   $('#dKind').addEventListener('change', (e) => {
     kind = e.target.value; $('#dKindL').textContent = NAMES[kind];
-    try { localStorage.setItem(KIND, kind); } catch {}
+    try { sessionStorage.setItem(KIND, kind); } catch {}
     if (cat) build();
   });
 })();

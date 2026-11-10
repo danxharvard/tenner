@@ -35,7 +35,7 @@
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
 
-  <script>/* the Top 10 lives on Home now: this page keeps New and Watchlist, and anything else goes home */
+  <script>/* this page keeps New, Top 10s and Watchlist; anything else goes home */
   if(!/^#(new|top10|watchlist|week)$/.test(location.hash))location.replace("./"+location.search)</script>
   <script>/* Night is the default; Day or Auto only when chosen */
   function tnTheme(t){var r=document.documentElement;if(t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);
