@@ -54,7 +54,9 @@ jobs:
           if [ -z "$ID" ]; then OUT=$(npx --yes wrangler@4 d1 create tenner-accounts 2>&1 || true); ID=$(printf '%s' "$OUT" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1); fi
           if [ -n "$ID" ]; then
             printf '\n[[d1_databases]]\nbinding = "DB"\ndatabase_name = "tenner-accounts"\ndatabase_id = "%s"\n' "$ID" >> wrangler.toml
-            npx --yes wrangler@4 d1 execute tenner-accounts --remote --file=schema.sql > /dev/null && echo "Accounts database ready"
+            # run as a query (--command), not an import (--file): an import needs more of the token than D1: Edit
+            if npx --yes wrangler@4 d1 execute tenner-accounts --remote --yes --command="$(grep -v '^--' schema.sql | sed 's/ *--.*$//')" > /dev/null; then echo "Accounts database ready"
+            else echo "::warning title=Accounts database not updated::Couldn't add new tables. The Worker makes the ones it needs itself, so accounts keep working."; fi
           else echo "::warning title=Accounts are off::Couldn't make the accounts database. Give the Cloudflare API token 'D1: Edit' and run this again."; fi
       - name: Deploy to Cloudflare
         if: steps.ready.outputs.go == 'yes'
