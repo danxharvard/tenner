@@ -1361,6 +1361,7 @@
     if (name === 'about') { location.href = 'about.html'; return; }
     if (name === 'browse') { location.href = 'browse.html'; return; }
     if (name === 'new') { location.href = 'charts.html#new'; return; }
+    if (name === 'top10') { location.href = 'charts.html#top10'; return; }
     if (name === 'watchlist') { location.href = 'charts.html#watchlist'; return; }
     if (name === 'discover') { location.href = 'discover.html'; return; }
     location.href = './';

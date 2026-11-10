@@ -1,4 +1,4 @@
-// Tenner's New This Week (#new) and Watchlist (#watchlist) pages. The Top 10 lives on the home page (home.js), and
+// Tenner's New This Week (#new), Top 10 by Service (#top10) and Watchlist (#watchlist) pages. The Top 10 lives on the home page (home.js), and
 // anything else here goes there. Reads data/trending.json and data/new.json (rebuilt hourly by GitHub Actions).
 // Shared helpers (esc, hue) come from shell.js, which loads first.
 
@@ -64,7 +64,7 @@ addEventListener('tn:check', () => refresh());
 function route() {
   const first = location.hash.slice(1);
   if (first === 'week') { history.replaceState(null, '', '#new'); return route(); }   // This Week now lives on New
-  if (!['new', 'watchlist'].includes(first)) { location.replace(`./${location.search}`); return; }   // the Top 10 lives on Home now
+  if (!['new', 'top10', 'watchlist'].includes(first)) { location.replace(`./${location.search}`); return; }   // the Top 10 lives on Home now
   state.route = first;
   render();
 }
@@ -81,6 +81,7 @@ function draw() {
   selectTab(state.route);
   if (state.route === 'watchlist') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageWatchlist()}</div>`; document.title = 'Watchlist | Tenner'; wlKindInit(); wlHero(); openFromUrl(); wantTitles(); alertCard(); return; }
   wlHero(true);
+  if (state.route === 'top10') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageTop10()}</div>`; document.title = 'Top 10 by Service | Tenner'; ttMount(); openFromUrl(); return; }
   shown = new Map(); view.innerHTML = `<div class="wrap">${pageNew()}</div>`; newBanners((state.fresh?.items || []).filter((x) => x.date <= todayIso())); document.title = 'New This Week | Tenner'; nwMount(); openFromUrl();
 }
 
@@ -654,6 +655,82 @@ function pageNew() {
     ${state.trending.sample ? `<p class="notice"><strong>Sample data.</strong> These titles are made up.</p>` : ''}
     ${nwStats(f, w, today, leaving)}${ribbon}${race}${charts}${nwLeaving(leaving, today)}${cinema}`;
 }
+// ---------- Top 10 by Service: each service's own top 10, in boxes lined up side by side so you can see what's charting
+// everywhere at once. The boxes are the homepage's Top 10 box; the charts are rebuilt every hour, and the page redraws
+// itself when a new one lands (refresh, above). With shows and films, each box has five of each and See more opens every
+// box out to ten together, so the rows stay level across the services. ----------
+const TT = { kind: 'both', open: false };
+try { const k = localStorage.getItem('tenner-tt-kind'); if (['tv', 'movie', 'both'].includes(k)) TT.kind = k; } catch {}
+const TT_WORDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
+const ttArrow = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d < 0 ? 'M14.5 5.5 8 12l6.5 6.5' : 'm9.5 5.5 6.5 6.5-6.5 6.5'}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function ttBox(s) {
+  const ks = TT.kind === 'both' ? ['tv', 'movie'] : [TT.kind], both = ks.length > 1;
+  const part = (k) => {
+    const l = (s[k] || []).slice(0, 10); if (!l.length) return '';
+    const word = k === 'movie' ? 'film' : 'show';
+    return `${both ? `<h3 class="bx-tt-sub">${k === 'movie' ? 'Films' : 'Shows'}</h3>` : ''}<ol class="bx-ups bx-tt">${l.map((it, i) => {
+      const sub = [k === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
+      return `<li${i >= 5 && both ? ' class="bx-tt-x"' : ''}><a href="${esc(it.url || tmdbUrl(k, it.id))}" target="_blank" rel="noopener" ${reg(infoFor(it, k, `No. ${i + 1} ${word} on ${s.label}`, [s]))}>
+        <span class="bx-tt-n">${i + 1}</span><span class="bx-up-art">${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="bx-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}</span>
+        <span class="bx-up-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a></li>`;
+    }).join('')}</ol>`;
+  };
+  const body = ks.map(part).join(''); if (!body) return '';
+  // behind the heading, as on the homepage: a scene from the service's leading title, in grey, melting into the box
+  const scene = ks.flatMap((k) => (s[k] || []).slice(0, 3)).find((it) => it.backdrop);
+  const id = `tt-${esc(s.key)}`;
+  return `<section class="bx-panel panel bx-tt-box tt-box${TT.open ? ' open' : ''}${scene ? ' has-bg' : ''}" aria-labelledby="${id}">
+    ${scene ? `<div class="bx-tt-bg" aria-hidden="true"><img class="on" src="${esc(scene.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy" decoding="async"></div>` : ''}
+    <header class="bx-panel-hd"><h2 id="${id}">${s.logo ? `<img class="tt-logo" src="${esc(s.logo)}" alt="">` : ''}<span>${esc(s.label)}</span></h2></header>${body}</section>`;
+}
+function pageTop10() {
+  const list = services().filter((s) => !s.shop && !s.store && ((s.tv || []).length || (s.movie || []).length));
+  const boxes = list.map(ttBox).filter(Boolean);
+  const at = new Date(state.trending.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const more = TT.kind === 'both' && list.some((s) => (s.tv || []).length > 5 || (s.movie || []).length > 5);
+  return `<h1 class="large-title page-title">Top 10 <em class="grad">by Service</em></h1>
+    <p class="lede">What's charting on each service right now, side by side. Updated every hour${when ? `, last at ${esc(when)}` : ''}.</p>
+    ${state.trending.sample ? `<p class="notice"><strong>Sample data.</strong> These titles are made up.</p>` : ''}
+    <section class="wk tt" aria-labelledby="ttH">
+      <div class="wk-hd tt-hd"><h2 class="row-h" id="ttH">The Charts</h2><p>${list.length} services, from No. 1 down</p>
+        <span class="tt-acts">
+          <label class="dd dd-kind"><span class="dd-l" id="ttKindL">${TT_WORDS[TT.kind]}</span><span class="dd-chev" aria-hidden="true"></span>
+            <select id="ttKind" aria-label="Shows, films or both">${Object.entries(TT_WORDS).map(([k, l]) => `<option value="${k}"${k === TT.kind ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+          <button type="button" class="bx-r tt-go" data-tgo="-1" aria-label="Previous services" disabled>${ttArrow(-1)}</button><button type="button" class="bx-r tt-go" data-tgo="1" aria-label="Next services">${ttArrow(1)}</button></span></div>
+      ${boxes.length ? `<div class="tt-row" id="ttRow">${boxes.join('')}</div>
+      ${more ? `<button type="button" class="bx-more tt-more" id="ttMore" aria-controls="ttRow" aria-expanded="${TT.open}">${TT.open ? 'Show less' : 'See more'}</button>` : ''}`
+      : `<p class="lede">The services' charts are on their way. They'll be here after the next hourly update.</p>`}
+    </section>`;
+}
+function ttMount() {
+  const row = $('#ttRow'), go = [...view.querySelectorAll('[data-tgo]')];
+  $('#ttKind')?.addEventListener('change', (e) => {
+    TT.kind = e.target.value; try { localStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
+    const x = row?.scrollLeft || 0; render(); requestAnimationFrame(() => { const r = $('#ttRow'); if (r) r.scrollLeft = x; });
+  });
+  if (!row) { go.forEach((b) => (b.hidden = true)); return; }
+  const ends = () => {
+    const max = row.scrollWidth - row.clientWidth - 2;
+    go[0].disabled = row.scrollLeft <= 2; go[1].disabled = row.scrollLeft >= max;
+    go.forEach((b) => (b.hidden = max <= 0));   // everything fits: no arrows
+    row.classList.toggle('at-start', row.scrollLeft <= 2); row.classList.toggle('at-end', row.scrollLeft >= max);
+  };
+  row.addEventListener('scroll', ends, { passive: true }); new ResizeObserver(ends).observe(row); ends();
+  go.forEach((b) => b.addEventListener('click', () => {
+    const box = row.querySelector('.tt-box'), step = box ? box.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+    row.scrollBy({ left: +b.dataset.tgo * step * Math.max(1, Math.floor(row.clientWidth / step)), behavior: reduceMotion() ? 'auto' : 'smooth' });
+  }));
+  // the arrow keys move along the services once the row (or a title in it) has focus
+  row.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault(); go[e.key === 'ArrowLeft' ? 0 : 1].click();
+  });
+  $('#ttMore')?.addEventListener('click', (e) => {
+    TT.open = !TT.open; row.querySelectorAll('.tt-box').forEach((b) => b.classList.toggle('open', TT.open));
+    e.currentTarget.setAttribute('aria-expanded', TT.open); e.currentTarget.textContent = TT.open ? 'Show less' : 'See more';
+    if (!TT.open && row.getBoundingClientRect().top < 0) row.scrollIntoView({ block: 'start', behavior: reduceMotion() ? 'auto' : 'smooth' });
+  });
+}
 // Add to Calendar: an all-day event on the day it arrives, as a calendar file (the iPhone and Mac open it in Calendar)
 function calendarFile(x) {
   const s = svc(x.service), d = x.date.replace(/-/g, ''), end = new Date(Date.parse(x.date + 'T12:00:00Z') + 864e5).toISOString().slice(0, 10).replace(/-/g, '');
@@ -695,7 +772,7 @@ function openTab(name) {
   if (name === 'browse') { location.href = 'browse.html'; return; }
   if (name === 'discover') { location.href = 'discover.html'; return; }   // Discover (phones)
   if (name === state.route) { scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' }); return; } // tap the open tab: back to the top
-  if (name === 'new' || name === 'watchlist') location.hash = name; else location.href = './';
+  if (['new', 'top10', 'watchlist'].includes(name)) location.hash = name; else location.href = './';
 }
 window.tnOnTab = openTab;
 
