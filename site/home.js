@@ -21,7 +21,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const LOGO = 'https://image.tmdb.org/t/p/w500';
   const KINDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
-  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, titles: null };
+  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, titles: null };
   // the services you've picked in the rail (none means all six): this visit's choice, or else My services, as with Show.
   // Changing My services (in Settings, or on another device) starts the rail from them again.
   const PICKS = 'tenner-home-svc';
@@ -60,12 +60,12 @@
   // ---------- data ----------
   const get = (n, bust) => fetch(`data/${n}.json${bust ? `?v=${Date.now()}` : ''}`, bust ? { cache: 'no-store' } : {}).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   async function load(bust) {
-    const [data, cat, week] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust)]);
+    const [data, cat, week, feat] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust)]);
     if (!data) { if (!state.data) $('#bxRows').innerHTML = '<p class="bx-empty">The charts didn’t load. Check your connection and try again.</p>'; return; }
     // the quarter-hour check: nothing new this hour, so nothing moves (the featured titles carry on where they were)
     const same = (a, b) => !a || a.generatedAt === b?.generatedAt;
-    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week)) return;
-    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week });
+    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week) && same(feat, state.feat)) return;
+    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week, feat: feat || state.feat });
     state.picks = state.picks.filter((k) => services().some((s) => s.key === k));
     if (state.picks.length >= services().length) state.picks = [];
     draw(); refreshFy();
@@ -81,7 +81,7 @@
   window.tnAdvent?.use({ cat: () => state.cat, popular: () => (state.data ? popular() : []), info: (x) => infoFor(fromCat(x), 'Christmas calendar') });   // What should I watch tonight? borrows what's loaded
   const svcOf = (k) => (state.data?.services || []).find((s) => s.key === k);
   const kinds = () => (state.kind === 'both' ? ['tv', 'movie'] : [state.kind]);
-  const det = (k) => (k === TR_K && trDet ? { ...(state.titles?.items?.[k] || {}), ...trDet } : state.titles?.items?.[k] || null);
+  const det = (k) => state.titles?.items?.[k] || null;
   const keyOf = (it, type) => (/^\d+$/.test(String(it.id ?? '')) ? `${(it.type || type) === 'movie' ? 'm' : 't'}${it.id}` : null);
   const tmdbUrl = (type, id) => `https://www.themoviedb.org/${type}/${id}`;
   // phones show just the Top 10 and Top rated as rows of poster cards, for the whole of the UK (the services rail is a
@@ -221,17 +221,10 @@
   // same featured titles to swipe through, Christmas first. Never any snow when the device asks for Reduce Motion.
   const XMAS = (() => { const d = new Date(); return d.getMonth() === 10 || (d.getMonth() === 11 && d.getDate() <= 26); })();
   const XMAS_IT = { title: 'Christmas on Tenner', poster: 'xmas-poster.webp', xmas: true };
-  // the moving slide (the owner's pick): American Horror Story, ahead of the Christmas slide. Not YouTube's trailer (its
-  // ads, and words over the footage) but Tenner's own cut of the title's wordless stills (tn.cut in shell.js); the official
-  // trailer is a button away, in the title's sheet. Its artwork, words and stills come from the search service; until
-  // they arrive (or if it's down) the carousel simply goes without it.
-  const TR_K = 't1413', TR_IT = { id: 1413, type: 'tv', title: 'American Horror Story', url: tmdbUrl('tv', 1413), cut: true };
-  let trDet = null, trCut = null;
-  if (window.tn.api) fetch(`${window.tn.api}/title/${TR_K}`).then((r) => (r.ok ? r.json() : null)).then((a) => {
-    const x = a?.items?.[TR_K], i = a?.info; if (!x || !i?.backdrop) return;
-    trDet = x; Object.assign(TR_IT, { title: i.title || TR_IT.title, year: i.year, rating: i.rating, overview: i.overview, poster: i.poster, backdrop: i.backdrop, bds: i.bds });
-    if (heroList.length) { state.hero = heroList[state.hero]?.it.cut ? state.hero : 0; drawHero(); }
-  }).catch(() => {});
+  // the first featured title moves: not YouTube's trailer (its ads, and words over the footage) but Tenner's own cut of
+  // the title's wordless stills (tn.cut in shell.js, the stills picked with the day's featured titles); the official
+  // trailer is a button away, in the title's sheet
+  let trCut = null;
   // the stills for the cut: the wordless ones first, the main artwork (already on screen) last, so it comes round again
   const cutFrames = (it) => { const main = it.backdrop?.split('/').pop();
     return [...(it.bds || []).filter((f) => f.split('/').pop() !== main).map(window.tn.cut.src), it.backdrop]; };
@@ -346,12 +339,16 @@
   }
 
   // ---------- the featured title ----------
+  // only what's trending: the day's featured shows and films (data/featured.json, a show then a film, chosen once a UK day
+  // so the slideshow changes by itself each morning), kept to the kind and services you've picked; should that leave too
+  // few, the chart's most popular with artwork stand in. The first one moves (Tenner's own cut); Christmas comes second.
   let heroList = [], heroTimer = 0;
   function drawHero() {
+    const day = (state.feat?.items || []).filter((it) => kinds().includes(it.type) && pickedAny(it.on)).map((it) => ({ it: { ...it } }));
     const picks = popular(), withArt = picks.filter((p) => p.it.backdrop);
-    heroList = (withArt.length >= 3 ? withArt : picks).slice(0, 10);
-    if (XMAS && heroList.length) heroList.unshift({ it: XMAS_IT });   // first, so it greets you whether or not the carousel moves on by itself
-    if (trDet && heroList.length) heroList = [{ it: TR_IT }, ...heroList.filter((p) => keyOf(p.it) !== TR_K)];   // the moving slide, before Christmas
+    heroList = (day.length >= 3 ? day : withArt.length >= 3 ? withArt : picks).slice(0, 10);
+    if (heroList[0]?.it.bds?.length) heroList[0].it.cut = true;
+    if (XMAS && heroList.length) heroList.splice(heroList[0].it.cut ? 1 : 0, 0, { it: XMAS_IT });
     const box = $('#bxHero'); box.classList.remove('sk');
     if (!heroList.length) { box.hidden = true; return; }
     box.hidden = false; state.hero = Math.min(state.hero, heroList.length - 1);
@@ -401,14 +398,14 @@
     const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
     const genres = (x.g || []).slice(0, 3);
     c.innerHTML = `<dl class="bx-score">${cells.map(([v, l]) => `<div><dt>${v}</dt><dd>${esc(l)}</dd></div>`).join('')}</dl>
-      ${it.cut ? `<p class="bx-eye">${I.sparkle}<span>Tenner’s pick</span></p>` : `<p class="bx-eye">${I.flame}<span>Popular ${esc(where())} right now</span></p>`}
+      <p class="bx-eye">${I.flame}<span>Trending ${esc(where())} today</span></p>
       ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}
       <h2 class="bx-h-t">${x.lg ? `<img class="bx-h-logo" src="${esc(LOGO + x.lg)}" alt="${esc(it.title)}">` : esc(it.title)}</h2>
       <p class="bx-h-meta">${svcIcon(on)}<span>${meta.map(esc).join(' · ')}</span>${x.c ? `<b class="bx-cert">${esc(x.c)}</b>` : ''}</p>
       ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
-      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && trDet?.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
-    if (it.cut) window.tn.tip({ id: 'home-cut', for: c.querySelector('.bx-trl') || c.querySelector('.bx-cta'), title: 'Tenner’s pick, in motion',
-      text: 'The first featured title now moves through its own pictures, with no ads and nothing written over them. Want the official trailer? It’s one tap away.' });
+      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
+    window.tn.tip({ id: 'home-trending-daily', for: '#bxStrip', title: 'Trending today',
+      text: 'The big slideshow now shows only what’s trending, a mix of shows and films, and picks a fresh line-up by itself every morning.' });
     const lg = c.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
     markSaved();
   }
@@ -421,7 +418,7 @@
   $('#bxHero').addEventListener('click', (e) => {
     const a = e.target.closest('[data-harr]');
     if (a) { const s = $('#bxStrip'); s.scrollBy({ left: +a.dataset.harr * s.clientWidth, behavior: still() ? 'auto' : 'smooth' }); return; }
-    if (e.target.closest('[data-htr]')) { window.tn.haptic?.(); window.tnSheet?.open(infoFor(TR_IT, 'Tenner’s pick'), false, { trailer: true }); setTimeout(trSync, 60); return; }
+    if (e.target.closest('[data-htr]')) { window.tn.haptic?.(); const it = heroList[state.hero]?.it; if (it) window.tnSheet?.open(infoFor(it, 'Popular'), false, { trailer: true }); setTimeout(trSync, 60); return; }
     const b = e.target.closest('[data-hero]'); if (b) { showHero(+b.dataset.hero); }
   });
   // the cut pauses while the featured title's scrolled away, the tab's hidden or a sheet is open
