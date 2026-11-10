@@ -166,6 +166,9 @@
     $('#acHello').textContent = u.name || 'Your account';
     if (document.activeElement !== $('#acEditName')) $('#acEditName').value = u.name || '';
     $('#acHues').hidden = !!u.picture;
+    $('#acPhotoRm').hidden = !u.picture; $('#acPhotoPick').lastChild.textContent = u.picture ? 'Change' : 'Choose';
+    $('#acPhotoNow').textContent = u.picture ? 'On your account and shared Watchlist' : 'Show it instead of your initial';
+    window.tn.tip?.({ id: 'profile-photo', for: '#acPhotoPick', title: 'Your profile photo', text: 'Choose a photo of yourself, then move and scale it to fit the circle. It shows on your account, in the menu on every device and on your shared Watchlist.' });
     $('#acSw').innerHTML = HUES.map((h) => `<button type="button" class="ac-hue" style="--h:${h}" data-hue="${h}" aria-pressed="${h === u.hue}" aria-label="${HUE_NAME[h]}" title="${HUE_NAME[h]}"></button>`).join('');
     $('#acShare').checked = !!u.share_id; $('#acLinkRow').hidden = !u.share_id;
     if (u.share_id) $('#acUrl').textContent = `${location.origin}/list.html?u=${u.share_id}`;
@@ -242,6 +245,83 @@
       else if (t.id === 'acDelete') askDelete();
     } catch (err) { say('#acNote', friendly(err), err.name !== 'NotAllowedError'); }
   });
+  // ---------- profile photo: pick one, move and scale it in a circle, and send a small square JPEG to the account ----------
+  const cropDlg = $('#acCropDlg'), stage = $('#acCrop'), cImg = $('#acCropImg'), zoom = $('#acZoom');
+  const crop = { s: 1, x: 0, y: 0, base: 1, b: 280, url: '' };   // s: zoom (1 fills the circle), x/y: the photo's offset in the box, b: the box's size, in px
+  const side = () => stage.clientWidth || crop.b;   // (the box has no size once the sheet has closed)
+  function place() {
+    const b = crop.b = side(), w = cImg.naturalWidth * crop.base * crop.s, h = cImg.naturalHeight * crop.base * crop.s;
+    crop.x = Math.min(0, Math.max(b - w, crop.x)); crop.y = Math.min(0, Math.max(b - h, crop.y));   // the circle is always filled
+    cImg.style.transform = `translate(${crop.x}px, ${crop.y}px) scale(${crop.base * crop.s})`;
+  }
+  function zoomTo(s, cx = side() / 2, cy = side() / 2) {   // keeps the point under the fingers (or the middle) still
+    s = Math.min(4, Math.max(1, s)); const k = s / crop.s;
+    crop.x = cx - (cx - crop.x) * k; crop.y = cy - (cy - crop.y) * k; crop.s = s; zoom.value = s; place();
+  }
+  $('#acPhotoPick').addEventListener('click', () => $('#acPhotoFile').click());
+  $('#acCam').addEventListener('click', () => $('#acPhotoFile').click());
+  $('#acPhotoFile').addEventListener('change', (e) => {
+    const f = e.target.files?.[0]; e.target.value = '';
+    if (!f) return;
+    if (!/^image\//.test(f.type) && !/\.(heic|heif)$/i.test(f.name)) { say('#acNote', 'That isn’t a photo. Try a JPEG, PNG or HEIC', true); return; }
+    if (f.size > 40e6) { say('#acNote', 'That photo is too big. Try one under 40 MB', true); return; }
+    URL.revokeObjectURL(crop.url); crop.url = URL.createObjectURL(f);
+    cImg.onerror = () => say('#acNote', 'That photo couldn’t be opened here. Try a JPEG or PNG', true);
+    cImg.onload = () => {
+      cropDlg.returnValue = ''; cropDlg.showModal();
+      const b = crop.b = stage.clientWidth; crop.base = b / Math.min(cImg.naturalWidth, cImg.naturalHeight); crop.s = 1; zoom.value = 1;
+      crop.x = (b - cImg.naturalWidth * crop.base) / 2; crop.y = (b - cImg.naturalHeight * crop.base) / 2; place();
+    };
+    cImg.src = crop.url;
+  });
+  zoom.addEventListener('input', () => zoomTo(+zoom.value));
+  stage.addEventListener('wheel', (e) => { e.preventDefault(); const r = stage.getBoundingClientRect(); zoomTo(crop.s * Math.exp(-e.deltaY / 300), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+  // drag with one finger (or the mouse), pinch with two
+  const pts = new Map(); let last = null;
+  const mid = () => { const [a, b] = [...pts.values()], r = stage.getBoundingClientRect(); return { x: (a.x + (b?.x ?? a.x)) / 2 - r.left, y: (a.y + (b?.y ?? a.y)) / 2 - r.top, d: b ? Math.hypot(a.x - b.x, a.y - b.y) : 0 }; };
+  stage.addEventListener('pointerdown', (e) => { stage.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); last = mid(); stage.classList.add('held'); });
+  stage.addEventListener('pointermove', (e) => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); const m = mid();
+    crop.x += m.x - last.x; crop.y += m.y - last.y;
+    if (m.d && last.d) zoomTo(crop.s * (m.d / last.d), m.x, m.y); else place();
+    last = m;
+  });
+  const lift = (e) => { pts.delete(e.pointerId); last = pts.size ? mid() : null; if (!pts.size) stage.classList.remove('held'); };
+  stage.addEventListener('pointerup', lift); stage.addEventListener('pointercancel', lift);
+  stage.tabIndex = 0;   // arrow keys move it, + and - zoom
+  stage.addEventListener('keydown', (e) => {
+    const mv = { ArrowLeft: [10, 0], ArrowRight: [-10, 0], ArrowUp: [0, 10], ArrowDown: [0, -10] }[e.key];
+    if (mv) { e.preventDefault(); crop.x += mv[0]; crop.y += mv[1]; place(); }
+    else if (e.key === '+' || e.key === '=') zoomTo(crop.s * 1.1); else if (e.key === '-') zoomTo(crop.s / 1.1);
+  });
+  cropDlg.addEventListener('click', (e) => { if (e.target === cropDlg) cropDlg.close(); });   // a tap outside cancels
+  // the part inside the circle, as a square JPEG small enough to keep (512px, smaller if it's a busy photo)
+  async function squared() {
+    const k = crop.base * crop.s, sx = -crop.x / k, sy = -crop.y / k, sw = side() / k;
+    for (const [px, q] of [[512, .86], [512, .72], [384, .7], [256, .7]]) {
+      const c = Object.assign(document.createElement('canvas'), { width: px, height: px }), g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, px, px); g.imageSmoothingQuality = 'high';
+      g.drawImage(cImg, sx, sy, sw, sw, 0, 0, px, px);
+      const url = c.toDataURL('image/jpeg', q);
+      if (url.length < 190000) return url;
+    }
+    throw new Error('That photo is too detailed to keep. Try another');
+  }
+  cropDlg.addEventListener('close', async () => {
+    if (cropDlg.returnValue !== 'use') { URL.revokeObjectURL(crop.url); return; }
+    const b = $('#acPhotoPick'); b.setAttribute('aria-busy', 'true'); b.lastChild.textContent = 'Saving…';
+    try {
+      me.user = (await account.call('POST', '/me/photo', { image: await squared() })).user;
+      account.setUser(me.user); draw(); say('#acNote', 'Photo saved'); navigator.vibrate?.(10);
+    } catch (err) { say('#acNote', friendly(err), true); draw(); }
+    finally { b.removeAttribute('aria-busy'); URL.revokeObjectURL(crop.url); }
+  });
+  $('#acPhotoRm').addEventListener('click', async () => {
+    try { me.user = (await account.call('DELETE', '/me/photo')).user; account.setUser(me.user); draw(); say('#acNote', 'Photo removed'); }
+    catch (err) { say('#acNote', friendly(err), true); }
+  });
+
   // ---------- delete: ask once, kindly, saying what goes; keeping it is the default, deleting one tap away ----------
   const delDlg = $('#acDelDlg');
   function askDelete() {
