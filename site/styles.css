@@ -2109,3 +2109,25 @@ a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
 .me-mail { display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #4aa3ff, #0a6cff); }
 .me-mail svg { width: 26px; height: 26px; }
 .me-forgot { justify-self: end; margin: -2px 2px -4px; font-size: 13px; }
+
+/* ============================================================ made for fingers (phones and tablets)
+   Every tap lands on at least 44pt, even where the thing drawn is smaller (an invisible margin around it, so nothing
+   looks different); fields never make iOS zoom in; and on a phone turned sideways the bars and the title sheet's
+   artwork step back so the words still have room. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), select, textarea { font-size: max(16px, 1em) !important; }   /* under 16px, iOS zooms the page in on every tap */
+  .lt-logo, .bx-more, .me-link, .u-ver { position: relative; }
+  .sh-x::after, .lt-logo::after, .bx-more::after, .me-link::after, .u-ver::after { content: ""; position: absolute; inset: -6px; border-radius: var(--r); }
+  .sh-x::after { inset: -8px; border-radius: 50%; }
+  .bx-more::after { inset: -9px -6px; }
+  .me-link::after { inset: -10px -6px; }
+  .u-ver::after { inset: -12px -8px; }
+  .bx-h-strip button::after { content: ""; position: absolute; inset: -8px -2px; }
+  .drawer a.side-link { position: relative; }
+  .drawer a.side-link::after { content: ""; position: absolute; inset: -9px -5px; }
+}
+@media (max-width: 719px) { .tb-round { width: 44px; height: 44px; } }
+@media (pointer: coarse) and (max-width: 380px) { .bx-score dd { font-size: 11px; } }
+/* a phone on its side: the screen is short, so the title sheet's artwork takes no more than half of it (the details stay
+   in reach) and Browse's search bar scrolls away with the page instead of holding on over a third of the view (browse.css) */
+@media (max-height: 500px) { .sh-art { aspect-ratio: auto; height: 48dvh; } }
