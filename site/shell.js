@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.61.1';
+  const version = '2.61.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -945,7 +945,7 @@
     const ask = () => {
       if (!dlg) {
         document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg" id="outDlg" aria-labelledby="outH" aria-describedby="outP" closedby="any"><form method="dialog">
-          <span class="out-ic" aria-hidden="true">${OUT}</span><h2 id="outH">Sign out of Tenner?</h2>
+          <span class="out-ic" aria-hidden="true"><i>👋</i><i>👋</i></span><h2 id="outH">Sign out of Tenner?</h2>
           <p id="outP">Your Watchlist and settings stay on this device. Sign in again any time to sync them.</p>
           <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted out-stay" value="stay" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Cancel</button></div>
         </form></dialog>`);
@@ -1304,7 +1304,8 @@
   const syncSel = () => { thSel.value = mode(); };
   modeBtns.forEach((b) => b.addEventListener('click', syncSel));
   syncSel();
-  // ...and the round button in the account pill (top right): one tap flips between Day and Night (Auto stays in the Theme menu)
+  // ...and the round button in the account pill (top right): one tap flips between Day and Night
+  // (signed in on computers and tablets it stands in for the Theme button; Auto is in Settings)
   $('#bxMeTh')?.addEventListener('click', () => {
     const n = $('#bxMeTh').getAttribute('aria-label') === 'Switch to Day' ? 'light' : 'dark';
     window.tnTheme?.(n); try { localStorage.setItem('tenner-theme', n); } catch {} showTheme(); syncSel(); haptic(6);
