@@ -52,12 +52,31 @@ jobs:
         env:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
           WATCHMODE_API_KEY: ${{ secrets.WATCHMODE_API_KEY }}
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          SITE_URL: https://tenner.stream/
 
       - uses: actions/upload-pages-artifact@v4
         if: steps.gate.outputs.go == 'yes'
         with:
           path: site
+
+      # The live site is served by Cloudflare (site-worker/), as GitHub Pages kept tenner.stream tied to the old, lost
+      # account. Tried first with tenner.stream; if the domain can't be connected yet (e.g. its old DNS records are still
+      # there), the site still goes up on its workers.dev address and the run says what to do. www.tenner.stream is a
+      # tiny Worker that sends visitors on to tenner.stream.
+      - name: Deploy to Cloudflare, at tenner.stream
+        if: steps.gate.outputs.go == 'yes'
+        working-directory: site-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "::error title=Site not deployed::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID under Settings > Secrets and variables > Actions."; exit 1; fi
+          if ! npx --yes wrangler@4 deploy; then
+            sed -i '/^\[\[routes\]\]/,+2d' wrangler.toml
+            npx --yes wrangler@4 deploy
+            echo "::warning title=Connect tenner.stream::The site is live on its workers.dev address only. In Cloudflare > tenner.stream > DNS, delete the A records for tenner.stream (they point at GitHub), then run this again."
+          fi
+          npx --yes wrangler@4 deploy -c www.toml || echo "::warning title=Connect www.tenner.stream::In Cloudflare > tenner.stream > DNS, delete the www CNAME record (it points at GitHub), then run this again."
 
       # GitHub pauses scheduled workflows after 60 days without a commit. Re-enabling it every run keeps the hourly
       # schedule alive indefinitely, with no commits and nobody needing to touch the repo.
