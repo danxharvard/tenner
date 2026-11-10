@@ -44,8 +44,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.67.3">
-  <link rel="stylesheet" href="about.css?v=2.67.3">
+  <link rel="stylesheet" href="styles.css?v=2.69.2">
+  <link rel="stylesheet" href="about.css?v=2.69.2">
 
 </head>
 <body class="about">
@@ -74,10 +74,6 @@
         <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>
         <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><rect class="solid" x="3" y="3" width="8" height="8" rx="2.2"/><rect class="solid" x="13" y="3" width="8" height="8" rx="2.2"/><rect class="solid" x="3" y="13" width="8" height="8" rx="2.2"/><rect class="solid" x="13" y="13" width="8" height="8" rx="2.2"/></svg>
         <span>Browse</span></button>
-      <button type="button" role="tab" data-tab="discover" aria-selected="false" tabindex="-1">
-        <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>
-        <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><rect class="solid" x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)" opacity=".45"/><rect class="solid" x="4.2" y="5.5" width="11" height="15.6" rx="2.8"/></svg>
-        <span>Discover</span></button>
       <button type="button" role="tab" data-tab="watchlist" aria-selected="false" tabindex="-1">
         <svg class="i-o" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z"/></svg>
         <svg class="i-f" viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M6 3h12v18.4l-6-4.2-6 4.2z"/></svg>
@@ -96,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.67.3</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.69.2</a>
     </div>
   </div>
 
@@ -138,12 +134,12 @@
       </div>
     </section>
 
-    <!-- 2. made for you: a little working Top 10 that follows the services you tap (it doesn't change your settings) -->
+    <!-- 2. made for you: a little working list of what's popular on the services you tap (it doesn't change your settings) -->
     <section class="ab-ch ab-flip" aria-labelledby="h-you">
       <div class="ab-copy">
         <p class="ab-k ab-k2">Made for you</p>
-        <h2 id="h-you">Your services. <span class="dim">Your chart.</span></h2>
-        <p>Tell Tenner which services you pay for and your Top 10 shows only what you can watch tonight. Swipe in Discover and For you picks out more to suit your taste.</p>
+        <h2 id="h-you">Your services. <span class="dim">Your picks.</span></h2>
+        <p>Tell Tenner which services you pay for and Browse, Discover and Home’s rows stick to what you can watch tonight. Swipe in Discover and For you picks out more to suit your taste.</p>
         <a class="btn btn-tinted ab-btn" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>Choose my services</a>
       </div>
       <div class="ab-vis ab-box lit">
@@ -195,7 +191,7 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.67.3</a></p>
+    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.69.2</a></p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
@@ -209,20 +205,20 @@
     var link=function(x){return './?t='+(x.type==='movie'?'m':'t')+x.id};
     var poster=function(x,cls){return x.poster?'<img class="'+(cls||'')+'" src="'+esc(x.poster)+'" alt="" loading="lazy" decoding="async">'
       :'<span class="cl-ph '+(cls||'')+'" style="--h:'+hue(x.title||'')+'"></span>'};
-    function rows(l){ return l.slice(0,5).map(function(x,i){
+    function rows(l,unranked){ return l.slice(0,5).map(function(x,i){
       var on=(x.on||[]).map(function(k){return svc[k]&&svc[k].label}).filter(Boolean)[0];
       var sub=[on,x.type==='movie'?'Film':'Series',x.year].filter(Boolean).join(' · ');
-      return '<li><a href="'+link(x)+'"><span class="cl-n">'+(i+1)+'</span>'+poster(x)+'<span class="cl-t"><b>'+esc(x.title)+'</b><small>'+esc(sub)+'</small></span></a></li>';
+      return '<li><a href="'+link(x)+'">'+(unranked?'':'<span class="cl-n">'+(i+1)+'</span>')+poster(x)+'<span class="cl-t"><b>'+esc(x.title)+'</b><small>'+esc(sub)+'</small></span></a></li>';
     }).join(''); }
     function tile(s){ return s.logo?'<img src="'+esc(s.logo)+'" alt="">':'<b style="--h:'+hue(s.label)+'">'+esc(s.label.slice(0,1))+'</b>'; }
     /* the try-it chart: one service, its chart; several, their charts together, most popular first */
     function mine(){
       var on=SIX.filter(function(k){return picks[k]&&svc[k]});
       $('abPick').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',!!picks[b.dataset.k])});
-      if(!on.length){ $('abMine').innerHTML='<li class="ab-none">Pick a service or two to see their Top 10.</li>'; return; }
+      if(!on.length){ $('abMine').innerHTML='<li class="ab-none">Pick a service or two to see what’s popular on them.</li>'; return; }
       var seen={}, l=on.reduce(function(a,k){return a.concat((svc[k].tv||[]).map(function(x){return Object.assign({type:'tv'},x,{on:[k]})}))},[])
         .sort(function(a,b){return (b.popularity||0)-(a.popularity||0)}).filter(function(x){return !seen[x.id]&&(seen[x.id]=1)});
-      $('abMine').innerHTML=rows(l);
+      $('abMine').innerHTML=rows(l,true);   /* the most popular on them, not a chart: no numbers */
     }
     /* the deck: three ideas from further down the charts; Skip and Save send the top card off and bring the next up */
     var deck=[];
@@ -253,6 +249,6 @@
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.67.3" defer></script>
+  <script src="shell.js?v=2.69.2" defer></script>
 </body>
 </html>

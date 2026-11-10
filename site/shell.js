@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.67.3';
+  const version = '2.69.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1363,7 +1363,6 @@
     if (name === 'new') { location.href = 'charts.html#new'; return; }
     if (name === 'top10') { location.href = 'charts.html#top10'; return; }
     if (name === 'watchlist') { location.href = 'charts.html#watchlist'; return; }
-    if (name === 'discover') { location.href = 'discover.html'; return; }
     location.href = './';
   }
   tabs.forEach((t) => t.addEventListener('click', () => open(t.dataset.tab)));
