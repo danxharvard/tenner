@@ -418,7 +418,7 @@
   $('#bxHero').addEventListener('click', (e) => {
     const a = e.target.closest('[data-harr]');
     if (a) { const s = $('#bxStrip'); s.scrollBy({ left: +a.dataset.harr * s.clientWidth, behavior: still() ? 'auto' : 'smooth' }); return; }
-    if (e.target.closest('[data-htr]')) { window.tn.haptic?.(); const it = heroList[state.hero]?.it; if (it) window.tnSheet?.open(infoFor(it, 'Popular'), false, { trailer: true }); setTimeout(trSync, 60); return; }
+    if (e.target.closest('[data-htr]')) { window.tn.haptic?.(); const it = heroList[state.hero]?.it; if (it) window.tnSheet?.open(infoFor(it, `Trending ${where()} today`), false, { trailer: true }); setTimeout(trSync, 60); return; }
     const b = e.target.closest('[data-hero]'); if (b) { showHero(+b.dataset.hero); }
   });
   // the cut pauses while the featured title's scrolled away, the tab's hidden or a sheet is open
@@ -472,7 +472,7 @@
     const best = kinds().map((k) => row(`bxPTr-${k}`, `Top rated ${word(k)}${g ? ` in ${esc(g)}` : ''}`, 'The highest scores from viewers', topRated(k).map((it) => card(it, infoFor(it, 'Top rated'), it.year)),
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
-      'bx-row-p', 'browse.html#c=new&amp;sort=pop') : '';
+      'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
     return top.join('') + forYouRow() + best.join('') + fresh;
   }
   function drawRows() {
@@ -610,7 +610,7 @@
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
     if ($('#bxTt') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxTt', title: 'One Top 10 for the UK',
-      text: 'This chart combines every service. The services you pick at the top only change the rows on the left; By service has each one’s own chart.' });
+      text: 'This chart combines every service. The services you pick at the top only change the slideshow and the rows on the left; By service has each one’s own chart.' });
   }
   // Tenner TV (the TV guide): its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {

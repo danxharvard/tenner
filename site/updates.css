@@ -19,7 +19,7 @@
 .u-notes b { font-weight: 600; color: var(--label); }
 .u-empty { margin: 0; padding: 18px; color: var(--label2); font-size: 15px; }
 /* while it loads: two grey bars per row */
-.u-sk span { display: block; height: 12px; border-radius: 4px; background: var(--fr-in); }
+.u-sk span { display: block; height: 12px; border-radius: var(--r); background: var(--fr-in); }
 .u-sk span + span { height: 40px; }
 @media (min-width: 1000px) { .uwrap { padding-top: 20px; } }
 @media (max-width: 600px) {

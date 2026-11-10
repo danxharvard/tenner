@@ -43,8 +43,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.69.3">
-  <link rel="stylesheet" href="legal.css?v=2.69.3">
+  <link rel="stylesheet" href="styles.css?v=2.69.4">
+  <link rel="stylesheet" href="legal.css?v=2.69.4">
 </head>
 <body class="legal">
   <a class="skip" href="#main">Skip to the page</a>
@@ -90,7 +90,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.69.3</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.69.4</a>
     </div>
   </div>
 
@@ -142,7 +142,7 @@
         <li><strong>Shows, Films or Both:</strong> which charts you last chose to see.</li>
         <li><strong>An offline copy:</strong> the site’s pages, its latest charts and some recent posters, so Tenner opens quickly and still works without a connection (especially if you add it to your home screen).</li>
         <li><strong>Your Watchlist:</strong> the titles you save, with their names and posters. It stays in this browser, on this device, unless you sign in to an account (which keeps it in step on your devices), or carry it across yourself with Move to another device in Settings.</li>
-        <li><strong>My services:</strong> the streaming services you’ve told Tenner you use, if you choose them, so it can show you a Top 10 of just those.</li>
+        <li><strong>My services:</strong> the streaming services you’ve told Tenner you use, if you choose them, so Browse, Discover and the homepage’s rows can stick to what you can watch.</li>
         <li><strong>Your settings:</strong> the choices you make on the Settings page, such as which page Tenner opens on.</li>
         <li><strong>Your progress:</strong> the season and episode you’re up to in shows you’re watching, if you set it. Like your Watchlist, it stays on this device.</li>
         <li><strong>Discover:</strong> the titles you’ve swiped past, so they don’t come round again (up to the 3,000 most recent), whether you last chose shows, films or both, and which way you swiped (the 1,500 most recent), used only to suggest things you might like in For you.</li>
@@ -233,6 +233,6 @@
   </main>
 
 
-  <script src="shell.js?v=2.69.3" defer></script>
+  <script src="shell.js?v=2.69.4" defer></script>
 </body>
 </html>

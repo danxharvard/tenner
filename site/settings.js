@@ -24,7 +24,7 @@
   }
   form.addEventListener('change', (e) => {
     const el = e.target, n = el.name; if (!n) return;
-    if (n === 'theme') { window.tnTheme?.(el.value); try { localStorage.setItem('tenner-theme', el.value); } catch {} }
+    if (n === 'theme') { if (window.tn.setTheme) window.tn.setTheme(el.value); else { window.tnTheme?.(el.value); try { localStorage.setItem('tenner-theme', el.value); } catch {} } }
     else if (n === 'kind') { try { localStorage.setItem('tenner-kind', el.value); } catch {} }
     else prefs.set(n, el.type === 'checkbox' ? el.checked : el.value);
     say('Saved');
@@ -35,6 +35,7 @@
   addEventListener('tn:mine', show);
   // settings that change elsewhere (another tab, or your account's copy arriving after you sign in) show here at once
   addEventListener('tn:prefs', show); addEventListener('tn:synced', show);
+  addEventListener('tn:theme', () => { try { form.theme.value = localStorage.getItem('tenner-theme') || 'dark'; } catch {} });   // the pill's sun or moon, or the Theme menu
 
   // ---------- your data: a file to carry the Watchlist and progress to another device ----------
   document.getElementById('setExport').addEventListener('click', () => {
@@ -219,6 +220,7 @@
   document.getElementById('setClear').addEventListener('click', () => {
     if (!confirm('Clear your Watchlist, progress, My services and settings on this device? This can’t be undone.')) return;
     try { ['tenner-watchlist', 'tenner-progress', 'tenner-services', 'tenner-settings', 'tenner-kind'].forEach((k) => localStorage.removeItem(k)); } catch {}
+    try { ['tenner-home-svc', 'tenner-home-kind', 'tenner-tt-kind', 'tenner-discover-kind'].forEach((k) => sessionStorage.removeItem(k)); } catch {}   // this visit's picks too
     saved.set([]); mine.set([]); prefs.set('start', 'auto'); show(); say('Cleared');
   });
   // ---------- Not interested (signed in): the hidden titles, each one tap from coming back ----------

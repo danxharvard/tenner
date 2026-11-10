@@ -650,7 +650,6 @@ const TOP10_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5
 // the biggest climbers and the titles new to the top 10 (data/week.json and data/trail.json, rebuilt hourly)
 function weekCharts() {
   const w = state.week, sec = wkSec, okK = (x) => TT.kind === 'both' || x.c.split(':')[1] === TT.kind;   // kept to Shows or Films when the page is
-  if (TT.kind !== 'both') NW.race = TT.kind;
   let charts = '';
   if (w && (w.climbers?.length || w.ones?.length)) {
     const ones = (w.ones || []).filter((x, i, all) => w.items[x.k] && okK(x) && all.findIndex((y) => y.k === x.k) === i);   // once each, its biggest chart first
@@ -672,8 +671,11 @@ function weekCharts() {
 // itself when a new one lands (refresh, above). With shows and films, each box has five of each and See more opens every
 // box out to ten together, so the rows stay level across the services. ----------
 const TT = { kind: 'both', open: false };
-try { const k = localStorage.getItem('tenner-tt-kind') || localStorage.getItem('tenner-kind'); if (['tv', 'movie', 'both'].includes(k)) TT.kind = k; } catch {}   // your own pick here, or Settings' Show
-const TT_WORDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
+// this visit's pick here, or else Settings' Show (a pick kept for good would hide a later change in Settings, as on Home)
+try { localStorage.removeItem('tenner-tt-kind'); } catch {}   // kept for good before 2.69.4
+try { const k = sessionStorage.getItem('tenner-tt-kind') || localStorage.getItem('tenner-kind'); if (['tv', 'movie', 'both'].includes(k)) TT.kind = k; } catch {}
+if (TT.kind !== 'both') NW.race = TT.kind;   // the week on the charts starts on the same kind (and stays wherever you then take it)
+const TT_WORDS = { tv: 'Shows', movie: 'Films', both: 'Shows and films' };   // the same order as every other Shows / Films menu
 const ttArrow = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d < 0 ? 'M14.5 5.5 8 12l6.5 6.5' : 'm9.5 5.5 6.5 6.5-6.5 6.5'}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function ttBox(s) {
   const ks = TT.kind === 'both' ? ['tv', 'movie'] : [TT.kind], both = ks.length > 1;
@@ -717,8 +719,9 @@ function pageTop10() {
 function ttMount() {
   const row = $('#ttRow'), go = [...view.querySelectorAll('[data-tgo]')];
   $('#ttKind')?.addEventListener('change', (e) => {
-    TT.kind = e.target.value; try { localStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
-    const x = row?.scrollLeft || 0; render(); requestAnimationFrame(() => { const r = $('#ttRow'); if (r) r.scrollLeft = x; });
+    TT.kind = e.target.value; try { sessionStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
+    if (TT.kind !== 'both') NW.race = TT.kind;
+    render();
   });
   window.tn.tip({ id: 'top10s-every-chart', for: '#ttH', title: 'Every chart in one place', text: 'Each service’s top 10 side by side, then how the UK’s charts moved this week: the No. 1s, the biggest climbers and what’s new in the top 10.' });
   if (!row) { go.forEach((b) => (b.hidden = true)); return; }
@@ -728,7 +731,9 @@ function ttMount() {
     go.forEach((b) => (b.hidden = max <= 0));   // everything fits: no arrows
     row.classList.toggle('at-start', row.scrollLeft <= 2); row.classList.toggle('at-end', row.scrollLeft >= max);
   };
-  row.addEventListener('scroll', ends, { passive: true }); new ResizeObserver(ends).observe(row); ends();
+  // where you'd got to along the services survives a redraw (a new pick, or the hourly chart landing)
+  if (TT.x) row.scrollLeft = TT.x;
+  row.addEventListener('scroll', () => { TT.x = row.scrollLeft; ends(); }, { passive: true }); new ResizeObserver(ends).observe(row); ends();
   go.forEach((b) => b.addEventListener('click', () => {
     const box = row.querySelector('.tt-box'), step = box ? box.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
     row.scrollBy({ left: +b.dataset.tgo * step * Math.max(1, Math.floor(row.clientWidth / step)), behavior: reduceMotion() ? 'auto' : 'smooth' });

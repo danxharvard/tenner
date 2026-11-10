@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.69.3';
+  const version = '2.69.4';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -979,7 +979,7 @@
       const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
-      root.innerHTML = `<div class="me-hd" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
+      root.innerHTML = `<div class="me-hd me-hd-g" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
         <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>`;
       const say = (t, bad) => { const n = q('.me-msg'); n.textContent = t; n.classList.toggle('bad', !!bad); };
       if (o.note) say(o.note, o.bad);
@@ -1038,10 +1038,10 @@
         <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved · ${svc} service${svc === 1 ? '' : 's'}`, 5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
     }
     const menu = () => $('#meMenu'), card = () => $('#bxMeCard');
-    function openMenu() {
+    function openMenu(tapped) {   // tapped: you opened it (a buzz); the account page opening it for you stays quiet
       fillMenu(); const m = menu(), r = $('#bxMe').getBoundingClientRect();
       m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
-      m.hidden = false; card().setAttribute('aria-expanded', 'true'); haptic(6);
+      m.hidden = false; card().setAttribute('aria-expanded', 'true'); if (tapped) haptic(6);
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
       if (account.user()) account.sync();   // freshen the numbers while it's open
       else setTimeout(() => $('#meMenu .me-in:not([readonly])')?.focus({ preventScroll: true }), 120);
@@ -1053,7 +1053,7 @@
       if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 260);
       if (focus) card().focus();
     }
-    $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu() : closeMenu()));
+    $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu(true) : closeMenu()));
     // the account page (signed out) opens the dropdown where there's a pill, or draws the same form into the page
     tnSignIn = (o, inline) => {
       guest = { mode: 'in', ...o };
@@ -1420,28 +1420,29 @@
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', showTheme); // Auto: the icon follows the device
   tbMenu($('#thBtn'), $('#thPop'), () => $('#thPop [aria-checked="true"]')?.focus({ preventScroll: true }));
   arrows($('#thPop'), () => [...modeBtns]);
-  modeBtns.forEach((b) => b.addEventListener('click', () => {
-    const n = b.dataset.mode;
-    window.tnTheme?.(n);
-    try { localStorage.setItem('tenner-theme', n); } catch {}
-    showTheme();
-  }));
+  modeBtns.forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.mode)));
   // phones: the phone's own picker instead of the card (a native <select> laid invisibly over the round button)
   const thWrap = document.createElement('span'), thSel = document.createElement('select');
   thWrap.className = 'th-wrap'; thSel.className = 'th-sel'; thSel.setAttribute('aria-label', 'Theme');
   thSel.innerHTML = '<option value="auto">Auto (follows your device)</option><option value="light">Day</option><option value="dark">Night</option>';
   $('#thBtn').before(thWrap); thWrap.append($('#thBtn'), thSel);
-  thSel.addEventListener('change', () => { window.tnTheme?.(thSel.value); try { localStorage.setItem('tenner-theme', thSel.value); } catch {} showTheme(); });
-  const syncSel = () => { thSel.value = mode(); };
-  modeBtns.forEach((b) => b.addEventListener('click', syncSel));
+  thSel.addEventListener('change', () => setTheme(thSel.value));
+  function syncSel() { thSel.value = mode(); }
   syncSel();
   // ...and the round button in the account pill (top right): one tap flips between Day and Night
   // (signed in on computers and tablets it stands in for the Theme button; Auto is in Settings)
   $('#bxMeTh')?.addEventListener('click', () => {
-    const n = $('#bxMeTh').getAttribute('aria-label') === 'Switch to Day' ? 'light' : 'dark';
-    window.tnTheme?.(n); try { localStorage.setItem('tenner-theme', n); } catch {} showTheme(); syncSel(); haptic(6);
+    setTheme($('#bxMeTh').getAttribute('aria-label') === 'Switch to Day' ? 'light' : 'dark'); haptic(6);
     if (!reduce()) replay($('#bxMeTh'), 'me-th-spin');
   });
+  // every way of changing the theme (the Theme menu, the phone's picker, the pill, Settings) goes through here, so the
+  // round buttons, the menu's ticks and Settings' own menu always agree; another tab changing it changes this one too
+  function setTheme(n, quiet) {
+    window.tnTheme?.(n); if (!quiet) { try { localStorage.setItem('tenner-theme', n); } catch {} }
+    showTheme(); syncSel(); dispatchEvent(new Event('tn:theme'));
+  }
+  window.tn.setTheme = (n) => setTheme(n);
+  addEventListener('storage', (e) => { if (e.key === 'tenner-theme') setTheme(['light', 'auto'].includes(e.newValue) ? e.newValue : 'dark', true); });
   showTheme();
 
   // ---------- a fade behind the floating bar once the page has scrolled ----------
