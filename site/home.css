@@ -393,7 +393,7 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   .bx-hd.me-on .bx-dds { grid-column: 2; grid-row: 2; justify-self: end; margin-top: 0; }
   .bx-hd.me-on .bx-me-slot { display: block; grid-column: 2; grid-row: 1; height: 56px; }
 }
-/* the Top 10 box's way to each service's own chart (Top 10 by Service) */
-.bx-tt-by { position: relative; flex: none; height: 32px; padding: 0 12px; gap: 6px; font-size: 14px; -webkit-font-smoothing: antialiased; text-shadow: none; }
-.bx-tt-by svg { width: 15px; height: 15px; }
-.bx-tt-by::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
+/* the side boxes' header buttons (Discover's Open, the Top 10's By service): the site's button, a size smaller */
+.bx-hd-btn { position: relative; flex: none; height: 32px; padding: 0 12px; gap: 6px; font-size: 14px; -webkit-font-smoothing: antialiased; text-shadow: none; }
+.bx-hd-btn svg { width: 15px; height: 15px; }
+.bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
