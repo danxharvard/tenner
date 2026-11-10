@@ -9,10 +9,10 @@ instructions you paste to Claude, who makes the real change.
 **Build it yourself (recommended, about a minute):**
 
 1. Open Terminal. If you've never built anything on this Mac, run `xcode-select --install` once and click Install.
-2. Get the folder: `git clone https://github.com/danseacroft-lang/Tenner.git` (or `git pull` in your existing copy).
+2. Get the folder: `git clone https://github.com/danxharvard/tenner.git` (or `git pull` in your existing copy).
 3. Run `Tenner/mac/build.sh --install`. Tenner Layout opens and stays in your Applications folder (and Launchpad).
 
-**Or download it ready-made:** https://github.com/danseacroft-lang/Tenner/releases/download/mac-app/Tenner-Layout.zip
+**Or download it ready-made:** https://github.com/danxharvard/tenner/releases/download/mac-app/Tenner-Layout.zip
 Unzip it and move it to Applications. The first time, macOS says it can't check the developer: open
 System Settings → Privacy & Security and click **Open Anyway** (it's built by GitHub from this folder, not signed by Apple).
 

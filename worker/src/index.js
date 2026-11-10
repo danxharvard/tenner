@@ -234,7 +234,7 @@ async function addLinks(body, imdb) {
   const q = `SELECT ${Object.keys(WD_P).map((v) => `?${v}`).join(' ')} WHERE { ${by} ${Object.entries(WD_P).map(([v, p]) => `OPTIONAL { ?i wdt:${p} ?${v} }`).join(' ')} } LIMIT 30`;
   try {
     const r = await fetch(`https://query.wikidata.org/sparql?format=json&query=${encodeURIComponent(q)}`,
-      { headers: { accept: 'application/sparql-results+json', 'user-agent': 'Tenner/1.0 (https://github.com/danseacroft-lang/Tenner)' }, signal: AbortSignal.timeout(4000) });
+      { headers: { accept: 'application/sparql-results+json', 'user-agent': 'Tenner/1.0 (https://github.com/danxharvard/tenner)' }, signal: AbortSignal.timeout(4000) });
     const ln = {};
     for (const b of (r.ok ? (await r.json()).results?.bindings : null) || []) {
       const v = (n) => b[n]?.value;

@@ -453,7 +453,7 @@ export async function buildLinks(items, old) {
       asked++;
       try {
         const res = await getJSON(`https://query.wikidata.org/sparql?format=json&query=${encodeURIComponent(q)}`,
-          { 'user-agent': 'Tenner/1.0 (https://github.com/danseacroft-lang/Tenner)', accept: 'application/sparql-results+json' }, 3);
+          { 'user-agent': 'Tenner/1.0 (https://github.com/danxharvard/tenner)', accept: 'application/sparql-results+json' }, 3);
         const found = {};
         // matches by TMDB ID first: if the two IDs lead to different entries, TMDB's own wins
         for (const b of (res.results?.bindings || []).sort((x, y) => !!y.t - !!x.t)) {
