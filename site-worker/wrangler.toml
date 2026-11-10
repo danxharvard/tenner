@@ -1,0 +1,15 @@
+# The website (tenner.stream), served by Cloudflare: the built site/ folder as static files on a Worker, no code.
+# Deployed by .github/workflows/update.yml after every build. Moved here from GitHub Pages in November 2026, after the
+# old GitHub account was lost and GitHub Pages wouldn't release the domain.
+name = "tenner-site"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+[assets]
+directory = "../site"
+html_handling = "auto-trailing-slash"
+
+# tenner.stream, made by Cloudflare when this deploys (the workflow drops this if the domain can't be connected yet, and says so)
+[[routes]]
+pattern = "tenner.stream"
+custom_domain = true

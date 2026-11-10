@@ -1,0 +1,9 @@
+# www.tenner.stream: sends everyone on to the same page on tenner.stream. Deployed by .github/workflows/update.yml.
+name = "tenner-www"
+main = "www.js"
+compatibility_date = "2026-09-01"
+workers_dev = false
+
+[[routes]]
+pattern = "www.tenner.stream"
+custom_domain = true
