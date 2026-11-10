@@ -726,7 +726,7 @@
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2><a class="bx-more bx-tt-by" href="charts.html#top10">By service<span class="chev" aria-hidden="true"></span></a></header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} ${esc(where())}</h2><a class="btn btn-tinted bx-tt-by" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a></header>${body}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
   document.addEventListener('click', (e) => {
