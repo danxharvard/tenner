@@ -41,6 +41,10 @@ jobs:
             # New This Week (Watchmode, once a day): an empty list means the Watchmode step is failing (its key, say)
             nw=$(curl -s -m 30 "$LIVE/data/new.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s);console.log(d.disabled||(d.items||[]).length?"ok":"empty: the Watchmode step failed (is the WATCHMODE_API_KEY secret right?)")}catch{console.log("unreadable")}})')
             [ "$nw" = ok ] || echo "update.yml|New This Week is $nw"
+            # the Update centre: its newest entry must be the version the live site is on (added by each build)
+            sv=$(curl -s -m 30 "$LIVE/shell.js?v=$(date +%s)" | grep -oE "const version = '[0-9.]+'" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            uv=$(curl -s -m 30 "$LIVE/updates.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(JSON.parse(s)[0].version)}catch{console.log("unreadable")}})')
+            [ -z "$sv" ] || [ "$uv" = "$sv" ] || echo "update.yml|the Update centre lists $uv, but the site is on $sv"
             # each title's own page on Netflix, Disney+, Prime Video, HBO Max and Apple TV (looked up on Wikidata by the
             # hourly job): the lookups must keep getting answers, and at least half the titles must have one
             ln=$(curl -s -m 30 "$LIVE/data/titles.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s),l=d.links||{},it=Object.values(d.items||{}),n=it.filter(x=>x.ln&&["nf","dp","pv","hb","ap"].some(f=>x.ln[f])).length,h=Math.round((Date.now()-Date.parse(l.checked))/36e5);console.log(h>48?"Wikidata has not answered for "+h+" hours":n<it.length/2?"only "+n+" of "+it.length+" titles open on the service itself":"ok")}catch{console.log("unreadable")}})')

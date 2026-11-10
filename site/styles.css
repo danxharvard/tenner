@@ -1976,3 +1976,10 @@ p { text-wrap: pretty; }
 :root:not(.still) .xl-o { animation: xlTwinkle 3.4s ease-in-out var(--d, 0s) infinite alternate; }
 @keyframes xlTwinkle { 0%, 40% { opacity: 1; } 100% { opacity: .4; } }
 @media print { .xl { display: none; } }
+
+/* the build number in the menu opens the Update centre */
+a.side-ver, a.side-ver-text { text-decoration: none; cursor: pointer; }
+a.side-ver-text { color: inherit; }
+@media (hover: hover) { a.side-ver:hover, a.side-ver-text:hover { color: var(--label); text-decoration: underline; } }
+a.side-ver:focus-visible, a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
