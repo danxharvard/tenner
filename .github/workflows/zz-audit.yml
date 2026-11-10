@@ -1,0 +1,22 @@
+name: Audit (temporary)
+on:
+  push:
+    branches: [claude/project-thread-s8dvxa]
+    paths: ['.github/workflows/zz-audit.yml']
+permissions: { contents: read }
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for p in / /index.html /about.html /about /browse.html /people.html /sw.js /styles.css?v=2.50.5 /data/trending.json /nope.html /t/t1399/ /t/t1399 /manifest.webmanifest /fonts/ /favicon.svg; do
+            echo "== $p"; curl -s -o /dev/null -D - -m 20 -w 'time %{time_total}s size %{size_download}\n' "https://tenner.stream$p" | grep -iE '^(HTTP|location|cache-control|content-type|content-encoding|etag|time)'
+          done
+          echo "== www"; curl -s -o /dev/null -D - "https://www.tenner.stream/browse.html?x=1" | grep -iE '^(HTTP|location)'
+          echo "== gzip"; curl -s -o /dev/null -H 'Accept-Encoding: br, gzip' -D - https://tenner.stream/shell.js | grep -iE '^(HTTP|content-encoding|cache-control)'
+          echo "== pages copy"; curl -s -o /dev/null -w '%{http_code}\n' https://danxharvard.github.io/tenner/
+          echo "== api"; curl -s -o /dev/null -w '%{http_code} %{time_total}\n' -H 'Origin: https://tenner.stream' https://tenner-api.danseacroft.workers.dev/title/t1399
+          curl -s -D - -o /dev/null -H 'Origin: https://www.tenner.stream' https://tenner-api.danseacroft.workers.dev/title/t1399 | grep -iE '^(HTTP|access-control)'
+          echo "== onair"; curl -s -D - -o /dev/null -H 'Origin: https://tenner.stream' https://tenner-tv.danseacroft.workers.dev/api/onair | grep -iE '^(HTTP|access-control|cache-control)'
+          echo "== trending age"; curl -s "https://tenner.stream/data/trending.json?v=$(date +%s)" | jq -r .generatedAt
+          ls -la; for f in trending titles browse browse-more new week cinema prices history trail; do echo "$f $(curl -s -o /dev/null -w '%{size_download}' https://tenner.stream/data/$f.json)"; done
