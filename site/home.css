@@ -70,9 +70,10 @@ body.home { overflow-x: clip; }
   background: linear-gradient(to right, rgba(0, 0, 0, .74), rgba(0, 0, 0, .34) 46%, transparent 72%), linear-gradient(to top, rgba(0, 0, 0, .8), rgba(0, 0, 0, .2) 45%, transparent 70%); }
 .bx-h-copy { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 10px; padding: 26px 28px 28px; max-width: 640px; }
 
-/* the scores: a frosted box with three cells (the second reference) */
+/* the scores: a see-through frosted box with three cells (the second reference); it sits on the artwork, so the frost is
+   thinner than a box on the page and the picture's colours show through, blurred */
 .bx-score { position: absolute; top: 22px; left: 22px; display: flex; margin: 0; padding: 12px 4px; border-radius: var(--r); color: var(--label);
-  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  background: color-mix(in srgb, var(--bg) 42%, transparent); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
 .bx-score div { display: grid; justify-items: center; gap: 3px; min-width: 84px; padding: 0 14px; }
 .bx-score div + div { border-left: .5px solid var(--fr-rim); }
 .bx-score dt { display: flex; align-items: center; gap: 4px; font: 700 19px/1.1 var(--font); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
@@ -318,7 +319,7 @@ html.still .bx-tt-bg img { transition: none; }
 :root:not(.still) .bx-hero.sk, :root:not(.still) .bx-sk-row i { animation: bxPulse 1.4s ease-in-out infinite alternate; }
 @keyframes bxPulse { from { opacity: .55; } to { opacity: 1; } }
 .bx-empty { margin: 30px 0; color: var(--label2); font-size: 15px; }
-@media (prefers-reduced-transparency: reduce) { .bx-panel.panel { background: var(--bg2); } .bx-eye, .bx-pills span, .bx-chip { background: rgba(28, 28, 30, .92); } .bx-amb { display: none; } }
+@media (prefers-reduced-transparency: reduce) { .bx-panel.panel, .bx-score { background: var(--bg2); } .bx-eye, .bx-pills span, .bx-chip { background: rgba(28, 28, 30, .92); } .bx-amb { display: none; } }
 
 /* For you (signed in): its skeletons while the picks load, and the nudge towards Discover before there's anything to go on */
 .bx-fy-sk { overflow: hidden; }
