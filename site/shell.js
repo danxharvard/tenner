@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.61.2';
+  const version = '2.62.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -936,7 +936,7 @@
       if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 260);
       if (focus) card().focus();
     }
-    $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu() : closeMenu()));
+    $('#bxMeCard').addEventListener('click', () => { if (!account.user()) { location.href = 'account.html'; return; } if (menu().hidden) openMenu(); else closeMenu(); });
     document.addEventListener('click', (e) => { if (!e.target.closest('#bxMe, #meMenu')) closeMenu(); });
     addEventListener('resize', () => closeMenu());
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu().hidden) closeMenu(true); });
@@ -962,11 +962,19 @@
     $('#bxMeOut').addEventListener('click', () => { closeMenu(); ask(); });
     const drawMe = () => {
       const u = account.user(), box = $('#bxMe');
-      box.hidden = !u; if (!u) closeMenu(); hd?.classList.toggle('me-on', !!u); placeMe(); document.documentElement.classList.toggle('me-in', !!u);
-      if (!u) return;
-      $('#bxMeCard').innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span><svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('me-in', !!u);
+      const c = $('#bxMeCard'), wide = matchMedia('(min-width: 720px)').matches;
+      if (!u) {   // signed out: the same pill, inviting you to make an account (or sign in), straight to the account page
+        closeMenu(); c.removeAttribute('aria-haspopup'); c.removeAttribute('aria-expanded');
+        c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span><svg class="me-dn me-go" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        if (wide) setTimeout(() => featureTip({ id: 'account-signup-pill', for: '#bxMeCard', title: 'Your own Tenner account',
+          text: 'Sign up free to keep your Watchlist, progress and settings in step on every device, with alerts when your titles arrive. Already have one? Sign in here.' }));
+        return;
+      }
+      c.setAttribute('aria-haspopup', 'true'); c.setAttribute('aria-expanded', menu().hidden ? 'false' : 'true');
+      c.innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span><svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
       if (!menu().hidden) fillMenu();
-      if (matchMedia('(min-width: 720px)').matches) setTimeout(() => featureTip({ id: 'account-dropdown', for: '#bxMeCard', title: 'Your account at a glance',
+      if (wide) setTimeout(() => featureTip({ id: 'account-dropdown', for: '#bxMeCard', title: 'Your account at a glance',
         text: 'Tap your name to see your sync status and your Tenner in numbers, with quick links to your account, Watchlist and settings.' }));
     };
     function placeMe() {
