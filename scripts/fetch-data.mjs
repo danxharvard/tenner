@@ -765,6 +765,35 @@ export async function buildCinema() {
   return { v: CINEMA_V, generatedAt: new Date().toISOString(), now: nowItems, soon: soonItems };
 }
 
+// ---------- The homepage's featured slideshow: today's trending shows and films, chosen once a day ----------
+// The UK's most popular shows and films across the six services (the chart's "All"), taken in turn (a show, a film, a
+// show...), each with its wordless stills for Tenner's own cut. Picked once a UK day and kept until the next, so the
+// slideshow is the same all day and changes by itself every morning; the live copy carries on if TMDB has a bad moment.
+const FEATURED_V = 1, FEATURED_N = 10;
+const ukDay = (t = Date.now()) => new Date(t).toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+export function pickFeatured(data, n = FEATURED_N) {
+  const [tv, mv] = ['tv', 'movie'].map((k) => (data?.overall?.[k] || []).filter((it) => it.backdrop).map((it) => ({ ...it, type: it.type || k })));
+  const out = [];
+  for (let i = 0; out.length < n && (i < tv.length || i < mv.length); i++) { if (tv[i]) out.push(tv[i]); if (mv[i] && out.length < n) out.push(mv[i]); }
+  return out;
+}
+export async function buildFeatured(data, prev) {
+  const today = ukDay();
+  if (prev?.v === FEATURED_V && prev.day === today && prev.items?.length) { console.log('Featured: keeping today\'s from', prev.generatedAt); return prev; }
+  const items = pickFeatured(data);
+  if (items.length < 4) throw new Error(`only ${items.length} trending titles have artwork`);
+  await pool(items.map((it) => async () => {
+    try {
+      const im = await tmdb(`/${it.type}/${it.id}/images`, { include_image_language: 'null' });
+      const main = it.backdrop.split('/').pop();
+      it.bds = (im.backdrops || []).filter((x) => x.file_path && !x.iso_639_1 && x.width >= 1280 && x.aspect_ratio > 1.6 && x.file_path.slice(1) !== main)
+        .sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count).slice(0, 8).map((x) => x.file_path);
+    } catch {}
+  }), 5);
+  console.log(`Featured: ${items.length} trending titles for ${today}`);
+  return { v: FEATURED_V, day: today, generatedAt: new Date().toISOString(), items };
+}
+
 // ---------- A page for each title, for link previews ----------
 // t/m123/index.html for every title Tenner has details for: its name, artwork and where it streams in the tags that
 // Messages, WhatsApp, Slack and the rest read when a link is shared, and straight on to the title's sheet for people.
@@ -857,7 +886,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     sh = addMovement(trending, sh);
     const st = buildTrackers(trending, sh);
-    await write('trending.json', trending); await write('trail.json', st.trail); await write('week.json', st.week);
+    await write('trending.json', trending); await write('featured.json', { v: FEATURED_V, day: ukDay(), generatedAt: trending.generatedAt, sample: true, items: pickFeatured(trending) });
+    await write('trail.json', st.trail); await write('week.json', st.week);
     await write('titles.json', { v: 1, generatedAt: trending.generatedAt, logo: '', providers: sp, items: sItems, sample: true });
     const pItems = {};   // sample prices, for a few of the chart's films
     for (const it of trending.overall.movie.slice(0, 5)) pItems[`m${it.id}`] = { at: Date.now(), o: [['Apple TV', 'rent', 3.99 + (it.id % 3), 'HD', ''], ['Sky Store', 'rent', 4.99, 'HD', ''], ['Apple TV', 'buy', 9.99 + (it.id % 5), '4K', '']].sort((x, y) => x[2] - y[2]) };
@@ -999,6 +1029,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const prev = await liveCopy('titles.json');
       warn('Title details', `not rebuilt (${err.message})${prev ? ', keeping the live copy' : ''}`);
       if (prev) await write('titles.json', prev);
+    }
+
+    // 4a. The homepage's featured slideshow, once a day (the live copy carries on for up to three days if it fails)
+    {
+      const prev = await liveCopy('featured.json');
+      try { await write('featured.json', await buildFeatured(data, prev)); }
+      catch (err) {
+        const keep = prev?.items?.length && hoursOld(prev) < 72;
+        warn('Featured', `not rebuilt (${err.message})${keep ? ', keeping the live one' : ''}`);
+        if (keep) await write('featured.json', prev);
+      }
     }
 
     // 5. A page for each title, so a shared link shows its artwork (never a reason for the run to fail)
