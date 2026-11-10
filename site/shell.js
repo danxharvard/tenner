@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.57.1';
+  const version = '2.58.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1323,6 +1323,38 @@
       px = e.clientX; py = e.clientY; if (card && !raf) raf = requestAnimationFrame(draw);
     }, { passive: true });
     document.addEventListener('pointerleave', () => { card?.style.removeProperty('--mx'); card?.style.removeProperty('--my'); card = null; });
+  }
+
+  // ---------- Christmas lights: red, green and blue bulbs strung along the top of every page, from November until Boxing
+  // Day. A sagging wire with a bulb either side of each dip; they twinkle (a glow fading in and out, off the main thread)
+  // only when Animations are on, and stay softly lit otherwise. Never in the way: they can't be tapped and print nothing.
+  {
+    const d = new Date(), m = d.getMonth();
+    if (m === 10 || (m === 11 && d.getDate() <= 26)) {
+      const xl = document.createElement('div');
+      xl.className = 'xl'; xl.setAttribute('aria-hidden', 'true');
+      let w = 0;
+      const hang = () => {
+        if (innerWidth === w) return; w = innerWidth;
+        const U = w < 600 ? 92 : 124, S = w < 600 ? 13 : 16, n = Math.ceil(w / U) + 1, x0 = -((n * U - w) / 2);
+        const y = (t) => 1 + 4 * t * (1 - t) * S;
+        let path = '', bulbs = '', k = 0;
+        for (let i = 0; i < n; i++) {
+          const a = x0 + i * U;
+          path += `${i ? '' : `M${a} 1`} Q${a + U / 2} ${1 + 2 * S} ${a + U} 1 `;
+          for (const t of [0.28, 0.72]) {
+            const tilt = [-7, 5, -3, 8, -5, 3][k % 6], c = ['r', 'g', 'u'][k % 3];
+            bulbs += `<i class="xl-o xl-${c}" style="left:${(a + t * U).toFixed(1)}px;top:${y(t).toFixed(1)}px;--tilt:${tilt}deg;--d:${(-(k * 0.83) % 3.1).toFixed(2)}s"></i>`;
+            k++;
+          }
+        }
+        xl.innerHTML = `<svg width="${w}" height="${2 * S + 4}" viewBox="0 0 ${w} ${2 * S + 4}"><path d="${path}"/></svg>${bulbs}`;
+      };
+      hang(); document.body.append(xl);
+      let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
+      featureTip({ id: 'xmas-lights', for: xl, title: 'Christmas lights', delay: 2400,
+        text: 'Tenner\'s lit up for the season. The lights twinkle when Animations are on in Settings, and come down after Boxing Day.' });
+    }
   }
 
   // ---------- install as an app: the offline cache (sw.js) ----------
