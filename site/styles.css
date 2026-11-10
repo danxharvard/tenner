@@ -1951,20 +1951,21 @@ p { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
 
 /* Christmas lights (shell.js): old-fashioned C9 bulbs in red, green and blue, pinned along the top of every page in the
-   season. Above the bars and sidebar, below sheets and tips; never tappable. Each bulb's halo is drawn once; with
-   Animations on it breathes (opacity only, so it runs off the main thread). */
-.xl { position: fixed; z-index: 60; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 80px; pointer-events: none; overflow: hidden;
-  --xl-r: #ff3b30; --xl-g: #30d158; --xl-u: #0a84ff; --xl-wire: #1c2a22; --xl-sock: #20352a; --xl-rib: rgba(255, 255, 255, .22); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .xl { --xl-wire: #3b5546; --xl-sock: #2c4a39; } }
-:root[data-theme="dark"] .xl { --xl-wire: #3b5546; --xl-sock: #2c4a39; }
+   season, beside the sidebar on computers (never over it). Above the bars, below sheets and tips; never tappable. Each
+   bulb's halo is drawn once; with Animations on it breathes (opacity only, so it runs off the main thread). */
+.xl { position: fixed; z-index: 60; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 100px; pointer-events: none; overflow: hidden;
+  --xl-r: #ff3b30; --xl-g: #30d158; --xl-u: #0a84ff; --xl-wire: #17261d; --xl-wire2: rgba(120, 170, 140, .35); }
+@media (min-width: 1000px) { .xl { left: var(--side); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .xl { --xl-wire: #2b4436; --xl-wire2: rgba(150, 200, 170, .3); } }
+:root[data-theme="dark"] .xl { --xl-wire: #2b4436; --xl-wire2: rgba(150, 200, 170, .3); }
 .xl svg { position: absolute; left: 0; top: 0; overflow: visible; }
-.xl-w { fill: none; stroke: var(--xl-wire); stroke-width: 2; stroke-linecap: round; }
-.xl-sk { fill: var(--xl-sock); }
-.xl-rb { stroke: var(--xl-rib); stroke-width: .8; }
-.xl-o { position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; opacity: .9; --c: var(--xl-r);
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 75%, transparent), color-mix(in srgb, var(--c) 22%, transparent) 55%, transparent); }
+.xl-w { fill: none; stroke: var(--xl-wire); stroke-width: 2.4; stroke-linecap: round; }
+.xl-w2 { fill: none; stroke: var(--xl-wire2); stroke-width: .7; stroke-dasharray: 3 2.2; stroke-linecap: round; transform: translateY(-.5px); }
+.xl-o { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; opacity: .95; --c: var(--xl-r);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 70%, transparent), color-mix(in srgb, var(--c) 26%, transparent) 42%, color-mix(in srgb, var(--c) 8%, transparent) 70%, transparent); }
 .xl-g { --c: var(--xl-g); }
 .xl-u { --c: var(--xl-u); }
-:root:not(.still) .xl-o { animation: xlTwinkle 3.1s ease-in-out var(--d, 0s) infinite alternate; }
-@keyframes xlTwinkle { 0%, 40% { opacity: .95; } 100% { opacity: .35; } }
+@media (max-width: 599px) { .xl-o { width: 64px; height: 64px; margin: -32px 0 0 -32px; } }
+:root:not(.still) .xl-o { animation: xlTwinkle 3.4s ease-in-out var(--d, 0s) infinite alternate; }
+@keyframes xlTwinkle { 0%, 40% { opacity: 1; } 100% { opacity: .4; } }
 @media print { .xl { display: none; } }
