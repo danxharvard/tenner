@@ -13,6 +13,7 @@
 //                     beyond the six services); 20 a page, up to page 500; no18 leaves out films rated 18 in the UK
 //   /push/…           Watchlist alerts (push.js)
 //   /auth/…, /me…, /share/…  accounts: passkeys, Google, sync, shared lists (auth.js)
+//   /photo/:id        a profile photo someone uploaded (auth.js)
 //   /digest/off       the Sunday email's unsubscribe link (digest.js)
 //   POST /contact     the Contact page's form: emailed to Tenner's inbox (Cloudflare Email Routing). The inbox's
 //                     address is a Worker secret (SUPPORT_EMAIL), so it's never in the website or this code
@@ -20,7 +21,7 @@
 // titles barely touch TMDB: searches for a day, titles for six hours.
 import { EmailMessage } from 'cloudflare:email';
 import { pushRoute, pushRun, pushSend, pushMorning } from './push.js';
-import { authRoute } from './auth.js';
+import { authRoute, photoGet } from './auth.js';
 import { digestRun, digestOff } from './digest.js';
 
 const TMDB = 'https://api.themoviedb.org/3', IMG = 'https://image.tmdb.org/t/p', REGION = 'GB';
@@ -32,6 +33,7 @@ export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('origin') || '';
     if (url.pathname === '/push/send' && req.method === 'POST') return pushSend(req, env);   // the hourly run's batches (signed)
+    if (url.pathname.startsWith('/photo/')) return photoGet(req, env, ctx, url);   // profile photos, for <img> on any page
     if (url.pathname === '/digest/off') return digestOff(req, env, url);   // the Sunday email's unsubscribe link (signed)
     const allowed = (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
     const ok = allowed.includes(origin);

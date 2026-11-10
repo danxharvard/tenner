@@ -14,6 +14,9 @@
 //   POST /auth/logout
 //   GET  /me                      → { user, data, passkeys, sessions }
 //   PATCH /me                     { name?, hue? }
+//   POST /me/photo                { image } (a small square JPEG, PNG or WebP, base64; the page crops and shrinks it) → { user }
+//   DELETE /me/photo              back to your initial (or takes away Google's picture)
+//   GET  /photo/:id               a profile photo (public: the id is random, and a new one is made for every upload)
 //   PUT  /me/data                 { data } → { data } (merged with what's stored, and the result for this device)
 //   POST /me/share                { on } → { share_id }
 //   POST /me/handoff              → { token, to }: a session for Tenner TV, handed over in the address it opens
@@ -417,6 +420,22 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       await env.DB.prepare('UPDATE users SET name = COALESCE(?, name), hue = COALESCE(?, hue) WHERE id = ?').bind(name, hue, me.id).run();
       return ok({ user: publicUser(await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(me.id).first()) });
     }
+    if (p === '/me/photo' && m === 'POST') {
+      const img = photoCheck(body.image);
+      if (!img) return fail('That photo couldn’t be used. Try another photo');
+      const id = rand(12), pic = `${url.origin}/photo/${id}`, old = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
+      if (old) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${old.id}`)));
+      await env.DB.batch([env.DB.prepare('DELETE FROM photos WHERE user_id = ?').bind(me.id),
+        env.DB.prepare('INSERT INTO photos (id, user_id, type, data, created) VALUES (?, ?, ?, ?, ?)').bind(id, me.id, img.type, img.b64, now()),
+        env.DB.prepare('UPDATE users SET picture = ? WHERE id = ?').bind(pic, me.id)]);
+      return ok({ user: publicUser(await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(me.id).first()) });
+    }
+    if (p === '/me/photo' && m === 'DELETE') {
+      const old = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
+      if (old) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${old.id}`)));
+      await env.DB.batch([env.DB.prepare('DELETE FROM photos WHERE user_id = ?').bind(me.id), env.DB.prepare('UPDATE users SET picture = NULL WHERE id = ?').bind(me.id)]);
+      return ok({ user: publicUser(await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(me.id).first()) });
+    }
     if (p === '/me/data' && m === 'PUT') {
       const row = await env.DB.prepare('SELECT data FROM userdata WHERE user_id = ?').bind(me.id).first();
       const merged = merge(row ? JSON.parse(row.data) : {}, clean(body.data));
@@ -424,7 +443,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       if (text.length > 400000) return fail('That’s too much to keep', 413);
       await env.DB.prepare('INSERT INTO userdata (user_id, data, updated) VALUES (?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, updated = excluded.updated').bind(me.id, text, now()).run();
       ctx.waitUntil(syncAlerts(env, me.id, merged.watchlist.map((x) => x.k), alertPrefs(merged.settings)));   // alerts on all your devices watch the same list
-      return ok({ data: merged });
+      return ok({ data: merged, user: publicUser(me) });   // the user too, so a new name or photo reaches every device
     }
     // Tenner TV (another site, so its own storage): tenner.stream, signed in, asks for a session of its own to hand over
     // in the address it sends you to (tv.tenner.stream only). It shows in your devices as Tenner TV, signed out separately
@@ -480,7 +499,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
     }
     if (p === '/me' && m === 'DELETE') {
       const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(me.id).all()).results;
-      await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
+      await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
         .map((q) => env.DB.prepare(q).bind(me.id)));
       if (env.PUSH) for (const s of subs) { const v = await env.PUSH.get(s.sub_key, 'json'); if (v) { delete v.user; await env.PUSH.put(s.sub_key, JSON.stringify(v)); } }
       return ok({ ok: true });
@@ -489,6 +508,33 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
   } catch (err) {
     return fail(err.message || 'Something went wrong');
   }
+}
+// ---------- profile photos: kept in D1 beside the account (small: the page sends a square of at most 512px) ----------
+const PHOTO_MAX = 150000;   // bytes, once decoded
+function photoCheck(v) {
+  const m = String(v || '').match(/^(?:data:image\/(?:jpeg|png|webp);base64,)?([A-Za-z0-9+/]+={0,2})$/);
+  if (!m || m[1].length > Math.ceil(PHOTO_MAX / 3) * 4) return null;
+  let b; try { b = Uint8Array.from(atob(m[1]), (c) => c.charCodeAt(0)); } catch { return null; }
+  // what it really is, from its first bytes (never what it says it is)
+  const at = (i, ...xs) => xs.every((x, j) => b[i + j] === x);
+  const type = at(0, 0xff, 0xd8, 0xff) ? 'image/jpeg' : at(0, 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a) ? 'image/png'
+    : at(0, 0x52, 0x49, 0x46, 0x46) && at(8, 0x57, 0x45, 0x42, 0x50) ? 'image/webp' : null;
+  return type && b.length >= 100 ? { type, b64: m[1] } : null;
+}
+// GET /photo/:id, for <img> anywhere (no origin check: images don't send one). Kept for a week: a new photo gets a new id,
+// and a removed one stops being served once that runs out (this data centre's copy goes straight away)
+export async function photoGet(req, env, ctx, url) {
+  const id = (url.pathname.match(/^\/photo\/([\w-]{16})$/) || [])[1];
+  const none = () => new Response('Not found', { status: 404, headers: { 'cache-control': 'public, max-age=300' } });
+  if (!id || req.method !== 'GET' || !env.DB) return none();
+  const cache = caches.default, key = new Request(`https://tenner-cache/photo/${id}`);
+  const hit = await cache.match(key); if (hit) return hit;
+  const row = await env.DB.prepare('SELECT type, data FROM photos WHERE id = ?').bind(id).first();
+  if (!row) return none();
+  const res = new Response(Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0)), { headers: { 'content-type': row.type, 'cache-control': 'public, max-age=604800, immutable',
+    'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'", 'cross-origin-resource-policy': 'cross-origin', 'access-control-allow-origin': '*' } });
+  ctx.waitUntil(cache.put(key, res.clone()));
+  return res;
 }
 // how many ways you have of signing in (passkeys, Google, a password): the last one can't be taken away
 async function ways(env, me) {

@@ -40,9 +40,9 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.50.8">
-  <link rel="stylesheet" href="settings.css?v=2.50.8">
-  <link rel="stylesheet" href="account.css?v=2.50.8">
+  <link rel="stylesheet" href="styles.css?v=2.51.0">
+  <link rel="stylesheet" href="settings.css?v=2.51.0">
+  <link rel="stylesheet" href="account.css?v=2.51.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +88,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <span class="side-ver">Tenner 2.50.8</span>
+      <span class="side-ver">Tenner 2.51.0</span>
     </div>
   </div>
 
@@ -167,8 +167,12 @@
         <div class="set-col">
           <section class="set-sec" aria-labelledby="acHMe">
             <h2 class="set-h" id="acHMe">Profile</h2>
-            <div class="set-art ac-art" id="acArt" aria-hidden="true"><span id="acAv"></span></div>
+            <div class="set-art ac-art" id="acArt"><span class="ac-avw" aria-hidden="true"><span id="acAv"></span>
+              <button type="button" class="ac-cam" id="acCam" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M9 4.5h6l1.5 2H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h2.5z" fill="currentColor"/><circle cx="12" cy="12.6" r="3.6" fill="none" stroke="var(--bt-round)" stroke-width="1.8"/></svg></button></span></div>
             <div class="set-group">
+              <div class="set-row ac-photo" id="acPhotoRow"><span class="set-l">Profile photo<small id="acPhotoNow">Show it instead of your initial</small></span>
+                <span class="ac-btns"><button type="button" class="ac-x" id="acPhotoRm" hidden>Remove</button><button type="button" class="btn btn-tinted ac-pick" id="acPhotoPick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5h6l1.5 2H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.6" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span>Choose</span></button></span>
+                <input type="file" id="acPhotoFile" accept="image/*" hidden></div>
               <label class="set-row"><span class="set-l">Name</span><input class="ac-input" id="acEditName" maxlength="40" autocomplete="given-name"></label>
               <div class="set-row ac-hues" id="acHues"><span class="set-l">Colour<small>For your initial, where there’s no picture</small></span><span class="ac-sw" id="acSw"></span></div>
             </div>
@@ -239,10 +243,22 @@
         <p id="acDel2P">Your account and everything in it will be deleted forever. There’s no getting it back.</p>
         <div class="ac-del-acts"><button class="btn ac-del-keep" value="keep" autofocus>No, back to Tenner</button><button class="btn ac-del-go" value="delete">Yes, delete my account</button></div>
       </form></dialog>
+    <!-- Profile photo: move and scale it inside the circle, the way iPhone does, then use it -->
+    <dialog class="mine-dlg ac-crop-dlg" id="acCropDlg" aria-labelledby="acCropH">
+      <form method="dialog">
+        <h2 id="acCropH">Move and scale</h2>
+        <p>Drag to move your photo, and pinch, scroll or slide to zoom.</p>
+        <div class="ac-crop" id="acCrop"><img id="acCropImg" alt="Your photo" draggable="false"><i class="ac-crop-ring" aria-hidden="true"></i></div>
+        <label class="ac-zoom"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>
+          <input type="range" id="acZoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg></label>
+        <div class="ac-crop-acts"><button class="btn ac-crop-no" value="cancel">Cancel</button>
+          <button class="btn btn-tinted" value="use" id="acCropUse" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Use photo</span></button></div>
+      </form></dialog>
   </main>
 
 
-  <script src="shell.js?v=2.50.8" defer></script>
-  <script src="account.js?v=2.50.8" defer></script>
+  <script src="shell.js?v=2.51.0" defer></script>
+  <script src="account.js?v=2.51.0" defer></script>
 </body>
 </html>

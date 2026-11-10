@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.50.8';
+  const version = '2.51.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -838,7 +838,9 @@
     sync() {
       if (!account.token()) return Promise.resolve(null);
       if (syncing) return syncing;
-      syncing = account.call('PUT', '/me/data', { data: account.local() }).then(({ data }) => { applyData(data); return data; })
+      syncing = account.call('PUT', '/me/data', { data: account.local() }).then(({ data, user }) => {
+        if (user && JSON.stringify(user) !== JSON.stringify(account.user())) account.setUser(user);   // a new name or photo from another device
+        applyData(data); return data; })
         .catch(() => null).finally(() => { syncing = null; });
       return syncing;
     },

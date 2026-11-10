@@ -71,5 +71,12 @@ CREATE TABLE IF NOT EXISTS verifies (   -- "Confirm your email" links, for a day
   created INTEGER NOT NULL,
   expires INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS photos (     -- profile photos people uploaded (users.picture points at /photo/<id>)
+  id TEXT PRIMARY KEY,                  -- random, and new for every upload, so the photo can be cached for good
+  user_id TEXT NOT NULL UNIQUE,
+  type TEXT NOT NULL,                   -- image/jpeg, image/png or image/webp, from the file's own first bytes
+  data TEXT NOT NULL,                   -- base64, at most 150 KB once decoded
+  created INTEGER NOT NULL
+);
 -- passwords made before email checks began count as checked
 INSERT OR IGNORE INTO verified (email, user_id, at) SELECT email, user_id, created FROM passwords WHERE created < 1792755100000;
