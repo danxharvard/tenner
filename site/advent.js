@@ -2,8 +2,8 @@
 // when you open it (mostly Christmas favourites, sometimes something big we think you'll enjoy), kept on this device so it's
 // the same next time you look. Opened from the homepage's Christmas slide with any [data-adv="open"]
 // button. A door swings open on its hinge with a burst of gold sparkles and the pick comes forward on a card; close the
-// calendar and it fades away, and the first time its box fades in at the top of the right-hand column (where it shows today's door from then on).
-// No door opens before its day. The home page lends what it has loaded: window.tnAdvent.use({ cat, popular, info, redraw }).
+// calendar and it fades away. It lives on the slide only (the owner's call: no box in the right-hand column).
+// No door opens before its day. The home page lends what it has loaded: window.tnAdvent.use({ cat, popular, info }).
 // Motion is the point here, so it plays whatever Settings → Animations says, but never when the device asks for Reduce Motion.
 (() => {
   const { esc, fold } = window.tn;
@@ -244,7 +244,6 @@
     await wait(motion() ? 850 : 0);
     btn.classList.remove('opening'); busy = false;
     reveal(n, btn);
-    opts.redraw?.();   // its box in the right-hand column
   }
   // the pick, on a card that comes forward from its door
   function reveal(n, from) {
@@ -276,58 +275,19 @@
     if (!motion()) { rv.hidden = true; return; }
     rv.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished.then((an) => { rv.hidden = true; an.cancel(); });
   }
-  // closing: the calendar fades gently away. The first time, its box then joins the right-hand column: a space opens at
-  // the top (Discover glides down beneath it) and the little calendar fades in there. After that it's always there.
-  const inView = (el) => { if (!el?.isConnected) return null; const r = el.getBoundingClientRect(); return r.width && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth ? el : null; };
+  // closing: the calendar fades gently away, and focus goes back to the button that opened it
   function shut() {
     if (!dlg?.open || closing) return;
     closing = true;
-    const st = store.get(), first = !st.placed;
-    if (first) { st.placed = Date.now(); store.set(st); }
-    // focus goes back to the button that opened it (or, once its box has been redrawn, that box's Open button)
-    const done = () => { dlg.close(); $('#advRv').hidden = true; closing = false; dlg.getAnimations().forEach((a) => a.cancel());
-      (opener?.isConnected ? opener : $('#bxAdv [data-adv="open"]'))?.focus({ preventScroll: true }); };
-    if (!motion()) { done(); if (first) opts.redraw?.(); return; }
+    const done = () => { dlg.close(); $('#advRv').hidden = true; closing = false; dlg.getAnimations().forEach((a) => a.cancel()); opener?.focus({ preventScroll: true }); };
+    if (!motion()) return done();
     dlg.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.97)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(done);
-    if (first) {
-      opts.redraw?.();
-      const box = $('#bxAdv'); if (!box) return;
-      const h = box.offsetHeight; box.style.overflow = 'hidden';
-      box.animate([{ height: '0px', marginBottom: '-16px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 }, { height: `${h}px`, marginBottom: '0px', opacity: 0, offset: .5 }, { height: `${h}px`, opacity: 1 }],
-        { duration: 1400, delay: 250, easing: 'cubic-bezier(.3,.8,.3,1)', fill: 'backwards' }).finished.then(() => { box.style.overflow = ''; });
-    } else {
-      const box = inView($('#bxAdv')); if (!box) return;
-      setTimeout(() => { box.classList.remove('adv-land'); void box.offsetWidth; box.classList.add('adv-land'); setTimeout(() => box.classList.remove('adv-land'), 1300); }, 300);
-    }
   }
 
-  // ---------- its box at the top of the right-hand column: the calendar in miniature, Discover's size ----------
-  // Shown from the first time you close the calendar. Opened doors show their posters; today's glows. Tap a door to open
-  // the calendar at it.
-  function box() {
-    const st = store.get(), doors = st.doors, t = Math.min(today(), 25);
-    if (!season() || !st.placed) return '';   // (placed: everyone sees it arrive afresh)
-    const p = t ? doors[t] : null;
-    const mini = ORDER.map((n) => {
-      const d = doors[n], [c1, c2] = TONES[(n * 7) % 4];
-      return `<button type="button" class="bx-ad${d ? ' open' : ''}${!d && n === t ? ' today' : ''}${n > t ? ' locked' : ''}${n === 25 ? ' big' : ''}" data-adv="door" data-n="${n}" style="grid-area:d${n};--c1:${c1};--c2:${c2}"
-        aria-label="${esc(d ? `Door ${n}: ${d.title}` : n <= t ? `Door ${n}, ready to open` : `Door ${n}, opens on ${date(n)}`)}">${d ? `<img src="${esc(d.poster)}" alt="">` : `<b>${n}</b>`}</button>`;
-    }).join('');
-    const say = !t ? `The first door opens in ${untilDec()} day${untilDec() === 1 ? '' : 's'}.` : p ? `Behind door ${t}: ${p.title}` : `Door ${t} is ready to open.`;
-    return `<section class="bx-panel panel bx-adv" id="bxAdv" aria-labelledby="bxAdvT">
-      <header class="bx-panel-hd"><h2 id="bxAdvT">Christmas calendar</h2><span class="bx-tag bx-adv-tag">${t ? `Day ${t}` : '1 December'}</span></header>
-      <div class="bx-adv-cal" style='grid-template-areas:${AREAS}'>${mini}</div>
-      <p class="bx-panel-say bx-adv-say">${esc(say)}</p>
-      <button type="button" class="btn btn-tinted bx-wide" data-adv="open">${CAL}${!t || p ? 'Open calendar' : `Open door ${t}`}</button>${lights(9, 15)}</section>`;
-  }
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-adv]'); if (!b) return;
     if (b.dataset.adv === 'open') open(b);
-    else if (b.dataset.adv === 'door') {   // a door in the little calendar: the big one, at that door
-      open($('#bxAdv') || b);
-      setTimeout(() => { const d = dlg?.open && $(`.adv-d[data-day="${b.dataset.n}"]`, dlg); if (d) openDoor(d); }, motion() ? 640 : 0);
-    }
     else if (b.dataset.adv === 'pick') { const p = store.get().doors[b.dataset.n]; if (p) openPick(p); }
   });
-  window.tnAdvent = { use: (o) => Object.assign(opts, o), open, box, icon: CAL, season };
+  window.tnAdvent = { use: (o) => Object.assign(opts, o), open, icon: CAL, season };
 })();
