@@ -779,11 +779,10 @@ function toast(text) {
 // ---------- tabs (pages): Home, New, Browse, Discover (phones), Watchlist, About. The bar itself lives in shell.js ----------
 const selectTab = (name) => window.tnShell.select(name);
 function openTab(name) {
-  if (['home', 'about', 'browse', 'discover'].includes(name)) window.tn.loading.show('nav');   // another page: the ring, should it be slow
+  if (['home', 'about', 'browse'].includes(name)) window.tn.loading.show('nav');   // another page: the ring, should it be slow
   if (name === 'home') { location.href = './'; return; }
   if (name === 'about') { location.href = 'about.html'; return; }
   if (name === 'browse') { location.href = 'browse.html'; return; }
-  if (name === 'discover') { location.href = 'discover.html'; return; }   // Discover (phones)
   if (name === state.route) { scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' }); return; } // tap the open tab: back to the top
   if (['new', 'top10', 'watchlist'].includes(name)) location.hash = name; else location.href = './';
 }
