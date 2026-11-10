@@ -165,10 +165,10 @@
     if (u.picture) $('#acArt').insertAdjacentHTML('afterbegin', `<img class="set-bg" src="${esc(u.picture)}" alt="" referrerpolicy="no-referrer">`);
     $('#acHello').textContent = u.name || 'Your account';
     if (document.activeElement !== $('#acEditName')) $('#acEditName').value = u.name || '';
-    $('#acHues').hidden = !!u.picture;
     $('#acPhotoRm').hidden = !u.picture; $('#acPhotoPick').lastChild.textContent = u.picture ? 'Change' : 'Choose';
     $('#acPhotoNow').textContent = u.picture ? 'On your account and shared Watchlist' : 'Show it instead of your initial';
     window.tn.tip?.({ id: 'profile-photo', for: '#acPhotoPick', title: 'Your profile photo', text: 'Choose a photo of yourself, then move and scale it to fit the circle. It shows on your account, in the menu on every device and on your shared Watchlist.' });
+    window.tn.tip?.({ id: 'your-colour', for: '#acSw', title: 'Your colour', text: 'Pick a colour and Tenner takes it on: links, highlights, the menu and the glow behind every page change to match, by day and by night.' });
     $('#acSw').innerHTML = HUES.map((h) => `<button type="button" class="ac-hue" style="--h:${h}" data-hue="${h}" aria-pressed="${h === u.hue}" aria-label="${HUE_NAME[h]}" title="${HUE_NAME[h]}"></button>`).join('');
     $('#acShare').checked = !!u.share_id; $('#acLinkRow').hidden = !u.share_id;
     if (u.share_id) $('#acUrl').textContent = `${location.origin}/list.html?u=${u.share_id}`;

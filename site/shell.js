@@ -876,10 +876,11 @@
     const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'Sync your devices'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
     draw(); addEventListener('tn:account', draw);
   }
-  // the colour you picked for your account tints the menu links (and only them); the first blue is Tenner's own
-  const menuHue = () => { const u = account.user(), r = document.documentElement.style;
-    if (u && !u.picture && u.hue != null && u.hue !== 210) r.setProperty('--menu', `hsl(${+u.hue} 72% 56%)`); else r.removeProperty('--menu'); };
-  menuHue(); addEventListener('tn:account', menuHue);
+  // the colour you picked for your account becomes Tenner's accent everywhere: links, highlights, the menu's icons, focus
+  // rings, glows and the wash behind the page (tnMe, in each page's head, so it's there before the first paint).
+  // The first blue is Tenner's own; with a profile photo, only a colour you picked yourself counts.
+  const meHue = () => window.tnMe?.(account.user());
+  meHue(); addEventListener('tn:account', meHue);
 
   // ---------- variety in the big featured artwork (the homepage's hero, Browse's spotlight) ----------
   // Remembers when each title last had the spotlight on this device, so the next visit leads with ones you haven't
