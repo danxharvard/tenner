@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Tenner</title>
+  <!-- an address that isn't there: a shared title whose own page has gone (it left Tenner's lists) still opens that
+       title's sheet on the home page; anything else goes to the home page -->
+  <script>{ const k = location.pathname.match(/^\/t\/([mt]\d{1,9})\/?$/); location.replace('/' + (k ? `?t=${k[1]}` : '')); }</script>
+  <style>:root{color-scheme:light dark}body{font:17px/1.4 -apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif;background:Canvas;color:CanvasText;text-align:center;padding:30vh 16px}a{color:#0a84ff}</style>
+</head>
+<body><p><a href="/">Go to Tenner’s home page</a></p></body>
+</html>

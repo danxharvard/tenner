@@ -119,8 +119,12 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   The site is served by Cloudflare (`site-worker/`: the `site/` folder as static files on the `tenner-site` Worker at
   tenner.stream, and `tenner-www` sending www.tenner.stream on to it), not GitHub Pages, since the old GitHub account was lost.
   GitHub skips many scheduled runs, so it's asked three times an hour and a try that finds the live chart under 40 minutes
-  old stops at once (pushes and runs by hand always build). Only the deploy job queues on `pages`, so a spare try never
-  takes a waiting push's place.
+  old stops at once (pushes and runs by hand always build). Only the deploy job queues (on `site`), so a spare try never
+  takes a waiting push's place. tenner.stream is behind Cloudflare's bot check, which turns away automated requests
+  (people and link previews get through), so the jobs, the watchdog and the alerts Worker read the live data from
+  `tenner-site.danseacroft.workers.dev`, never tenner.stream. Links say `about.html`: `site-worker/index.js` serves those
+  straight away (Cloudflare would otherwise redirect them); `site/_headers` sets how long browsers keep files, and
+  `site/404.html` sends a gone title page (`/t/<key>/`) to `/?t=<key>`.
   It also writes a small page per title (`site/t/<key>/`, not in git) whose tags give shared links that title's artwork and
   name; the sheet's Share uses it, and it sends people on to `/?t=<key>`.
 - **On every push**: the site (`update.yml`), the search/accounts Worker (`api.yml`) and Tenner TV (`tv.yml`) deploy themselves.

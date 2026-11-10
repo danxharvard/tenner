@@ -93,9 +93,10 @@ jobs:
                if [ "$state" -lt 14 ]; then echo "::error title=Cloudflare token runs out in $state days::Make a new one (or extend it) in Cloudflare > My Profile > API Tokens, and save it as the CLOUDFLARE_API_TOKEN secret."; exit 1; fi
                if [ "$state" -lt 30 ]; then echo "::warning title=Cloudflare token runs out in $state days::Extend it in Cloudflare > My Profile > API Tokens."; fi ;;
           esac
-      # GitHub pauses scheduled workflows after 60 days without a commit; re-enabling every run keeps this one going
+      # GitHub pauses scheduled workflows after 60 days without a commit (and a moved repository can sit with its timetable
+      # not yet running); re-enabling on every run keeps this one going
       - name: Keep the listings schedule alive
-        if: github.event_name == 'schedule'
+        if: always()
         continue-on-error: true
         env: { GH_TOKEN: '${{ github.token }}', GH_REPO: '${{ github.repository }}' }
         run: gh workflow enable tv.yml

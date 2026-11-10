@@ -17,6 +17,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
+      LIVE: https://tenner-site.danseacroft.workers.dev   # the live site's own Cloudflare address (the same files as tenner.stream)
+      SAFARI: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15'
     steps:
       - uses: actions/checkout@v5
       - name: Check everything, and put right what can be
@@ -25,16 +27,23 @@ jobs:
           age() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(Math.round((Date.now()-Date.parse(JSON.parse(s).generatedAt))/60000))}catch{console.log(99999)}})'; }
           # each check prints a problem and the job that fixes it (job|problem), or nothing when all is well
           check() {
-            code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 https://tenner.stream/)
+            # tenner.stream itself, as Safari sees it (its bot check turns away plain automated requests from GitHub, so
+            # the data below is read from the site's own Cloudflare address, which serves the same files)
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -A "$SAFARI" https://tenner.stream/)
             [ "$code" = 200 ] || echo "update.yml|tenner.stream answered $code"
-            mins=$(curl -s -m 30 "https://tenner.stream/data/trending.json?v=$(date +%s)" | age)   # rebuilt hourly
-            [ "$mins" -le 120 ] || echo "update.yml|the charts are $((mins/60)) hours old"
+            code=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -m 30 -A "$SAFARI" https://www.tenner.stream/browse.html)
+            [ "$code" = "301 https://tenner.stream/browse.html" ] || echo "update.yml|www.tenner.stream answered $code"
+            mins=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | age)   # rebuilt hourly
+            [ "$mins" -le 120 ] || { [ "$mins" = 99999 ] && echo "update.yml|the charts couldn't be read" || echo "update.yml|the charts are $((mins/60)) hours old"; }
             # each title's own page (for link previews): the No. 1 show's must be there, with its name in the preview tags
-            k=$(curl -s -m 30 "https://tenner.stream/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log("t"+JSON.parse(s).overall.tv[0].id)}catch{console.log("t0")}})')
-            curl -s -m 30 "https://tenner.stream/t/$k/" | grep -q 'property="og:title"' || echo "update.yml|the link preview page for $k is missing"
+            k=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log("t"+JSON.parse(s).overall.tv[0].id)}catch{console.log("t0")}})')
+            curl -s -m 30 -A "$SAFARI" "https://tenner.stream/t/$k/" | grep -q 'property="og:title"' || echo "update.yml|the link preview page for $k is missing"
+            # New This Week (Watchmode, once a day): an empty list means the Watchmode step is failing (its key, say)
+            nw=$(curl -s -m 30 "$LIVE/data/new.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s);console.log(d.disabled||(d.items||[]).length?"ok":"empty: the Watchmode step failed (is the WATCHMODE_API_KEY secret right?)")}catch{console.log("unreadable")}})')
+            [ "$nw" = ok ] || echo "update.yml|New This Week is $nw"
             # each title's own page on Netflix, Disney+, Prime Video, HBO Max and Apple TV (looked up on Wikidata by the
             # hourly job): the lookups must keep getting answers, and at least half the titles must have one
-            ln=$(curl -s -m 30 "https://tenner.stream/data/titles.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s),l=d.links||{},it=Object.values(d.items||{}),n=it.filter(x=>x.ln&&["nf","dp","pv","hb","ap"].some(f=>x.ln[f])).length,h=Math.round((Date.now()-Date.parse(l.checked))/36e5);console.log(h>48?"Wikidata has not answered for "+h+" hours":n<it.length/2?"only "+n+" of "+it.length+" titles open on the service itself":"ok")}catch{console.log("unreadable")}})')
+            ln=$(curl -s -m 30 "$LIVE/data/titles.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s),l=d.links||{},it=Object.values(d.items||{}),n=it.filter(x=>x.ln&&["nf","dp","pv","hb","ap"].some(f=>x.ln[f])).length,h=Math.round((Date.now()-Date.parse(l.checked))/36e5);console.log(h>48?"Wikidata has not answered for "+h+" hours":n<it.length/2?"only "+n+" of "+it.length+" titles open on the service itself":"ok")}catch{console.log("unreadable")}})')
             [ "$ln" = ok ] || echo "update.yml|titles' own links: $ln"
             # the search service only answers Tenner's own pages, so the check says it's from tenner.stream
             code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -H 'Origin: https://tenner.stream' https://tenner-api.danseacroft.workers.dev/title/t1413)
@@ -65,7 +74,7 @@ jobs:
           for u in $(grep -oE "https://www\.(bbc\.co\.uk/iplayer/live/|itv\.com/watch\?channel=|channel4\.com/now/)[A-Za-z0-9]+" "$GITHUB_WORKSPACE/tv/public/tv.js" | sort -u); do
             c=$(curl -s -L -o /dev/null -w '%{http_code}' -m 25 -A 'Mozilla/5.0 (Macintosh) TennerWatchdog' "$u"); [ "$c" -lt 400 ] 2>/dev/null || echo "::warning title=A Watch live link may be broken::$u answered $c"
           done
-          dom=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -A 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15' https://tv.tenner.stream/)
+          dom=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -A "$SAFARI" https://tv.tenner.stream/)
           case "$dom" in 200) echo "✓ tv.tenner.stream answers" ;; 403|503) echo "· tv.tenner.stream is behind Cloudflare's bot check for automated visitors ($dom); checked directly instead" ;;
             *) echo "::warning title=tv.tenner.stream::answered $dom (the Worker itself is checked separately)" ;; esac
           found=$(check)
@@ -80,14 +89,16 @@ jobs:
       # the tenner.stream address itself: a nudge a month before it's due for renewal, and a failed run (so GitHub emails
       # the owner) in its last fortnight. Read from the domain registry's public record; if that can't be read, nothing is said.
       - name: Check the address isn't about to run out
+        if: always()   # even when something above needs a look, the renewal date is still checked
         run: |
           days=$(curl -s -L -m 30 -H 'Accept: application/rdap+json' https://rdap.org/domain/tenner.stream | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const e=(JSON.parse(s).events||[]).find(x=>/expir/i.test(x.eventAction));console.log(e?Math.floor((Date.parse(e.eventDate)-Date.now())/864e5):"")}catch{console.log("")}})')
           if [ -z "$days" ]; then echo "· Couldn't read the domain's renewal date this time"; exit 0; fi
           echo "tenner.stream is registered for another $days days"
           if [ "$days" -lt 14 ]; then echo "::error title=Renew tenner.stream::The domain runs out in $days days. Renew it (or turn on auto-renew) with its registrar."; exit 1; fi
           if [ "$days" -lt 30 ]; then echo "::warning title=Renew tenner.stream soon::The domain runs out in $days days. Check auto-renew is on with its registrar."; fi
-      # GitHub pauses scheduled workflows after 60 days without a commit; re-enabling every run keeps this one going
+      # GitHub pauses scheduled workflows after 60 days without a commit (and a moved repository can sit with its timetable
+      # not yet running); re-enabling on every run, even one that found a problem, keeps this one going
       - name: Keep the watchdog's schedule alive
-        if: github.event_name == 'schedule'
+        if: always()
         continue-on-error: true
         run: gh workflow enable watchdog.yml

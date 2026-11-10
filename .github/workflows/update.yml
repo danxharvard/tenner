@@ -11,9 +11,12 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
   actions: write   # only for the keepalive step below
+
+# The live site's own Cloudflare address. tenner.stream itself sits behind Cloudflare's bot check, which turns away
+# requests from GitHub's servers (people and link previews are let through), so the jobs read the live copy from here.
+env:
+  LIVE: https://tenner-site.danseacroft.workers.dev
 
 jobs:
   build:
@@ -29,7 +32,7 @@ jobs:
         run: |
           go=yes
           if [ "${{ github.event_name }}" = schedule ]; then
-            mins=$(curl -s -m 20 "https://tenner.stream/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(Math.round((Date.now()-Date.parse(JSON.parse(s).generatedAt))/60000))}catch{console.log(99999)}})')
+            mins=$(curl -s -m 20 "$LIVE/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(Math.round((Date.now()-Date.parse(JSON.parse(s).generatedAt))/60000))}catch{console.log(99999)}})')
             if [ "$mins" -lt 40 ] 2>/dev/null; then go=no; echo "The live chart is $mins minutes old, so this try isn't needed"; fi
           fi
           echo "go=$go" >> "$GITHUB_OUTPUT"
@@ -42,21 +45,48 @@ jobs:
         with:
           node-version: 22
 
-      - id: pages
-        if: steps.gate.outputs.go == 'yes'
-        uses: actions/configure-pages@v5
-
       - name: Fetch latest charts
         if: steps.gate.outputs.go == 'yes'
         run: node scripts/fetch-data.mjs
         env:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
           WATCHMODE_API_KEY: ${{ secrets.WATCHMODE_API_KEY }}
-          SITE_URL: https://tenner.stream/
+          SITE_URL: ${{ env.LIVE }}
 
-      - uses: actions/upload-pages-artifact@v4
+      # the built site (with this hour's data and title pages) is handed to the deploy job below
+      - uses: actions/upload-artifact@v4
         if: steps.gate.outputs.go == 'yes'
         with:
+          name: site
+          path: site
+          retention-days: 1
+          include-hidden-files: false
+
+      # GitHub pauses scheduled workflows after 60 days without a commit, and a moved repository can sit with its
+      # timetable not yet running. Re-enabling it on every run (a push or a run by hand too) keeps the schedule alive.
+      - name: Keep the hourly schedule alive
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/update.yml/enable"
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.go == 'yes'
+    # only the deploys queue up (one at a time, the newest waiting): a spare scheduled try that turns out not to be needed
+    # never takes the place of a push that's waiting to go live, and an older build can never go live after a newer one
+    concurrency:
+      group: site
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: site-worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
           path: site
 
       # The live site is served by Cloudflare (site-worker/), as GitHub Pages kept tenner.stream tied to the old, lost
@@ -64,7 +94,6 @@ jobs:
       # there), the site still goes up on its workers.dev address and the run says what to do. www.tenner.stream is a
       # tiny Worker that sends visitors on to tenner.stream.
       - name: Deploy to Cloudflare, at tenner.stream
-        if: steps.gate.outputs.go == 'yes'
         working-directory: site-worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -77,29 +106,3 @@ jobs:
             echo "::warning title=Connect tenner.stream::The site is live on its workers.dev address only. In Cloudflare > tenner.stream > DNS, delete the A records for tenner.stream (they point at GitHub), then run this again."
           fi
           npx --yes wrangler@4 deploy -c www.toml || echo "::warning title=Connect www.tenner.stream::In Cloudflare > tenner.stream > DNS, delete the www CNAME record (it points at GitHub), then run this again."
-
-      # GitHub pauses scheduled workflows after 60 days without a commit. Re-enabling it every run keeps the hourly
-      # schedule alive indefinitely, with no commits and nobody needing to touch the repo.
-      - name: Keep the hourly schedule alive
-        if: github.event_name == 'schedule'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/update.yml/enable"
-
-  deploy:
-    needs: build
-    if: needs.build.outputs.go == 'yes'
-    # only the deploys queue up (one at a time, the newest waiting): a spare scheduled try that turns out not to be needed
-    # never takes the place of a push that's waiting to go live
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

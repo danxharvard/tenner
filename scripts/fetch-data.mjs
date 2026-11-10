@@ -5,7 +5,7 @@
 // Env:
 //   TMDB_TOKEN          TMDB "API Read Access Token" (v4). Or TMDB_API_KEY (v3 key) instead.
 //   WATCHMODE_API_KEY   optional. Used for "New this week" (about 1 credit per day).
-//   SITE_URL            optional. Your live Pages URL. Used to reuse the day's new.json (saving credits) and, if a
+//   SITE_URL            optional. The live site (its workers.dev address: tenner.stream itself challenges bots). Used to reuse the day's new.json (saving credits) and, if a
 //                       partner API has a bad hour, to keep serving the last good data instead of failing.
 //
 // Built to run unattended: every request times out and retries, the data is sanity-checked before it's published,
