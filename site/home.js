@@ -68,8 +68,8 @@
 
   const services = () => (state.data?.services || []).filter((s) => !s.shop && !s.store);
   window.tnTonight?.use({ cat: () => state.cat, services: () => state.data?.services, titles: () => state.titles });
-  // the Christmas calendar (advent.js) picks from the same catalogue and charts, and puts its box in the side column
-  window.tnAdvent?.use({ cat: () => state.cat, popular: () => (state.data ? popular() : []), info: (x) => infoFor(fromCat(x), 'Christmas calendar'), redraw: () => drawSide() });   // What should I watch tonight? borrows what's loaded
+  // the Christmas calendar (advent.js, opened from its slide) picks from the same catalogue and charts
+  window.tnAdvent?.use({ cat: () => state.cat, popular: () => (state.data ? popular() : []), info: (x) => infoFor(fromCat(x), 'Christmas calendar') });   // What should I watch tonight? borrows what's loaded
   const svcOf = (k) => (state.data?.services || []).find((s) => s.key === k);
   const kinds = () => (state.kind === 'both' ? ['tv', 'movie'] : [state.kind]);
   const det = (k) => (k === TR_K && trDet ? { ...(state.titles?.items?.[k] || {}), ...trDet } : state.titles?.items?.[k] || null);
@@ -592,7 +592,7 @@
   // ---------- the side column: yours ----------
   function drawSide() {
     if (!state.data) return;
-    $('#bxSide').innerHTML = (window.tnAdvent?.box() || '') + discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
+    $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
   }
   // Tenner TV: its own box here instead of a place in the menu, while it's in beta
