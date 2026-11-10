@@ -88,7 +88,7 @@ export default {
     }
 
     // the edge cache, keyed on the request without its origin
-    const cache = caches.default, key = new Request(`https://tenner-cache/v5${url.pathname}?${new URLSearchParams(params)}`);   // bump v when a shape changes
+    const cache = caches.default, key = new Request(`https://tenner-cache/v6${url.pathname}?${new URLSearchParams(params)}`);   // bump v when a shape changes
     let hit = await cache.match(key);
     if (!hit) {
       const r = await fetch(`${TMDB}${path}?${new URLSearchParams(params)}`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } });
@@ -159,8 +159,15 @@ function titleShape(d, type, k) {
     logo: `${IMG}/w92`, providers, items: { [k]: item },
     info: { k, type, title: d.title || d.name, year: (d.release_date || d.first_air_date || '').slice(0, 4) || null,
       rating: d.vote_count >= 20 ? Math.round(d.vote_average * 10) / 10 : null, overview: d.overview || '',
-      poster: d.poster_path ? `${IMG}/w342${d.poster_path}` : null, backdrop: d.backdrop_path ? `${IMG}/w1280${d.backdrop_path}` : null },
+      poster: d.poster_path ? `${IMG}/w342${d.poster_path}` : null, backdrop: d.backdrop_path ? `${IMG}/w1280${d.backdrop_path}` : null, bds: stillsOf(d) },
   };
+}
+
+// the title's wordless stills (TMDB's backdrops with no language: nothing written on them), the best liked first, for
+// Tenner's own cut in the featured spots (site/shell.js cut); just their file names, shown at w780 or w1280
+function stillsOf(d) {
+  return (d.images?.backdrops || []).filter((x) => x.file_path && !x.iso_639_1 && x.width >= 1280 && x.aspect_ratio > 1.6)
+    .sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count).slice(0, 8).map((x) => x.file_path);
 }
 
 // the title's own logo (the Apple TV app shows one over the artwork in place of the name): English or wordless, the
