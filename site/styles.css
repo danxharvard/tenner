@@ -367,7 +367,6 @@ a.tb-btn:hover { text-decoration: none; }
 @media (hover: hover) { .cl li:hover { background: color-mix(in srgb, color-mix(in srgb, var(--bg) 60%, var(--label)) 9%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); } }
 .cl a { display: flex; align-items: center; gap: 14px; padding: 9px 10px; color: inherit; }
 .cl a:hover { text-decoration: none; }
-.cl-n { width: 22px; flex: none; display: grid; justify-items: center; gap: 3px; font: 700 17px/1 var(--font); color: var(--label2); font-variant-numeric: tabular-nums; }
 .cl img, .cl-ph { width: 40px; height: 60px; flex: none; object-fit: cover; border-radius: var(--r); box-shadow: 0 0 0 .5px var(--sep); }
 .cl-t { flex: 1; min-width: 0; display: grid; }
 .cl-t b { font-weight: 500; font-size: 15px; letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

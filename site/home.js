@@ -470,8 +470,8 @@
       return card(it, infoFor(it, `No. ${i + 1} ${word(k).slice(0, -1)} in the UK`), it.year, i + 1);
     }), 'bx-row-p'));
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
-    const best = kinds().map((k) => row(`bxPTr-${k}`, `Top rated ${word(k)}${g ? ` in ${esc(g)}` : ''}`, 'The highest scores from viewers', topRated(k).map((it, i) => card(it, infoFor(it, `No. ${i + 1} top rated`), it.year)),
-      'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', ...(k === 'movie' ? { k: 'movie' } : {}) })))}`));
+    const best = kinds().map((k) => row(`bxPTr-${k}`, `Top rated ${word(k)}${g ? ` in ${esc(g)}` : ''}`, 'The highest scores from viewers', topRated(k).map((it) => card(it, infoFor(it, 'Top rated'), it.year)),
+      'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
       'bx-row-p', 'browse.html#c=new&amp;sort=pop') : '';
     return top.join('') + forYouRow() + best.join('') + fresh;
@@ -572,7 +572,7 @@
   function newList() {
     const l = newShows(); if (!l.length) return '';
     const q = new URLSearchParams({ c: 'new', k: 'tv', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
-    return clList('bxNs', NS(), l, () => `New show proving popular${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`, false);
+    return clList('bxNs', NS(), l, () => `New show proving popular${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);
   }
   function topList(k) {
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
@@ -580,16 +580,15 @@
     if (!l.length) return '';
     const q = new URLSearchParams({ c: 'top', k, ...(all() ? {} : { s: state.picks.join(',') }) });
     return clList(`bxCl-${k}`, `Top rated ${k === 'movie' ? 'films' : 'shows'}${g ? ` in ${esc(g)}` : ''}`, l,
-      (i) => `No. ${i + 1} top rated${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);
+      () => `Top rated${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);   // not a chart, so no numbers: those mean charting
   }
-  // a chart list (.cl), numbered when it's a ranking, its heading linking on to Browse
-  function clList(id, head, l, eye, href, ranked = true) {
+  // a list (.cl), its heading linking on to Browse. No numbers: on Tenner a number means a place in a chart
+  function clList(id, head, l, eye, href) {
     const label = (it) => (it.on || []).filter(picked).map((x) => svcOf(x)?.label).filter(Boolean).slice(0, 2).join(', ');
     return `<section class="clist bx-clist" aria-labelledby="${id}">
       <div class="row-hd"><h2 class="row-h" id="${id}">${head}</h2>
         <a class="see-all" href="${href}">See all<span class="chev" aria-hidden="true"></span></a></div>
       <ol class="cl">${l.map((it, i) => `<li><a href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(infoFor(it, eye(i)))}>
-        ${ranked ? `<span class="cl-n">${i + 1}</span>` : ''}
         ${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
         <span class="cl-t"><b>${esc(it.title)}</b><small>${esc([state.picks.length === 1 ? '' : label(it), it.year].filter(Boolean).join(' · '))}</small></span>
         ${it.rating ? `<span class="cl-r">★ ${it.rating.toFixed(1)}</span>` : ''}
