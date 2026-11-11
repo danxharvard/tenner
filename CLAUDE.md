@@ -133,6 +133,9 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   `site/404.html` sends a gone title page (`/t/<key>/`) to `/?t=<key>`.
   It also writes a small page per title (`site/t/<key>/`, not in git) whose tags give shared links that title's artwork and
   name; the sheet's Share uses it, and it sends people on to `/?t=<key>`.
+- **Minified on the way out:** the build shrinks the site's scripts and styles with esbuild just before it deploys (not
+  `sw.js` or `qrcode.js`); the files in git stay readable, and if it fails the readable copies go live instead. So never
+  read the live JS for a value (the watchdog takes the version from the homepage's `shell.js?v=`).
 - **On every push**: the site (`update.yml`), the search/accounts Worker (`api.yml`) and Tenner TV (`tv.yml`) deploy themselves.
   Tenner TV runs `node tv/test.mjs` first; a failing test stops the deploy, so what's live keeps working.
 - **Tenner TV** (`tv/`, tv.tenner.stream): listings from the open Freeview EPG feed, built every 3 hours by
