@@ -367,10 +367,13 @@
     if ($('#q').value !== state.q) $('#q').value = state.q;
     if (!quiet) writeHash(); else clearTimeout(apply.t), (apply.t = setTimeout(writeHash, 250));
 
-    // swap the grid (a quick crossfade where the browser can)
+    // swap the grid (a quick crossfade where the browser can). As you type, it's a fluid reveal instead (reveal below).
+    const typing = user && quiet && (!!q || reveal.q) && !reduce();
+    reveal.q = !!q;
     const draw = () => { shown = 0; $('#grid').innerHTML = ''; more(); empty(); };
     webSearch();
-    if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
+    if (typing) reveal.run(draw);
+    else if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
     if (!q) spotlight();
     if (!q && !charting) moods(); else $('#moods').hidden = true;
     rows();
@@ -395,6 +398,25 @@
     for (const k of kinds()) (trend?.overall?.[k] || []).slice(0, 10).forEach((it, i) => out.push({ ...fromChart(it, k, have), _rank: i + 1, _sub: i === 0 && state.k === 'both' ? (k === 'movie' ? 'Films' : 'Shows') : '' }));
     return out;
   }
+
+  // ---------- searching: the results revealed as you type ----------
+  // Titles that were already there glide to their new places (each measured before and after, then eased back from where
+  // it was: a transform, so it stays off the main thread), and the new ones rise into view out of a soft blur, one after
+  // another. Never with Animations off or Reduce Motion.
+  const reveal = { q: false, old: null,
+    run(draw) {
+      const grid = $('#grid'), top = innerHeight + 200;
+      reveal.old = new Map([...grid.querySelectorAll('.tile')].filter((li) => li.getBoundingClientRect().top < top).map((li) => [li.dataset.k, li.getBoundingClientRect()]));
+      const all = new Set([...grid.querySelectorAll('.tile')].map((li) => li.dataset.k));
+      reveal.had = all; draw(); reveal.had = null;
+      for (const li of grid.querySelectorAll('.tile')) {
+        const was = reveal.old.get(li.dataset.k); if (!was) continue;
+        const now = li.getBoundingClientRect(), dx = was.left - now.left, dy = was.top - now.top;
+        if ((dx || dy) && now.top < top) li.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], { duration: 520, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+      }
+      reveal.old = null;
+    },
+  };
 
   // ---------- what's filtering the list: one button for each, with a cross, and Clear all once there are two ----------
   const X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
@@ -618,7 +640,8 @@
       const d = r.ok ? await r.json() : null; if (ppl.q !== q) return;
       const l = (d?.results || []).filter((x) => x.photo && x.known?.length).slice(0, 12);
       if (!l.length) { box.hidden = true; return; }
-      $('#bpList').innerHTML = l.map((p) => `<li><a href="./?p=${p.id}" data-p="${p.id}">
+      const had = new Set([...$('#bpList').querySelectorAll('[data-p]')].map((a) => a.dataset.p));
+      $('#bpList').innerHTML = l.map((p, i) => `<li${had.has(String(p.id)) ? '' : ` class="rv" style="--d:${i}"`}><a href="./?p=${p.id}" data-p="${p.id}">
         <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async"></span>
         <b>${esc(p.name)}</b><small>${esc([DEPT[p.dept] || p.dept, p.known[0]].filter(Boolean).join(' · '))}</small></a></li>`).join('');
       // first when a name is the better match; otherwise after this hour's catalogue
@@ -658,7 +681,7 @@
     const h = hue(x.title);
     const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.title)}</span>`;
-    return `<li class="tile" style="--d:${i}" data-wk="${esc(x.k)}">
+    return `<li class="tile rv" style="--d:${i}" data-wk="${esc(x.k)}">
       <a href="https://www.themoviedb.org/${x.type}/${x.k.slice(1)}" target="_blank" rel="noopener">
         <span class="art">${art}${x.rating ? `<span class="score" aria-label="Rated ${x.rating} out of 10"><b>${x.rating.toFixed(1)}</b></span>` : ''}</span>
         <span class="t">${esc(x.title)}</span>
@@ -747,7 +770,7 @@
       ? `<img src="${esc(x.img.startsWith('/') ? cat.img + x.img : x.img)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.n)}</span>`;
     const where = x.s.slice(0, 3).map((k) => logos[k] ? `<img src="${esc(logos[k])}" alt="${esc(labels[k])}" data-tip="${esc(labels[k])}">` : '').join('');
-    return `${x._sub ? `<li class="g-sub" aria-hidden="true">${x._sub}</li>` : ''}<li class="tile${x._rank ? ' ranked' : ''}" style="--d:${i % PAGE}" data-k="${x.t[0]}${x.i}">
+    return `${x._sub ? `<li class="g-sub" aria-hidden="true">${x._sub}</li>` : ''}<li class="tile${x._rank ? ' ranked' : ''}${reveal.had && !reveal.had.has(`${x.t[0]}${x.i}`) ? ' rv' : ''}" style="--d:${i % PAGE}" data-k="${x.t[0]}${x.i}">
       <a href="${esc(url)}" target="_blank" rel="noopener"${x._rank ? ` aria-label="No. ${x._rank}: ${esc(x.n)}"` : ''}>
         ${x._rank ? `<span class="rk" aria-hidden="true">${x._rank}</span>` : ''}<span class="art">${art}${x.r ? `<span class="score" aria-label="Rated ${x.r} out of 10"><b>${x.r.toFixed(1)}</b></span>` : ''}</span>
         <span class="t">${esc(x.n)}</span>
