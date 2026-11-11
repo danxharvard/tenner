@@ -1591,10 +1591,12 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 /* ============================================================ My services (shell.js): the iOS Subscriptions card, under a
    band of Tenner's energy. The sheet is the one frost; across its top the goodbye orb's light runs free: ribbons of blue
    into cyan and violet into pink that drift and change shape, a soft indigo current, a white-blue core that breathes and
-   two waves of light running through, all melting into the frost below (never a hard edge). Slow (9 to 26 seconds a
+   a Siri-style waveform running through (drawn in shell.js) and Siri's edge light turning along the top, all melting
+   into the frost below (never a hard edge). Slow (9 to 26 seconds a
    cycle) so it feels calm; still and lit with Animations off or Reduce Motion. Then a round back button beside the
-   centred title, a line of what you pay, Swap in a faint inner box, Active and Inactive as bold headings, each service a
-   rounded card (logo tile, name, grey line, a Keep / Pause badge or note, chevron) and the all-six switch in its own card. */
+   centred title, a frosted line saying what the sheet is for, Watch before it goes in a faint inner box, Active and
+   Inactive as bold headings, each service a rounded card (logo tile, name, what's waiting there in grey, Add on the ones
+   you don't have, chevron) and the all-six switch in its own card. */
 .mine-subs { position: relative; isolation: isolate; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
   border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 100px -24px rgba(0, 0, 0, .65); scrollbar-width: none; }
@@ -1605,9 +1607,9 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .mine-subs form { position: relative; z-index: 1; padding: 18px 20px 22px; }
 
 /* the energy */
-.mine-aura { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: 270px; overflow: hidden; pointer-events: none;
-  -webkit-mask-image: linear-gradient(#000 30%, rgba(0, 0, 0, .55) 62%, transparent); mask-image: linear-gradient(#000 30%, rgba(0, 0, 0, .55) 62%, transparent); }
-.mine-aura i { position: absolute; display: block; mix-blend-mode: var(--aura-blend, normal); opacity: var(--aura-o, .62); }
+.mine-aura { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: 280px; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.mine-aura i { position: absolute; display: block; mix-blend-mode: var(--aura-blend, normal); opacity: var(--aura-o, .42); }
 .mine-aura i:nth-child(1) { left: -14%; top: -70px; width: 74%; height: 230px; filter: blur(30px);
   background: radial-gradient(closest-side, #0a84ff, #64d2ff 52%, transparent); border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
 .mine-aura i:nth-child(2) { right: -16%; top: -60px; width: 72%; height: 220px; filter: blur(30px);
@@ -1618,23 +1620,27 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
   background: radial-gradient(closest-side, rgba(255, 255, 255, .95), rgba(150, 215, 255, .6) 40%, rgba(10, 132, 255, .2) 70%, transparent); border-radius: 50%; }
 .mine-aura i:nth-child(5) { left: 4%; top: 86px; width: 92%; height: 38px; filter: blur(14px); rotate: -5deg;
   background: linear-gradient(90deg, transparent, #8fe3ff 25%, #bf5af2 70%, transparent); border-radius: 50%; }
-.mine-waves { position: absolute; left: 0; top: 0; width: 100%; height: 200px; overflow: visible; opacity: var(--wave-o, .7); }
-.mw { fill: none; stroke: url(#mineWg); stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.mw-g { stroke-width: 9; filter: blur(6px); opacity: .55; }
-.mw-2 { stroke-width: 1.3; opacity: .6; }
 /* by night the light adds up, like the orb's; by day it's a softer wash on the milky frost */
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mine-aura { --aura-blend: plus-lighter; --aura-o: .78; --wave-o: .9; } }
-:root[data-theme="dark"] .mine-aura { --aura-blend: plus-lighter; --aura-o: .78; --wave-o: .9; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.mine-aura, .mine-edge) { --aura-blend: plus-lighter; --aura-o: .5; --siri-dark: 1; } }
+:root[data-theme="dark"] :is(.mine-aura, .mine-edge) { --aura-blend: plus-lighter; --aura-o: .5; --siri-dark: 1; }
+/* the waveform (shell.js draws it) */
+.mine-siri { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+/* Siri's edge light: a band of colour along the sheet's top edge that slowly turns, glowing softly and fading down the sides */
+@property --siri-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.mine-edge { position: absolute; z-index: 2; top: 0; left: 0; right: 0; height: 180px; border-radius: var(--r) var(--r) 0 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 10%, transparent); mask-image: linear-gradient(#000 10%, transparent); }
+.mine-edge i { position: absolute; inset: 0; border-radius: inherit; padding: 2px;
+  background: conic-gradient(from var(--siri-a), #0a84ff, #bf5af2, #ff375f, #ff9f0a, #ff375f, #64d2ff, #0a84ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.mine-edge i:nth-child(2) { padding: 7px; filter: blur(9px); opacity: .85; }
+:root:not(.still) .mine-edge i { animation: siriTurn 9s linear infinite; }
+@keyframes siriTurn { to { --siri-a: 360deg; } }
 :root:not(.still) .mine-aura i:nth-child(1) { animation: mineDrift1 22s ease-in-out infinite; }
 :root:not(.still) .mine-aura i:nth-child(2) { animation: mineDrift2 26s ease-in-out infinite; }
 :root:not(.still) .mine-aura i:nth-child(3) { animation: mineDrift3 18s ease-in-out infinite; }
 :root:not(.still) .mine-aura i:nth-child(4) { animation: outBreathe 7s ease-in-out infinite; }
 :root:not(.still) .mine-aura i:nth-child(5) { animation: mineSweep 14s ease-in-out infinite; }
-:root:not(.still) .mw-g, :root:not(.still) .mw-1 { animation: mineWave 9s linear infinite; }
-:root:not(.still) .mw-2 { animation: mineWave 13s linear infinite reverse; }
-:root:not(.still) .mine-waves { animation: mineSwell 11s ease-in-out infinite; transform-origin: 50% 72%; }
-@keyframes mineWave { to { translate: -400px 0; } }
-@keyframes mineSwell { 50% { transform: scaleY(.6); } }
 @keyframes mineSweep { 50% { translate: 0 -18px; rotate: 4deg; scale: 1.05 1.3; } }
 @keyframes mineDrift1 {
   0%, 100% { translate: 0 0; border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
@@ -1658,30 +1664,28 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .mine-back:active { transform: scale(.92); }
 @media (hover: hover) { .mine-back:hover { background: var(--bt-round-hover); } }
 .mine-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.mine-subs p.mine-sum { width: fit-content; max-width: 100%; margin: 10px auto 40px; padding: 6px 12px; border-radius: var(--r); color: var(--label);
-  font: 500 13px/1.3 var(--font); text-align: center; font-variant-numeric: tabular-nums;
+.mine-subs p.mine-sum { width: fit-content; max-width: min(34ch, 100%); margin: 10px auto 62px; padding: 7px 14px; border-radius: var(--r); color: var(--label);
+  font: 500 14px/1.4 var(--font); text-align: center; text-wrap: balance;
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 .5px var(--fr-rim); }
 .mine-subs p.mine-sum:empty { visibility: hidden; }
 
-/* Swap: a faint box inside the frost (never glass on glass) */
-.mine-swap { position: relative; margin: 0 0 6px; padding: 16px 16px 14px; border-radius: var(--r); background: var(--fr-in); box-shadow: inset 0 0 0 1px var(--fr-rim); }
-.mine-swap[hidden] { display: none; }
-.mine-swap-h { margin: 0; font: 600 19px/1.25 var(--font); letter-spacing: -.02em; text-wrap: balance; }
-.mine-swap-ey { display: block; width: fit-content; margin-bottom: 4px; font: 600 13px/1.2 var(--font); letter-spacing: 0;
-  background: linear-gradient(90deg, #0a84ff, #bf5af2 60%, #ff4f8b); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.mine-subs p.mine-swap-p { margin: 6px 0 0; color: var(--label2); font: 400 14px/1.4 var(--font); }
-.mine-subs p.mine-save { display: flex; align-items: baseline; gap: 8px; margin: 8px 0 0; color: var(--label2); font: 500 15px/1 var(--font); }
-.mine-save b { color: var(--label); font: 700 34px/1 var(--font-display, var(--font)); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-.mine-back-l { display: grid; margin: 12px 0 0; padding: 0; list-style: none; }
-.mine-back-l li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: .5px solid var(--sep); }
-.mine-back-l li > span { display: grid; gap: 2px; flex: 1; min-width: 0; }
-.mine-back-l b { font: 500 15px/1.25 var(--font); }
-.mine-back-l small { color: var(--label2); font: 400 13px/1.3 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mine-cal { display: inline-flex; align-items: center; gap: 6px; flex: none; height: 36px; padding: 0 12px; border: 0; border-radius: var(--r); cursor: pointer;
+/* Watch before it goes: your Watchlist titles leaving your services soon, in a faint box inside the frost (never glass on glass) */
+.mine-go { margin: 0 0 6px; padding: 4px 16px 6px; border-radius: var(--r); background: var(--fr-in); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.mine-go[hidden] { display: none; }
+.mine-go .mine-sec { margin: 12px 0 2px; }
+.mine-subs p.mine-go-p { margin: 0 0 6px; color: var(--label2); font: 400 14px/1.4 var(--font); }
+.mine-go-l { display: grid; margin: 0; padding: 0; list-style: none; }
+.mine-go-l li { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 0; }
+.mine-go-l li + li { border-top: .5px solid var(--sep); }
+.mine-go-art { flex: none; width: 36px; height: 54px; border-radius: 6px; overflow: hidden; background: var(--fill); box-shadow: 0 0 0 .5px var(--sep); }
+.mine-go-art img { width: 100%; height: 100%; object-fit: cover; }
+.mine-go-t { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.mine-go-t b { font: 500 15px/1.25 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine-go-t small { color: var(--label2); font: 400 13px/1.3 var(--font); }
+.mine-cal { position: relative; display: inline-flex; align-items: center; gap: 6px; flex: none; height: 36px; padding: 0 12px; border: 0; border-radius: var(--r); cursor: pointer;
   color: #fff; background: var(--bt-fill); font: 500 14px/1 var(--font); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
   transition: transform .35s var(--ease-spring), background-color .2s ease; }
 .mine-cal::before { content: ""; position: absolute; inset: -4px; }
-.mine-cal { position: relative; }
 .mine-cal svg { width: 16px; height: 16px; }
 .mine-cal:active { transform: scale(.95); }
 .mine-cal.done { background: color-mix(in srgb, #30d158 80%, #000); }
@@ -1703,12 +1707,6 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .mine-subs .mine-n { margin-top: 3px; font: 400 14px/1.3 var(--font); text-wrap: pretty; }
 .mine-d { flex: none; max-width: 40%; color: var(--label2); font: 500 14px/1.25 var(--font); text-align: right; }
 .mine-row:has(input:checked) .mine-d { color: var(--label); }
-/* Keep, Pause, Worth adding: small badges (not buttons), each in its system colour */
-.mine-d.mine-v { padding: 5px 9px; border-radius: var(--r); font: 600 13px/1.1 var(--font); color: var(--v); background: color-mix(in srgb, var(--v) 15%, transparent);
-  box-shadow: inset 0 0 0 .5px color-mix(in srgb, var(--v) 30%, transparent); }
-.mine-v-keep { --v: #30d158; } .mine-v-pause { --v: #ff9f0a; } .mine-v-add { --v: #0a84ff; }
-:root[data-theme="light"] .mine-v-keep { --v: #248a3d; } :root[data-theme="light"] .mine-v-pause { --v: #c93400; } :root[data-theme="light"] .mine-v-add { --v: #0071e3; }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .mine-v-keep { --v: #248a3d; } :root:not([data-theme="dark"]) .mine-v-pause { --v: #c93400; } :root:not([data-theme="dark"]) .mine-v-add { --v: #0071e3; } }
 .mine-chev { flex: none; width: 18px; height: 18px; margin-left: -4px; color: var(--label2); }
 .mine-row:not(:has(input:checked)) .mine-ic { opacity: .55; filter: saturate(.4); }
 .mine-all { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding: 16px 16px 16px 18px; border-radius: var(--r); cursor: pointer; position: relative;
@@ -1721,8 +1719,7 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .mine-all input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
 .mine-subs.native-sw .mine-all input { position: static; opacity: 1; width: auto; height: auto; margin: 0; accent-color: var(--green); font-size: 17px; }
 .mine-subs.native-sw .mine-all .sw { display: none; }
-.mine-subs p.mine-fine { margin: 14px 4px 0; color: var(--label3, var(--label2)); font: 400 12px/1.45 var(--font); }
-@media (max-width: 380px) { .mine-d:not(.mine-v) { display: none; } .mine-subs .mine-row { gap: 12px; } .mine-subs .mine-ic { width: 44px; height: 44px; } }
+@media (max-width: 380px) { .mine-d { display: none; } .mine-subs .mine-row { gap: 12px; } .mine-subs .mine-ic { width: 44px; height: 44px; } }
 /* phones: a sheet from the bottom, the energy along its top */
 @media (max-width: 600px) {
   .mine-subs { width: 100%; max-width: 100%; margin: auto 0 0; max-height: calc(100dvh - 20px); border-radius: var(--r) var(--r) 0 0; }
@@ -1730,7 +1727,7 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
   :root:not(.still) .mine-subs[open] { animation: mineUp .5s var(--ease-out); }
 }
 @keyframes mineUp { from { transform: translateY(40%); opacity: 0; } }
-@media (prefers-reduced-transparency: reduce) { .mine-subs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (prefers-reduced-transparency: reduce) { .mine-edge i:nth-child(2) { display: none; } .mine-subs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
 
 /* computers: search results fill the sidebar, as they fill the menu on phones (the rest of the sidebar steps aside) */
 @media (min-width: 1000px) {
@@ -2156,6 +2153,8 @@ a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
 .me-n small { font-size: 12px; color: var(--label2); }
 .me-links { display: grid; }
 .me-row-l { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 8px; border-radius: var(--r); color: var(--label); text-decoration: none; transition: background-color .2s ease; }
+button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.me-links-g { margin-top: 12px; padding-top: 8px; box-shadow: 0 -.5px 0 var(--sep); }
 .me-row-l + .me-row-l { box-shadow: 0 -.5px 0 var(--sep); }
 @media (hover: hover) { .me-row-l:hover { text-decoration: none; background: var(--fr-in); box-shadow: none; } .me-row-l:hover + .me-row-l { box-shadow: none; } }
 .me-row-l:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

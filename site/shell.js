@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.77.0';
+  const version = '2.78.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -262,36 +262,84 @@
   };
   // the picker: a card in the iOS Subscriptions style, under a band of Tenner's energy (the goodbye orb's light, let
   // loose: ribbons of blue, cyan, violet and pink drifting and changing shape, two waves of light running through them
-  // and a core that breathes), melting into the frost. A round back button and the title, a line of what you pay, Swap
-  // (keep or pause each service this month), your services under Active and the rest under Inactive (a tap moves one
-  // across), each a rounded card with its logo, and a switch for all six below
+  // and a core that breathes), melting into the frost. A round back button and the title, one line on what the sheet is
+  // for, Watch before it goes (your Watchlist titles about to leave your services), then your services under Active and
+  // the rest under Inactive (a tap moves one across), each a rounded card with its logo and what's waiting for you there,
+  // and a switch for all six below
   const CHEV_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEV_R = '<svg class="mine-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CAL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m9 15 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  // a wave of light: a smooth line that repeats every 400 units, drawn 1600 wide so sliding it 800 along loops seamlessly
-  const wave = (y, a) => `M-400 ${y} Q-300 ${y - a} -200 ${y} T0 ${y}` + [...Array(8)].map((_, i) => ` T${(i + 1) * 200} ${y}`).join('');
-  const AURA = `<div class="mine-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i>
-    <svg class="mine-waves" viewBox="0 0 800 200" preserveAspectRatio="none"><defs><linearGradient id="mineWg" x1="0" x2="1" y1="0" y2="0">
-      <stop offset="0" stop-color="#0a84ff"/><stop offset=".35" stop-color="#64d2ff"/><stop offset=".65" stop-color="#bf5af2"/><stop offset="1" stop-color="#ff4f8b"/></linearGradient></defs>
-      <path class="mw mw-g" d="${wave(140, 22)}"/><path class="mw mw-1" d="${wave(140, 22)}"/><path class="mw mw-2" d="${wave(150, 13)}"/></svg></div>`;
+  const AURA = `<div class="mine-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><canvas class="mine-siri"></canvas></div>
+    <div class="mine-edge" aria-hidden="true"><i></i><i></i></div>`;
+  // The waveform, in the spirit of Siri's: five glowing ribbons of light (blue, purple, pink, orange, cyan), each a wave
+  // that's tallest in the middle and tapers to nothing at the ends, filled as soft lenses and laid over one another so
+  // the light adds up where they cross. Each swells, settles and drifts at its own slow pace, with a fine bright line
+  // through the middle. Drawn on a canvas only while the sheet is open and on screen; one still frame with Animations off.
+  const SIRI = [
+    { c: '10,132,255', k: 3.2, sp: 1.15, sw: .55, so: 0, dx: .35, ds: .21 },
+    { c: '191,90,242', k: 2.6, sp: -.9, sw: .43, so: 1.7, dx: .5, ds: .17 },
+    { c: '255,55,95', k: 3.8, sp: 1.35, sw: .61, so: 3.1, dx: .4, ds: .26 },
+    { c: '255,159,10', k: 2.2, sp: -.7, sw: .37, so: 4.4, dx: .6, ds: .13 },
+    { c: '100,210,255', k: 4.4, sp: 1.6, sw: .69, so: 5.6, dx: .3, ds: .31 },
+  ];
+  function siri(dlg) {
+    const cv = dlg.querySelector('.mine-siri'), ctx = cv.getContext('2d'); if (!ctx) return () => {};
+    let raf = 0, alive = true;
+    const size = () => {
+      const r = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+      if (cv.width !== Math.round(w * r)) { cv.width = Math.round(w * r); cv.height = Math.round(h * r); }
+      ctx.setTransform(r, 0, 0, r, 0, 0); return [w, h];
+    };
+    const frame = (now) => {
+      const [w, h] = size(), t = now / 1000, sum = dlg.querySelector('#mineSum');
+      const mid = Math.min(h - 30, sum ? sum.offsetTop + sum.offsetHeight + 30 : h * .6), amp = Math.min(30, h * .2);
+      const dark = getComputedStyle(cv).getPropertyValue('--siri-dark').trim() === '1';
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
+      for (const pass of [0, 1]) {   // a soft glow underneath, then the ribbons themselves
+        ctx.filter = pass ? 'none' : 'blur(10px)';
+        for (const l of SIRI) {
+          const a = amp * (.25 + .75 * (.5 + .5 * Math.sin(t * l.sw + l.so)) ** 1.6), off = l.dx * Math.sin(t * l.ds + l.so);
+          const y = (x) => { const u = (x / w) * 4 - 2 - off, att = (2 / (2 + u ** 4)) ** 2; return a * att * Math.sin(l.k * u - t * l.sp + l.so); };
+          const g = ctx.createLinearGradient(0, 0, w, 0);
+          const al = (dark ? .55 : .42) * (pass ? 1 : .9);
+          g.addColorStop(0, `rgba(${l.c},0)`); g.addColorStop(.5 + off / 8, `rgba(${l.c},${al})`); g.addColorStop(1, `rgba(${l.c},0)`);
+          ctx.beginPath(); ctx.moveTo(0, mid);
+          for (let x = 0; x <= w; x += 3) ctx.lineTo(x, mid - Math.abs(y(x)));
+          for (let x = w; x >= 0; x -= 3) ctx.lineTo(x, mid + Math.abs(y(x)));
+          ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+        }
+      }
+      ctx.filter = 'none'; ctx.globalCompositeOperation = 'source-over';
+      const line = ctx.createLinearGradient(0, 0, w, 0);
+      line.addColorStop(0, 'rgba(255,255,255,0)'); line.addColorStop(.5, `rgba(255,255,255,${dark ? .75 : .9})`); line.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = line; ctx.fillRect(0, mid - .5, w, 1);
+      if (alive && !reduce() && document.visibilityState === 'visible') raf = requestAnimationFrame(frame); else raf = 0;
+    };
+    const go = () => { if (!raf && alive) raf = requestAnimationFrame(frame); };
+    const vis = () => { if (document.visibilityState === 'visible') go(); };
+    document.addEventListener('visibilitychange', vis); addEventListener('resize', go);
+    frame(performance.now());
+    return () => { alive = false; cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', vis); removeEventListener('resize', go); };
+  }
   function pickMine(list) {
     let dlg = document.getElementById('mineDlg');
     if (!dlg) {
-      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH">${AURA}
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH" aria-describedby="mineSum">${AURA}
         <form method="dialog">
           <div class="mine-top"><button class="mine-back" value="done" aria-label="Done">${CHEV_L}</button><h2 id="mineH">My services</h2></div>
-          <p class="mine-sum" id="mineSum"></p>
-          <section class="mine-swap" id="mineSwap" aria-labelledby="mineSwapH" hidden></section>
+          <p class="mine-sum" id="mineSum">Choose the services you have, and see what’s waiting for you on each one.</p>
+          <section class="mine-go" id="mineGo" aria-labelledby="mineGoH" hidden></section>
           <div id="mineSecs">
             <h3 class="mine-sec" id="mineOnH">Active</h3><div class="mine-list" id="mineOn" role="group" aria-labelledby="mineOnH"></div>
             <h3 class="mine-sec" id="mineOffH">Inactive</h3><div class="mine-list" id="mineOff" role="group" aria-labelledby="mineOffH"></div>
           </div>
           <label class="mine-all"><span class="mine-l">All six services<small>Your Top 10 and Browse cover them all. Turn off to pick just yours. Saved on this device.</small></span>
             <input type="checkbox" switch role="switch" id="mineAll"><i class="sw" aria-hidden="true"></i></label>
-          <p class="mine-fine">Prices are each service’s cheapest UK monthly plan, as a guide. Swap looks at your Watchlist, what’s arriving and what’s leaving; dates are mostly American.</p>
         </form></dialog>`);
       dlg = document.getElementById('mineDlg');
       dlg.addEventListener('close', () => {
+        dlg.stopSiri?.(); dlg.stopSiri = null;
         if (dlg.returnValue !== 'done') return;
         const on = [...dlg.querySelectorAll('.mine-list input:checked')].map((i) => i.value);
         mine.set(on.length === dlg.querySelectorAll('.mine-list input').length ? [] : on);   // all six is the same as none chosen
@@ -299,16 +347,17 @@
       // a tap outside the card, or Escape, keeps what you've picked (the back button's job too)
       dlg.addEventListener('click', (e) => {
         if (e.target === dlg) { dlg.close('done'); return; }
-        const r = e.target.closest('[data-remind]'); if (r) { e.preventDefault(); remind(r, dlg.swap?.back[+r.dataset.remind]); }
+        const r = e.target.closest('[data-remind]'); if (r) { e.preventDefault(); remind(r, dlg.waiting?.go[+r.dataset.remind]); }
       });
       dlg.addEventListener('cancel', (e) => { e.preventDefault(); dlg.close('done'); });
-      // a row moves between Active and Inactive as you tap it, and Swap thinks again with the new set
+      // a row moves between Active and Inactive as you tap it
       const place = () => {
         const rows = [...dlg.querySelectorAll('.mine-row')], on = dlg.querySelector('#mineOn'), off = dlg.querySelector('#mineOff');
         for (const r of rows) (r.querySelector('input').checked ? on : off).append(r);
         dlg.querySelector('#mineOnH').hidden = !on.children.length; dlg.querySelector('#mineOffH').hidden = !off.children.length;
         dlg.querySelector('#mineAll').checked = rows.every((r) => r.querySelector('input').checked);
-        drawSwap(dlg);
+        for (const r of rows) r.querySelector('.mine-d').textContent = r.querySelector('input').checked ? '' : 'Add';
+        drawGo(dlg);
       };
       const move = () => (!reduce() && document.startViewTransition ? document.startViewTransition(place).ready.catch(() => {}) : place());
       dlg.addEventListener('change', (e) => {
@@ -318,7 +367,7 @@
       dlg.place = place;
     }
     const cur = mine.get();
-    dlg.list = list; dlg.swap = null;
+    dlg.list = list; dlg.waiting = null;
     dlg.querySelector('#mineOn').innerHTML = list.map((s, i) => `<label class="mine-row" style="view-transition-name:mine-${i}" data-svc="${esc(s.key)}">
       <span class="mine-ic">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><span class="mine-l">${esc(s.label)}<small class="mine-n"></small></span>
       <span class="mine-d"></span>${CHEV_R}
@@ -327,30 +376,25 @@
     dlg.place();
     dlg.classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari 17.4+: the real iOS switch
     dlg.returnValue = ''; dlg.scrollTop = 0; dlg.showModal();
-    plan(dlg, list);
+    dlg.stopSiri?.(); dlg.stopSiri = siri(dlg);
+    waiting(dlg, list);
   }
 
-  // ---------- Swap: which services to keep this month and which to pause, from your Watchlist ----------
-  // Prices: each service's cheapest UK monthly plan (with adverts where there is one), as a guide. Checked November 2026;
-  // change them here when a service changes its price.
-  const PRICE = { netflix: 7.99, disney: 5.99, prime: 8.99, hbomax: 4.99, paramount: 4.99, appletv: 9.99 };
-  const money = (n) => `£${n.toFixed(2)}`;
+  // ---------- What's waiting on each service: from your Watchlist (what's there now, what's arriving, what's leaving),
+  // or, with nothing saved there, what's trending on it. Where each title streams comes from data/titles.json (and the
+  // search service for anything saved that the charts don't cover, 40 at most); arrivals and leavers from data/new.json;
+  // the services' charts from data/trending.json ----------
+  const SVC_MATCH = { netflix: /^netflix/, disney: /^disney plus/, prime: /^(amazon prime( video)?|prime video)/, hbomax: /^(hbo max|max)( with ads)?$/, paramount: /^paramount plus/, appletv: /^apple ?tv( plus|\+)?$/ };
+  const planOne = new Map(), planP = {};   // each file and title asked for once a visit, however often the sheet opens
+  const planFile = (f) => (planP[f] ||= fetch(`data/${f}.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
   const dayText = (iso) => {
     const n = Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.parse(`${todayIso()}T12:00:00Z`)) / 864e5), d = new Date(`${iso}T12:00:00Z`);
     return n <= 0 ? 'today' : n === 1 ? 'tomorrow' : n < 7 ? `on ${d.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })}` : `on ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })}`;
   };
-  // the planner: how much of your Watchlist each service has now (data/titles.json, and the search service for anything
-  // saved that the charts don't cover, 40 at most), what's arriving there and what's leaving (data/new.json)
-  const SVC_MATCH = { netflix: /^netflix/, disney: /^disney plus/, prime: /^(amazon prime( video)?|prime video)/, hbomax: /^(hbo max|max)( with ads)?$/, paramount: /^paramount plus/, appletv: /^apple ?tv( plus|\+)?$/ };
-  let planP = null, freshP = null; const planOne = new Map();   // each title asked for once a visit, however often the sheet opens
-  const v10 = () => Math.floor(Date.now() / 600000);
-  const planData = () => (planP ||= fetch(`data/titles.json?v=${v10()}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
-  const freshData = () => (freshP ||= fetch(`data/new.json?v=${v10()}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
-  async function plan(dlg, list) {
-    const wl = saved.all().filter((x) => !seen.has(x.k));   // what you've already watched doesn't keep a service
-    if (!wl.length) { dlg.swap = { empty: true }; drawSwap(dlg); return; }
-    const [d, fresh] = await Promise.all([planData(), freshData()]);
+  async function waiting(dlg, list) {
+    const wl = saved.all().filter((x) => !seen.has(x.k));   // what you've already watched isn't waiting for you
+    const [d, fresh, charts] = await Promise.all([wl.length ? planFile('titles') : null, planFile('new'), planFile('trending')]);
     const providers = { ...(d?.providers || {}) }, items = { ...(d?.items || {}) };
     const missing = wl.filter((x) => !items[x.k]).slice(0, 40).map((x) => x.k);
     const one = (k) => { if (!planOne.has(k)) planOne.set(k, fetch(`${api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)); return planOne.get(k); };
@@ -361,78 +405,60 @@
     }).filter(Boolean));
     const want = new Map(wl.map((x) => [x.k, x])), today = todayIso(), month = new Date(Date.parse(`${today}T12:00:00Z`) + 31 * 864e5).toISOString().slice(0, 10);
     const keyOf = (x) => (x.id ? `${x.type === 'movie' ? 'm' : 't'}${x.id}` : null);
-    const mine2 = (l) => (l || []).filter((x) => want.has(keyOf(x)) && x.date);
-    dlg.swap = {
-      known: wl.filter((x) => items[x.k]), where: new Map(wl.filter((x) => items[x.k]).map((x) => [x.k, on(x.k)])),
-      coming: mine2(fresh?.items).filter((x) => x.date > today).sort((a, b) => a.date.localeCompare(b.date)),
-      leaving: mine2(fresh?.leaving).filter((x) => x.date >= today && x.date <= month).sort((a, b) => a.date.localeCompare(b.date)),
+    const ofYours = (l) => (l || []).filter((x) => want.has(keyOf(x)) && x.date).map((x) => ({ ...x, k: keyOf(x), poster: x.poster || want.get(keyOf(x)).poster }));
+    dlg.waiting = {
+      here: (s) => wl.filter((x) => on(x.k).has(s)),
+      coming: ofYours(fresh?.items).filter((x) => x.date > today && x.date <= month).sort((a, b) => a.date.localeCompare(b.date)),
+      leaving: ofYours(fresh?.leaving).filter((x) => x.date >= today && x.date <= month).sort((a, b) => a.date.localeCompare(b.date)),
+      top: (s) => { const c = (charts?.services || []).find((x) => x.key === s); return [...(c?.tv || []).slice(0, 1), ...(c?.movie || []).slice(0, 1)].sort((a, b) => (b.popularity || 0) - (a.popularity || 0))[0] || null; },
+      go: [],
     };
-    drawSwap(dlg);
+    drawGo(dlg);
   }
-  // the verdict for the services as they're set in the sheet right now (so it changes as you tap them across)
-  function drawSwap(dlg) {
-    const list = dlg.list || [], label = (k) => list.find((s) => s.key === k)?.label || k;
+  // each service's grey line, and the Watch before it goes box, for the services as they're set in the sheet right now
+  function drawGo(dlg) {
+    const w = dlg.waiting, box = dlg.querySelector('#mineGo'); if (!w) { box.hidden = true; return; }
+    const label = (k) => dlg.list.find((s) => s.key === k)?.label || k;
     const active = [...dlg.querySelectorAll('.mine-row input:checked')].map((i) => i.value);
-    const total = active.reduce((n, k) => n + (PRICE[k] || 0), 0);
-    dlg.querySelector('#mineSum').textContent = active.length
-      ? `${active.length === list.length ? 'All six' : `${active.length} of ${list.length}`} active · from ${money(total)} a month` : 'None active · pick the services you pay for';
-    const box = dlg.querySelector('#mineSwap'), sw = dlg.swap, rows = [...dlg.querySelectorAll('.mine-row')];
-    const note = (r, text, verdict) => {
-      r.querySelector('.mine-n').textContent = text || '';
-      const dEl = r.querySelector('.mine-d'), on = r.querySelector('input').checked;
-      dEl.className = `mine-d${verdict ? ` mine-v mine-v-${verdict}` : ''}`;
-      dEl.textContent = verdict ? { keep: 'Keep', pause: 'Pause', add: 'Worth adding' }[verdict] : on ? 'Active' : 'Add';
-    };
-    if (!sw) { rows.forEach((r) => note(r, PRICE[r.dataset.svc] ? `From ${money(PRICE[r.dataset.svc])} a month` : '')); box.hidden = true; return; }
-    if (sw.empty || sw.known.length + sw.coming.length + sw.leaving.length < 3) {
-      rows.forEach((r) => note(r, PRICE[r.dataset.svc] ? `From ${money(PRICE[r.dataset.svc])} a month` : ''));
-      box.innerHTML = `<h3 class="mine-swap-h" id="mineSwapH"><span class="mine-swap-ey">Swap</span>Keep or pause, every month</h3>
-        <p class="mine-swap-p">Save a few things to your Watchlist and Tenner will tell you which services to keep this month, which to pause, and when to pick them back up.</p>`;
-      box.hidden = false; return;
+    for (const r of dlg.querySelectorAll('.mine-row')) {
+      const s = r.dataset.svc, here = w.here(s), next = w.coming.find((x) => x.service === s), parts = [];
+      if (here.length) parts.push(here.length === 1 ? `${here[0].title} is on your Watchlist` : `${here.length} on your Watchlist, including ${here[0].title}`);
+      if (next) parts.push(`${next.title}${next.season ? ` season ${next.season}` : ''} arrives ${dayText(next.date)}`);
+      if (!parts.length) { const t = w.top(s); parts.push(t ? `Trending here: ${t.title}` : 'Nothing from your Watchlist here yet'); }
+      r.querySelector('.mine-n').textContent = parts.join(' · ');
     }
-    const { known, where, coming, leaving } = sw;
-    const count = (k) => known.filter((x) => where.get(x.k).has(k)).length;
-    const only = (k) => known.filter((x) => { const w = [...where.get(x.k)].filter((s) => active.includes(s)); return w.length === 1 && w[0] === k; });
-    const v = {};
-    for (const k of active) {
-      const lv = leaving.filter((x) => x.service === k), o = only(k), nx = coming.find((x) => x.service === k), n = count(k);
-      if (lv.length) v[k] = { verdict: 'keep', why: `Watch ${lv[0].title} before it leaves ${dayText(lv[0].date)}` };
-      else if (o.length) v[k] = { verdict: 'keep', why: o.length > 1 ? `${o.length} of your Watchlist are only here` : `${o[0].title} is only here` };
-      else v[k] = { verdict: 'pause', next: nx, why: nx ? `Nothing you’ve saved until ${nx.title} ${dayText(nx.date)}` : n ? `Your ${n === 1 ? 'title here is' : `${n} here are`} on your other services too` : 'Nothing on your Watchlist' };
-    }
-    for (const k of list.map((s) => s.key).filter((k) => !active.includes(k))) {
-      const there = known.filter((x) => where.get(x.k).has(k) && ![...where.get(x.k)].some((s) => active.includes(s))), nx = coming.find((x) => x.service === k);
-      v[k] = there.length >= 2 ? { verdict: 'add', why: `${there.length} of your Watchlist are only on ${label(k)}` }
-        : nx ? { verdict: null, why: `${nx.title} arrives ${dayText(nx.date)}` } : { verdict: null, why: PRICE[k] ? `From ${money(PRICE[k])} a month` : '' };
-    }
-    rows.forEach((r) => note(r, v[r.dataset.svc]?.why, v[r.dataset.svc]?.verdict));
-    const pause = active.filter((k) => v[k].verdict === 'pause'), save = pause.reduce((n, k) => n + (PRICE[k] || 0), 0);
-    const monthName = new Date().toLocaleDateString('en-GB', { month: 'long' }), names = (l) => l.map(label).join(l.length > 2 ? ', ' : ' and ').replace(/, ([^,]*)$/, ' and $1');
-    sw.back = pause.map((k) => v[k].next && { ...v[k].next, label: label(k) }).filter(Boolean);
-    const head = !active.length ? 'Pick the services you pay for' : pause.length === active.length ? `Your Watchlist doesn’t need ${active.length > 1 ? 'any of these' : names(pause)} this month`
-      : pause.length ? `Pause ${names(pause)}` : `Keep ${active.length > 1 ? 'them all' : names(active)} this month`;
-    box.innerHTML = `<h3 class="mine-swap-h" id="mineSwapH"><span class="mine-swap-ey">Swap for ${esc(monthName)}</span>${esc(head)}</h3>
-      ${save ? `<p class="mine-save"><b>${money(save)}</b><span>saved this month</span></p>` : `<p class="mine-swap-p">${active.length ? 'Each one has something on your Watchlist you can’t get on the others.' : 'Tap a service below to add it.'}</p>`}
-      ${sw.back.length ? `<ul class="mine-back-l">${sw.back.map((x, i) => `<li><span><b>Pick ${esc(x.label)} back up ${esc(dayText(x.date))}</b><small>${esc(x.title)}${x.season ? ` season ${x.season}` : ''} arrives</small></span>
-        <button type="button" class="mine-cal" data-remind="${i}" aria-label="${esc(`Add a reminder to pick ${x.label} back up`)}">${CAL_IC}<span>Remind me</span></button></li>`).join('')}</ul>` : ''}`;
-    box.hidden = false;
-    if (save || sw.back.length) featureTip({ id: 'mine-swap', for: '#mineSwap', title: 'Swap', text: 'Tenner checks your Watchlist against what’s arriving and leaving, and tells you which services to keep this month and which you could pause.' });
+    w.go = w.leaving.filter((x) => active.includes(x.service)).slice(0, 5);
+    box.innerHTML = w.go.length ? `<h3 class="mine-sec" id="mineGoH">Watch before it goes</h3>
+      <p class="mine-go-p">From your Watchlist, leaving your services soon.</p>
+      <ul class="mine-go-l">${w.go.map((x, i) => `<li><span class="mine-go-art">${x.poster ? `<img src="${esc(String(x.poster).replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy">` : ''}</span>
+        <span class="mine-go-t"><b>${esc(x.title)}</b><small>Leaves ${esc(label(x.service))} ${esc(dayText(x.date))}</small></span>
+        <button type="button" class="mine-cal" data-remind="${i}" aria-label="${esc(`Remind me to watch ${x.title}`)}">${CAL_IC}<span>Remind me</span></button></li>`).join('')}</ul>` : '';
+    box.hidden = !w.go.length;
+    featureTip({ id: 'mine-waiting', for: '#mineOn', title: 'What’s waiting for you', text: 'Each of your services now shows what’s waiting for you there: titles from your Watchlist, what’s arriving soon, or what’s trending.' });
   }
-  // Remind me: an all-day calendar event on the day the title arrives (the iPhone and Mac open it in Calendar)
+  // Remind me: an all-day calendar event two days before the title leaves (or today, if that's sooner); the iPhone and
+  // Mac open it in Calendar
   function remind(b, x) {
     if (!x) return;
-    const d = x.date.replace(/-/g, ''), end = new Date(Date.parse(`${x.date}T12:00:00Z`) + 864e5).toISOString().slice(0, 10).replace(/-/g, '');
-    const k = `${x.type === 'movie' ? 'm' : 't'}${x.id}`, link = `https://tenner.stream/?t=${k}`, what = `${x.title}${x.season ? ` season ${x.season}` : ''}`;
+    const on = new Date(Math.max(Date.parse(`${todayIso()}T12:00:00Z`), Date.parse(`${x.date}T12:00:00Z`) - 2 * 864e5)), d = on.toISOString().slice(0, 10).replace(/-/g, '');
+    const end = new Date(+on + 864e5).toISOString().slice(0, 10).replace(/-/g, ''), svc = SVC_LABEL[x.service] || 'its service';
+    const link = `https://tenner.stream/?t=${x.k}`, leaves = new Date(`${x.date}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
     const txt = (t) => t.replace(/[\;,]/g, (c) => `\\${c}`), fold = (line) => line.replace(/(.{72})/g, '$1\r\n ').replace(/\r\n $/, '');
-    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tenner//Swap//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
-      `UID:swap-${x.service}-${k}-${d}@tenner.stream`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${end}`,
-      fold(`SUMMARY:${txt(`Pick ${x.label} back up: ${what}`)}`), fold(`DESCRIPTION:${txt(`${what} arrives on ${x.label} today. ${link}`)}`), `URL:${link}`,
-      'TRANSP:TRANSPARENT', 'BEGIN:VALARM', 'ACTION:DISPLAY', fold(`DESCRIPTION:${txt(`${what} is on ${x.label} today`)}`), 'TRIGGER:PT9H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tenner//Watch before it goes//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+      `UID:leaving-${x.service}-${x.k}-${x.date}@tenner.stream`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${end}`,
+      fold(`SUMMARY:${txt(`Watch ${x.title} before it leaves ${svc}`)}`), fold(`DESCRIPTION:${txt(`${x.title} leaves ${svc} on ${leaves}. ${link}`)}`), `URL:${link}`,
+      'TRANSP:TRANSPARENT', 'BEGIN:VALARM', 'ACTION:DISPLAY', fold(`DESCRIPTION:${txt(`${x.title} leaves ${svc} on ${leaves}`)}`), 'TRIGGER:PT18H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     const a = document.createElement('a'); a.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
-    if (!isIOS) a.download = `${`Pick ${x.label} back up`.replace(/[^\w +]+/g, '').trim()}.ics`;   // iPhone and iPad: Safari opens it straight into Calendar
+    if (!isIOS) a.download = `${`Watch ${x.title}`.replace(/[^\w ]+/g, '').trim() || 'Tenner'}.ics`;   // iPhone and iPad: Safari opens it straight into Calendar
     document.body.append(a); a.click(); a.remove(); haptic(10);
     b.classList.add('done'); b.querySelector('span').textContent = 'Added';
   }
+  // My services from anywhere: the six services with their logos (from this hour's charts)
+  const openMine = () => planFile('trending').then((t) => {
+    const logo = Object.fromEntries((t?.services || []).map((x) => [x.key, x.logo]));
+    pickMine(Object.keys(SVC_LABEL).map((k) => ({ key: k, label: SVC_LABEL[k], logo: logo[k] })));
+  });
+  const SVC_LABEL = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
 
   // ---------- Share: the phone's own share sheet where there is one, otherwise the share card ----------
   // As on Channel Crossings: on phones and tablets the system share sheet; on computers a black card (a native modal
@@ -1040,6 +1066,7 @@
       acct: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.8 19.5c1.2-3.6 4-5.3 7.2-5.3s6 1.7 7.2 5.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
       list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
       set: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+      tv: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8.5 20.5h7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
       chev: '<svg class="me-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
     // signed out: the dropdown signs you in (Google, email and password, or a passkey) or makes you an account, right
@@ -1069,7 +1096,7 @@
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
       root.innerHTML = `<div class="me-hd me-hd-g" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
-        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>`;
+        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>${root.id === 'meBody' ? `<nav class="me-links me-links-g" aria-label="Tenner">${mineRow(3)}</nav>` : ''}`;
       const say = (t, bad) => { const n = q('.me-msg'); n.textContent = t; n.classList.toggle('bad', !!bad); };
       if (o.note) say(o.note, o.bad);
       const go = (mode, more = {}) => { Object.assign(o, { note: '', bad: false }, more, { mode }); guestForm(root, o); q('.me-in:not([readonly])')?.focus(); };
@@ -1113,6 +1140,8 @@
         }
       });
     }
+    // My services, from the pill: the sheet's own button (a row like the links), signed in or not
+    const mineRow = (i) => `<button type="button" class="me-row-l" data-me-mine style="--i:${i}"><i>${ME_I.tv}</i><span><b>My services</b><small>See what’s waiting for you</small></span>${ME_I.chev}</button>`;
     function fillMenu() {
       const u = account.user(); if (!u) return guestForm($('#meBody'));
       const off = navigator.onLine === false;
@@ -1124,7 +1153,7 @@
       $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
         <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
         <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
-        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved · ${svc} service${svc === 1 ? '' : 's'}`, 5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
+        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`, 5)}${mineRow(5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
     }
     const menu = () => $('#meMenu'), card = () => $('#bxMeCard');
     function openMenu(tapped) {   // tapped: you opened it (a buzz); the account page opening it for you stays quiet
@@ -1143,6 +1172,7 @@
       if (focus) card().focus();
     }
     $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu(true) : closeMenu()));
+    menu().addEventListener('click', (e) => { if (e.target.closest('[data-me-mine]')) { closeMenu(); openMine(); } });
     // the account page (signed out) opens the dropdown where there's a pill, or draws the same form into the page
     tnSignIn = (o, inline) => {
       guest = { mode: 'in', ...o };
@@ -1394,7 +1424,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
   // the Update centre introduces itself once, at the build number in the menu (on phones, when the menu's open)
   if (!onPage('updates')) featureTip({ id: 'update-centre', for: '.side-ver', title: 'What’s new', text: 'Tap the build number to open the Update centre: every Tenner update, with its date, what changed and any notes.' });
 
