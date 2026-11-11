@@ -506,3 +506,6 @@ body.browse { overflow-x: clip; }
 .as-list .ranked .t-add { position: relative; top: auto; right: auto; }
 .as-list .g-sub + .tile, .as-list .g-sub + .tile + .tile { border-top: 0; }
 @container res (width < 640px) { .as-list .g-sub + .tile + .tile { border-top: .5px solid var(--sep); } }
+/* the names stay readable over any artwork: a soft halo in the page's own colour */
+.has-feat .b-rail small { text-shadow: 0 0 6px var(--bg), 0 0 2px var(--bg), 0 0 12px var(--bg); }
+.has-feat .b-rail .bx-svc-b { color: var(--label); }
