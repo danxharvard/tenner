@@ -1,10 +1,9 @@
 /* Tenner's Christmas calendar (advent.js): a night-sky sheet of 25 doors, each a rich tone with a gold drawing and
    number; a door swings open on its hinge to show a poster, and the pick comes forward on a card. Night-themed in Day and
-   Night alike, like the Christmas slide it opens from. Corners are --r throughout; buttons are the navy ones. */
+   Night alike, like the Christmas slide it opens from, inside the popups' one frame (styles.css). Corners are --r throughout; buttons are the navy ones. */
 dialog.adv { width: min(900px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: 0; overflow: hidden;
   border-radius: var(--r); color: #fff; background: #080d28; transform-origin: 0 0;
   box-shadow: 0 0 0 .5px rgba(255, 255, 255, .14), 0 0 0 1px rgba(255, 214, 120, .12), 0 50px 120px -30px rgba(0, 0, 0, .85); }
-dialog.adv::backdrop { background: rgba(3, 5, 18, .58); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); }
 .adv-sc { position: relative; isolation: isolate; max-height: calc(100dvh - 32px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 26px 28px 30px;
   background: radial-gradient(1.2px 1.2px at 14% 62%, rgba(255, 255, 255, .55), transparent), radial-gradient(1px 1px at 70% 74%, rgba(255, 255, 255, .45), transparent),
     radial-gradient(1.2px 1.2px at 40% 88%, rgba(255, 255, 255, .5), transparent), radial-gradient(1px 1px at 88% 56%, rgba(255, 255, 255, .45), transparent),
@@ -21,9 +20,8 @@ dialog.adv::backdrop { background: rgba(3, 5, 18, .58); -webkit-backdrop-filter:
 
 .adv-hd { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
 .adv-logo { flex: none; width: 46px; height: 46px; filter: drop-shadow(0 4px 14px rgba(0, 0, 0, .5)); }
-.adv-eye { margin: 0; font: 600 12px/1.2 var(--font); letter-spacing: .14em; text-transform: uppercase; color: #ffd36b; }
-.adv-hd h2 { margin: 3px 0 4px; font: 800 clamp(28px, 3.6vw, 40px)/1.04 var(--font-display); letter-spacing: -.03em; text-shadow: 0 2px 24px rgba(0, 0, 0, .45);
-  background: linear-gradient(#fff, #fff 55%, #ffe7b0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.adv-eye { margin: 0; font: 600 13px/1.2 var(--font); color: #ffd36b; }
+.adv-hd h2 { margin: 3px 0 4px; color: #fff; }   /* the popups' one heading (styles.css) */
 .adv-sub { margin: 0; max-width: 560px; font-size: 15px; line-height: 1.4; color: rgba(255, 255, 255, .8); }
 .adv-x { flex: none; align-self: flex-start; margin-left: auto; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
   background: var(--bt-round); color: #fff; cursor: pointer; }

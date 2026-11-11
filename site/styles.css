@@ -2194,26 +2194,33 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
 
 /* ============================================================ Popups: one look for every sheet and alert (Help me choose,
    My services, a title's sheet, a person's sheet, Browse's filters, Share, Sign out, Delete account, Move to another
-   device and the rest). The one frost and corner with its fine rim, lit like the Contact card: a soft light in the
-   middle of the top edge (a fine line in the accent colour, fading out at both ends) that glows gently down into the
-   sheet and underneath it; one dimmed, blurred backdrop; one heading. A photo held up close (.ps-zoom), the Christmas
-   calendar and the menu drawers keep their own. */
-:is(.mine-dlg, .sheet, .fsheet, .share-card) {
+   device, the Christmas calendar, the menu drawers and a photo held up close). The one frost and corner with its fine
+   rim, lit like the Contact card: a soft light in the middle of the top edge (a fine line in the accent colour, fading
+   out at both ends) that glows gently down into the sheet and underneath it; one dimmed, blurred backdrop; one heading.
+   The calendar keeps its night scene inside the frame. */
+:is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure) {
   --tone: var(--accent, #0a84ff);
   border: 0; border-radius: var(--r); color: var(--label);
   background: radial-gradient(65% 170px at 50% 0, color-mix(in srgb, var(--tone) 15%, transparent), transparent), var(--fr-bg) !important;
   -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 100px -24px rgba(0, 0, 0, .6), 0 40px 90px -40px color-mix(in srgb, var(--tone) 50%, transparent) !important;
 }
-:is(.mine-dlg, .sheet, .fsheet, .share-card)::before { content: ""; position: absolute; z-index: 5; top: 0; left: 14%; right: 14%; height: 1px; pointer-events: none;
+:is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure)::before { content: ""; position: absolute; z-index: 5; top: 0; left: 14%; right: 14%; height: 1px; pointer-events: none;
   background: linear-gradient(90deg, transparent, var(--tone), transparent); }
-:is(.mine-dlg, .fsheet, .share-card)::backdrop { background: rgba(0, 0, 0, .42); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); }
+:is(.mine-dlg, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom)::backdrop { background: rgba(0, 0, 0, .42); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); }
 .sheet.in::backdrop { -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); }
 /* the heading of an alert or a sheet of choices (a title's or a person's sheet keeps its name large) */
-:is(.mine-dlg, .share-card) h2 { font: 700 22px/1.2 var(--font) !important; letter-spacing: -.02em !important; text-wrap: balance; }
+:is(.mine-dlg, .share-card) h2, .adv-hd h2 { font: 700 22px/1.2 var(--font) !important; letter-spacing: -.02em !important; text-wrap: balance; }
 /* Share: the site's buttons and grey words, in place of the old black card's white buttons */
 .share-card .sc-b { background: var(--bt-fill); color: #fff; box-shadow: none; -webkit-font-smoothing: antialiased; }
 @media (hover: hover) { .share-card .sc-b:hover { background: color-mix(in srgb, var(--bt-fill) 85%, #fff); } }
 .share-card p { color: var(--label2); }
-@media (prefers-reduced-transparency: reduce) { :is(.mine-dlg, .sheet, .fsheet, .share-card) { background: var(--bg2) !important; -webkit-backdrop-filter: none; backdrop-filter: none; } }
-@media (forced-colors: active) { :is(.mine-dlg, .sheet, .fsheet, .share-card)::before { display: none; } }
+@media (prefers-reduced-transparency: reduce) { :is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure) { background: var(--bg2) !important; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (forced-colors: active) { :is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure)::before { display: none; } }
+/* the calendar: its night scene fills the frame, so the frame's light sits on top of it; its title is the popups' one heading */
+dialog.adv { position: fixed; }
+/* a photo held up close: the photo and the name on a frosted card */
+.ps-zoom figure { position: relative; padding: 28px 28px 22px; border-radius: var(--r); }
+.ps-zoom figcaption { color: var(--label); text-shadow: none; }
+.ps-zf { box-shadow: 0 0 0 .5px var(--fr-rim), 0 24px 60px -20px rgba(0, 0, 0, .5); }
+.drawer { box-shadow: inset 0 0 0 1px var(--fr-rim), 0 30px 80px rgba(0, 0, 0, .45) !important; }
