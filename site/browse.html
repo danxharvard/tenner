@@ -45,8 +45,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.69.4">
-  <link rel="stylesheet" href="browse.css?v=2.69.4">
+  <link rel="stylesheet" href="styles.css?v=2.70.0">
+  <link rel="stylesheet" href="browse.css?v=2.70.0">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -92,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.69.4</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.70.0</a>
     </div>
   </div>
 
@@ -109,6 +109,8 @@
     <section class="spot" id="spot" aria-roledescription="carousel" aria-label="Featured">
       <div class="spot-bg" aria-hidden="true"><div class="spot-ext" id="spotExt"></div><div class="spot-art" id="spotArt"></div><div class="spot-wash"></div></div>
       <h1 class="spot-h"><em class="grad">Browse</em></h1>
+      <!-- the services, as on Home: a rail of app icons that keeps everything to the ones you tap (All six for every service) -->
+      <nav class="bx-rail b-rail" id="svcRail" aria-label="Services"></nav>
       <div class="spot-feat" id="spotFeat" aria-live="polite" hidden>
         <p class="spot-eye" id="spotEye"></p>
         <h2 class="spot-t"><button type="button" id="spotT"></button></h2>
@@ -156,7 +158,9 @@
 
     <section class="results" aria-labelledby="count">
       <div class="r-bar">
-        <h2 id="count" class="count" aria-live="polite">Loading…</h2>
+        <div class="r-hd"><h2 id="count" class="count" aria-live="polite">Loading…</h2>
+          <p class="r-note" id="rNote" hidden>Every service combined, updated every hour</p></div>
+        <a class="btn btn-tinted r-bysvc" id="bySvc" href="charts.html#top10" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a>
         <label class="dd r-sort"><span class="dd-l" id="sortL">Most popular</span><span class="dd-chev" aria-hidden="true"></span>
           <select id="sortSel" aria-label="Sort by"></select></label>
         <button type="button" class="rb b-dice" aria-label="Surprise me" title="Surprise me: a good one at random"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/></svg></button>
@@ -215,10 +219,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.69.4" defer></script>
-  <script src="links.js?v=2.69.4" defer></script>
-  <script src="sheet.js?v=2.69.4" defer></script>
-  <script src="person.js?v=2.69.4" defer></script>
-  <script src="browse.js?v=2.69.4" defer></script>
+  <script src="shell.js?v=2.70.0" defer></script>
+  <script src="links.js?v=2.70.0" defer></script>
+  <script src="sheet.js?v=2.70.0" defer></script>
+  <script src="person.js?v=2.70.0" defer></script>
+  <script src="browse.js?v=2.70.0" defer></script>
 </body>
 </html>

@@ -465,3 +465,47 @@ body.browse { overflow-x: clip; }
 @keyframes spLift { to { translate: 0 -36px; opacity: .15; } }
 @keyframes moodFan { from { translate: 26px 14px; opacity: .4; } }
 
+
+/* ---------- the services rail (styles.css's .bx-rail, as on Home), under the heading ---------- */
+.b-rail { flex: none; margin-top: 14px; }
+@media (min-width: 1000px) { .b-rail { margin-inline: -10px 0; } }
+.spot:not(.has-feat) .b-rail { margin-bottom: 4px; }
+
+/* ---------- the results' heading: the count, and for the Top 10 a line under it and By service ---------- */
+.r-hd { flex: 1 1 auto; min-width: 0; }
+.r-hd .count { display: block; }
+.r-note { margin: 3px 0 0; font-size: 14px; letter-spacing: -.01em; color: var(--label2); }
+.r-bysvc { flex: none; height: 36px; padding: 0 14px 0 12px; gap: 6px; font-size: 15px; }
+.r-bysvc svg { width: 16px; height: 16px; }
+.r-bysvc::after { content: ""; position: absolute; inset: -4px 0; }   /* a 44pt target */
+@container res (width < 420px) { .r-hd { flex-basis: 100%; } }
+/* the Top 10 is a chart, not a list to sort or filter: those step aside while it's showing */
+.charting .r-sort, .charting .b-dice, .charting #chips { display: none !important; }
+
+/* ---------- the Top 10's places: a big still number on each poster (top left), drawn once, no effects ---------- */
+.tile a { position: relative; }
+.rk { position: absolute; z-index: 2; top: 4px; left: 10px; color: #fff; font: 800 44px/1 var(--font-display); letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .55), 0 0 2px rgba(0, 0, 0, .35); pointer-events: none; }
+.ranked .art::before { content: ""; position: absolute; inset: 0 0 auto; height: 40%; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0, 0, 0, .45), transparent); }
+.ranked .score { z-index: 2; }
+/* shows, then films: a heading across the grid before each */
+.g-sub { grid-column: 1 / -1; margin: 6px 0 -12px; font: 600 17px/1.2 var(--font); letter-spacing: -.016em; color: var(--label); }
+.g-sub:not(:first-child) { margin-top: 18px; }
+.as-list .g-sub { margin: 18px 0 4px; border: 0; }
+.as-list .g-sub:first-child { margin-top: 0; }
+/* the list view: the place in its own narrow column before the poster */
+.as-list .ranked a { grid-template-columns: 28px 40px minmax(0, 1fr) auto; }
+.as-list .rk { position: static; grid-column: 1; grid-row: 1 / span 3; font: 600 19px/1 var(--font); letter-spacing: -.02em; color: var(--label2); text-shadow: none; text-align: center; }
+.as-list .ranked .art { grid-column: 2; }
+.as-list .ranked .t, .as-list .ranked .kind-l, .as-list .ranked .m { grid-column: 3; }
+.as-list .ranked .l-r { grid-column: 4; }
+.as-list .ranked .art::before { display: none; }
+/* the place takes the poster's top left, so + moves under the score on the right */
+.ranked .t-add { left: auto; right: 8px; top: 40px; }
+.charting .kind-l { display: none; }
+.as-list .ranked .t-add { position: relative; top: auto; right: auto; }
+.as-list .g-sub + .tile, .as-list .g-sub + .tile + .tile { border-top: 0; }
+@container res (width < 640px) { .as-list .g-sub + .tile + .tile { border-top: .5px solid var(--sep); } }
+/* the names stay readable over any artwork: a soft halo in the page's own colour */
+.has-feat .b-rail small { text-shadow: 0 0 6px var(--bg), 0 0 2px var(--bg), 0 0 12px var(--bg); }
+.has-feat .b-rail .bx-svc-b { color: var(--label); }
