@@ -45,7 +45,7 @@ jobs:
             nw=$(curl -s -m 30 "$LIVE/data/new.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s);console.log(d.disabled||(d.items||[]).length?"ok":"empty: the Watchmode step failed (is the WATCHMODE_API_KEY secret right?)")}catch{console.log("unreadable")}})')
             [ "$nw" = ok ] || echo "update.yml|New This Week is $nw"
             # the Update centre: its newest entry must be the version the live site is on (added by each build)
-            sv=$(curl -s -m 30 "$LIVE/shell.js?v=$(date +%s)" | grep -oE "const version = '[0-9.]+'" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            sv=$(curl -s -m 30 "$LIVE/?v=$(date +%s)" | grep -oE 'shell\.js\?v=[0-9.]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')   # the version the page loads (shell.js itself goes up minified)
             uv=$(curl -s -m 30 "$LIVE/updates.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(JSON.parse(s)[0].version)}catch{console.log("unreadable")}})')
             [ -z "$sv" ] || [ "$uv" = "$sv" ] || echo "update.yml|the Update centre lists $uv, but the site is on $sv"
             # each title's own page on Netflix, Disney+, Prime Video, HBO Max and Apple TV (looked up on Wikidata by the

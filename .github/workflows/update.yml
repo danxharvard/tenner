@@ -62,6 +62,15 @@ jobs:
           WATCHMODE_API_KEY: ${{ secrets.WATCHMODE_API_KEY }}
           SITE_URL: ${{ env.LIVE }}
 
+      # the scripts and styles go up minified (about a third smaller once compressed, so pages draw sooner); the copies in
+      # git stay readable. esbuild writes nothing if anything fails, so the readable copies go up instead and the site
+      # still deploys. The service worker and the QR code library (its licence header, and only Settings loads it) are left.
+      - name: Shrink scripts and styles
+        if: steps.gate.outputs.go == 'yes'
+        continue-on-error: true
+        working-directory: site
+        run: npx --yes esbuild@0.24.0 $(ls *.js *.css | grep -vx 'sw.js\|qrcode.js') --minify --charset=utf8 --outdir=. --allow-overwrite --log-level=warning
+
       # the built site (with this hour's data and title pages) is handed to the deploy job below
       - uses: actions/upload-artifact@v4
         if: steps.gate.outputs.go == 'yes'
