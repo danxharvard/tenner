@@ -9,6 +9,7 @@
 .set-row:hover { text-decoration: none; }   /* the Account row is a link: no underline on hover */
 .set-l { display: grid; gap: 2px; min-width: 0; }
 .set-l small { color: var(--label2); font-size: 13px; }
+.set-state { font-weight: 600; color: var(--label); }   /* On. or Off. at the start of a status line */
 .set-row select { flex: none; width: 172px; max-width: 55%; text-overflow: ellipsis; height: 36px; padding: 0 28px 0 12px; border: 0; border-radius: var(--r); font: 500 15px/1 var(--font); color: var(--label); appearance: none; cursor: pointer;
   background: var(--frost) var(--pop-chev) no-repeat right 11px center / 8px 13px; box-shadow: var(--frost-line); }
 .set-row input[type="checkbox"] { position: absolute; opacity: 0; width: 1px; height: 1px; }

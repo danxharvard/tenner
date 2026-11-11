@@ -143,16 +143,22 @@
   }
   // ---------- Watchlist alerts (shell.js tn.alerts, sent by the Worker) ----------
   const al = document.getElementById('setAlerts'), alNow = document.getElementById('alNow');
+  // a status line that starts with On. or Off. shows that word in bold
+  const putState = (el, t) => {
+    const m = /^(On|Off)\. (.*)$/s.exec(t); el.textContent = '';
+    if (!m) { el.textContent = t; return; }
+    const b = document.createElement('b'); b.className = 'set-state'; b.textContent = `${m[1]}.`; el.append(b, ` ${m[2]}`);
+  };
   const AL_TEXT = {
     on: 'On. You’ll hear when something you’ve saved arrives, has a new episode or is about to leave',
-    off: 'A notification when something you’ve saved arrives, has a new episode or is about to leave',
-    blocked: 'Notifications are turned off for Tenner in your browser’s settings',
+    off: 'Off. Turn on for a notification when something you’ve saved arrives, has a new episode or is about to leave',
+    blocked: 'Off. Notifications are turned off for Tenner in your browser’s settings',
     install: 'On iPhone and iPad: add Tenner to your Home Screen first (Share, then Add to Home Screen), then open it from there',
     unsupported: 'This browser can’t show notifications from websites',
   };
   async function showAlerts(st) {
     st ||= await window.tn.alerts.state();
-    al.checked = st === 'on'; al.disabled = st === 'install' || st === 'unsupported' || st === 'blocked'; alNow.textContent = AL_TEXT[st];
+    al.checked = st === 'on'; al.disabled = st === 'install' || st === 'unsupported' || st === 'blocked'; putState(alNow, AL_TEXT[st]);
   }
   al.addEventListener('change', async () => {
     al.disabled = true;
@@ -271,9 +277,9 @@
     document.getElementById('setAlMore').hidden = !u;
     if (u) window.tn.tip?.({ id: 'alert-choices', for: '#setAlMore > summary', title: 'Choose your alerts', text: 'Pick which Watchlist alerts you get, and set quiet hours so nothing arrives overnight. They follow you on every device you sign in on.' });
     const dg = document.getElementById('setDigest'); dg.disabled = !u; dg.checked = !!u && !!prefs.get().digest;
-    document.getElementById('dgNow').textContent = !u ? 'Sign in to get a short round-up of your Watchlist each Sunday morning'
+    putState(document.getElementById('dgNow'), !u ? 'Sign in to get a short round-up of your Watchlist each Sunday morning'
       : dg.checked ? 'On. Each Sunday morning: new episodes, arrivals and what’s leaving from your Watchlist, sent to your account’s email'
-      : 'A short round-up each Sunday morning: new episodes, arrivals and what’s leaving from your Watchlist';
+      : 'Off. Turn on for a short round-up each Sunday morning: new episodes, arrivals and what’s leaving from your Watchlist');
   };
   acct(); addEventListener('tn:account', acct); addEventListener('tn:prefs', acct);
   window.tn.tip?.({ id: 'settings-more', for: '.set-more:not([hidden]) > summary', title: 'More settings', text: 'The everyday settings sit at the top of each group. Open More for the rest: they all still work the same.' });

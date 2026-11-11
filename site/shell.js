@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.80.0';
+  const version = '2.81.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1100,7 +1100,7 @@
         <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
         <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
         <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`, 5)}${mineRow(5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}${shareRow(6)}</nav>
-        <div class="me-share" style="--i:7"><label class="me-share-row"><span><b>Share your Watchlist</b><small>${u.share_id ? 'Anyone with the link can see it' : 'Off, so only you can see it'}</small></span>
+        <div class="me-share" style="--i:7"><label class="me-share-row"><span><b>Share your Watchlist</b><small>${u.share_id ? '<b class="set-state">On.</b> Anyone with the link can see it' : '<b class="set-state">Off.</b> Only you can see it'}</small></span>
           <input type="checkbox" switch role="switch" id="meShare"${u.share_id ? ' checked' : ''} aria-label="Share your Watchlist with a public link"><i class="sw" aria-hidden="true"></i></label>
           ${u.share_id ? `<div class="me-share-link"><span>${esc(`${location.origin}/list.html?u=${u.share_id}`)}</span><button type="button" class="me-copy" id="meCopy">Copy</button></div>` : ''}</div>`;
     }

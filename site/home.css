@@ -47,7 +47,9 @@ body.home { overflow-x: clip; }
 /* phones: just the Top 10 and Top rated, as rows of poster cards to swipe (home.js's phoneRows); the featured title, the
    services, For you and the side boxes are for bigger screens */
 @media (max-width: 719px) {
-  .bx-hd .bx-rail, .bx-side, .bx-amb, .bd-ext { display: none; }
+  .bx-hd .bx-rail, .bx-amb, .bd-ext { display: none; }
+  .bx-side > :not(#discover) { display: none; }   /* phones keep just Discover from the side column */
+  #discover { scroll-margin-top: 70px; }
   .bx-hero { margin-top: 10px; }
   .bx-h-acts { flex-wrap: wrap; }
   .bx-pc-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

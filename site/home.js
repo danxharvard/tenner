@@ -11,7 +11,7 @@
   // Tenner on" go straight to the charts
   {
     const h = location.hash.slice(1), start = window.tn.prefs.get().start;
-    const chart = /^(new|top10|watchlist|week)$/.test(h);
+    const chart = /^(new|top10|watchlist|week)$/.test(h);   // (#discover stays here: Discover lives on this page)
     let first = true; try { first = !sessionStorage.getItem('tenner-opened'); sessionStorage.setItem('tenner-opened', '1'); } catch {}
     const opener = first && !h && !location.search && ['new', 'top10', 'watchlist'].includes(start);
     if (chart || opener) { location.replace(`charts.html${location.search}#${chart ? h : start}`); return; }
@@ -509,7 +509,7 @@
     fy.sig = ''; if (!signedIn() || !state.cat?.items) return '';
     const head = (sub, acts = '') => `<header class="bx-sec-hd"><div><h2 id="bxFy">For you</h2><p>${sub}</p></div>${acts}</header>`;
     if (!window.tn.swipes.liked().length && !window.tn.stars.all().length) return `<section class="bx-sec bx-fy-none" aria-labelledby="bxFy">
-      ${head('Swipe right on a few titles in Discover and Tenner will find more you’ll like.', `<a class="btn btn-tinted bx-fy-go" href="discover.html">${I.mark}Open Discover</a>`)}</section>`;
+      ${head('Swipe right on a few titles in Discover and Tenner will find more you’ll like.', `<a class="btn btn-tinted bx-fy-go" href="#discover" data-go-dc>${I.mark}Go to Discover</a>`)}</section>`;
     if (!fy.ready) return `<section class="bx-sec" aria-labelledby="bxFy" aria-busy="true">${head('Finding picks from what you’ve liked in Discover')}
       <ul class="bx-row bx-row-p bx-fy-sk" aria-hidden="true">${'<li><span class="bx-pc-art"></span></li>'.repeat(8)}</ul></section>`;
     const ks = kinds(), r = window.tn.forYou(state.cat.items, (x) => ks.includes(x.t) && pickedAny(x.s) && (state.genre == null || (x.g || []).includes(+state.genre)), fy.like);
@@ -609,6 +609,8 @@
     if (!state.data) return;
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
+    // Discover lives here now: old links (discover.html, About, Tenner TV) arrive at #discover, once, and land on its box
+    if (location.hash === '#discover' && !drawSide.landed) { drawSide.landed = true; requestAnimationFrame(() => $('#discover')?.scrollIntoView({ block: PHONE.matches ? 'start' : 'center', behavior: 'auto' })); }
     if ($('#bxTt') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxTt', title: 'One Top 10 for the UK',
       text: 'This chart combines every service. The services you pick at the top only change the slideshow and the rows on the left; By service has each one’s own chart.' });
   }
@@ -637,10 +639,10 @@
   }
   function discover() {
     const it = deck();
-    const head = `<header class="bx-panel-hd"><h2 id="bxDc">Discover</h2><a class="btn btn-tinted bx-hd-btn" href="discover.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6" fill="currentColor"/></svg>Open</a></header>`;
-    if (!it) return `<section class="bx-panel panel" aria-labelledby="bxDc">${head}<p class="bx-panel-say">You’ve seen everything here for now. Try another service or genre, or come back after the next update.</p></section>`;
+    const head = `<header class="bx-panel-hd"><h2 id="bxDc">Discover</h2></header>`;
+    if (!it) return `<section class="bx-panel panel" id="discover" aria-labelledby="bxDc">${head}<p class="bx-panel-say">You’ve seen everything here for now. Try another service or genre, or come back after the next update.</p></section>`;
     const info = infoFor(it, 'Discover'), labels = (it.on || []).map((k) => svcOf(k)?.label).filter(Boolean).slice(0, 2).join(', ');
-    return `<section class="bx-panel panel bx-dc" aria-labelledby="bxDc">${head}
+    return `<section class="bx-panel panel bx-dc" id="discover" aria-labelledby="bxDc">${head}
       <p class="bx-panel-say bx-dc-say">Right to save, left to skip</p>
       <a class="bx-dc-card" id="bxDcCard" href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(info)} draggable="false">
         <span class="bx-dc-art">${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w500/'))}" alt="" draggable="false">` : ph(it.title)}</span>
