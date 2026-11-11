@@ -134,27 +134,8 @@ body.home { overflow-x: clip; }
 }
 @media (max-width: 380px) { .bx-score dd { font-size: 10.5px; } .bx-score div { padding: 0 9px; } .bx-cta { padding: 0 16px 0 14px; } }
 
-/* ---------- the services: a rail of app icons (the first reference's left-hand rail) ---------- */
-.bx-rail { display: flex; flex: 1; min-width: 0; gap: 6px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 6px; overflow-x: auto; scrollbar-width: none; scroll-padding-inline: var(--gutter); }
-.bx-rail::-webkit-scrollbar { display: none; }
-@media (min-width: 1000px) { .bx-rail { margin-inline: 0; padding-inline: 0; flex-wrap: wrap; } }
 /* phones: the menu on its own line at the right, the services scrolling full width beneath it */
 @media (max-width: 719px) { .bx-hd { flex-wrap: wrap; gap: 8px; } .bx-dds { order: -1; margin: 0 0 0 auto; max-width: 100%; } .bx-hd .dd-kind { flex: none; } .bx-hd #bxGenDD { flex: 0 1 auto; } .bx-rail { flex-basis: 100%; } }
-.bx-svc-b { position: relative; display: grid; justify-items: center; gap: 7px; flex: none; width: 76px; padding: 6px 0 10px; border: 0; border-radius: var(--r); background: none; color: var(--label2); cursor: pointer; font: 500 12px/1.2 var(--font); -webkit-tap-highlight-color: transparent; }
-.bx-svc-b small { font: inherit; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bx-app { display: grid; place-items: center; width: 54px; height: 54px; overflow: hidden; border-radius: 12px; color: #fff; font: 700 22px/1 var(--font);
-  background: linear-gradient(150deg, hsl(var(--h, 220) 60% 46%), hsl(calc(var(--h, 220) + 40) 60% 24%)); box-shadow: 0 0 0 .5px var(--fr-rim), 0 8px 18px -10px rgba(0, 0, 0, .5); }
-.bx-app img { width: 100%; height: 100%; object-fit: cover; }
-.bx-app-all { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
-.bx-app-all img { width: 34px; height: 34px; object-fit: contain; }
-:root:not(.still) .bx-app { transition: transform .45s var(--ease-spring); }
-@media (hover: hover) { .bx-svc-b:hover .bx-app { transform: translateY(-2px) scale(1.04); } .bx-svc-b:hover { color: var(--label); } }
-.bx-svc-b:active .bx-app { transform: scale(.94); }
-/* the chosen one: Tenner's rainbow underline */
-.bx-svc-b[aria-pressed="true"] { color: var(--label); }
-.bx-svc-b[aria-pressed="true"]::after { content: ""; position: absolute; left: 20px; right: 20px; bottom: 2px; height: 3px; border-radius: 2px;
-  background: linear-gradient(90deg, #ff375f, #ff9f0a, #ffd60a, #30d158, #40c8e0, #5e5ce6, #bf5af2); }
-.bx-svc-b:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
 
 /* ---------- rows ---------- */
 .bx-sec { margin-top: 26px; }

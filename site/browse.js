@@ -1,4 +1,8 @@
-// Tenner Browse: the hour's catalogue (data/browse.json), filtered and sorted in the browser.
+// Tenner Browse: the hour's catalogue (data/browse.json), filtered and sorted in the browser, worked the way Home is:
+// the services are a rail of app icons that keep everything to the ones you tap (All six for every service, starting from
+// My services); the big featured title is what's trending today (data/featured.json, Home's slideshow); and the Top 10 is
+// the UK's combined chart (data/trending.json), whatever services you've picked, with By service for each one's own.
+// Numbers only ever mean a place in a chart, so only the Top 10 has them.
 // State lives in the URL (#c=top&k=movie&s=netflix,disney&g=18&sort=rating&r=7&y=1990-2010&a=12&rt=60), so any view can be
 // shared or bookmarked.
 (() => {
@@ -12,6 +16,7 @@
   // own arrivals and departures), in order of the day; titles there that the catalogue doesn't have are added just for them.
   const COLLECTIONS = [
     { key: 'popular', label: 'Popular', sort: 'pop', test: (x) => x.s.length },
+    { key: 'top10', label: 'Top 10', chart: true },   // the UK's chart, in its own order: no sort, no filters, every service
     { key: 'week', label: 'New this week', extra: true, order: (a, b) => b._new.localeCompare(a._new) || b.p - a.p, test: (x) => x._new },
     { key: 'new', label: 'New releases', sort: 'new', test: (x) => x.s.length && x.d >= daysAgo(150) && x.d <= daysAgo(0) },
     { key: 'top', label: 'Top rated', sort: 'rating', test: (x) => x.s.length && x.r >= 7.6 && x.v >= 300 },
@@ -34,7 +39,7 @@
     { key: 'az', label: 'A to Z', fn: (a, b) => a.n.localeCompare(b.n, 'en-GB', { sensitivity: 'base' }) },
   ];
 
-  let cat = null, logos = {}, labels = {}, shown = 0, list = [];
+  let cat = null, logos = {}, labels = {}, shown = 0, list = [], trend = null, feat = null;
   // Shows, films or both starts from Settings' Show (shows if you haven't chosen); the address only says so when it differs
   const KIND0 = (() => { try { const k = localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'tv'; } catch { return 'tv'; } })();
   const state = { c: 'popular', k: KIND0, s: [], g: [], sort: null, r: 0, q: '', y: null, a: '', rt: '' };
@@ -83,9 +88,10 @@
     fetch('data/trending.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
     window.tn.prefs.get().no18 ? window.tnSheet?.details() : null,   // Settings: "Hide titles rated 18" needs the certificates
     fetch('data/new.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
-  ])).then(([c, t, d, f]) => {
-    cat = c; certs = d; fresh = f; mergeFresh();
-    for (const s of t?.services || []) { logos[s.key] = s.logo; labels[s.key] = s.label; }
+    fetch('data/featured.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  ])).then(([c, t, d, f, ft]) => {
+    cat = c; certs = d; fresh = f; trend = t; feat = ft; mergeFresh();
+    for (const s of t?.services || []) if (!s.shop && !s.store) { logos[s.key] = s.logo; labels[s.key] = s.label; }   // the six (not the shops)
     if (!Object.keys(labels).length) Object.assign(labels, { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' });
     const wantSearch = location.hash === '#search';
     if (wantSearch) history.replaceState(null, '', location.pathname);
@@ -108,10 +114,11 @@
   addEventListener('tn:check', () => {
     if (!cat) return;
     const get = (n) => fetch(`data/${n}.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-    Promise.all([get('browse'), get('new')]).then(([c, f]) => {
+    Promise.all([get('browse'), get('new'), get('trending'), get('featured')]).then(([c, f, t, ft]) => {
       const newCat = c?.items?.length && c.generatedAt !== cat.generatedAt, newFresh = f?.items && f.generatedAt !== fresh?.generatedAt;
-      if (!newCat && !newFresh) return;
-      if (newCat) cat = c; if (newFresh) fresh = f; mergeFresh();
+      const newTrend = t?.overall && t.generatedAt !== trend?.generatedAt, newFeat = ft?.items && (ft.day !== feat?.day || ft.generatedAt !== feat?.generatedAt);
+      if (!newCat && !newFresh && !newTrend && !newFeat) return;
+      if (newCat) cat = c; if (newFresh) fresh = f; if (newTrend) trend = t; if (newFeat) feat = ft; mergeFresh();
       if (scrollY < 400 && !document.activeElement?.matches('input')) apply(false);
     }).catch(() => {});
   });
@@ -143,6 +150,24 @@
   // ---------- controls ----------
   const sheet = $('#filters');
   function buildControls() {
+    // the services: Home's rail of app icons. A tap turns one on or off, so you can pick several; All six clears them (and
+    // picking all six is the same). It keeps the featured titles, the collections and the genres to them; never the Top 10.
+    const rail = $('#svcRail'), keys = Object.keys(labels);
+    rail.innerHTML = `<button type="button" class="bx-svc-b" data-svc="all" aria-pressed="false"><span class="bx-app bx-app-all"><img src="logo.svg" alt=""></span><small>All six</small></button>`
+      + keys.map((k) => `<button type="button" class="bx-svc-b" data-svc="${esc(k)}" aria-pressed="false">
+        <span class="bx-app"${logos[k] ? '' : ` style="--h:${hue(labels[k])}"`}>${logos[k] ? `<img src="${esc(logos[k])}" alt="">` : `<b>${esc(labels[k].slice(0, 1))}</b>`}</span><small>${esc(labels[k])}</small></button>`).join('');
+    rail.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-svc]'), k = b?.dataset.svc; if (!b || (k === 'all' && !state.s.length)) return;
+      const l = k === 'all' ? [] : state.s.includes(k) ? state.s.filter((x) => x !== k) : [...state.s, k];
+      state.s = l.length >= keys.length ? [] : l;
+      window.tn.haptic?.(); apply(true);
+    });
+    arrows(rail, () => [...rail.querySelectorAll('button')]);
+    window.tn.tip({ id: 'browse-services-rail', for: '#svcRail', title: 'Your services, one tap away',
+      text: 'Tap a service to see only what’s on it, or tap a few to pick them together. All six shows everything. The Top 10 always covers the whole UK.' });
+    window.tn.tip({ id: 'browse-top10', for: '.coll-b[data-c="top10"]', delay: 2400, title: 'The Top 10, right here',
+      text: 'The UK’s Top 10, every service combined and updated every hour. By service has each one’s own chart.' });
+
     // collections: one frosted bar of words, the chosen one lit and underlined in rainbow (it scrolls sideways when narrow)
     $('#coll').insertAdjacentHTML('beforeend', COLLECTIONS.map((c) =>
       `<button type="button" role="radio" class="coll-b" data-c="${c.key}" aria-checked="false">${esc(c.label)}</button>`).join(''));
@@ -288,9 +313,10 @@
   function apply(user, quiet) {
     const col = collection();
     if (state.a || state.rt) needDetails();
-    const sortFn = state.sort ? SORTS.find((s) => s.key === state.sort).fn : col.order || SORTS.find((s) => s.key === col.sort).fn;
-    const q = fold(state.q);
-    if (q) {
+    const sortFn = state.sort ? SORTS.find((s) => s.key === state.sort).fn : col.order || SORTS.find((s) => s.key === (col.sort || 'pop')).fn;
+    const q = fold(state.q), charting = !q && !!col.chart;
+    if (charting) list = chart();
+    else if (q) {
       // searching looks across shows and films and every collection, closest matches first
       list = cat.items.map((x) => [x, score(x, q)]).filter(([x, sc]) => sc && ok18(x) && okMore(x)
         && (!state.g.length || x.g.some((g) => state.g.includes(g)))
@@ -305,10 +331,11 @@
     document.querySelectorAll('.coll-b').forEach((b) => b.setAttribute('aria-checked', b.dataset.c === state.c));
     { const tr = $('#coll'), on = tr.querySelector('[aria-checked="true"]');   // phones: the chosen one slides into view
       if (on && tr.scrollWidth > tr.clientWidth + 1) tr.scrollTo({ left: Math.max(0, on.offsetLeft - tr.clientWidth / 2 + on.offsetWidth / 2), behavior: reduce() ? 'auto' : 'smooth' }); }
+    document.querySelectorAll('#svcRail [data-svc]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.svc === 'all' ? !state.s.length : state.s.includes(b.dataset.svc)));
     $('#kindSel').value = state.k; $('#kindL').textContent = { tv: 'Shows', movie: 'Films', both: 'Shows and films' }[state.k];
     document.querySelectorAll('#where input').forEach((i) => { i.checked = state.s.includes(i.dataset.s); });
     const sk = q && !state.sort ? '' : sortKey();   // searching: best match first unless you pick a sort
-    const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : 'By day'; o0.hidden = !q && !collection().order;
+    const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : charting ? 'Chart order' : 'By day'; o0.hidden = !q && !collection().order && !charting;
     $('#sortSel').value = sk; $('#sortL').textContent = sk ? SORTS.find((s) => s.key === sk).label : o0.textContent;
     const gs = [...genreSet()].filter((g) => cat.genres[g]).sort((a, b) => cat.genres[a].localeCompare(cat.genres[b]));
     $('#genres').innerHTML = gs.map((g) => `<button type="button" class="g-b" data-g="${g}" aria-pressed="${state.g.includes(g)}">${esc(cat.genres[g])}</button>`).join('');
@@ -328,8 +355,11 @@
 
     const many = list.length.toLocaleString('en-GB'), what = q || state.k === 'both' ? (list.length === 1 ? 'title' : 'titles') : state.k === 'movie' ? (list.length === 1 ? 'film' : 'films') : (list.length === 1 ? 'show' : 'shows');
     // nothing on the services: no "0 results" line; the full catalogue's results below say it
-    $('#count').textContent = q ? (!list.length && window.tn.api ? '' : `${many} on the six services`) : `${many} ${what}`;
-    $('#showN').firstElementChild.textContent = list.length ? `Show ${many} ${what}` : 'No matches';
+    $('#count').textContent = charting ? `${{ tv: 'Top 10 shows', movie: 'Top 10 films', both: 'Top 10' }[state.k]} in the UK`
+      : q ? (!list.length && window.tn.api ? '' : `${many} on the six services`) : `${many} ${what}`;
+    $('#rNote').hidden = $('#bySvc').hidden = !charting;
+    document.body.classList.toggle('charting', charting);
+    $('#showN').firstElementChild.textContent = charting ? 'Done' : list.length ? `Show ${many} ${what}` : 'No matches';
     document.body.classList.toggle('searching', !!q);
 
     document.body.classList.toggle('mixed', !!q || state.k === 'both');   // show/film labels on the tiles when both are listed
@@ -341,8 +371,29 @@
     const draw = () => { shown = 0; $('#grid').innerHTML = ''; more(); empty(); };
     webSearch();
     if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
-    if (!q) { spotlight(); moods(); } else $('#moods').hidden = true;
+    if (!q) spotlight();
+    if (!q && !charting) moods(); else $('#moods').hidden = true;
     rows();
+  }
+
+  // ---------- the Top 10: the UK's combined chart (trending.json's overall), shows then films, each numbered ----------
+  // Like Home's Top 10 it covers every service whatever you've picked above, and the filters don't reshape it: a chart is a
+  // chart. Each place is the catalogue's own title where Browse has it (so its sheet and + work as anywhere else), or else
+  // one made from the chart.
+  const kinds = () => (state.k === 'both' ? ['tv', 'movie'] : [state.k]);
+  const byKey = () => new Map(cat.items.map((x) => [`${x.t[0]}${x.i}`, x]));
+  // a title from a chart (or the day's featured list) as one of the catalogue's
+  const fromChart = (it, k, have) => {
+    const t = (it.type || k) === 'movie' ? 'movie' : 'tv', key = /^\d+$/.test(String(it.id ?? '')) ? `${t[0]}${it.id}` : null;
+    const x = key && have.get(key);
+    return x ? { ...x, _bd: it.backdrop || null, _ov: it.overview || '' }
+      : { i: key ? +it.id : String(it.title), t, n: it.title, d: it.year ? String(it.year) : '', r: it.rating || 0, v: 0, p: it.popularity || 0, img: it.poster || null,
+        g: [], s: (it.on || []).filter((s) => labels[s]), _x: 1, _bd: it.backdrop || null, _ov: it.overview || '' };
+  };
+  function chart() {
+    const have = byKey(), out = [];
+    for (const k of kinds()) (trend?.overall?.[k] || []).slice(0, 10).forEach((it, i) => out.push({ ...fromChart(it, k, have), _rank: i + 1, _sub: i === 0 && state.k === 'both' ? (k === 'movie' ? 'Films' : 'Shows') : '' }));
+    return out;
   }
 
   // ---------- what's filtering the list: one button for each, with a cross, and Clear all once there are two ----------
@@ -361,29 +412,47 @@
     box.hidden = !c.length;
   }
 
-  // ---------- the featured hero: five of the best of whatever you're browsing, one at a time ----------
-  // Its wide artwork (browse-more.json, fetched once) fills the top of the page and runs on, blurred, under the sidebar's
-  // glass; without one, the poster blurred big does the same, so the hero is never empty. A thin bar for each pick fills
+  // ---------- the featured hero: what's trending today, one at a time (Home's slideshow) ----------
+  // The day's featured shows and films (data/featured.json, chosen once a UK day), kept to Shows or films and the services
+  // you've picked; should that leave too few, the charts' most popular with artwork stand in, and then the most popular in
+  // the catalogue. Its wide artwork fills the top of the page and runs on, blurred, under the sidebar's glass; without one,
+  // the poster blurred big does the same, so the hero is never empty. A thin bar for each pick fills
   // while it's showing (CSS), and when it's full the next one glides in; pointing at the hero, an open sheet or Animations
   // off hold it still. Swipe on touch, the arrows or ← → on the bars elsewhere.
   const still = reduce;
   const spot = { key: '', picks: [], at: 0 }, fk = (x) => `${x.t[0]}${x.i}`;
-  const kindWord = () => (state.k === 'movie' ? 'Films' : state.k === 'both' ? 'Shows and films' : 'Shows');
+  const and = (l) => (l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l[l.length - 1]}` : l[0] || '');
+  const where = () => (!state.s.length ? 'in the UK' : `on ${and(state.s.map((k) => labels[k]))}`);
+  const onPicked = (x) => !state.s.length || x.s.some((k) => state.s.includes(k));
+  function trending() {
+    const have = byKey(), ks = kinds(), ok = (x) => ks.includes(x.t) && onPicked(x) && !hid.has(fk(x));
+    const day = (feat?.items || []).map((it) => fromChart(it, it.type, have)).filter(ok);
+    if (day.length >= 3) return day;
+    const seen = new Set(), charts = [];
+    for (const s of [trend?.overall, ...(trend?.services || []).filter((s) => labels[s.key])]) for (const k of ks) for (const it of s?.[k] || []) {
+      const x = fromChart({ ...it, on: it.on || (s.key ? [s.key] : []) }, k, have); if (ok(x) && !seen.has(fk(x)) && seen.add(fk(x))) charts.push(x);
+    }
+    charts.sort((a, b) => b.p - a.p);
+    const art = charts.filter((x) => x._bd);
+    if (art.length >= 3) return art;
+    const best = cat.items.filter((x) => !x._x && x.s.length && ok(x) && x.img).sort((a, b) => b.p - a.p);
+    return best.length ? best : day.length ? day : art;   // a short day's list beats an empty hero
+  }
   const posterOf = (x) => x.img ? (x.img.startsWith('/') ? cat.img + x.img : x.img) : null;
   async function spotlight() {
-    const col = collection();
-    $('#spotEye').textContent = `${col.label} · ${kindWord()}${state.s.length ? ` · ${state.s.length === 1 ? labels[state.s[0]] : `${state.s.length} services`}` : ''}`;
+    $('#spotEye').textContent = `Trending ${where()} today`;
     const m = await moreData();
-    // five of the top 24, those with wide artwork first, led by the ones you haven't seen featured lately (each title once)
-    const wide = (x) => !!m?.items?.[fk(x)]?.[1];
-    const pool = list.filter((x) => !x._x || x.img).slice(0, 24).filter((x) => wide(x) || x.img), key = pool.map(fk).join(',');
+    if (!cat) return;
+    // five, in the day's order (the day's line-up is the same for everyone, as on Home)
+    const wide = (x) => !!(x._bd || m?.items?.[fk(x)]?.[1]);
+    const pool = trending().filter((x) => wide(x) || x.img).slice(0, 5), key = pool.map(fk).join(',');
     if (key === spot.key) return;
-    const picks = window.tn.featured.pick(pool, fk, 5, wide);
+    const picks = pool;
     spot.key = key; spot.picks = picks; spot.at = 0;
     const art = $('#spotArt'), ext = $('#spotExt');
     $('#spot').classList.toggle('has-feat', !!picks.length); $('#spotFeat').hidden = !picks.length; $('#spotNav').hidden = picks.length < 2;
     if (!picks.length) { art.innerHTML = ext.innerHTML = ''; return; }
-    const src = (x) => (wide(x) ? m.img.replace('/w780', '/w1280') + m.items[fk(x)][1] : posterOf(x));
+    const src = (x) => (x._bd || (wide(x) ? m.img.replace('/w780', '/w1280') + m.items[fk(x)][1] : posterOf(x)));
     art.innerHTML = picks.map((x, i) => `<img class="${wide(x) ? 'wide' : 'blur'}" ${i ? 'data-' : 'fetchpriority="high" '}src="${esc(src(x))}" alt="" decoding="async">`).join('');
     ext.innerHTML = picks.map((x, i) => `<img ${i ? 'data-' : ''}src="${esc(src(x))}" alt="" decoding="async">`).join('');
     $('#spotDots').innerHTML = picks.map((x, i) => `<button type="button" role="tab" aria-selected="false" aria-label="${esc(x.n)}" data-i="${i}"><i></i></button>`).join('');
@@ -403,7 +472,7 @@
       const g = x.g.map((id) => cat.genres[id]).find(Boolean);
       $('#spotM').innerHTML = [x.t === 'tv' ? 'Show' : 'Film', g, (x.d || '').slice(0, 4), x.r ? `★ ${x.r.toFixed(1)}` : ''].filter(Boolean).map(esc).join(' · ')
         + (x.s.length ? `<span class="on">${x.s.slice(0, 3).map((k) => logos[k] ? `<img src="${esc(logos[k])}" alt="${esc(labels[k])}" data-tip="${esc(labels[k])}">` : '').join('')}</span>` : '');
-      moreData().then((m) => { if (spot.picks[spot.at] === x) $('#spotO').textContent = m?.sample ? '' : m?.items?.[fk(x)]?.[0] || ''; });
+      moreData().then((m) => { if (spot.picks[spot.at] === x) $('#spotO').textContent = m?.sample ? '' : m?.items?.[fk(x)]?.[0] || x._ov || ''; });
       const add = $('#spotAdd'), on = window.tn.saved.has(fk(x));
       add.dataset.save = fk(x); add.setAttribute('aria-pressed', on); add.innerHTML = on ? TICK : PLUS;
       add.title = on ? 'In your Watchlist' : 'Add to Watchlist'; add.setAttribute('aria-label', `${add.title}: ${x.n}`);
@@ -429,7 +498,7 @@
   arrows($('#spotDots'), () => [...$('#spotDots').children], (b) => showSpot(+b.dataset.i));
   $('#spotNav').addEventListener('click', (e) => { const b = e.target.closest('[data-step]'); if (b) showSpot(spot.at + +b.dataset.step); });
   // its name, Where to watch, or the picture itself: the title's sheet
-  const openSpot = async () => { const x = spot.picks[spot.at]; if (x) window.tnSheet?.open(await sheetFor(x)); };
+  const openSpot = async () => { const x = spot.picks[spot.at]; if (x) window.tnSheet?.open(await sheetFor(x, `Trending ${where()} today`)); };
   $('#spotT').addEventListener('click', openSpot); $('#spotGo').addEventListener('click', openSpot);
   $('#spot').addEventListener('click', (e) => { if (!e.target.closest('button, a, select, input') && !getSelection().toString()) openSpot(); });
   // swipe it on a phone or tablet
@@ -488,6 +557,7 @@
   function empty() {
     if (list.length) return;
     if (web.on) { $('#grid').innerHTML = ''; return; }   // searching everything: the results below say it
+    if (!state.q && collection().chart) { $('#grid').innerHTML = `<li class="none"><h2>The Top 10 isn’t here yet</h2><p>${navigator.onLine === false ? 'You’re offline. It’ll be here when you’re back online.' : 'It’s rebuilt every hour. Try again in a moment.'}</p></li>`; return; }
     $('#grid').innerHTML = `<li class="none"><h2>No matches</h2><p>${state.q ? 'Nothing in this hour\'s catalogue matches that. Try a shorter search, or fewer filters.' : 'Try fewer filters, or a different collection.'}</p>
       <button type="button" class="btn btn-tinted" data-clear="${state.q ? 'q' : 'filters'}">${state.q ? 'Clear search' : 'Clear filters'}</button></li>`;
   }
@@ -497,14 +567,14 @@
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
   let moreP = null;
   const moreData = () => (moreP ||= fetch('data/browse-more.json').then((r) => (r.ok ? r.json() : null)).catch(() => null));
-  const item = (k) => cat?.items.find((x) => `${x.t[0]}${x.i}` === k);
+  const item = (k) => list.find((x) => `${x.t[0]}${x.i}` === k) || spot.picks.find((x) => `${x.t[0]}${x.i}` === k) || cat?.items.find((x) => `${x.t[0]}${x.i}` === k);
   const grid = $('#grid');
   // click a poster: where to watch, in Tenner (sheet.js); Cmd/Ctrl-click still opens TMDB in a new tab
-  async function sheetFor(x) {
+  async function sheetFor(x, eye) {
     const k = `${x.t[0]}${x.i}`, m = await moreData(), e = m?.items?.[k] || [];
     return {
-      k, type: x.t, title: x.n, year: (x.d || '').slice(0, 4) || null, rating: x.r || null,
-      poster: x.img ? (x.img.startsWith('/') ? cat.img + x.img : x.img) : null, backdrop: e[1] && m?.img ? m.img + e[1] : null, overview: e[0] || '',
+      k, type: x.t, title: x.n, eye, year: (x.d || '').slice(0, 4) || null, rating: x.r || null,
+      poster: x.img ? (x.img.startsWith('/') ? cat.img + x.img : x.img) : null, backdrop: e[1] && m?.img ? m.img + e[1] : x._bd || null, overview: e[0] || x._ov || '',
       genres: [...new Set(x.g.map((g) => cat.genres[g]).filter(Boolean))].slice(0, 3),
       tmdb: `https://www.themoviedb.org/${x.t}/${x.i}`, services: x.s.map((s) => ({ label: labels[s] || s, logo: logos[s] })),
     };
@@ -512,7 +582,7 @@
   grid.addEventListener('click', async (e) => {
     const a = e.target.closest('.tile a'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
     e.preventDefault();
-    const x = item(a.closest('.tile').dataset.k); if (x) window.tnSheet?.open(await sheetFor(x));
+    const x = item(a.closest('.tile').dataset.k); if (x) window.tnSheet?.open(await sheetFor(x, x._rank ? `No. ${x._rank} ${x.t === 'movie' ? 'film' : 'show'} in the UK` : undefined));
   });
   window.tnSheet?.hover?.('#grid .tile a', (a) => { const x = item(a.closest('.tile').dataset.k); return x && sheetFor(x); });
   window.tnSheet?.hover?.('#bRows a[data-row]', (a) => { const x = item(a.dataset.row); return x && sheetFor(x); });
@@ -604,7 +674,11 @@
   }
 
   // ---------- For You (from your Discover swipes, stars and Watchlist; shell.js's forYou): a row of posters above the genres ----------
-  const forYou = () => window.tn.forYou(cat.items, (x) => !x._x && kindOk(x) && ok18(x) && (state.s.length ? x.s.some((k) => state.s.includes(k)) : x.s.length));
+  // TMDB's More Like This for your latest right swipes lifts the closest matches when you're signed in, as on Home
+  let like = {};
+  const likeNow = () => window.tn.moreLike?.(!!window.tn.account?.token()).then((l) => { like = l || {}; if (cat) rows(); });
+  likeNow(); ['tn:swiped', 'tn:account'].forEach((ev) => addEventListener(ev, () => setTimeout(likeNow, 1200)));
+  const forYou = () => window.tn.forYou(cat.items, (x) => !x._x && kindOk(x) && ok18(x) && (state.s.length ? x.s.some((k) => state.s.includes(k)) : x.s.length), like);
   function rows() {
     const box = $('#bRows');
     if (state.q || state.g.length || state.c !== 'popular') { box.hidden = true; return; }
@@ -641,12 +715,12 @@
       ? `<img src="${esc(x.img.startsWith('/') ? cat.img + x.img : x.img)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.n)}</span>`;
     const where = x.s.slice(0, 3).map((k) => logos[k] ? `<img src="${esc(logos[k])}" alt="${esc(labels[k])}" data-tip="${esc(labels[k])}">` : '').join('');
-    return `<li class="tile" style="--d:${i % PAGE}" data-k="${x.t[0]}${x.i}">
-      <a href="${esc(url)}" target="_blank" rel="noopener">
-        <span class="art">${art}${x.r ? `<span class="score" aria-label="Rated ${x.r} out of 10"><b>${x.r.toFixed(1)}</b></span>` : ''}</span>
+    return `${x._sub ? `<li class="g-sub" aria-hidden="true">${x._sub}</li>` : ''}<li class="tile${x._rank ? ' ranked' : ''}" style="--d:${i % PAGE}" data-k="${x.t[0]}${x.i}">
+      <a href="${esc(url)}" target="_blank" rel="noopener"${x._rank ? ` aria-label="No. ${x._rank}: ${esc(x.n)}"` : ''}>
+        ${x._rank ? `<span class="rk" aria-hidden="true">${x._rank}</span>` : ''}<span class="art">${art}${x.r ? `<span class="score" aria-label="Rated ${x.r} out of 10"><b>${x.r.toFixed(1)}</b></span>` : ''}</span>
         <span class="t">${esc(x.n)}</span>
         <span class="kind-l">${x.t === 'tv' ? 'Show' : 'Film'}</span>
-        <span class="m"><span>${esc(state.c === 'week' && x._new ? `Arrived ${day(x._new)}` : state.c === 'leaving' && x._gone ? `Leaves ${day(x._gone)}` : fmt(x.d))}</span>${where ? `<span class="on">${where}</span>` : ''}</span>
+        <span class="m"><span>${esc(state.c === 'week' && x._new ? `Arrived ${day(x._new)}` : state.c === 'leaving' && x._gone ? `Leaves ${day(x._gone)}` : x._rank ? [x.t === 'tv' ? 'Series' : 'Film', (x.d || '').slice(0, 4)].filter(Boolean).join(' · ') : fmt(x.d))}</span>${where ? `<span class="on">${where}</span>` : ''}</span>
         ${x.r ? `<span class="l-r">★ ${x.r.toFixed(1)}</span>` : ''}
       </a>${saveBtn(`${x.t[0]}${x.i}`, x.n)}</li>`;
   }
