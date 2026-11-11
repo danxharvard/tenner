@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.81.1';
+  const version = '2.81.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -386,7 +386,7 @@
     const on = new Date(Math.max(Date.parse(`${todayIso()}T12:00:00Z`), Date.parse(`${x.date}T12:00:00Z`) - 2 * 864e5)), d = on.toISOString().slice(0, 10).replace(/-/g, '');
     const end = new Date(+on + 864e5).toISOString().slice(0, 10).replace(/-/g, ''), svc = SVC_LABEL[x.service] || 'its service';
     const link = `https://tenner.stream/?t=${x.k}`, leaves = new Date(`${x.date}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
-    const txt = (t) => t.replace(/[\;,]/g, (c) => `\\${c}`), fold = (line) => line.replace(/(.{72})/g, '$1\r\n ').replace(/\r\n $/, '');
+    const txt = (t) => t.replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\r?\n/g, '\\n'), fold = (line) => line.replace(/(.{72})/g, '$1\r\n ').replace(/\r\n $/, '');
     const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tenner//Watch before it goes//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
       `UID:leaving-${x.service}-${x.k}-${x.date}@tenner.stream`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${end}`,
       fold(`SUMMARY:${txt(`Watch ${x.title} before it leaves ${svc}`)}`), fold(`DESCRIPTION:${txt(`${x.title} leaves ${svc} on ${leaves}. ${link}`)}`), `URL:${link}`,
@@ -1664,7 +1664,8 @@
         }
         xl.innerHTML = `${glows}<svg width="${w}" height="${H}" viewBox="0 0 ${w} ${H}"><defs>${defs}</defs><path class="xl-w" d="${path}"/><path class="xl-w2" d="${path}"/>${bulbs}</svg>`;
       };
-      document.body.append(xl); hang();
+      // on Browse, inside its page (a layer of its own), so the search bar that holds on at the top stays above them
+      (document.querySelector('main.bwrap') || document.body).append(xl); hang();
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
       featureTip({ id: 'xmas-lights', for: xl, title: 'Christmas lights', delay: 2400,
         text: 'Tenner\'s lit up for the season. The lights twinkle when Animations are on in Settings, and come down after Boxing Day.' });

@@ -320,7 +320,7 @@ a.tb-btn:hover { text-decoration: none; }
 }
 
 /* a title with no poster: its name on a colour of its own */
-.ph { display: grid; align-content: end; padding: 18px; color: #fff; font: 700 25px/1.05 var(--font); letter-spacing: -.03em; text-wrap: balance; }
+.ph { display: grid; align-content: end; padding: 18px; color: #fff; font: 700 25px/1.05 var(--font); letter-spacing: -.03em; text-wrap: balance; overflow-wrap: anywhere; -webkit-hyphens: auto; hyphens: auto; }
 .star { color: var(--gold); font-weight: 600; }
 
 

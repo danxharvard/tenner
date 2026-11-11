@@ -102,7 +102,7 @@ body.browse { overflow-x: clip; }
 
 /* ============================================================ the search bar: one frosted bar that holds on at the top */
 .cmd-mark { height: 1px; }
-.hs { position: sticky; z-index: 30; top: calc(env(safe-area-inset-top, 0px) + 14px); display: flex; align-items: center; gap: 8px;
+.hs { position: sticky; z-index: 49; top: calc(env(safe-area-inset-top, 0px) + 14px); display: flex; align-items: center; gap: 8px;
   height: 58px; margin-top: 6px; padding: 0 7px; border-radius: var(--r);
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 1px var(--fr-rim), 0 18px 40px -26px rgba(0, 0, 0, .55); }
@@ -480,7 +480,9 @@ body.browse { overflow-x: clip; }
 
 /* ---------- the results' heading: the count, and for the Top 10 a line under it and By service ---------- */
 .r-hd { flex: 1 1 auto; min-width: 0; }
-.results .r-bar { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }   /* clear of the floating bars when a genre takes you here */
+/* clear of the floating bars when a genre takes you here (the page's own scroll padding counts too: 24px on computers, 84px below) */
+.results .r-bar, .chips { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 60px); }
+@media (max-width: 999px) { .results .r-bar, .chips { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 50px); } }
 .r-hd .count { display: block; }
 .r-note { margin: 3px 0 0; font-size: 14px; letter-spacing: -.01em; color: var(--label2); }
 .r-bysvc { flex: none; height: 36px; padding: 0 14px 0 12px; gap: 6px; font-size: 15px; }
