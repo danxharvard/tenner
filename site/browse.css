@@ -480,6 +480,7 @@ body.browse { overflow-x: clip; }
 
 /* ---------- the results' heading: the count, and for the Top 10 a line under it and By service ---------- */
 .r-hd { flex: 1 1 auto; min-width: 0; }
+.results .r-bar { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }   /* clear of the floating bars when a genre takes you here */
 .r-hd .count { display: block; }
 .r-note { margin: 3px 0 0; font-size: 14px; letter-spacing: -.01em; color: var(--label2); }
 .r-bysvc { flex: none; height: 36px; padding: 0 14px 0 12px; gap: 6px; font-size: 15px; }

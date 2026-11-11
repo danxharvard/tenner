@@ -277,7 +277,7 @@
     const openBtn = $('#openFilters');
     openBtn.addEventListener('click', () => { sheet.showModal(); document.documentElement.classList.add('sheet-open'); });
     $('#done').addEventListener('click', () => sheet.close());
-    $('#showN').addEventListener('click', () => { sheet.close(); $('#cmdMark').scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'start' }); });
+    $('#showN').addEventListener('click', () => { sheet.close(); toResults(); });
     sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.close(); });   // a tap outside it (where closedby="any" isn't known yet)
     sheet.addEventListener('close', () => { document.documentElement.classList.remove('sheet-open'); openBtn.focus({ preventScroll: true }); writeHash(); });
 
@@ -602,10 +602,11 @@
     }).join('')}</div>`;
     box.hidden = false;
   }
+  // a genre takes you straight to its titles: the results' heading at the top of the window, under the bars
+  const toResults = () => requestAnimationFrame(() => $('.results .r-bar').scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'start' }));
   $('#moods').addEventListener('click', (e) => {
     const b = e.target.closest('.mood'); if (!b) return;
-    state.g = [+b.dataset.g]; apply(true);
-    $('#cmdMark').scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'start' });
+    state.g = [+b.dataset.g]; apply(true); toResults();
   });
 
 
