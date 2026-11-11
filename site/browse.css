@@ -106,11 +106,32 @@ body.browse { overflow-x: clip; }
   height: 58px; margin-top: 6px; padding: 0 7px; border-radius: var(--r);
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 1px var(--fr-rim), 0 18px 40px -26px rgba(0, 0, 0, .55); }
-/* while you type, its edge lights up in Tenner's colours (drawn once; nothing moves) */
-.hs::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0; transition: opacity .3s ease;
-  background: linear-gradient(100deg, #ff375f, #ff9f0a, #ffd60a, #30d158, #64d2ff, #0a84ff, #bf5af2);
+/* while you search, a living glow: Tenner's colours drifting slowly round the bar's edge (a turning conic gradient, seen only
+   through a hairline rim) and blooming softly beyond it. The colour wheel is drawn once and only turned (a transform, off the
+   main thread); it turns only while you're in the box, with Animations on, and never with Reduce Motion. */
+.hs-rim, .hs-bloom { position: absolute; pointer-events: none; border-radius: inherit; overflow: hidden; opacity: 0; transition: opacity .45s ease; }
+.hs-rim { inset: 0; z-index: 2; padding: 1.5px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
-.hs:has(input:focus)::before { opacity: 1; }
+.hs-bloom { inset: -18px; z-index: -1; border-radius: 22px;
+  /* feathered at its outer edge, and cut away inside the bar, so the colour only ever spills out around it */
+  --in: linear-gradient(#000 0 0) 18px 18px / calc(100% - 36px) calc(100% - 36px) no-repeat;
+  --fx: linear-gradient(90deg, transparent, #000 22px, #000 calc(100% - 22px), transparent); --fy: linear-gradient(transparent, #000 22px, #000 calc(100% - 22px), transparent);
+  -webkit-mask: var(--in), var(--fx), var(--fy); -webkit-mask-composite: xor, source-in;
+  mask: var(--in) exclude, var(--fx) intersect, var(--fy); }
+.hs-rim i, .hs-bloom i { position: absolute; left: 50%; top: 50%; width: max(140%, 600px); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  background: conic-gradient(from 0deg, #ff375f, #ff9f0a, #ffd60a, #30d158, #64d2ff, #0a84ff, #bf5af2, #ff375f); }
+.hs-bloom i { filter: blur(22px) saturate(1.3); opacity: .55; }
+.hs:has(input:focus) .hs-rim, .searching .hs-rim { opacity: 1; }
+.hs:has(input:focus) .hs-bloom { opacity: .9; }
+.searching .hs:not(:has(input:focus)) .hs-bloom { opacity: .35; }
+:root:not(.still) .hs:has(input:focus) .hs-rim i, :root:not(.still) .hs:has(input:focus) .hs-bloom i { animation: hsTurn 7s linear infinite; }
+@keyframes hsTurn { to { rotate: 1turn; } }
+@media (prefers-reduced-motion: reduce) { .hs-rim i, .hs-bloom i { animation: none !important; } }
+@media (prefers-reduced-transparency: reduce) { .hs-bloom { display: none; } }
+/* the bar itself breathes a little larger as you step into it */
+:root:not(.still) .hs { transition: box-shadow .4s ease, scale .5s var(--ease-spring); }
+:root:not(.still) .hs:has(input:focus) { scale: 1.006; }
+.hs:has(input:focus) { box-shadow: inset 0 0 0 1px var(--fr-rim), 0 24px 60px -24px rgba(10, 132, 255, .35); }
 @media (max-height: 500px) { .hs { position: relative; top: auto; } }   /* a phone on its side: too short to keep it holding on */
 
 .search { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; }
@@ -142,7 +163,8 @@ body.browse { overflow-x: clip; }
 .hs-filters { position: relative; padding: 0 16px 0 13px; gap: 8px; font-size: 16px; }
 .hs-filters svg { width: 20px; height: 20px; flex: none; }
 .badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--accent); color: #fff; font: 600 12px/1 var(--font); font-variant-numeric: tabular-nums; }
-.searching .hs-kind { opacity: .4; pointer-events: none; }
+/* searching: Shows / Films / Both steps aside (the scopes below do its job) */
+.searching .hs-kind { display: none; }
 
 /* below the bar at the top (phones and tablets) rather than under it */
 @media (max-width: 999px) { .hs { top: calc(env(safe-area-inset-top, 0px) + 64px); } }
@@ -183,7 +205,13 @@ body.browse { overflow-x: clip; }
   background: linear-gradient(90deg, #ff375f, #ff9f0a, #ffd60a, #30d158, #0a84ff, #bf5af2); opacity: 0; scale: .4 1; transition: opacity .3s ease, scale .45s var(--ease-spring); }
 .coll-b[aria-checked="true"]::after { opacity: 1; scale: 1 1; }
 .coll-b:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.searching .coll { opacity: .4; pointer-events: none; }
+.searching .coll:not(.scopes) { display: none; }
+/* searching: the scopes take the collections' place, gliding in */
+.scopes[hidden] { display: none; }
+:root:not(.still) .scopes:not([hidden]) { animation: scopesIn .5s var(--ease-spring) both; }
+:root:not(.still) .scopes .coll-b { animation: scopesIn .5s var(--ease-spring) both; }
+:root:not(.still) .scopes .coll-b:nth-child(2) { animation-delay: 40ms; } :root:not(.still) .scopes .coll-b:nth-child(3) { animation-delay: 80ms; } :root:not(.still) .scopes .coll-b:nth-child(4) { animation-delay: 120ms; }
+@keyframes scopesIn { from { opacity: 0; translate: 0 -8px; filter: blur(4px); } }
 @container page (width < 700px) { .coll { width: auto; margin-top: 10px; } .coll-b { padding: 0 14px; } .coll-b::after { left: 14px; right: 14px; } }
 @media (pointer: coarse) { .coll-b { height: 44px; } }   /* a full 44pt to tap */
 
@@ -525,3 +553,9 @@ body.browse { overflow-x: clip; }
 :root:not(.still) .b-people li.rv { animation: faceIn .55s var(--ease-spring) both; animation-delay: calc(min(var(--d), 10) * 45ms); }
 :root:not(.still) .b-people:not([hidden]) { animation: searchIn .5s var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .tile.rv, .b-people li.rv, .b-people { animation: none !important; } }
+
+/* Cast and crew on its own: everyone who matches, in rows */
+.b-people.full .sh-faces { grid-auto-flow: row; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 22px 14px; overflow: visible; margin: 0; padding: 4px 0;
+  -webkit-mask-image: none; mask-image: none; }
+.b-people.full .sh-face { width: 92px; }
+.sc-people .r-bar { display: none; }

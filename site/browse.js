@@ -42,7 +42,7 @@
   let cat = null, logos = {}, labels = {}, shown = 0, list = [], trend = null, feat = null;
   // Shows, films or both starts from Settings' Show (shows if you haven't chosen); the address only says so when it differs
   const KIND0 = (() => { try { const k = localStorage.getItem('tenner-kind'); return ['tv', 'movie', 'both'].includes(k) ? k : 'tv'; } catch { return 'tv'; } })();
-  const state = { c: 'popular', k: KIND0, s: [], g: [], sort: null, r: 0, q: '', y: null, a: '', rt: '' };
+  const state = { c: 'popular', k: KIND0, s: [], g: [], sort: null, r: 0, q: '', y: null, a: '', rt: '', sc: 'all' };   // sc: what a search looks through
 
   // ---------- URL <-> state ----------
   function readHash() {
@@ -248,7 +248,12 @@
 
     // search: results as you type; / or ⌘K jumps to the box (shell.js); Escape clears it
     const qi = $('#q');
-    qi.addEventListener('input', () => { state.q = qi.value; apply(true, true); if (scrollY > 300) $('#cmdMark').scrollIntoView({ block: 'start' }); });
+    // what to search: everything, shows, films or the cast and crew (the collections' place while you search)
+    const scopes = $('#scopes');
+    scopes.addEventListener('click', (e) => { const b = e.target.closest('[data-sc]'); if (!b || b.dataset.sc === state.sc) return;
+      state.sc = b.dataset.sc; window.tn.haptic?.(); web.q = ''; ppl.q = ''; apply(true, true); });
+    arrows(scopes, () => [...scopes.querySelectorAll('.coll-b')], (b) => b.click());
+    qi.addEventListener('input', () => { state.q = qi.value; if (!state.q.trim()) state.sc = 'all'; apply(true, true); if (scrollY > 300) $('#cmdMark').scrollIntoView({ block: 'start' }); });
     qi.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qi.value) { e.preventDefault(); state.q = ''; apply(true); } if (e.key === 'Enter') qi.blur(); });
     $('#qClear').addEventListener('click', () => { state.q = ''; apply(true); qi.focus(); });
 
@@ -318,7 +323,7 @@
     if (charting) list = chart();
     else if (q) {
       // searching looks across shows and films and every collection, closest matches first
-      list = cat.items.map((x) => [x, score(x, q)]).filter(([x, sc]) => sc && ok18(x) && okMore(x)
+      list = state.sc === 'people' ? [] : cat.items.map((x) => [x, score(x, q)]).filter(([x, sc]) => sc && ok18(x) && okMore(x) && (state.sc === 'all' || x.t === state.sc)
         && (!state.g.length || x.g.some((g) => state.g.includes(g)))
         && (!state.r || x.r >= state.r))
         .sort((a, b) => (state.sort ? sortFn(a[0], b[0]) : (b[1] - a[1] || b[0].p - a[0].p))).map(([x]) => x);
@@ -356,11 +361,15 @@
     const many = list.length.toLocaleString('en-GB'), what = q || state.k === 'both' ? (list.length === 1 ? 'title' : 'titles') : state.k === 'movie' ? (list.length === 1 ? 'film' : 'films') : (list.length === 1 ? 'show' : 'shows');
     // nothing on the services: no "0 results" line; the full catalogue's results below say it
     $('#count').textContent = charting ? `${{ tv: 'Top 10 shows', movie: 'Top 10 films', both: 'Top 10' }[state.k]} in the UK`
-      : q ? (!list.length && window.tn.api ? '' : `${many} on the six services`) : `${many} ${what}`;
+      : q ? (state.sc === 'people' || (!list.length && window.tn.api) ? '' : `${many} on the six services`) : `${many} ${what}`;
     $('#rNote').hidden = $('#bySvc').hidden = !charting;
     document.body.classList.toggle('charting', charting);
     $('#showN').firstElementChild.textContent = charting ? 'Done' : list.length ? `Show ${many} ${what}` : 'No matches';
     document.body.classList.toggle('searching', !!q);
+    $('#scopes').hidden = !q; if (!q) state.sc = 'all';
+    if (q) window.tn.tip({ id: 'browse-search-scopes', for: '#scopes', title: 'Search just what you want', text: 'While you search, look through everything, just shows, just films, or the cast and crew.' });
+    $('#scopes').querySelectorAll('[data-sc]').forEach((b) => b.setAttribute('aria-checked', b.dataset.sc === state.sc));
+    document.body.classList.toggle('sc-people', !!q && state.sc === 'people');
 
     document.body.classList.toggle('mixed', !!q || state.k === 'both');   // show/film labels on the tiles when both are listed
     $('#qClear').hidden = !state.q;
@@ -578,7 +587,7 @@
 
   function empty() {
     if (list.length) return;
-    if (web.on || !$('#bPeople').hidden) { $('#grid').innerHTML = ''; return; }   // searching everything, or people found: the results below say it
+    if (web.on || !$('#bPeople').hidden || (state.q && state.sc === 'people')) { $('#grid').innerHTML = ''; return; }   // searching everything, or people found: the results below say it
     if (!state.q && collection().chart) { $('#grid').innerHTML = `<li class="none"><h2>The Top 10 isn’t here yet</h2><p>${navigator.onLine === false ? 'You’re offline. It’ll be here when you’re back online.' : 'It’s rebuilt every hour. Try again in a moment.'}</p></li>`; return; }
     $('#grid').innerHTML = `<li class="none"><h2>No matches</h2><p>${state.q ? 'Nothing in this hour\'s catalogue matches that. Try a shorter search, or fewer filters.' : 'Try fewer filters, or a different collection.'}</p>
       <button type="button" class="btn btn-tinted" data-clear="${state.q ? 'q' : 'filters'}">${state.q ? 'Clear search' : 'Clear filters'}</button></li>`;
@@ -614,8 +623,12 @@
   const web = { on: false, q: '', t: 0, ctl: null, items: new Map() };
   function webSearch() {
     const q = state.q.trim(), box = $('#web');
-    web.on = !!window.tn.api && q.length >= 2;
-    if (!web.on) { box.hidden = true; web.q = ''; web.ctl?.abort(); people(''); return; }
+    web.on = !!window.tn.api && q.length >= 2 && state.sc !== 'people';
+    if (!web.on) {
+      box.hidden = true; web.q = ''; web.ctl?.abort(); clearTimeout(web.t);
+      if (state.sc === 'people' && q.length >= 2 && window.tn.api) { if (ppl.q !== q) web.t = setTimeout(() => people(q), 280); } else people('');
+      return;
+    }
     box.classList.add('merged');   // one list: the services' matches first, then every other film and show (TMDB)
     $('#webH').textContent = list.length ? 'Every other film and show' : `Results for “${q}”`;
     if (q === web.q) return;
@@ -633,23 +646,24 @@
   async function people(q) {
     const box = $('#bPeople');
     ppl.ctl?.abort(); ppl.q = q;
-    if (!q) { box.hidden = true; $('#bpList').innerHTML = ''; return; }
+    if (!q || state.sc === 'tv' || state.sc === 'movie') { box.hidden = true; $('#bpList').innerHTML = ''; return; }
+    const all = state.sc === 'people';
     ppl.ctl = new AbortController();
     try {
       const r = await fetch(`${window.tn.api}/people?q=${encodeURIComponent(q)}`, { signal: ppl.ctl.signal });
       const d = r.ok ? await r.json() : null; if (ppl.q !== q) return;
-      const l = (d?.results || []).filter((x) => x.photo && x.known?.length).slice(0, 12);
-      if (!l.length) { box.hidden = true; return; }
+      const l = (d?.results || []).filter((x) => x.photo && x.known?.length).slice(0, all ? 24 : 12);
+      if (!l.length) { box.hidden = true; if (all) { $('#grid').innerHTML = `<li class="none"><h2>No one by that name</h2><p>Try another spelling, or look through Top results.</p></li>`; } return; }
       const had = new Set([...$('#bpList').querySelectorAll('[data-p]')].map((a) => a.dataset.p));
       $('#bpList').innerHTML = l.map((p, i) => `<li${had.has(String(p.id)) ? '' : ` class="rv" style="--d:${i}"`}><a href="./?p=${p.id}" data-p="${p.id}">
         <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async"></span>
         <b>${esc(p.name)}</b><small>${esc([DEPT[p.dept] || p.dept, p.known[0]].filter(Boolean).join(' · '))}</small></a></li>`).join('');
       // first when a name is the better match; otherwise after this hour's catalogue
       const fq = fold(q), best = (xs, f) => Math.max(0, ...xs.map((x) => score({ n: f(x) }, fq)));
-      const lead = !list.length || best(l, (x) => x.name) > best(list.slice(0, 20), (x) => x.n);
+      const lead = all || !list.length || best(l, (x) => x.name) > best(list.slice(0, 20), (x) => x.n);
       const res = $('.results');
       if (lead) res.before(box); else $('#web').before(box);
-      box.classList.toggle('lead', lead); box.hidden = false;
+      box.classList.toggle('lead', lead); box.classList.toggle('full', all); box.hidden = false;
       if (!list.length) $('#grid .none')?.remove();   // the people are what was found: no "No matches" above them
     } catch (e) { if (e.name !== 'AbortError') box.hidden = true; }
   }
@@ -665,7 +679,7 @@
       const d = r.ok ? await r.json() : null; if (web.q !== q) return;
       web.page = d?.page || web.page + 1; web.pages = d?.pages || web.page;
       const have = new Set([...list.map((x) => `${x.t[0]}${x.i}`), ...web.items.keys()]);
-      const res = (d?.results || []).filter((x) => !have.has(x.k));
+      const res = (d?.results || []).filter((x) => !have.has(x.k) && (state.sc === 'all' || x.type === state.sc));
       for (const x of res) web.items.set(x.k, { ...x, poster: x.poster ? d.img + x.poster : null, backdrop: x.backdrop ? d.bd + x.backdrop : null });
       $('#webGrid').insertAdjacentHTML('beforeend', res.map((x, i) => webCard(web.items.get(x.k), i)).join(''));
       $('#web').classList.toggle('solo', !list.length);   // nothing in the catalogue: these are the results

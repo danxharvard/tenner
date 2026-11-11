@@ -45,8 +45,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.72.0">
-  <link rel="stylesheet" href="browse.css?v=2.72.0">
+  <link rel="stylesheet" href="styles.css?v=2.73.0">
+  <link rel="stylesheet" href="browse.css?v=2.73.0">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -92,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.72.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.73.0</a>
     </div>
   </div>
 
@@ -131,6 +131,8 @@
     <!-- the search bar: one frosted bar that stays at the top as you scroll, its edge lit in Tenner's colours while you type -->
     <div class="cmd-mark" id="cmdMark" aria-hidden="true"></div>
     <div class="hs" id="cmd">
+      <!-- while you search: a living glow in Tenner's colours, drifting round the bar's edge and blooming softly beyond it -->
+      <span class="hs-bloom" aria-hidden="true"><i></i></span><span class="hs-rim" aria-hidden="true"><i></i></span>
       <div class="search" role="search">
         <svg class="s-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.3"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
         <input id="q" type="search" placeholder=" " autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="Search shows, films and cast">
@@ -146,6 +148,13 @@
 
     <!-- the collections: one frosted bar, the chosen one lit, with Tenner's rainbow underline -->
     <nav class="coll" aria-label="Collections"><div class="coll-track" id="coll" role="radiogroup" aria-label="Collections"></div></nav>
+    <!-- searching: the collections make way for what to look through (Apple's scope bar): everything, shows, films or people -->
+    <nav class="coll scopes" id="scopes" aria-label="Search in" hidden><div class="coll-track" role="radiogroup" aria-label="Search in">
+      <button type="button" role="radio" class="coll-b" data-sc="all" aria-checked="true">Top results</button>
+      <button type="button" role="radio" class="coll-b" data-sc="tv" aria-checked="false">Shows</button>
+      <button type="button" role="radio" class="coll-b" data-sc="movie" aria-checked="false">Films</button>
+      <button type="button" role="radio" class="coll-b" data-sc="people" aria-checked="false">Cast and crew</button>
+    </div></nav>
 
     <!-- what's filtering the list, each a button that takes it away -->
     <div class="chips" id="chips" aria-label="Filters in use" role="group" hidden></div>
@@ -221,10 +230,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.72.0" defer></script>
-  <script src="links.js?v=2.72.0" defer></script>
-  <script src="sheet.js?v=2.72.0" defer></script>
-  <script src="person.js?v=2.72.0" defer></script>
-  <script src="browse.js?v=2.72.0" defer></script>
+  <script src="shell.js?v=2.73.0" defer></script>
+  <script src="links.js?v=2.73.0" defer></script>
+  <script src="sheet.js?v=2.73.0" defer></script>
+  <script src="person.js?v=2.73.0" defer></script>
+  <script src="browse.js?v=2.73.0" defer></script>
 </body>
 </html>
