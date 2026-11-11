@@ -45,8 +45,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.70.0">
-  <link rel="stylesheet" href="browse.css?v=2.70.0">
+  <link rel="stylesheet" href="styles.css?v=2.71.0">
+  <link rel="stylesheet" href="browse.css?v=2.71.0">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -92,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.70.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.71.0</a>
     </div>
   </div>
 
@@ -133,8 +133,8 @@
     <div class="hs" id="cmd">
       <div class="search" role="search">
         <svg class="s-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.3"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
-        <input id="q" type="search" placeholder=" " autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="Search shows and films">
-        <span class="hs-hint" id="qHint" aria-hidden="true"><span class="hs-hint-t">Search shows and films</span></span>
+        <input id="q" type="search" placeholder=" " autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="Search shows, films and cast">
+        <span class="hs-hint" id="qHint" aria-hidden="true"><span class="hs-hint-t">Search shows, films and cast</span></span>
         <kbd class="s-key" aria-hidden="true">/</kbd>
         <button type="button" class="s-clear" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
@@ -156,6 +156,8 @@
     <!-- explore by genre: a tile for each of the biggest genres, three posters fanned -->
     <section class="moods" id="moods" aria-label="Explore by genre" hidden></section>
 
+    <!-- searching: the cast and crew whose names match, from the search service; a tap opens their sheet (person.js) -->
+    <section class="b-people" id="bPeople" aria-labelledby="bpH" hidden><h2 id="bpH">Cast and crew</h2><ul class="sh-faces" id="bpList"></ul></section>
     <section class="results" aria-labelledby="count">
       <div class="r-bar">
         <div class="r-hd"><h2 id="count" class="count" aria-live="polite">Loading…</h2>
@@ -219,10 +221,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.70.0" defer></script>
-  <script src="links.js?v=2.70.0" defer></script>
-  <script src="sheet.js?v=2.70.0" defer></script>
-  <script src="person.js?v=2.70.0" defer></script>
-  <script src="browse.js?v=2.70.0" defer></script>
+  <script src="shell.js?v=2.71.0" defer></script>
+  <script src="links.js?v=2.71.0" defer></script>
+  <script src="sheet.js?v=2.71.0" defer></script>
+  <script src="person.js?v=2.71.0" defer></script>
+  <script src="browse.js?v=2.71.0" defer></script>
 </body>
 </html>

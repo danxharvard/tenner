@@ -254,7 +254,7 @@
 
     // the hint in the box: "Search shows and films", then, now and then, one of what's popular right now gliding up in its place
     const hint = $('#qHint'); let hintAt = 0;
-    const base = matchMedia('(max-width: 560px)').matches ? 'Search' : 'Search shows and films';   // phones: the short word
+    const base = matchMedia('(max-width: 560px)').matches ? 'Search' : 'Search shows, films and cast';   // phones: the short word
     hint.firstElementChild.textContent = base;
     const sayHint = (text) => {
       const old = hint.lastElementChild, nu = document.createElement('span');
@@ -556,7 +556,7 @@
 
   function empty() {
     if (list.length) return;
-    if (web.on) { $('#grid').innerHTML = ''; return; }   // searching everything: the results below say it
+    if (web.on || !$('#bPeople').hidden) { $('#grid').innerHTML = ''; return; }   // searching everything, or people found: the results below say it
     if (!state.q && collection().chart) { $('#grid').innerHTML = `<li class="none"><h2>The Top 10 isn’t here yet</h2><p>${navigator.onLine === false ? 'You’re offline. It’ll be here when you’re back online.' : 'It’s rebuilt every hour. Try again in a moment.'}</p></li>`; return; }
     $('#grid').innerHTML = `<li class="none"><h2>No matches</h2><p>${state.q ? 'Nothing in this hour\'s catalogue matches that. Try a shorter search, or fewer filters.' : 'Try fewer filters, or a different collection.'}</p>
       <button type="button" class="btn btn-tinted" data-clear="${state.q ? 'q' : 'filters'}">${state.q ? 'Clear search' : 'Clear filters'}</button></li>`;
@@ -593,15 +593,47 @@
   function webSearch() {
     const q = state.q.trim(), box = $('#web');
     web.on = !!window.tn.api && q.length >= 2;
-    if (!web.on) { box.hidden = true; web.q = ''; web.ctl?.abort(); return; }
+    if (!web.on) { box.hidden = true; web.q = ''; web.ctl?.abort(); people(''); return; }
     box.classList.add('merged');   // one list: the services' matches first, then every other film and show (TMDB)
     $('#webH').textContent = list.length ? 'Every other film and show' : `Results for “${q}”`;
     if (q === web.q) return;
     web.q = q; web.page = 0; web.pages = 1; clearTimeout(web.t); web.ctl?.abort();
     web.items = new Map(); $('#webGrid').innerHTML = '';
     box.hidden = false; $('#webNote').textContent = 'Searching…';
-    web.t = setTimeout(() => webMore(), 280);
+    people(''); web.t = setTimeout(() => { webMore(); people(q); }, 280);
   }
+  // ---------- cast and crew: the people whose names match, as in the menu's search ----------
+  // A row of faces (the title sheet's Cast & Crew), only those with a face and something they're known for, so the names
+  // nobody's heard of stay out. It leads the results when a name matches better than any title does ('tom hanks'), and
+  // otherwise follows this hour's catalogue, before every other film and show.
+  const DEPT = { Acting: 'Actor', Directing: 'Director', Writing: 'Writer', Production: 'Producer', Sound: 'Composer', Camera: 'Cinematographer', Editing: 'Editor' };
+  const ppl = { q: '', ctl: null };
+  async function people(q) {
+    const box = $('#bPeople');
+    ppl.ctl?.abort(); ppl.q = q;
+    if (!q) { box.hidden = true; $('#bpList').innerHTML = ''; return; }
+    ppl.ctl = new AbortController();
+    try {
+      const r = await fetch(`${window.tn.api}/people?q=${encodeURIComponent(q)}`, { signal: ppl.ctl.signal });
+      const d = r.ok ? await r.json() : null; if (ppl.q !== q) return;
+      const l = (d?.results || []).filter((x) => x.photo && x.known?.length).slice(0, 12);
+      if (!l.length) { box.hidden = true; return; }
+      $('#bpList').innerHTML = l.map((p) => `<li><a href="./?p=${p.id}" data-p="${p.id}">
+        <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async"></span>
+        <b>${esc(p.name)}</b><small>${esc([DEPT[p.dept] || p.dept, p.known[0]].filter(Boolean).join(' · '))}</small></a></li>`).join('');
+      // first when a name is the better match; otherwise after this hour's catalogue
+      const fq = fold(q), best = (xs, f) => Math.max(0, ...xs.map((x) => score({ n: f(x) }, fq)));
+      const lead = !list.length || best(l, (x) => x.name) > best(list.slice(0, 20), (x) => x.n);
+      const res = $('.results');
+      if (lead) res.before(box); else $('#web').before(box);
+      box.classList.toggle('lead', lead); box.hidden = false;
+      if (!list.length) $('#grid .none')?.remove();   // the people are what was found: no "No matches" above them
+    } catch (e) { if (e.name !== 'AbortError') box.hidden = true; }
+  }
+  $('#bPeople').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-p]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !window.tnPerson) return;
+    e.preventDefault(); window.tnPerson.open(a.dataset.p, false, a.querySelector('b')?.textContent);
+  });
   async function webMore() {
     const q = web.q; if (!q || web.busy || web.page >= web.pages) return;
     web.busy = true; web.ctl = new AbortController();
