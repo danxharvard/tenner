@@ -760,7 +760,7 @@
     const items = w.climbers.filter((c) => ks.includes(c.c.split(':')[1]))   // every chart: the right-hand column ignores the services above
       .map((c) => ({ c, it: find(c.k) })).filter(({ it }) => it && !seen.has(it.title) && seen.add(it.title)).slice(0, 5);
     if (!items.length) return '';
-    return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Biggest climbers</h2><a class="bx-more" href="charts.html#top10">See all</a></header><ul class="bx-ups">${items.map(({ c, it }) => {
+    return `<section class="bx-panel panel" aria-labelledby="bxUp"><header class="bx-panel-hd"><h2 id="bxUp">Biggest climbers</h2><a class="bx-more" href="charts.html#top10" data-page>See all</a></header><ul class="bx-ups">${items.map(({ c, it }) => {
       const label = w.labels?.[c.c.split(':')[0]] || '', info = infoFor(it, 'Biggest climber this week');
       return `<li><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-up-art">${poster(it)}</span>
         <span class="bx-up-copy"><b>${esc(it.title)}</b><small>Now No. ${c.to} ${label === 'the UK' ? 'in the UK' : `on ${esc(label)}`}</small></span>${window.tn.climb(c.by)}</a></li>`;
