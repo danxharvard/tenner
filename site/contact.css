@@ -113,7 +113,7 @@
 .cx-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 6px; }
 .cx-note { margin: 0; font-size: 13px; line-height: 1.4; color: var(--label2); text-wrap: pretty; }
 .cx-note.bad { color: #ff453a; }
-.cx-send { flex: none; gap: 9px; height: 48px; padding: 0 20px 0 17px; font-size: 17px; overflow: hidden; }
+.cx-send { flex: none; gap: 9px; height: 44px; padding: 0 20px 0 17px; font-size: 16px; overflow: hidden; }
 .cx-send svg { width: 18px; height: 18px; flex: none; }
 .cx-send kbd { margin-left: 4px; font: 400 13px/1 var(--font); opacity: .55; }
 @media (hover: none), (pointer: coarse), (max-width: 599px) { .cx-send kbd { display: none; } }

@@ -13,7 +13,7 @@ body.discover { overflow-x: clip; }
 :root[data-theme="light"] .d-amb.in { opacity: .35; }
 
 .d-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
-.d-h { margin: 0; font: 800 31px/1.1 var(--font-display); letter-spacing: -.03em; }
+.d-h { margin: 0; font: 700 clamp(32px, 5vw, 48px)/1.1 var(--font-display); letter-spacing: -.008em; }   /* the site's large title */
 .d-hd .dd { flex: none; }
 .d-hint { margin: 4px 0 0; font-size: 13.5px; color: var(--label2); letter-spacing: -.008em; }
 
@@ -86,7 +86,7 @@ body.discover { overflow-x: clip; }
 .d-count b { color: var(--label); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 
-@media (max-width: 380px) { .d-h { font-size: 27px; } .d-acts { gap: 14px; } }
+@media (max-width: 380px) { .d-h { font-size: 30px; } .d-acts { gap: 14px; } }
 
 /* on a computer: a little room at the top */
 @media (min-width: 720px) { .dwrap { padding-top: 16px; } }

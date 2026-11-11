@@ -100,7 +100,7 @@ body.home { overflow-x: clip; }
 .bx-cert { padding: 2px 5px; border-radius: 4px; font: 600 11px/1.2 var(--font); box-shadow: inset 0 0 0 1.2px rgba(255, 255, 255, .6); }
 .bx-h-ov { margin: 0; max-width: 520px; font-size: 15px; line-height: 1.42; color: rgba(255, 255, 255, .88); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .bx-h-acts { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-.bx-cta { height: 46px; padding: 0 22px 0 18px; font-size: 16px; }
+.bx-cta { height: 44px; padding: 0 22px 0 18px; font-size: 16px; }
 .bx-cta svg { width: 18px; height: 18px; }
 
 /* the next featured titles: small posters along the top right (computers), dots along the foot (phones) */
@@ -382,6 +382,6 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   .bx-hd.me-on .bx-me-slot { display: block; grid-column: 2; grid-row: 1; height: 56px; }
 }
 /* the side boxes' header buttons (Discover's Open, the Top 10's By service): the site's button, a size smaller */
-.bx-hd-btn { position: relative; flex: none; height: 32px; padding: 0 12px; gap: 6px; font-size: 14px; -webkit-font-smoothing: antialiased; text-shadow: none; }
+.bx-hd-btn { position: relative; flex: none; height: 36px; padding: 0 12px; gap: 6px; font-size: 15px; -webkit-font-smoothing: antialiased; text-shadow: none; }
 .bx-hd-btn svg { width: 15px; height: 15px; }
 .bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */

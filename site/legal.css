@@ -6,11 +6,11 @@
   max-width: 680px; margin: 0 auto 0 var(--page-left); padding: 8px var(--gutter-r) 0 var(--gutter);
   display: flex; flex-direction: column; align-items: center;
 }
-.lwrap h1 { margin: 10px 0 4px; font: 700 28px/1.15 var(--font); letter-spacing: .004em; text-align: center; text-wrap: balance; }
-.l-updated { margin: 0 0 16px; font-size: 15px; color: var(--label2); text-align: center; text-wrap: balance; }
+.lwrap h1 { margin: 14px 0 4px; font: 700 clamp(32px, 5vw, 48px)/1.1 var(--font-display); letter-spacing: -.008em; text-wrap: balance; }   /* the site's large title */
+.l-updated { margin: 0 0 16px; font-size: 15px; color: var(--label2); text-wrap: balance; }
 .section-label {
-  width: 100%; margin: 0 0 8px; padding-inline: 16px;
-  font-size: 13px; font-weight: 400; color: var(--label2); text-transform: uppercase; letter-spacing: -.005em;
+  width: 100%; margin: 18px 0 12px; padding-inline: 4px;
+  font: 700 22px/1.2 var(--font); color: var(--label); letter-spacing: -.008em;   /* the site's section heading (.row-h) */
 }
 .policy-box + .section-label { margin-top: 24px; }
 

@@ -30,6 +30,16 @@
     say('Saved');
   });
 
+  // each menu as wide as its longest choice, so none is ever cut off (measured, since browsers size a select differently)
+  const fitMenus = () => {
+    const c = document.createElement('canvas').getContext('2d'); if (!c) return;
+    for (const sel of document.querySelectorAll('.set-row select')) {
+      const cs = getComputedStyle(sel); c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const w = Math.max(...[...sel.options].map((o) => c.measureText(o.text).width));
+      sel.style.width = `${Math.ceil(w + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2)}px`;
+    }
+  };
+  fitMenus(); document.fonts?.ready.then(fitMenus);
   fetch('data/trending.json').then((r) => (r.ok ? r.json() : null)).then((t) => { for (const s of t?.services || []) logos[s.key] = s.logo; }).catch(() => {});
   document.getElementById('setMine').addEventListener('click', () => window.tn.pickMine(Object.keys(LABELS).map((k) => ({ key: k, label: LABELS[k], logo: logos[k] }))));
   addEventListener('tn:mine', show);

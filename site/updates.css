@@ -1,13 +1,13 @@
 /* The Update centre: a plain release log. One frosted box, a row per build (number, date, kind on the left; title,
    changes and notes on the right), hairlines between them; one column on phones. */
 .uwrap { max-width: 860px; margin: 0 auto 0 var(--page-left); padding: 8px var(--gutter-r) 40px var(--gutter); }
-.uwrap h1 { margin: 10px 0 4px; font: 700 28px/1.15 var(--font); letter-spacing: .004em; }
+.uwrap h1 { margin: 14px 0 4px; font: 700 clamp(32px, 5vw, 48px)/1.1 var(--font-display); letter-spacing: -.008em; text-wrap: balance; }   /* the site's large title */
 .u-sub { margin: 0 0 16px; font-size: 15px; color: var(--label2); }
 .u-log { border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 1px var(--fr-rim); overflow: hidden; }
 .u-row { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 16px; padding: 14px 18px; scroll-margin-top: 80px; }
 .u-row + .u-row { border-top: .5px solid var(--sep); }
-.u-meta { display: flex; flex-direction: column; gap: 2px; font: 400 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--label2); }
+.u-meta { display: flex; flex-direction: column; gap: 2px; font: 400 13px/1.4 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
 .u-ver { color: var(--label); font-weight: 600; font-size: 14px; text-decoration: none; }
 .u-ver:hover { text-decoration: underline; }
 .u-kind { color: var(--label3); }

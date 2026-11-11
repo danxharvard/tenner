@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.78.0';
+  const version = '2.79.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -260,72 +260,17 @@
     get() { try { const l = JSON.parse(localStorage.getItem(MS) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } },
     set(l) { try { if (l.length) localStorage.setItem(MS, JSON.stringify(l)); else localStorage.removeItem(MS); } catch {} meta.edit((m) => { m.sat = Date.now(); }); dispatchEvent(new Event('tn:mine')); },
   };
-  // the picker: a card in the iOS Subscriptions style, under a band of Tenner's energy (the goodbye orb's light, let
-  // loose: ribbons of blue, cyan, violet and pink drifting and changing shape, two waves of light running through them
-  // and a core that breathes), melting into the frost. A round back button and the title, one line on what the sheet is
-  // for, Watch before it goes (your Watchlist titles about to leave your services), then your services under Active and
+  // the picker: a card in the iOS Subscriptions style, in the popups' one look (styles.css). A round back button and the
+  // title, one line on what the sheet is for, Watch before it goes (your Watchlist titles about to leave your services), then your services under Active and
   // the rest under Inactive (a tap moves one across), each a rounded card with its logo and what's waiting for you there,
   // and a switch for all six below
   const CHEV_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEV_R = '<svg class="mine-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CAL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m9 15 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const AURA = `<div class="mine-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><canvas class="mine-siri"></canvas></div>
-    <div class="mine-edge" aria-hidden="true"><i></i><i></i></div>`;
-  // The waveform, in the spirit of Siri's: five glowing ribbons of light (blue, purple, pink, orange, cyan), each a wave
-  // that's tallest in the middle and tapers to nothing at the ends, filled as soft lenses and laid over one another so
-  // the light adds up where they cross. Each swells, settles and drifts at its own slow pace, with a fine bright line
-  // through the middle. Drawn on a canvas only while the sheet is open and on screen; one still frame with Animations off.
-  const SIRI = [
-    { c: '10,132,255', k: 3.2, sp: 1.15, sw: .55, so: 0, dx: .35, ds: .21 },
-    { c: '191,90,242', k: 2.6, sp: -.9, sw: .43, so: 1.7, dx: .5, ds: .17 },
-    { c: '255,55,95', k: 3.8, sp: 1.35, sw: .61, so: 3.1, dx: .4, ds: .26 },
-    { c: '255,159,10', k: 2.2, sp: -.7, sw: .37, so: 4.4, dx: .6, ds: .13 },
-    { c: '100,210,255', k: 4.4, sp: 1.6, sw: .69, so: 5.6, dx: .3, ds: .31 },
-  ];
-  function siri(dlg) {
-    const cv = dlg.querySelector('.mine-siri'), ctx = cv.getContext('2d'); if (!ctx) return () => {};
-    let raf = 0, alive = true;
-    const size = () => {
-      const r = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
-      if (cv.width !== Math.round(w * r)) { cv.width = Math.round(w * r); cv.height = Math.round(h * r); }
-      ctx.setTransform(r, 0, 0, r, 0, 0); return [w, h];
-    };
-    const frame = (now) => {
-      const [w, h] = size(), t = now / 1000, sum = dlg.querySelector('#mineSum');
-      const mid = Math.min(h - 30, sum ? sum.offsetTop + sum.offsetHeight + 30 : h * .6), amp = Math.min(30, h * .2);
-      const dark = getComputedStyle(cv).getPropertyValue('--siri-dark').trim() === '1';
-      ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
-      for (const pass of [0, 1]) {   // a soft glow underneath, then the ribbons themselves
-        ctx.filter = pass ? 'none' : 'blur(10px)';
-        for (const l of SIRI) {
-          const a = amp * (.25 + .75 * (.5 + .5 * Math.sin(t * l.sw + l.so)) ** 1.6), off = l.dx * Math.sin(t * l.ds + l.so);
-          const y = (x) => { const u = (x / w) * 4 - 2 - off, att = (2 / (2 + u ** 4)) ** 2; return a * att * Math.sin(l.k * u - t * l.sp + l.so); };
-          const g = ctx.createLinearGradient(0, 0, w, 0);
-          const al = (dark ? .55 : .42) * (pass ? 1 : .9);
-          g.addColorStop(0, `rgba(${l.c},0)`); g.addColorStop(.5 + off / 8, `rgba(${l.c},${al})`); g.addColorStop(1, `rgba(${l.c},0)`);
-          ctx.beginPath(); ctx.moveTo(0, mid);
-          for (let x = 0; x <= w; x += 3) ctx.lineTo(x, mid - Math.abs(y(x)));
-          for (let x = w; x >= 0; x -= 3) ctx.lineTo(x, mid + Math.abs(y(x)));
-          ctx.closePath(); ctx.fillStyle = g; ctx.fill();
-        }
-      }
-      ctx.filter = 'none'; ctx.globalCompositeOperation = 'source-over';
-      const line = ctx.createLinearGradient(0, 0, w, 0);
-      line.addColorStop(0, 'rgba(255,255,255,0)'); line.addColorStop(.5, `rgba(255,255,255,${dark ? .75 : .9})`); line.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = line; ctx.fillRect(0, mid - .5, w, 1);
-      if (alive && !reduce() && document.visibilityState === 'visible') raf = requestAnimationFrame(frame); else raf = 0;
-    };
-    const go = () => { if (!raf && alive) raf = requestAnimationFrame(frame); };
-    const vis = () => { if (document.visibilityState === 'visible') go(); };
-    document.addEventListener('visibilitychange', vis); addEventListener('resize', go);
-    frame(performance.now());
-    return () => { alive = false; cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', vis); removeEventListener('resize', go); };
-  }
   function pickMine(list) {
     let dlg = document.getElementById('mineDlg');
     if (!dlg) {
-      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH" aria-describedby="mineSum">${AURA}
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH" aria-describedby="mineSum">
         <form method="dialog">
           <div class="mine-top"><button class="mine-back" value="done" aria-label="Done">${CHEV_L}</button><h2 id="mineH">My services</h2></div>
           <p class="mine-sum" id="mineSum">Choose the services you have, and see what’s waiting for you on each one.</p>
@@ -339,7 +284,6 @@
         </form></dialog>`);
       dlg = document.getElementById('mineDlg');
       dlg.addEventListener('close', () => {
-        dlg.stopSiri?.(); dlg.stopSiri = null;
         if (dlg.returnValue !== 'done') return;
         const on = [...dlg.querySelectorAll('.mine-list input:checked')].map((i) => i.value);
         mine.set(on.length === dlg.querySelectorAll('.mine-list input').length ? [] : on);   // all six is the same as none chosen
@@ -376,7 +320,6 @@
     dlg.place();
     dlg.classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari 17.4+: the real iOS switch
     dlg.returnValue = ''; dlg.scrollTop = 0; dlg.showModal();
-    dlg.stopSiri?.(); dlg.stopSiri = siri(dlg);
     waiting(dlg, list);
   }
 
