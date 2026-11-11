@@ -166,6 +166,11 @@
    Boxes use the site's one frost; the row runs into the page's margins and fades softly where there's more to see. */
 .tt-hd .tt-acts { display: flex; align-items: center; gap: 8px; }
 .tt-go:disabled { opacity: .35; cursor: default; }
+/* Refresh: the arrow turns while the charts are fetched (a gentle pulse instead with Animations off) */
+.tt-refresh[aria-busy="true"] { cursor: progress; }
+:root:not(.still) .tt-refresh[aria-busy="true"] svg { animation: ttSpin .8s var(--ease-out, ease-out) infinite; }
+:root.still .tt-refresh[aria-busy="true"] { opacity: .6; }
+@keyframes ttSpin { to { rotate: 360deg; } }
 .tt-go[hidden] { display: none; }
 .tt-row {
   --tt-fade: 28px;
@@ -188,5 +193,10 @@
 @media (max-width: 719px) {
   .tt-hd .tt-go { display: none; }   /* phones swipe */
   .tt-row { grid-auto-columns: calc(100% - var(--gutter) - var(--gutter-r) - 28px); gap: 12px; --tt-fade: 16px; }
+  .tt-sub-x { display: none; }   /* room for Refresh beside the menu */
+}
+@media (max-width: 379px) {   /* the smallest phones: the menu and Refresh sit on their own line under the heading */
+  .tt-hd { grid-template-columns: minmax(0, 1fr); }
+  .tt-hd > .tt-acts { grid-column: 1; grid-row: auto; margin-top: 10px; }
 }
 @media (prefers-reduced-transparency: reduce) { .tt-box.panel { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }

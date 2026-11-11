@@ -47,15 +47,18 @@ const svc = (k) => services().find((s) => s.key === k);
 
 // Fetch the latest data and, if it's new, redraw in place (with the usual crossfade), keeping your scroll position.
 // The background check (from shell.js) does it quietly, and holds back while a menu is open, trying again next time.
+// Says how it went ('new', 'same' or 'failed'), for the Top 10s page's Refresh button.
 async function refresh() {
-  if (!state.trending || refreshing) return;
+  if (!state.trending || refreshing) return 'same';
   refreshing = true;
+  let out = 'same';
   try {
     const d = await fetchData(true);
     const changed = d.trending.generatedAt !== state.trending.generatedAt || d.fresh?.generatedAt !== state.fresh?.generatedAt;
-    if (changed) { const y = scrollY; Object.assign(state, d, { cat: d.cat || state.cat, week: d.week || state.week, trail: d.trail || state.trail }); render(); requestAnimationFrame(() => scrollTo(0, y)); }
-  } catch {}   // quietly: the next check catches up
+    if (changed) { out = 'new'; const y = scrollY; Object.assign(state, d, { cat: d.cat || state.cat, week: d.week || state.week, trail: d.trail || state.trail }); render(); requestAnimationFrame(() => scrollTo(0, y)); }
+  } catch { out = 'failed'; }   // the background check stays quiet: the next one catches up
   refreshing = false;
+  return out;
 }
 let refreshing = false;
 addEventListener('tn:check', () => refresh());
@@ -706,24 +709,39 @@ function pageTop10() {
     <p class="lede">What's charting on each service right now, side by side, and how the charts moved this week. Updated every hour${when ? `, last at ${esc(when)}` : ''}.</p>
     ${state.trending.sample ? `<p class="notice"><strong>Sample data.</strong> These titles are made up.</p>` : ''}
     <section class="wk tt" aria-labelledby="ttH">
-      <div class="wk-hd tt-hd"><h2 class="row-h" id="ttH">By service</h2><p>${list.length} services, from No. 1 down</p>
+      <div class="wk-hd tt-hd"><h2 class="row-h" id="ttH">By service</h2><p>${list.length} services<span class="tt-sub-x">, from No. 1 down</span></p>
         <span class="tt-acts">
           <label class="dd dd-kind"><span class="dd-l" id="ttKindL">${TT_WORDS[TT.kind]}</span><span class="dd-chev" aria-hidden="true"></span>
             <select id="ttKind" aria-label="Shows, films or both">${Object.entries(TT_WORDS).map(([k, l]) => `<option value="${k}"${k === TT.kind ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+          <button type="button" class="bx-r tt-refresh" id="ttRefresh" aria-label="Refresh the charts" title="Refresh the charts">${REFRESH_IC}</button>
           <button type="button" class="bx-r tt-go" data-tgo="-1" aria-label="Previous services" disabled>${ttArrow(-1)}</button><button type="button" class="bx-r tt-go" data-tgo="1" aria-label="Next services">${ttArrow(1)}</button></span></div>
       ${boxes.length ? `<div class="tt-row" id="ttRow">${boxes.join('')}</div>
       ${more ? `<button type="button" class="bx-more tt-more" id="ttMore" aria-controls="ttRow" aria-expanded="${TT.open}">${TT.open ? 'Show less' : 'See more'}</button>` : ''}`
       : `<p class="lede">The services' charts are on their way. They'll be here after the next hourly update.</p>`}
     </section>${weekCharts()}`;
 }
+// Refresh: fetch the latest charts now instead of waiting for the next quarter-hour check. The charts themselves are
+// rebuilt every hour, so between builds it says they're already up to date.
+const REFRESH_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M19.8 3.8v4.6h-4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+async function refreshNow(b) {
+  if (b.getAttribute('aria-busy') === 'true') return;
+  b.setAttribute('aria-busy', 'true'); try { navigator.vibrate?.(8); } catch {}
+  const [out] = await Promise.all([refresh(), new Promise((r) => setTimeout(r, 600))]);   // long enough to see it turn
+  b.removeAttribute('aria-busy');   // a new hour redraws the page, and the button with it
+  const at = new Date(state.trending.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  toast(out === 'new' ? `Charts updated${when ? ` to ${when}` : ''}` : out === 'failed' ? 'The charts didn’t refresh. Check your connection and try again'
+    : `Already up to date${when ? `: charts from ${when}` : ''}`);
+}
 function ttMount() {
   const row = $('#ttRow'), go = [...view.querySelectorAll('[data-tgo]')];
+  $('#ttRefresh')?.addEventListener('click', (e) => refreshNow(e.currentTarget));
   $('#ttKind')?.addEventListener('change', (e) => {
     TT.kind = e.target.value; try { sessionStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
     if (TT.kind !== 'both') NW.race = TT.kind;
     render();
   });
   window.tn.tip({ id: 'top10s-every-chart', for: '#ttH', title: 'Every chart in one place', text: 'Each service’s top 10 side by side, then how the UK’s charts moved this week: the No. 1s, the biggest climbers and what’s new in the top 10.' });
+  window.tn.tip({ id: 'top10s-refresh', for: '#ttRefresh', delay: 2600, title: 'Refresh the charts', text: 'Tap to fetch the latest charts straight away. They’re rebuilt every hour, and this page also checks by itself every 15 minutes.' });
   if (!row) { go.forEach((b) => (b.hidden = true)); return; }
   const ends = () => {
     const max = row.scrollWidth - row.clientWidth - 2;
