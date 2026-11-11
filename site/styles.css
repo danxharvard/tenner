@@ -630,7 +630,6 @@ a.tb-btn:hover { text-decoration: none; }
 .mine-l { flex: 1; font-size: 16px; padding: 7px 0; }
 .mine-n { display: block; font-size: 13px; color: var(--label2); }
 .mine-n:empty { display: none; }
-.mine-dlg p.mine-plan { margin: 12px 2px 0; font-size: 13px; }
 .mine-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .sw { position: relative; width: 51px; height: 31px; flex: none; border-radius: 16px; background: var(--fill-strong); transition: background-color .25s ease; }
 .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); transition: translate .25s var(--ease-out); }
@@ -1589,39 +1588,131 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
   :root:not([data-theme="light"]):has(.bd-ext > *) { --side-bg: rgba(44, 40, 48, .42); }
 }
 
-/* ============================================================ My services (shell.js): the iOS Subscriptions card. A pane of
-   frosted glass with a fine rim, a round back button beside the centred title, Active and Inactive as bold headings, each
-   service a rounded card (its logo as an app tile, the name, a grey line, a note on the right and a chevron), and the
-   all-six switch in a card of its own at the foot. */
-.mine-subs { width: min(440px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; border-radius: var(--r);
-  background: color-mix(in srgb, var(--bg) 80%, transparent); -webkit-backdrop-filter: blur(40px) saturate(1.6); backdrop-filter: blur(40px) saturate(1.6);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--label) 16%, transparent), 0 30px 80px -20px rgba(0, 0, 0, .6); }
-.mine-subs form { padding: 22px 20px 20px; }
-.mine-top { position: relative; display: grid; place-items: center; min-height: 44px; margin-bottom: 12px; }
-.mine-subs h2 { margin: 0; padding: 0 52px; font: 600 22px/1.2 var(--font); letter-spacing: -.02em; text-align: center; }
+/* ============================================================ My services (shell.js): the iOS Subscriptions card, under a
+   band of Tenner's energy. The sheet is the one frost; across its top the goodbye orb's light runs free: ribbons of blue
+   into cyan and violet into pink that drift and change shape, a soft indigo current, a white-blue core that breathes and
+   two waves of light running through, all melting into the frost below (never a hard edge). Slow (9 to 26 seconds a
+   cycle) so it feels calm; still and lit with Animations off or Reduce Motion. Then a round back button beside the
+   centred title, a line of what you pay, Swap in a faint inner box, Active and Inactive as bold headings, each service a
+   rounded card (logo tile, name, grey line, a Keep / Pause badge or note, chevron) and the all-six switch in its own card. */
+.mine-subs { position: relative; isolation: isolate; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
+  border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 100px -24px rgba(0, 0, 0, .65); scrollbar-width: none; }
+.mine-subs::-webkit-scrollbar { display: none; }
+.mine-subs::backdrop { background: rgba(0, 0, 0, .42); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); }
+:root:not(.still) .mine-subs[open] { animation: mineIn .55s var(--ease-spring); }
+@keyframes mineIn { from { opacity: 0; transform: translateY(18px) scale(.96); filter: blur(6px); } }
+.mine-subs form { position: relative; z-index: 1; padding: 18px 20px 22px; }
+
+/* the energy */
+.mine-aura { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: 270px; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 30%, rgba(0, 0, 0, .55) 62%, transparent); mask-image: linear-gradient(#000 30%, rgba(0, 0, 0, .55) 62%, transparent); }
+.mine-aura i { position: absolute; display: block; mix-blend-mode: var(--aura-blend, normal); opacity: var(--aura-o, .62); }
+.mine-aura i:nth-child(1) { left: -14%; top: -70px; width: 74%; height: 230px; filter: blur(30px);
+  background: radial-gradient(closest-side, #0a84ff, #64d2ff 52%, transparent); border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
+.mine-aura i:nth-child(2) { right: -16%; top: -60px; width: 72%; height: 220px; filter: blur(30px);
+  background: radial-gradient(closest-side, #bf5af2, #ff4f8b 55%, transparent); border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%; }
+.mine-aura i:nth-child(3) { left: 24%; top: 10px; width: 52%; height: 130px; filter: blur(26px);
+  background: radial-gradient(closest-side, #5e5ce6, #7d3cff 60%, transparent); border-radius: 40% 60% 54% 46% / 38% 52% 48% 62%; }
+.mine-aura i:nth-child(4) { left: 50%; top: -34px; width: 220px; height: 84px; margin-left: -110px; filter: blur(20px); --aura-o: .7;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .95), rgba(150, 215, 255, .6) 40%, rgba(10, 132, 255, .2) 70%, transparent); border-radius: 50%; }
+.mine-aura i:nth-child(5) { left: 4%; top: 86px; width: 92%; height: 38px; filter: blur(14px); rotate: -5deg;
+  background: linear-gradient(90deg, transparent, #8fe3ff 25%, #bf5af2 70%, transparent); border-radius: 50%; }
+.mine-waves { position: absolute; left: 0; top: 0; width: 100%; height: 200px; overflow: visible; opacity: var(--wave-o, .7); }
+.mw { fill: none; stroke: url(#mineWg); stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.mw-g { stroke-width: 9; filter: blur(6px); opacity: .55; }
+.mw-2 { stroke-width: 1.3; opacity: .6; }
+/* by night the light adds up, like the orb's; by day it's a softer wash on the milky frost */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mine-aura { --aura-blend: plus-lighter; --aura-o: .78; --wave-o: .9; } }
+:root[data-theme="dark"] .mine-aura { --aura-blend: plus-lighter; --aura-o: .78; --wave-o: .9; }
+:root:not(.still) .mine-aura i:nth-child(1) { animation: mineDrift1 22s ease-in-out infinite; }
+:root:not(.still) .mine-aura i:nth-child(2) { animation: mineDrift2 26s ease-in-out infinite; }
+:root:not(.still) .mine-aura i:nth-child(3) { animation: mineDrift3 18s ease-in-out infinite; }
+:root:not(.still) .mine-aura i:nth-child(4) { animation: outBreathe 7s ease-in-out infinite; }
+:root:not(.still) .mine-aura i:nth-child(5) { animation: mineSweep 14s ease-in-out infinite; }
+:root:not(.still) .mw-g, :root:not(.still) .mw-1 { animation: mineWave 9s linear infinite; }
+:root:not(.still) .mw-2 { animation: mineWave 13s linear infinite reverse; }
+:root:not(.still) .mine-waves { animation: mineSwell 11s ease-in-out infinite; transform-origin: 50% 72%; }
+@keyframes mineWave { to { translate: -400px 0; } }
+@keyframes mineSwell { 50% { transform: scaleY(.6); } }
+@keyframes mineSweep { 50% { translate: 0 -18px; rotate: 4deg; scale: 1.05 1.3; } }
+@keyframes mineDrift1 {
+  0%, 100% { translate: 0 0; border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
+  33% { translate: 14% 10px; border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%; }
+  66% { translate: 4% -12px; border-radius: 40% 60% 54% 46% / 38% 52% 48% 62%; } }
+@keyframes mineDrift2 {
+  0%, 100% { translate: 0 0; border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%; }
+  40% { translate: -16% 14px; border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+  75% { translate: -6% -8px; border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; } }
+@keyframes mineDrift3 {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% { translate: -10% 16px; rotate: 30deg; border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; } }
+
+/* the title */
+.mine-top { position: relative; display: grid; place-items: center; min-height: 44px; margin: 6px 0 0; }
+.mine-subs h2 { margin: 0; padding: 0 52px; font: 700 26px/1.15 var(--font); letter-spacing: -.025em; text-align: center; text-wrap: balance; text-shadow: 0 1px 14px color-mix(in srgb, var(--bg) 55%, transparent); }
 .mine-back { position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
-  color: #fff; background: rgba(120, 120, 128, .55); -webkit-tap-highlight-color: transparent; transition: background-color .2s ease, transform .35s var(--ease-spring); }
+  color: #fff; background: var(--bt-round); -webkit-tap-highlight-color: transparent; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .14);
+  transition: background-color .2s ease, transform .35s var(--ease-spring); }
 .mine-back svg { width: 22px; height: 22px; }
 .mine-back:active { transform: scale(.92); }
-@media (hover: hover) { .mine-back:hover { background: rgba(120, 120, 128, .72); } }
+@media (hover: hover) { .mine-back:hover { background: var(--bt-round-hover); } }
 .mine-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.mine-sec { margin: 18px 2px 10px; font: 600 18px/1.2 var(--font); letter-spacing: -.016em; }
+.mine-subs p.mine-sum { width: fit-content; max-width: 100%; margin: 10px auto 40px; padding: 6px 12px; border-radius: var(--r); color: var(--label);
+  font: 500 13px/1.3 var(--font); text-align: center; font-variant-numeric: tabular-nums;
+  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 .5px var(--fr-rim); }
+.mine-subs p.mine-sum:empty { visibility: hidden; }
+
+/* Swap: a faint box inside the frost (never glass on glass) */
+.mine-swap { position: relative; margin: 0 0 6px; padding: 16px 16px 14px; border-radius: var(--r); background: var(--fr-in); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.mine-swap[hidden] { display: none; }
+.mine-swap-h { margin: 0; font: 600 19px/1.25 var(--font); letter-spacing: -.02em; text-wrap: balance; }
+.mine-swap-ey { display: block; width: fit-content; margin-bottom: 4px; font: 600 13px/1.2 var(--font); letter-spacing: 0;
+  background: linear-gradient(90deg, #0a84ff, #bf5af2 60%, #ff4f8b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.mine-subs p.mine-swap-p { margin: 6px 0 0; color: var(--label2); font: 400 14px/1.4 var(--font); }
+.mine-subs p.mine-save { display: flex; align-items: baseline; gap: 8px; margin: 8px 0 0; color: var(--label2); font: 500 15px/1 var(--font); }
+.mine-save b { color: var(--label); font: 700 34px/1 var(--font-display, var(--font)); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.mine-back-l { display: grid; margin: 12px 0 0; padding: 0; list-style: none; }
+.mine-back-l li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: .5px solid var(--sep); }
+.mine-back-l li > span { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.mine-back-l b { font: 500 15px/1.25 var(--font); }
+.mine-back-l small { color: var(--label2); font: 400 13px/1.3 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine-cal { display: inline-flex; align-items: center; gap: 6px; flex: none; height: 36px; padding: 0 12px; border: 0; border-radius: var(--r); cursor: pointer;
+  color: #fff; background: var(--bt-fill); font: 500 14px/1 var(--font); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+  transition: transform .35s var(--ease-spring), background-color .2s ease; }
+.mine-cal::before { content: ""; position: absolute; inset: -4px; }
+.mine-cal { position: relative; }
+.mine-cal svg { width: 16px; height: 16px; }
+.mine-cal:active { transform: scale(.95); }
+.mine-cal.done { background: color-mix(in srgb, #30d158 80%, #000); }
+.mine-cal:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* the services */
+.mine-sec { margin: 22px 2px 10px; font: 600 18px/1.2 var(--font); letter-spacing: -.016em; }
 .mine-subs .mine-list { display: grid; gap: 10px; border-radius: 0; background: none; overflow: visible; }
 .mine-subs .mine-row { gap: 14px; min-height: 76px; padding: 12px 14px 12px 12px; border-radius: var(--r); border: 0;
-  background: color-mix(in srgb, var(--label) 7%, transparent); box-shadow: 0 6px 18px -10px rgba(0, 0, 0, .35); transition: background-color .2s ease; }
+  background: var(--fr-in); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--label) 6%, transparent), 0 8px 22px -14px rgba(0, 0, 0, .45);
+  transition: background-color .2s ease, transform .35s var(--ease-spring); }
+.mine-subs .mine-row:active { transform: scale(.985); }
 .mine-subs .mine-row + .mine-row { border-top: 0; }
 @media (hover: hover) { .mine-subs .mine-row:hover { background: color-mix(in srgb, var(--label) 11%, transparent); } }
 .mine-subs .mine-row:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .mine-dlg.mine-subs .mine-row input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
-.mine-subs .mine-ic { width: 52px; height: 52px; border-radius: var(--r); font-size: 22px; box-shadow: 0 0 0 .5px var(--sep); }
+.mine-subs .mine-ic { width: 52px; height: 52px; border-radius: 12px; font-size: 22px; box-shadow: 0 0 0 .5px var(--sep), 0 6px 14px -8px rgba(0, 0, 0, .5); transition: opacity .3s ease, filter .3s ease; }
 .mine-subs .mine-l { min-width: 0; padding: 0; font: 500 17px/1.25 var(--font); letter-spacing: -.016em; }
-.mine-subs .mine-n { margin-top: 3px; font: 400 14px/1.25 var(--font); }
+.mine-subs .mine-n { margin-top: 3px; font: 400 14px/1.3 var(--font); text-wrap: pretty; }
 .mine-d { flex: none; max-width: 40%; color: var(--label2); font: 500 14px/1.25 var(--font); text-align: right; }
 .mine-row:has(input:checked) .mine-d { color: var(--label); }
+/* Keep, Pause, Worth adding: small badges (not buttons), each in its system colour */
+.mine-d.mine-v { padding: 5px 9px; border-radius: var(--r); font: 600 13px/1.1 var(--font); color: var(--v); background: color-mix(in srgb, var(--v) 15%, transparent);
+  box-shadow: inset 0 0 0 .5px color-mix(in srgb, var(--v) 30%, transparent); }
+.mine-v-keep { --v: #30d158; } .mine-v-pause { --v: #ff9f0a; } .mine-v-add { --v: #0a84ff; }
+:root[data-theme="light"] .mine-v-keep { --v: #248a3d; } :root[data-theme="light"] .mine-v-pause { --v: #c93400; } :root[data-theme="light"] .mine-v-add { --v: #0071e3; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .mine-v-keep { --v: #248a3d; } :root:not([data-theme="dark"]) .mine-v-pause { --v: #c93400; } :root:not([data-theme="dark"]) .mine-v-add { --v: #0071e3; } }
 .mine-chev { flex: none; width: 18px; height: 18px; margin-left: -4px; color: var(--label2); }
 .mine-row:not(:has(input:checked)) .mine-ic { opacity: .55; filter: saturate(.4); }
 .mine-all { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding: 16px 16px 16px 18px; border-radius: var(--r); cursor: pointer; position: relative;
-  background: color-mix(in srgb, var(--label) 7%, transparent); }
+  background: var(--fr-in); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--label) 6%, transparent); }
 .mine-all .mine-l { flex: 1; font: 500 17px/1.25 var(--font); }
 .mine-all small { display: block; margin-top: 4px; color: var(--label2); font: 400 14px/1.4 var(--font); }
 .mine-all input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -1630,8 +1721,15 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 .mine-all input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
 .mine-subs.native-sw .mine-all input { position: static; opacity: 1; width: auto; height: auto; margin: 0; accent-color: var(--green); font-size: 17px; }
 .mine-subs.native-sw .mine-all .sw { display: none; }
-.mine-subs p.mine-plan { margin: 14px 4px 0; }
-@media (max-width: 380px) { .mine-d { display: none; } }
+.mine-subs p.mine-fine { margin: 14px 4px 0; color: var(--label3, var(--label2)); font: 400 12px/1.45 var(--font); }
+@media (max-width: 380px) { .mine-d:not(.mine-v) { display: none; } .mine-subs .mine-row { gap: 12px; } .mine-subs .mine-ic { width: 44px; height: 44px; } }
+/* phones: a sheet from the bottom, the energy along its top */
+@media (max-width: 600px) {
+  .mine-subs { width: 100%; max-width: 100%; margin: auto 0 0; max-height: calc(100dvh - 20px); border-radius: var(--r) var(--r) 0 0; }
+  .mine-subs form { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+  :root:not(.still) .mine-subs[open] { animation: mineUp .5s var(--ease-out); }
+}
+@keyframes mineUp { from { transform: translateY(40%); opacity: 0; } }
 @media (prefers-reduced-transparency: reduce) { .mine-subs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
 
 /* computers: search results fill the sidebar, as they fill the menu on phones (the rest of the sidebar steps aside) */

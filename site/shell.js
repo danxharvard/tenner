@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.75.0';
+  const version = '2.76.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -260,22 +260,35 @@
     get() { try { const l = JSON.parse(localStorage.getItem(MS) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } },
     set(l) { try { if (l.length) localStorage.setItem(MS, JSON.stringify(l)); else localStorage.removeItem(MS); } catch {} meta.edit((m) => { m.sat = Date.now(); }); dispatchEvent(new Event('tn:mine')); },
   };
-  // the picker: a card in the iOS Subscriptions style. A round back button and the title, your services under Active and
-  // the rest under Inactive (a tap moves one across), each a rounded card with its logo, and a switch for all six below
+  // the picker: a card in the iOS Subscriptions style, under a band of Tenner's energy (the goodbye orb's light, let
+  // loose: ribbons of blue, cyan, violet and pink drifting and changing shape, two waves of light running through them
+  // and a core that breathes), melting into the frost. A round back button and the title, a line of what you pay, Swap
+  // (keep or pause each service this month), your services under Active and the rest under Inactive (a tap moves one
+  // across), each a rounded card with its logo, and a switch for all six below
   const CHEV_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEV_R = '<svg class="mine-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CAL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m9 15 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // a wave of light: a smooth line that repeats every 400 units, drawn 1600 wide so sliding it 800 along loops seamlessly
+  const wave = (y, a) => `M-400 ${y} Q-300 ${y - a} -200 ${y} T0 ${y}` + [...Array(8)].map((_, i) => ` T${(i + 1) * 200} ${y}`).join('');
+  const AURA = `<div class="mine-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i>
+    <svg class="mine-waves" viewBox="0 0 800 200" preserveAspectRatio="none"><defs><linearGradient id="mineWg" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#0a84ff"/><stop offset=".35" stop-color="#64d2ff"/><stop offset=".65" stop-color="#bf5af2"/><stop offset="1" stop-color="#ff4f8b"/></linearGradient></defs>
+      <path class="mw mw-g" d="${wave(140, 22)}"/><path class="mw mw-1" d="${wave(140, 22)}"/><path class="mw mw-2" d="${wave(150, 13)}"/></svg></div>`;
   function pickMine(list) {
     let dlg = document.getElementById('mineDlg');
     if (!dlg) {
-      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH">
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg mine-subs" id="mineDlg" aria-labelledby="mineH">${AURA}
         <form method="dialog">
           <div class="mine-top"><button class="mine-back" value="done" aria-label="Done">${CHEV_L}</button><h2 id="mineH">My services</h2></div>
+          <p class="mine-sum" id="mineSum"></p>
+          <section class="mine-swap" id="mineSwap" aria-labelledby="mineSwapH" hidden></section>
           <div id="mineSecs">
             <h3 class="mine-sec" id="mineOnH">Active</h3><div class="mine-list" id="mineOn" role="group" aria-labelledby="mineOnH"></div>
             <h3 class="mine-sec" id="mineOffH">Inactive</h3><div class="mine-list" id="mineOff" role="group" aria-labelledby="mineOffH"></div>
           </div>
           <label class="mine-all"><span class="mine-l">All six services<small>Your Top 10 and Browse cover them all. Turn off to pick just yours. Saved on this device.</small></span>
             <input type="checkbox" switch role="switch" id="mineAll"><i class="sw" aria-hidden="true"></i></label>
+          <p class="mine-fine">Prices are each service’s cheapest UK monthly plan, as a guide. Swap looks at your Watchlist, what’s arriving and what’s leaving; dates are mostly American.</p>
         </form></dialog>`);
       dlg = document.getElementById('mineDlg');
       dlg.addEventListener('close', () => {
@@ -284,65 +297,141 @@
         mine.set(on.length === dlg.querySelectorAll('.mine-list input').length ? [] : on);   // all six is the same as none chosen
       });
       // a tap outside the card, or Escape, keeps what you've picked (the back button's job too)
-      dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close('done'); });
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) { dlg.close('done'); return; }
+        const r = e.target.closest('[data-remind]'); if (r) { e.preventDefault(); remind(r, dlg.swap?.back[+r.dataset.remind]); }
+      });
       dlg.addEventListener('cancel', (e) => { e.preventDefault(); dlg.close('done'); });
-      // a row moves between Active and Inactive as you tap it
+      // a row moves between Active and Inactive as you tap it, and Swap thinks again with the new set
       const place = () => {
         const rows = [...dlg.querySelectorAll('.mine-row')], on = dlg.querySelector('#mineOn'), off = dlg.querySelector('#mineOff');
         for (const r of rows) (r.querySelector('input').checked ? on : off).append(r);
         dlg.querySelector('#mineOnH').hidden = !on.children.length; dlg.querySelector('#mineOffH').hidden = !off.children.length;
         dlg.querySelector('#mineAll').checked = rows.every((r) => r.querySelector('input').checked);
-        for (const r of rows) r.querySelector('.mine-d').textContent = r.querySelector('input').checked ? 'In Top 10' : 'Add';
+        drawSwap(dlg);
       };
       const move = () => (!reduce() && document.startViewTransition ? document.startViewTransition(place).ready.catch(() => {}) : place());
       dlg.addEventListener('change', (e) => {
         if (e.target.id === 'mineAll') { const v = e.target.checked; dlg.querySelectorAll('.mine-list input').forEach((i) => { i.checked = v; }); }
-        move();
+        haptic(6); move();
       });
       dlg.place = place;
     }
     const cur = mine.get();
-    dlg.querySelector('#mineOn').innerHTML = list.map((s, i) => `<label class="mine-row" style="view-transition-name:mine-${i}">
-      <span class="mine-ic">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><span class="mine-l">${esc(s.label)}<small class="mine-n" data-svc="${esc(s.key)}"></small></span>
+    dlg.list = list; dlg.swap = null;
+    dlg.querySelector('#mineOn').innerHTML = list.map((s, i) => `<label class="mine-row" style="view-transition-name:mine-${i}" data-svc="${esc(s.key)}">
+      <span class="mine-ic">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><span class="mine-l">${esc(s.label)}<small class="mine-n"></small></span>
       <span class="mine-d"></span>${CHEV_R}
       <input type="checkbox" value="${esc(s.key)}"${!cur.length || cur.includes(s.key) ? ' checked' : ''}></label>`).join('');
     dlg.querySelector('#mineOff').innerHTML = '';
     dlg.place();
     dlg.classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari 17.4+: the real iOS switch
-    dlg.returnValue = ''; dlg.showModal();
+    dlg.returnValue = ''; dlg.scrollTop = 0; dlg.showModal();
     plan(dlg, list);
   }
-  // the planner: how much of your Watchlist each service has, and which one you could pause. Where each title streams
-  // comes from data/titles.json, and the search service for anything saved that the charts don't cover (40 at most)
+
+  // ---------- Swap: which services to keep this month and which to pause, from your Watchlist ----------
+  // Prices: each service's cheapest UK monthly plan (with adverts where there is one), as a guide. Checked November 2026;
+  // change them here when a service changes its price.
+  const PRICE = { netflix: 7.99, disney: 5.99, prime: 8.99, hbomax: 4.99, paramount: 4.99, appletv: 9.99 };
+  const money = (n) => `£${n.toFixed(2)}`;
+  const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+  const dayText = (iso) => {
+    const n = Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.parse(`${todayIso()}T12:00:00Z`)) / 864e5), d = new Date(`${iso}T12:00:00Z`);
+    return n <= 0 ? 'today' : n === 1 ? 'tomorrow' : n < 7 ? `on ${d.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })}` : `on ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })}`;
+  };
+  // the planner: how much of your Watchlist each service has now (data/titles.json, and the search service for anything
+  // saved that the charts don't cover, 40 at most), what's arriving there and what's leaving (data/new.json)
   const SVC_MATCH = { netflix: /^netflix/, disney: /^disney plus/, prime: /^(amazon prime( video)?|prime video)/, hbomax: /^(hbo max|max)( with ads)?$/, paramount: /^paramount plus/, appletv: /^apple ?tv( plus|\+)?$/ };
-  let planP = null; const planOne = new Map();   // each title asked for once a visit, however often the sheet opens
-  const planData = () => (planP ||= fetch(`data/titles.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  let planP = null, freshP = null; const planOne = new Map();   // each title asked for once a visit, however often the sheet opens
+  const v10 = () => Math.floor(Date.now() / 600000);
+  const planData = () => (planP ||= fetch(`data/titles.json?v=${v10()}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  const freshData = () => (freshP ||= fetch(`data/new.json?v=${v10()}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   async function plan(dlg, list) {
-    const wl = saved.all(), out = dlg.querySelector('#minePlan') || dlg.querySelector('#mineSecs').insertAdjacentElement('afterend', Object.assign(document.createElement('p'), { id: 'minePlan', className: 'mine-plan' }));
-    out.hidden = true;
-    if (!wl.length) return;
-    const d = await planData(), providers = { ...(d?.providers || {}) }, items = { ...(d?.items || {}) };
+    const wl = saved.all().filter((x) => !seen.has(x.k));   // what you've already watched doesn't keep a service
+    if (!wl.length) { dlg.swap = { empty: true }; drawSwap(dlg); return; }
+    const [d, fresh] = await Promise.all([planData(), freshData()]);
+    const providers = { ...(d?.providers || {}) }, items = { ...(d?.items || {}) };
     const missing = wl.filter((x) => !items[x.k]).slice(0, 40).map((x) => x.k);
     const one = (k) => { if (!planOne.has(k)) planOne.set(k, fetch(`${api}/title/${k}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)); return planOne.get(k); };
     await Promise.all(missing.map((k) => one(k).then((r) => { if (r?.items) { Object.assign(items, r.items); Object.assign(providers, r.providers); } })));
-    if (!dlg.open) return;
+    if (!dlg.open || dlg.list !== list) return;
     const on = (k) => new Set([...(items[k]?.f || []), ...(items[k]?.fr || [])].map((id) => {
       const n = (providers[id]?.[0] || '').toLowerCase(); return Object.keys(SVC_MATCH).find((s) => SVC_MATCH[s].test(n));
     }).filter(Boolean));
-    const known = wl.filter((x) => items[x.k]), where = new Map(known.map((x) => [x.k, on(x.k)])), count = {};
-    for (const s of list) count[s.key] = known.filter((x) => where.get(x.k).has(s.key)).length;
-    for (const el of dlg.querySelectorAll('.mine-n')) { const n = count[el.dataset.svc] || 0; el.textContent = n ? `${n} on your Watchlist` : 'Nothing on your Watchlist'; }
-    // a service you could pause: nothing on your Watchlist is only there (and you've chosen it, or chosen none)
-    const chosen = mine.get(), keys = list.map((s) => s.key).filter((k) => !chosen.length || chosen.includes(k));
-    const needs = (k) => known.some((x) => { const w = [...where.get(x.k)].filter((s) => keys.includes(s)); return w.length === 1 && w[0] === k; });
-    const label = (k) => list.find((s) => s.key === k)?.label || k;
-    const pause = known.length >= 3 ? keys.filter((k) => !needs(k)) : [], elsewhere = known.filter((x) => !where.get(x.k).size).length;
-    const lines = [];
-    if (pause.length && pause.length < keys.length) lines.push(`Nothing on your Watchlist needs ${pause.map(label).join(' or ')}, so you could pause ${pause.length > 1 ? 'them' : 'it'} for now.`);
-    else if (known.length) { const best = keys.slice().sort((a, b) => count[b] - count[a])[0]; if (count[best]) lines.push(`${label(best)} has the most of your Watchlist.`); }
-    if (elsewhere) lines.push(`${elsewhere} ${elsewhere > 1 ? 'aren’t' : 'isn’t'} on any of these right now.`);
-    out.textContent = lines.join(' ');
-    out.hidden = !lines.length;
+    const want = new Map(wl.map((x) => [x.k, x])), today = todayIso(), month = new Date(Date.parse(`${today}T12:00:00Z`) + 31 * 864e5).toISOString().slice(0, 10);
+    const keyOf = (x) => (x.id ? `${x.type === 'movie' ? 'm' : 't'}${x.id}` : null);
+    const mine2 = (l) => (l || []).filter((x) => want.has(keyOf(x)) && x.date);
+    dlg.swap = {
+      known: wl.filter((x) => items[x.k]), where: new Map(wl.filter((x) => items[x.k]).map((x) => [x.k, on(x.k)])),
+      coming: mine2(fresh?.items).filter((x) => x.date > today).sort((a, b) => a.date.localeCompare(b.date)),
+      leaving: mine2(fresh?.leaving).filter((x) => x.date >= today && x.date <= month).sort((a, b) => a.date.localeCompare(b.date)),
+    };
+    drawSwap(dlg);
+  }
+  // the verdict for the services as they're set in the sheet right now (so it changes as you tap them across)
+  function drawSwap(dlg) {
+    const list = dlg.list || [], label = (k) => list.find((s) => s.key === k)?.label || k;
+    const active = [...dlg.querySelectorAll('.mine-row input:checked')].map((i) => i.value);
+    const total = active.reduce((n, k) => n + (PRICE[k] || 0), 0);
+    dlg.querySelector('#mineSum').textContent = active.length
+      ? `${active.length === list.length ? 'All six' : `${active.length} of ${list.length}`} active · from ${money(total)} a month` : 'None active · pick the services you pay for';
+    const box = dlg.querySelector('#mineSwap'), sw = dlg.swap, rows = [...dlg.querySelectorAll('.mine-row')];
+    const note = (r, text, verdict) => {
+      r.querySelector('.mine-n').textContent = text || '';
+      const dEl = r.querySelector('.mine-d'), on = r.querySelector('input').checked;
+      dEl.className = `mine-d${verdict ? ` mine-v mine-v-${verdict}` : ''}`;
+      dEl.textContent = verdict ? { keep: 'Keep', pause: 'Pause', add: 'Worth adding' }[verdict] : on ? 'Active' : 'Add';
+    };
+    if (!sw) { rows.forEach((r) => note(r, PRICE[r.dataset.svc] ? `From ${money(PRICE[r.dataset.svc])} a month` : '')); box.hidden = true; return; }
+    if (sw.empty || sw.known.length + sw.coming.length + sw.leaving.length < 3) {
+      rows.forEach((r) => note(r, PRICE[r.dataset.svc] ? `From ${money(PRICE[r.dataset.svc])} a month` : ''));
+      box.innerHTML = `<h3 class="mine-swap-h" id="mineSwapH"><span class="mine-swap-ey">Swap</span>Keep or pause, every month</h3>
+        <p class="mine-swap-p">Save a few things to your Watchlist and Tenner will tell you which services to keep this month, which to pause, and when to pick them back up.</p>`;
+      box.hidden = false; return;
+    }
+    const { known, where, coming, leaving } = sw;
+    const count = (k) => known.filter((x) => where.get(x.k).has(k)).length;
+    const only = (k) => known.filter((x) => { const w = [...where.get(x.k)].filter((s) => active.includes(s)); return w.length === 1 && w[0] === k; });
+    const v = {};
+    for (const k of active) {
+      const lv = leaving.filter((x) => x.service === k), o = only(k), nx = coming.find((x) => x.service === k), n = count(k);
+      if (lv.length) v[k] = { verdict: 'keep', why: `Watch ${lv[0].title} before it leaves ${dayText(lv[0].date)}` };
+      else if (o.length) v[k] = { verdict: 'keep', why: o.length > 1 ? `${o.length} of your Watchlist are only here` : `${o[0].title} is only here` };
+      else v[k] = { verdict: 'pause', next: nx, why: nx ? `Nothing you’ve saved until ${nx.title} ${dayText(nx.date)}` : n ? `Your ${n === 1 ? 'title here is' : `${n} here are`} on your other services too` : 'Nothing on your Watchlist' };
+    }
+    for (const k of list.map((s) => s.key).filter((k) => !active.includes(k))) {
+      const there = known.filter((x) => where.get(x.k).has(k) && ![...where.get(x.k)].some((s) => active.includes(s))), nx = coming.find((x) => x.service === k);
+      v[k] = there.length >= 2 ? { verdict: 'add', why: `${there.length} of your Watchlist are only on ${label(k)}` }
+        : nx ? { verdict: null, why: `${nx.title} arrives ${dayText(nx.date)}` } : { verdict: null, why: PRICE[k] ? `From ${money(PRICE[k])} a month` : '' };
+    }
+    rows.forEach((r) => note(r, v[r.dataset.svc]?.why, v[r.dataset.svc]?.verdict));
+    const pause = active.filter((k) => v[k].verdict === 'pause'), save = pause.reduce((n, k) => n + (PRICE[k] || 0), 0);
+    const monthName = new Date().toLocaleDateString('en-GB', { month: 'long' }), names = (l) => l.map(label).join(l.length > 2 ? ', ' : ' and ').replace(/, ([^,]*)$/, ' and $1');
+    sw.back = pause.map((k) => v[k].next && { ...v[k].next, label: label(k) }).filter(Boolean);
+    const head = !active.length ? 'Pick the services you pay for' : pause.length === active.length ? `Your Watchlist doesn’t need ${active.length > 1 ? 'any of these' : names(pause)} this month`
+      : pause.length ? `Pause ${names(pause)}` : `Keep ${active.length > 1 ? 'them all' : names(active)} this month`;
+    box.innerHTML = `<h3 class="mine-swap-h" id="mineSwapH"><span class="mine-swap-ey">Swap for ${esc(monthName)}</span>${esc(head)}</h3>
+      ${save ? `<p class="mine-save"><b>${money(save)}</b><span>saved this month</span></p>` : `<p class="mine-swap-p">${active.length ? 'Each one has something on your Watchlist you can’t get on the others.' : 'Tap a service below to add it.'}</p>`}
+      ${sw.back.length ? `<ul class="mine-back-l">${sw.back.map((x, i) => `<li><span><b>Pick ${esc(x.label)} back up ${esc(dayText(x.date))}</b><small>${esc(x.title)}${x.season ? ` season ${x.season}` : ''} arrives</small></span>
+        <button type="button" class="mine-cal" data-remind="${i}" aria-label="${esc(`Add a reminder to pick ${x.label} back up`)}">${CAL_IC}<span>Remind me</span></button></li>`).join('')}</ul>` : ''}`;
+    box.hidden = false;
+    if (save || sw.back.length) featureTip({ id: 'mine-swap', for: '#mineSwap', title: 'Swap', text: 'Tenner checks your Watchlist against what’s arriving and leaving, and tells you which services to keep this month and which you could pause.' });
+  }
+  // Remind me: an all-day calendar event on the day the title arrives (the iPhone and Mac open it in Calendar)
+  function remind(b, x) {
+    if (!x) return;
+    const d = x.date.replace(/-/g, ''), end = new Date(Date.parse(`${x.date}T12:00:00Z`) + 864e5).toISOString().slice(0, 10).replace(/-/g, '');
+    const k = `${x.type === 'movie' ? 'm' : 't'}${x.id}`, link = `https://tenner.stream/?t=${k}`, what = `${x.title}${x.season ? ` season ${x.season}` : ''}`;
+    const txt = (t) => t.replace(/[\;,]/g, (c) => `\\${c}`), fold = (line) => line.replace(/(.{72})/g, '$1\r\n ').replace(/\r\n $/, '');
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tenner//Swap//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+      `UID:swap-${x.service}-${k}-${d}@tenner.stream`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${end}`,
+      fold(`SUMMARY:${txt(`Pick ${x.label} back up: ${what}`)}`), fold(`DESCRIPTION:${txt(`${what} arrives on ${x.label} today. ${link}`)}`), `URL:${link}`,
+      'TRANSP:TRANSPARENT', 'BEGIN:VALARM', 'ACTION:DISPLAY', fold(`DESCRIPTION:${txt(`${what} is on ${x.label} today`)}`), 'TRIGGER:PT9H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+    if (!isIOS) a.download = `${`Pick ${x.label} back up`.replace(/[^\w +]+/g, '').trim()}.ics`;   // iPhone and iPad: Safari opens it straight into Calendar
+    document.body.append(a); a.click(); a.remove(); haptic(10);
+    b.classList.add('done'); b.querySelector('span').textContent = 'Added';
   }
 
   // ---------- Share: the phone's own share sheet where there is one, otherwise the share card ----------
