@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.81.2';
+  const version = '2.82.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -402,6 +402,144 @@
     pickMine(Object.keys(SVC_LABEL).map((k) => ({ key: k, label: SVC_LABEL[k], logo: logo[k] })));
   });
   const SVC_LABEL = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
+
+  // ---------- The Top 10s: every service's chart in one big popup, the way a plan picker lines up its plans. A wide
+  // frosted card over the dimmed page (a native modal <dialog>): the services' logos on the left (each jumps to its
+  // column), the title in the middle, Shows / Films and a round close button on the right; then a column per service
+  // (yours first): its No. 1 large, with its scene behind it, a button into Browse for that service, and Nos. 2 to 10
+  // in the house list. On phones it's a sheet from the bottom and you swipe from one service to the next. A title opens
+  // its sheet above the popup; every "See the Top 10s" link, By service button and the Top 10s tab opens it. ----------
+  const T10_KIND = { tv: 'Shows', movie: 'Films' };
+  const T10_IC = {
+    x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    go: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    up: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 12.6V4M4.4 7.4 8 3.8l3.6 3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    down: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.4V12M4.4 8.6 8 12.2l3.6-3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  const t10 = { kind: null, info: [] };
+  const t10Kind = () => {
+    if (t10.kind) return t10.kind;
+    let k = null; try { k = sessionStorage.getItem('tenner-tt-kind') || localStorage.getItem('tenner-kind'); } catch {}
+    return k === 'movie' ? 'movie' : 'tv';   // Both (or nothing chosen) starts on Shows
+  };
+  const t10Small = (u) => String(u).replace('/t/p/w342/', '/t/p/w154/');
+  const t10Key = (it, k) => (/^\d+$/.test(String(it.id ?? '')) ? `${k === 'movie' ? 'm' : 't'}${it.id}` : null);
+  const t10Ph = (t) => { const h = hue(t); return `<span class="t10-ph" style="background:linear-gradient(160deg,hsl(${h} 45% 40%),hsl(${(h + 40) % 360} 55% 16%))"></span>`; };
+  // how a title moved since the last chart: up (green), down (grey) or new
+  const t10Move = (mv) => (mv === 'new' ? '<span class="t10-mv new">New</span>'
+    : +mv > 0 ? `<span class="t10-mv up" aria-label="up ${+mv}">${T10_IC.up}${+mv}</span>`
+    : +mv < 0 ? `<span class="t10-mv down" aria-label="down ${-mv}">${T10_IC.down}${-mv}</span>` : '');
+  function t10Col(s, k, mineSet, all) {
+    const l = (s[k] || []).slice(0, 10); if (!l.length) return '';
+    const word = k === 'movie' ? 'film' : 'show';
+    const reg = (it, i) => { const n = t10.info.length; t10.info.push({ k: t10Key(it, k), type: k, eye: `No. ${i + 1} ${word} on ${s.label}`, title: it.title, year: it.year || null,
+      rating: it.rating, poster: it.poster, backdrop: it.backdrop, overview: it.overview, netflix: /netflix\.com\/title\//.test(it.url || '') ? it.url : null,
+      tmdb: t10Key(it, k) ? `https://www.themoviedb.org/${k}/${it.id}` : null,
+      services: (it.on || [s.key]).map((x) => all.find((y) => y.key === x)).filter(Boolean).map((y) => ({ label: y.label, logo: y.logo })) }); return n; };
+    const href = (it) => esc(it.url || (t10Key(it, k) ? `https://www.themoviedb.org/${k}/${it.id}` : './'));
+    const sub = (it) => [k === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
+    const one = l[0], yours = mineSet.has(s.key);
+    return `<section class="t10-col" id="t10-${esc(s.key)}" aria-labelledby="t10h-${esc(s.key)}">
+      <header class="t10-ch"><span class="t10-logo">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><h3 id="t10h-${esc(s.key)}">${esc(s.label)}</h3>${yours ? '<span class="t10-pill">Yours</span>' : ''}</header>
+      <a class="t10-one" href="${href(one)}" target="_blank" rel="noopener" data-t10="${reg(one, 0)}">
+        <span class="t10-one-bg" aria-hidden="true">${one.backdrop ? `<img src="${esc(one.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy" decoding="async">` : one.poster ? `<img class="blur" src="${esc(one.poster)}" alt="" loading="lazy">` : t10Ph(one.title)}</span>
+        <span class="t10-one-n" aria-hidden="true">1</span>
+        <span class="t10-one-t"><small>No. 1 ${word}</small><b>${esc(one.title)}</b><span>${esc(sub(one))}${one.rating ? ` · ★ ${(+one.rating).toFixed(1)}` : ''}</span></span></a>
+      <a class="btn btn-tinted t10-go" href="browse.html?s=${encodeURIComponent(s.key)}">${T10_IC.go}Browse ${esc(s.label)}</a>
+      <p class="t10-also">Also charting on ${esc(s.label)}:</p>
+      <ol class="cl t10-l" start="2">${l.slice(1).map((it, j) => `<li><a href="${href(it)}" target="_blank" rel="noopener" data-t10="${reg(it, j + 1)}">
+        <span class="t10-n">${j + 2}</span>${it.poster ? `<img src="${esc(t10Small(it.poster))}" alt="" loading="lazy" decoding="async">` : t10Ph(it.title)}
+        <span class="cl-t"><b>${esc(it.title)}</b><small>${esc(sub(it))}</small></span>${t10Move(it.mv)}</a></li>`).join('')}</ol></section>`;
+  }
+  function t10Draw(dlg, d) {
+    const row = dlg.querySelector('#t10Row'), k = t10Kind();
+    dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
+    const all = (d?.services || []).filter((s) => !s.shop && !s.store);
+    const mineSet = new Set(mine.get()), list = [...all].sort((a, b) => (mineSet.has(b.key) - mineSet.has(a.key)));   // yours first, then the charts' own order
+    t10.info = [];
+    const cols = list.map((s) => t10Col(s, k, mineSet, all)).filter(Boolean);
+    const shown = list.filter((s) => (s[k] || []).length);
+    dlg.querySelector('#t10Logos').innerHTML = shown.map((s, i) => `<button type="button" data-jump="${esc(s.key)}" aria-label="${esc(s.label)}" title="${esc(s.label)}"${i ? '' : ' aria-current="true"'}>${s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<span>${esc(s.label[0])}</span>`}</button>`).join('');
+    row.innerHTML = cols.length ? cols.join('') : `<p class="t10-none">${d ? 'The charts are on their way. They’ll be here after the next hourly update.' : 'The charts didn’t load. Check your connection and try again.'}</p>`;
+    row.scrollLeft = 0; row.querySelectorAll('.t10-col').forEach((c) => (c.scrollTop = 0));
+    const at = new Date(d?.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    dlg.querySelector('#t10When').textContent = when ? `Updated every hour, last at ${when}.` : 'Updated every hour.';
+    row.setAttribute('aria-busy', 'false'); t10Ends(dlg);
+    featureTip({ id: 'top10s-popup', for: '#t10Row', title: 'Every Top 10 at once', text: 'Each service’s chart side by side. Scroll or swipe across the services, switch between shows and films, and tap a title to see where to watch.' });
+  }
+  // the arrows, the faded edges and which logo is lit follow the row as it scrolls
+  function t10Ends(dlg) {
+    const row = dlg.querySelector('#t10Row'), max = row.scrollWidth - row.clientWidth - 2;
+    const [p, n] = dlg.querySelectorAll('[data-t10go]');
+    p.disabled = row.scrollLeft <= 2; n.disabled = row.scrollLeft >= max; p.hidden = n.hidden = max <= 0;
+    row.classList.toggle('at-start', row.scrollLeft <= 2); row.classList.toggle('at-end', row.scrollLeft >= max);
+    const cols = [...row.querySelectorAll('.t10-col')], x = row.getBoundingClientRect().left;
+    const first = cols.reduce((b, c) => { const d = Math.abs(c.getBoundingClientRect().left - x - 16); return d < b.d ? { c, d } : b; }, { c: null, d: Infinity }).c;
+    dlg.querySelectorAll('#t10Logos button').forEach((b) => b.toggleAttribute('aria-current', !!first && `t10-${b.dataset.jump}` === first.id));
+  }
+  function top10s() {
+    let dlg = document.getElementById('t10');
+    if (!dlg) {
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="t10" id="t10" aria-labelledby="t10H" closedby="any">
+        <header class="t10-hd">
+          <div class="t10-logos" id="t10Logos" aria-label="Jump to a service"></div>
+          <h2 id="t10H">The <em class="grad">Top 10s</em></h2>
+          <div class="t10-acts">
+            <div class="segmented t10-seg" role="radiogroup" aria-label="Shows or films"><span class="seg-thumb" aria-hidden="true"></span>${Object.entries(T10_KIND).map(([k, l]) => `<button type="button" role="radio" data-kind="${k}" aria-checked="false">${l}</button>`).join('')}</div>
+            <button type="button" class="t10-x" id="t10X" aria-label="Close">${T10_IC.x}</button></div>
+        </header>
+        <div class="t10-row" id="t10Row" aria-busy="true"></div>
+        <footer class="t10-ft">
+          <p><span id="t10When"></span> <span class="t10-fine">Built from what’s trending on TMDB and where it streams in the UK, so a chart may look a little different from the service’s own.</span> <a href="charts.html#top10" data-page>How the charts moved this week</a></p>
+          <span class="t10-arrows"><button type="button" class="t10-ar" data-t10go="-1" aria-label="Previous services">${T10_IC.prev}</button><button type="button" class="t10-ar" data-t10go="1" aria-label="Next services">${T10_IC.next}</button></span>
+        </footer></dialog>`);
+      dlg = document.getElementById('t10');
+      const row = dlg.querySelector('#t10Row'), seg = dlg.querySelector('.t10-seg');
+      const shut = () => {
+        if (!dlg.open || dlg.classList.contains('out')) return;
+        if (reduce()) { dlg.close(); return; }
+        dlg.classList.add('out'); setTimeout(() => { dlg.classList.remove('out'); dlg.close(); }, 240);
+      };
+      dlg.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
+      dlg.querySelector('#t10X').addEventListener('click', shut);
+      const pick = (b) => {
+        if (!b || b.getAttribute('aria-checked') === 'true') return;
+        t10.kind = b.dataset.kind; try { sessionStorage.setItem('tenner-tt-kind', t10.kind); } catch {}
+        haptic(6); planFile('trending').then((d) => t10Draw(dlg, d));
+      };
+      seg.addEventListener('click', (e) => pick(e.target.closest('button[data-kind]')));
+      segment(seg, pick); arrows(seg, () => [...seg.querySelectorAll('button')], pick);
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) { shut(); return; }   // a tap on the dimmed page around the card
+        const j = e.target.closest('[data-jump]');
+        if (j) { const c = dlg.querySelector(`#t10-${CSS.escape(j.dataset.jump)}`); if (c) row.scrollTo({ left: c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).scrollPaddingLeft || 0), behavior: reduce() ? 'auto' : 'smooth' }); return; }
+        const g = e.target.closest('[data-t10go]');
+        if (g) { const c = row.querySelector('.t10-col'), step = c ? c.offsetWidth + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+          row.scrollBy({ left: +g.dataset.t10go * step * Math.max(1, Math.floor((row.clientWidth + 2) / step)), behavior: reduce() ? 'auto' : 'smooth' }); return; }
+        const a = e.target.closest('[data-t10]');
+        if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;   // modified clicks open TMDB as usual
+        e.preventDefault(); const info = t10.info[+a.dataset.t10]; if (!info) return;
+        if (window.tnSheet) window.tnSheet.open(info); else if (info.k) location.href = `./?t=${info.k}`;
+      });
+      row.addEventListener('scroll', () => t10Ends(dlg), { passive: true });
+      new ResizeObserver(() => t10Ends(dlg)).observe(row);
+    }
+    if (dlg.open) return;
+    const row = dlg.querySelector('#t10Row');
+    if (!row.children.length) row.innerHTML = Array.from({ length: 4 }, () => '<section class="t10-col t10-sk" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></section>').join('');
+    const k = t10Kind(); dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
+    dlg.showModal(); haptic(8); dlg.querySelector('#t10X').focus({ preventScroll: true });
+    glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);   // the thumb under the choice, now it can be measured
+    planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
+  }
+  // every link to the Top 10s page opens the popup instead (data-page keeps one going to the page: the week on the charts)
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest?.('a[href$="charts.html#top10"]:not([data-page])');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    e.preventDefault(); top10s();
+  });
 
   // ---------- Share: the phone's own share sheet where there is one, otherwise the share card ----------
   // As on Channel Crossings: on phones and tablets the system share sheet; on computers a black card (a native modal
@@ -1392,7 +1530,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
   // the Update centre introduces itself once, at the build number in the menu (on phones, when the menu's open)
   if (!onPage('updates')) featureTip({ id: 'update-centre', for: '.side-ver', title: 'What’s new', text: 'Tap the build number to open the Update centre: every Tenner update, with its date, what changed and any notes.' });
 
@@ -1442,6 +1580,7 @@
       if (q) { q.focus(); q.select(); scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
       findAnywhere(); return;
     }
+    if (name === 'top10' && cur !== 'top10') { top10s(); return; }   // the Top 10s open as a popup (on their own page, the tab takes you back to the top)
     if (window.tnOnTab) return window.tnOnTab(name);
     if (name === cur) { scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
     loading.show('nav');
