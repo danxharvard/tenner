@@ -514,7 +514,11 @@
     document.documentElement.classList.remove('sheet-up');
     const done = () => { if (!current) { sheet.close(); body.innerHTML = ''; } };
     reduce() ? done() : setTimeout(done, 320);
-    if (!fromHistory && pushed) { tidy = !firstPushed; history.go(-pushed); pushed = 0; }
+    if (!fromHistory && pushed) {
+      // going back to an address with a #part (the homepage's #discover) would jump the page to it: stay where you were
+      const y = scrollY; addEventListener('popstate', () => { const keep = () => { if (Math.abs(scrollY - y) > 1) scrollTo(0, y); }; keep(); requestAnimationFrame(keep); }, { once: true });
+      tidy = !firstPushed; history.go(-pushed); pushed = 0;
+    }
     else if (!fromHistory) { const u = new URL(location.href); u.searchParams.delete('t'); history.replaceState(null, '', u); }
     if (fromHistory) pushed = 0;
     document.title = pageTitle;

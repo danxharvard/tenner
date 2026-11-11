@@ -194,7 +194,10 @@
     $('#mineLink').addEventListener('click', () => window.tn.pickMine(Object.keys(labels).map((k) => ({ key: k, label: labels[k], logo: logos[k] }))));
     addEventListener('tn:mine', () => { readHash(); apply(false); });
     $('#where').addEventListener('change', (e) => { const k = e.target.dataset.s; if (!k) return;
-      state.s = e.target.checked ? [...new Set([...state.s, k])] : state.s.filter((x) => x !== k); apply(true, true); });
+      // every switch on is All six, as on the rail (and from All six, switching one off keeps the other five)
+      const all = Object.keys(labels), had = state.s.length ? state.s : all;
+      const l = e.target.checked ? [...new Set([...had, k])] : had.filter((x) => x !== k);
+      state.s = l.length >= all.length ? [] : l; apply(true, true); });
 
     $('#genres').addEventListener('click', (e) => { const b = e.target.closest('.g-b'); if (!b) return;
       const g = +b.dataset.g; state.g = state.g.includes(g) ? state.g.filter((x) => x !== g) : [...state.g, g]; apply(true, true); });
@@ -338,7 +341,7 @@
       if (on && tr.scrollWidth > tr.clientWidth + 1) tr.scrollTo({ left: Math.max(0, on.offsetLeft - tr.clientWidth / 2 + on.offsetWidth / 2), behavior: reduce() ? 'auto' : 'smooth' }); }
     document.querySelectorAll('#svcRail [data-svc]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.svc === 'all' ? !state.s.length : state.s.includes(b.dataset.svc)));
     $('#kindSel').value = state.k; $('#kindL').textContent = { tv: 'Shows', movie: 'Films', both: 'Shows and films' }[state.k];
-    document.querySelectorAll('#where input').forEach((i) => { i.checked = state.s.includes(i.dataset.s); });
+    document.querySelectorAll('#where input').forEach((i) => { i.checked = !state.s.length || state.s.includes(i.dataset.s); });
     const sk = q && !state.sort ? '' : sortKey();   // searching: best match first unless you pick a sort
     const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : charting ? 'Chart order' : 'By day'; o0.hidden = !q && !collection().order && !charting;
     $('#sortSel').value = sk; $('#sortL').textContent = sk ? SORTS.find((s) => s.key === sk).label : o0.textContent;
@@ -380,7 +383,7 @@
     const typing = user && quiet && (!!q || reveal.q) && !reduce();
     reveal.q = !!q;
     // searching (Top results): the best match gets the big card above the rest, and its artwork washes in behind
-    const hit = q && state.sc === 'all' && list.length > 1 && !list[0]._x ? list[0] : null;
+    const hit = q && state.sc === 'all' && !state.sort && list.length > 1 && !list[0]._x ? list[0] : null;   // (a sort of your own: no top hit, just the order you chose)
     topHit(hit); ambience(q && state.sc !== 'people' ? list[0] : null);
     const draw = () => { shown = hit ? 1 : 0; $('#grid').innerHTML = ''; more(); empty(); };
     webSearch();
@@ -603,7 +606,8 @@
     box.hidden = false;
   }
   // a genre takes you straight to its titles: the results' heading at the top of the window, under the bars
-  const toResults = () => requestAnimationFrame(() => $('.results .r-bar').scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'start' }));
+  // (or the row of what's in use, just above, so the genre you picked shows with its cross to take it away)
+  const toResults = () => requestAnimationFrame(() => ($('#chips').hidden ? $('.results .r-bar') : $('#chips')).scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'start' }));
   $('#moods').addEventListener('click', (e) => {
     const b = e.target.closest('.mood'); if (!b) return;
     state.g = [+b.dataset.g]; apply(true); toResults();
@@ -738,7 +742,7 @@
     const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.title)}</span>`;
     return `<li class="tile rv" style="--d:${i}" data-wk="${esc(x.k)}">
-      <a href="https://www.themoviedb.org/${x.type}/${x.k.slice(1)}" target="_blank" rel="noopener">
+      <a href="https://www.themoviedb.org/${esc(x.type)}/${esc(x.k.slice(1))}" target="_blank" rel="noopener">
         <span class="art">${art}${x.rating ? `<span class="score" aria-label="Rated ${x.rating} out of 10"><b>${x.rating.toFixed(1)}</b></span>` : ''}</span>
         <span class="t">${esc(x.title)}</span>
         <span class="kind-l">${x.type === 'tv' ? 'Show' : 'Film'}</span>

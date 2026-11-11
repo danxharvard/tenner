@@ -604,13 +604,18 @@
     r.scrollBy({ left: +b.dataset.scroll * r.clientWidth * 0.85, behavior: reduce() ? 'auto' : 'smooth' });
   });
 
+  const toDiscover = (how) => requestAnimationFrame(() => $('#discover')?.scrollIntoView({ block: PHONE.matches ? 'start' : 'center', behavior: how }));
+  // For you's Go to Discover: a glide down to its box, leaving the address as it is
+  document.addEventListener('click', (e) => { if (!e.target.closest('[data-go-dc]')) return; e.preventDefault(); toDiscover(reduce() ? 'auto' : 'smooth'); });
+
   // ---------- the side column: yours ----------
   function drawSide() {
     if (!state.data) return;
     $('#bxSide').innerHTML = discover() + topTen() + (window.tnTonight?.box() || '') + climbers() + tvGuide();
     markSaved();
     // Discover lives here now: old links (discover.html, About, Tenner TV) arrive at #discover, once, and land on its box
-    if (location.hash === '#discover' && !drawSide.landed) { drawSide.landed = true; requestAnimationFrame(() => $('#discover')?.scrollIntoView({ block: PHONE.matches ? 'start' : 'center', behavior: 'auto' })); }
+    // (and the #discover then leaves the address, so going back from a title's sheet never jumps the page there again)
+    if (location.hash === '#discover' && !drawSide.landed) { drawSide.landed = true; history.replaceState(history.state, '', location.pathname + location.search); toDiscover('auto'); }
     if ($('#bxTt') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxTt', title: 'One Top 10 for the UK',
       text: 'This chart combines every service. The services you pick at the top only change the slideshow and the rows on the left; By service has each one’s own chart.' });
   }
