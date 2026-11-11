@@ -713,7 +713,7 @@ function pageTop10() {
         <span class="tt-acts">
           <label class="dd dd-kind"><span class="dd-l" id="ttKindL">${TT_WORDS[TT.kind]}</span><span class="dd-chev" aria-hidden="true"></span>
             <select id="ttKind" aria-label="Shows, films or both">${Object.entries(TT_WORDS).map(([k, l]) => `<option value="${k}"${k === TT.kind ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
-          <button type="button" class="bx-r tt-refresh" id="ttRefresh" aria-label="Refresh the charts" title="Refresh the charts">${REFRESH_IC}</button>
+          <button type="button" class="bx-r tt-refresh" id="ttRefresh" aria-label="Refresh the charts" title="Refresh the charts">${REFRESH_IC}</button><button type="button" class="bx-r tt-info" id="ttInfo" aria-label="About these charts" aria-expanded="false" aria-controls="ttAbout">${INFO_IC}</button>
           <button type="button" class="bx-r tt-go" data-tgo="-1" aria-label="Previous services" disabled>${ttArrow(-1)}</button><button type="button" class="bx-r tt-go" data-tgo="1" aria-label="Next services">${ttArrow(1)}</button></span></div>
       ${boxes.length ? `<div class="tt-row" id="ttRow">${boxes.join('')}</div>
       ${more ? `<button type="button" class="bx-more tt-more" id="ttMore" aria-controls="ttRow" aria-expanded="${TT.open}">${TT.open ? 'Show less' : 'See more'}</button>` : ''}`
@@ -732,9 +732,52 @@ async function refreshNow(b) {
   toast(out === 'new' ? `Charts updated${when ? ` to ${when}` : ''}` : out === 'failed' ? 'The charts didn’t refresh. Check your connection and try again'
     : `Already up to date${when ? `: charts from ${when}` : ''}`);
 }
+// About these charts: the i beside Refresh. A frosted note that opens while the pointer rests on it (or it has focus),
+// and on a tap on phones; it closes when the pointer moves away, on a tap elsewhere or with Escape.
+const INFO_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6.8" r="1.6" fill="currentColor"/><path d="M12 10.8v7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+let ttAbout = null, aboutFor = null, aboutHide = 0;
+function aboutNote() {
+  if (ttAbout) return ttAbout;
+  document.body.insertAdjacentHTML('beforeend', `<div class="tt-about" id="ttAbout" role="tooltip" hidden>
+    <b>About these charts</b>
+    <p>These charts don’t come straight from Netflix, Prime Video, Disney+, HBO Max, Paramount+ or Apple TV, so they may look a little different from each service’s own Top 10.</p>
+    <p>They’re built from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>, The Movie Database: every hour we take what’s trending there and where it’s streaming in the UK. That keeps our charts very close to what people are actually watching at home.</p></div>`);
+  ttAbout = $('#ttAbout');
+  ttAbout.addEventListener('pointerenter', () => clearTimeout(aboutHide));
+  ttAbout.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hideAbout(180); });
+  document.addEventListener('pointerdown', (e) => { if (!ttAbout.hidden && !ttAbout.contains(e.target) && !e.target.closest('#ttInfo')) hideAbout(0); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !ttAbout.hidden) { hideAbout(0); aboutFor?.focus(); } });
+  addEventListener('scroll', () => { if (!ttAbout.hidden) placeAbout(); }, { passive: true });
+  addEventListener('resize', () => { if (!ttAbout.hidden) placeAbout(); });
+  return ttAbout;
+}
+// under the button, kept 16px inside the window on both sides
+function placeAbout() {
+  if (!aboutFor?.isConnected) { hideAbout(0); return; }
+  const r = aboutFor.getBoundingClientRect(), w = ttAbout.offsetWidth;
+  ttAbout.style.left = `${Math.round(Math.min(Math.max(16, r.left + r.width / 2 - w + 40), innerWidth - w - 16))}px`;
+  ttAbout.style.top = `${Math.round(r.bottom + 10)}px`;
+  ttAbout.style.setProperty('--tip-x', `${Math.round(r.left + r.width / 2 - parseFloat(ttAbout.style.left))}px`);
+}
+function showAbout(b) {
+  clearTimeout(aboutHide); aboutNote(); aboutFor = b;
+  if (ttAbout.hidden) { ttAbout.hidden = false; placeAbout(); }
+  b.setAttribute('aria-expanded', 'true');
+}
+function hideAbout(ms) {
+  clearTimeout(aboutHide);
+  aboutHide = setTimeout(() => { if (ttAbout) ttAbout.hidden = true; aboutFor?.setAttribute('aria-expanded', 'false'); }, ms);
+}
 function ttMount() {
   const row = $('#ttRow'), go = [...view.querySelectorAll('[data-tgo]')];
   $('#ttRefresh')?.addEventListener('click', (e) => refreshNow(e.currentTarget));
+  const info = $('#ttInfo');
+  if (ttAbout && !ttAbout.hidden) { aboutFor = info; placeAbout(); info.setAttribute('aria-expanded', 'true'); }   // the page redrew under an open note
+  info.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') showAbout(info); });
+  info.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hideAbout(180); });
+  info.addEventListener('focus', () => { if (info.matches(':focus-visible')) showAbout(info); });
+  info.addEventListener('blur', () => hideAbout(180));
+  info.addEventListener('click', () => { if (ttAbout && !ttAbout.hidden && matchMedia('(hover: none)').matches) hideAbout(0); else showAbout(info); });
   $('#ttKind')?.addEventListener('change', (e) => {
     TT.kind = e.target.value; try { sessionStorage.setItem('tenner-tt-kind', TT.kind); } catch {}
     if (TT.kind !== 'both') NW.race = TT.kind;
