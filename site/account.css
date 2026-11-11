@@ -20,9 +20,6 @@
 .ac-hue[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--sp-group, var(--bg2)), 0 0 0 4px var(--label); }
 .ac-x { flex: none; padding: 6px 4px; border: 0; background: none; cursor: pointer; color: #ff453a; font: 500 15px/1 var(--font); }
 .ac-here { margin-left: 6px; padding: 2px 7px; border-radius: var(--r); font-style: normal; font-size: 11px; font-weight: 700; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
-.ac-linkrow { gap: 10px; }
-.ac-copy { border: 0; cursor: pointer; }
-.ac-url { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: var(--label2); }
 .ac-glink { flex-wrap: wrap; }
 /* a shared Watchlist */
 .ls-sub { margin: 2px 0 0; color: var(--label2); }

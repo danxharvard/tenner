@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.79.1';
+  const version = '2.80.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1010,6 +1010,7 @@
       list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
       set: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
       tv: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8.5 20.5h7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+      share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5V3.5M8 7.2l4-3.7 4 3.7M7.5 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       chev: '<svg class="me-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
     // signed out: the dropdown signs you in (Google, email and password, or a passkey) or makes you an account, right
@@ -1039,7 +1040,7 @@
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
       root.innerHTML = `<div class="me-hd me-hd-g" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
-        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>${root.id === 'meBody' ? `<nav class="me-links me-links-g" aria-label="Tenner">${mineRow(3)}</nav>` : ''}`;
+        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>${root.id === 'meBody' ? `<nav class="me-links me-links-g" aria-label="Tenner">${mineRow(3)}${shareRow(3)}</nav>` : ''}`;
       const say = (t, bad) => { const n = q('.me-msg'); n.textContent = t; n.classList.toggle('bad', !!bad); };
       if (o.note) say(o.note, o.bad);
       const go = (mode, more = {}) => { Object.assign(o, { note: '', bad: false }, more, { mode }); guestForm(root, o); q('.me-in:not([readonly])')?.focus(); };
@@ -1084,6 +1085,8 @@
       });
     }
     // My services, from the pill: the sheet's own button (a row like the links), signed in or not
+    // Share Tenner: the phone's own share sheet, or Tenner's share card on computers
+    const shareRow = (i) => `<button type="button" class="me-row-l" data-me-share style="--i:${i}"><i>${ME_I.share}</i><span><b>Share Tenner</b><small>Tell a friend what’s worth watching</small></span>${ME_I.chev}</button>`;
     const mineRow = (i) => `<button type="button" class="me-row-l" data-me-mine style="--i:${i}"><i>${ME_I.tv}</i><span><b>My services</b><small>See what’s waiting for you</small></span>${ME_I.chev}</button>`;
     function fillMenu() {
       const u = account.user(); if (!u) return guestForm($('#meBody'));
@@ -1096,7 +1099,10 @@
       $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
         <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
         <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
-        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`, 5)}${mineRow(5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}</nav>`;
+        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`, 5)}${mineRow(5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}${shareRow(6)}</nav>
+        <div class="me-share" style="--i:7"><label class="me-share-row"><span><b>Share your Watchlist</b><small>${u.share_id ? 'Anyone with the link can see it' : 'Off, so only you can see it'}</small></span>
+          <input type="checkbox" switch role="switch" id="meShare"${u.share_id ? ' checked' : ''} aria-label="Share your Watchlist with a public link"><i class="sw" aria-hidden="true"></i></label>
+          ${u.share_id ? `<div class="me-share-link"><span>${esc(`${location.origin}/list.html?u=${u.share_id}`)}</span><button type="button" class="me-copy" id="meCopy">Copy</button></div>` : ''}</div>`;
     }
     const menu = () => $('#meMenu'), card = () => $('#bxMeCard');
     function openMenu(tapped) {   // tapped: you opened it (a buzz); the account page opening it for you stays quiet
@@ -1115,7 +1121,26 @@
       if (focus) card().focus();
     }
     $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu(true) : closeMenu()));
-    menu().addEventListener('click', (e) => { if (e.target.closest('[data-me-mine]')) { closeMenu(); openMine(); } });
+    menu().addEventListener('click', (e) => {
+      if (e.target.closest('[data-me-mine]')) { closeMenu(); openMine(); return; }
+      if (!e.target.closest('[data-me-share]')) return;
+      closeMenu(); haptic();
+      const o = { heading: 'Share Tenner with friends and family', title: 'Tenner', text: 'Tenner shows what’s popular on UK streaming, all in one place.', url: 'https://tenner.stream/' };
+      if (navigator.share && isIOS) navigator.share({ title: o.title, text: o.text, url: o.url }).catch(() => {}); else share(o);
+    });
+    // Share your Watchlist: a public link anyone can open, off unless you turn it on; Copy (the share sheet on iPhone)
+    menu().addEventListener('change', async (e) => {
+      if (e.target.id !== 'meShare') return;
+      const on = e.target.checked; haptic(6);
+      try { const { share_id } = await account.call('POST', '/me/share', { on }); account.setUser({ ...account.user(), share_id }); fillMenu(); }
+      catch { e.target.checked = !on; }
+    });
+    menu().addEventListener('click', async (e) => {
+      const b = e.target.closest('#meCopy'); if (!b) return;
+      const link = b.previousElementSibling.textContent, u = account.user();
+      if (navigator.share && isIOS) { navigator.share({ title: `${u?.name || 'My'}’s Watchlist`, url: link }).catch(() => {}); return; }
+      try { await navigator.clipboard.writeText(link); b.textContent = 'Copied'; haptic(8); setTimeout(() => (b.textContent = 'Copy'), 1500); } catch {}
+    });
     // the account page (signed out) opens the dropdown where there's a pill, or draws the same form into the page
     tnSignIn = (o, inline) => {
       guest = { mode: 'in', ...o };

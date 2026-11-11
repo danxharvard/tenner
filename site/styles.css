@@ -2096,6 +2096,19 @@ a.side-ver[aria-current] { color: var(--label); font-weight: 600; }
 .me-links { display: grid; }
 .me-row-l { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 8px; border-radius: var(--r); color: var(--label); text-decoration: none; transition: background-color .2s ease; }
 button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.me-share { margin-top: 10px; padding: 12px 8px 4px; box-shadow: 0 -.5px 0 var(--sep); }
+.me-share-row { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.me-share-row > span { display: grid; gap: 1px; flex: 1; min-width: 0; }
+.me-share-row b { font: 500 15px/1.25 var(--font); }
+.me-share-row small { font-size: 12.5px; color: var(--label2); }
+.me-share-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.me-share-row input:checked + .sw { background: var(--green); }
+.me-share-row input:checked + .sw::after { translate: 20px 0; }
+.me-share-row input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+.me-share-link { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 6px 6px 6px 12px; border-radius: var(--r); background: var(--fr-in); }
+.me-share-link span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--label2); }
+.me-copy { flex: none; height: 32px; padding: 0 14px; border: 0; border-radius: var(--r); cursor: pointer; color: #fff; background: var(--bt-fill); font: 500 14px/1 var(--font); -webkit-font-smoothing: antialiased; }
+@media (hover: hover) { .me-copy:hover { background: var(--bt-hover); } }
 .me-links-g { margin-top: 12px; padding-top: 8px; box-shadow: 0 -.5px 0 var(--sep); }
 .me-row-l + .me-row-l { box-shadow: 0 -.5px 0 var(--sep); }
 @media (hover: hover) { .me-row-l:hover { text-decoration: none; background: var(--fr-in); box-shadow: none; } .me-row-l:hover + .me-row-l { box-shadow: none; } }

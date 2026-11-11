@@ -55,8 +55,6 @@
     window.tn.tip?.({ id: 'profile-photo', for: '#acPhotoPick', title: 'Your profile photo', text: 'Choose a photo of yourself, then move and scale it to fit the circle. It shows on your account, in the menu on every device and on your shared Watchlist.' });
     window.tn.tip?.({ id: 'your-colour', for: '#acSw', title: 'Your colour', text: 'Pick a colour and Tenner takes it on: links, highlights, the menu and the glow behind every page change to match, by day and by night.' });
     $('#acSw').innerHTML = HUES.map((h) => `<button type="button" class="ac-hue" style="--h:${h}" data-hue="${h}" aria-pressed="${h === u.hue}" aria-label="${HUE_NAME[h]}" title="${HUE_NAME[h]}"></button>`).join('');
-    $('#acShare').checked = !!u.share_id; $('#acLinkRow').hidden = !u.share_id;
-    if (u.share_id) $('#acUrl').textContent = `${location.origin}/list.html?u=${u.share_id}`;
     $('#acWays').innerHTML = me.passkeys.map((p) => `<div class="set-row"><span class="set-l">${esc(p.label || 'Passkey')}<small>Added ${esc(when(p.created))}${p.used ? ` · last used ${esc(when(p.used).toLowerCase())}` : ''}</small></span><button type="button" class="ac-x" data-pk="${esc(p.id)}">Remove</button></div>`).join('')
       + (u.google ? `<div class="set-row"><span class="set-l">Google<small>${esc(u.email || 'Linked')}</small></span><button type="button" class="ac-x" data-unlink>Unlink</button></div>` : '')
       + (me.password ? `<div class="set-row"><span class="set-l">Email and password<small>${esc(me.password)}${me.password_ok ? '' : ' · <b class="ac-warn">not confirmed yet</b> <button type="button" class="ac-link ac-inline" data-reverify>Send the link again</button>'}</small></span><span class="ac-btns"><button type="button" class="ac-x ac-ok" data-pw-open>Change</button><button type="button" class="ac-x" data-pw-remove>Remove</button></span></div>`
@@ -126,7 +124,6 @@
       else if ('unlink' in t.dataset) { await account.call('DELETE', '/me/google'); load(); say('#acNote', 'Google unlinked'); }
       else if (t.id === 'acAddPk') { await makePasskey(); load(); say('#acNote', 'Passkey added'); }
       else if (t.id === 'acOthers') { await account.call('DELETE', '/me/sessions'); load(); say('#acNote', 'Signed out everywhere else'); }
-      else if (t.id === 'acCopy') { const link = $('#acUrl').textContent; if (navigator.share && window.tn.isIOS) navigator.share({ title: `${me.user.name}’s Watchlist`, url: link }).catch(() => {}); else { await navigator.clipboard.writeText(link); t.textContent = 'Copied'; setTimeout(() => (t.textContent = 'Copy'), 1500); } }
       else if (t.id === 'acDelete') askDelete();
     } catch (err) { say('#acNote', friendly(err), err.name !== 'NotAllowedError'); }
   });
@@ -250,10 +247,6 @@
   };
   knob.addEventListener('pointerup', end); knob.addEventListener('pointercancel', end);
   slide.addEventListener('keydown', (e) => { if (['Enter', ' ', 'ArrowRight', 'End'].includes(e.key)) { e.preventDefault(); goOut(); } });
-  $('#acShare').addEventListener('change', async (e) => {
-    try { const { share_id } = await account.call('POST', '/me/share', { on: e.target.checked }); me.user.share_id = share_id; draw(); }
-    catch (err) { e.target.checked = !e.target.checked; say('#acNote', friendly(err), true); }
-  });
 
   // Tenner TV sends you here to sign in (?to=tv): once you're in, it gets a session of its own and you go straight back
   const toTv = new URLSearchParams(location.search).get('to') === 'tv';
