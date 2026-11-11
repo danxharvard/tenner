@@ -379,7 +379,10 @@
     // swap the grid (a quick crossfade where the browser can). As you type, it's a fluid reveal instead (reveal below).
     const typing = user && quiet && (!!q || reveal.q) && !reduce();
     reveal.q = !!q;
-    const draw = () => { shown = 0; $('#grid').innerHTML = ''; more(); empty(); };
+    // searching (Top results): the best match gets the big card above the rest, and its artwork washes in behind
+    const hit = q && state.sc === 'all' && list.length > 1 && !list[0]._x ? list[0] : null;
+    topHit(hit); ambience(q && state.sc !== 'people' ? list[0] : null);
+    const draw = () => { shown = hit ? 1 : 0; $('#grid').innerHTML = ''; more(); empty(); };
     webSearch();
     if (typing) reveal.run(draw);
     else if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
@@ -406,6 +409,44 @@
     const have = byKey(), out = [];
     for (const k of kinds()) (trend?.overall?.[k] || []).slice(0, 10).forEach((it, i) => out.push({ ...fromChart(it, k, have), _rank: i + 1, _sub: i === 0 && state.k === 'both' ? (k === 'movie' ? 'Films' : 'Shows') : '' }));
     return out;
+  }
+
+  // ---------- searching: the top hit (Apple Music's Top Result) and the artwork behind ----------
+  const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.8v12.4a.8.8 0 0 0 1.2.7l9.9-6.2a.8.8 0 0 0 0-1.4L9.2 5.1A.8.8 0 0 0 8 5.8z" fill="currentColor"/></svg>';
+  let hitK = '';
+  function topHit(x) {
+    const box = $('#topHit'), k = x ? fk(x) : '';
+    if (k === hitK) return;   // the same top hit: leave it be (its + keeps itself up to date)
+    hitK = k; box.hidden = !x; if (!x) { box.innerHTML = ''; return; }
+    const h = hue(x.n), g = x.g.map((id) => cat.genres[id]).find(Boolean);
+    const art = x.img ? `<img src="${esc(posterOf(x))}" alt="" decoding="async">` : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.n)}</span>`;
+    const where = x.s.slice(0, 4).map((s) => logos[s] ? `<img src="${esc(logos[s])}" alt="${esc(labels[s])}" title="${esc(labels[s])}">` : `<b>${esc(labels[s] || s)}</b>`).join('');
+    box.style.setProperty('--h', h);
+    box.innerHTML = `<button type="button" class="th-art" data-hit aria-label="${esc(x.n)}">${art}</button>
+      <div class="th-copy"><p class="th-eye">Top hit</p>
+        <h2 class="th-t" id="thT"><button type="button" data-hit>${esc(x.n)}</button></h2>
+        <p class="th-m">${[x.t === 'tv' ? 'Show' : 'Film', g, (x.d || '').slice(0, 4), x.r ? `★ ${x.r.toFixed(1)}` : ''].filter(Boolean).map(esc).join(' · ')}</p>
+        <p class="th-o" id="thO"></p>
+        ${where ? `<p class="th-on">${where}</p>` : ''}
+        </div>
+      <div class="th-acts"><button type="button" class="btn btn-tinted th-go" data-hit>${PLAY}<span>Where to watch</span></button>${saveBtn(k, x.n).replace('class="t-add"', 'class="t-add rb th-add"')}</div>`;
+    moreData().then((m) => { if (hitK === k) $('#thO').textContent = m?.sample ? '' : m?.items?.[k]?.[0] || ''; });
+    if (!reduce() && box.animate) box.animate([{ opacity: 0, translate: '0 10px', filter: 'blur(6px)' }, { opacity: 1, translate: '0 0', filter: 'blur(0)' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  }
+  $('#topHit').addEventListener('click', async (e) => {
+    if (!e.target.closest('[data-hit]')) return;
+    const x = item(hitK); if (x) window.tnSheet?.open(await sheetFor(x, 'Top hit'));
+  });
+  let ambK = null;
+  function ambience(x) {
+    const box = $('#sAmb'), k = x ? fk(x) : '';
+    document.body.classList.toggle('amb-on', !!x);
+    if (k === ambK) return; ambK = k; if (!x) return;
+    const h = hue(x.n), layer = document.createElement('div');
+    layer.className = 'amb-l';
+    layer.innerHTML = x.img ? `<img src="${esc(posterOf(x))}" alt="">` : `<span style="background:radial-gradient(60% 80% at 30% 30%,hsl(${h} 70% 50%),transparent 70%),radial-gradient(50% 70% at 75% 20%,hsl(${(h + 50) % 360} 70% 45%),transparent 70%)"></span>`;
+    box.append(layer); requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add('in')));
+    setTimeout(() => [...box.children].slice(0, -1).forEach((c) => c.remove()), reduce() ? 0 : 900);
   }
 
   // ---------- searching: the results revealed as you type ----------
