@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.86.0';
+  const version = '2.86.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1754,8 +1754,10 @@
     if (under) { const t = (h.dataset.title || h.textContent).trim(); if (barTitle.textContent !== t) barTitle.textContent = t; }
     root.classList.toggle('title-in', under);
   };
+  let scrollEnd = 0;
   const onScroll = () => {
     root.classList.toggle('scrolled', scrollY > 8);
+    root.classList.add('scrolling'); clearTimeout(scrollEnd); scrollEnd = setTimeout(() => root.classList.remove('scrolling'), 200);   // see styles.css
     if (!ticking) { ticking = true; requestAnimationFrame(titleCheck); }
   };
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
