@@ -82,7 +82,7 @@ function morph(fn) {
 }
 function draw() {
   selectTab(state.route);
-  if (state.route === 'watchlist') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageWatchlist()}</div>`; document.title = 'Watchlist · Tenner'; wlKindInit(); wlHero(); openFromUrl(); wantTitles(); alertCard(); return; }
+  if (state.route === 'watchlist') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageWatchlist()}</div>`; document.title = 'Watchlist · Tenner'; wlKindInit(); wlHero(); openFromUrl(); wantTitles(); alertCard(); swipeTip(); return; }
   wlHero(true);
   if (state.route === 'top10') { shown = new Map(); hideBanners(); view.innerHTML = `<div class="wrap">${pageTop10()}</div>`; document.title = 'Top 10s · Tenner'; ttMount(); weekMount(); openFromUrl(); return; }
   shown = new Map(); view.innerHTML = `<div class="wrap">${pageNew()}</div>`; newBanners((state.fresh?.items || []).filter((x) => x.date <= todayIso())); document.title = 'New This Week · Tenner'; nwMount(); openFromUrl();
@@ -219,6 +219,7 @@ async function alertCard() {
     catch { e.target.disabled = false; toast('Alerts aren’t available right now'); }
   });
 }
+const TRASH = '<svg class="wl-bin" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9.5 6.5V4.8c0-.7.6-1.3 1.3-1.3h2.4c.7 0 1.3.6 1.3 1.3v1.7M6.5 6.5l.8 12.2c.1 1 .9 1.8 1.9 1.8h5.6c1 0 1.8-.8 1.9-1.8l.8-12.2M10 10.5v6M14 10.5v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function pageWatchlist() {
   const list = window.tn.saved.all(), spots = chartSpots(), d = state.titles, kind = state.wlKind || 'both';
   const onLogos = (k) => {
@@ -235,7 +236,7 @@ function pageWatchlist() {
     const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
     return `<li data-type="${x.type === 'movie' ? 'movie' : 'tv'}"><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${sh}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${showLine(x)}${noteLine(x.k)}</span>${on ? `<span class="wl-on">${on}</span>` : ''}</a>
-      <button type="button" class="wl-x" data-unsave="${esc(x.k)}" aria-label="Remove ${esc(x.title)} from your Watchlist" title="Remove">${X}</button></li>`;
+      <button type="button" class="wl-x" data-unsave="${esc(x.k)}" aria-label="Remove ${esc(x.title)} from your Watchlist" title="Remove">${X}<span class="wl-xl">${TRASH}Delete</span></button></li>`;
   }).join('');
   const both = list.some((x) => x.type === 'movie') && list.some((x) => x.type !== 'movie');
   const body = !list.length
@@ -264,7 +265,7 @@ function watchedList() {
     const what = [x.type === 'movie' ? 'Film' : 'Series', x.year, `Watched ${fmtDate(new Date(x.at), { day: 'numeric', month: 'short' })}`].filter(Boolean).join(' · ');
     return `<li><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${reg(wlInfo(x, 'Watched'))}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${noteLine(x.k)}</span></a>
-      <button type="button" class="wl-x" data-unseen="${esc(x.k)}" aria-label="Take ${esc(x.title)} off your Watched list" title="Take off Watched">${X}</button></li>`;
+      <button type="button" class="wl-x" data-unseen="${esc(x.k)}" aria-label="Take ${esc(x.title)} off your Watched list" title="Take off Watched">${X}<span class="wl-xl">${TRASH}Delete</span></button></li>`;
   }).join('');
   return `<section class="wk wl-seen" aria-labelledby="wl-seen"><div class="wk-hd"><h2 class="row-h" id="wl-seen">Watched</h2><p>${all.length} title${all.length === 1 ? '' : 's'} you’ve marked as watched</p></div>
     <ol class="cl nw-cl wl-cl">${rows}</ol>${all.length > list.length ? '<button type="button" class="btn btn-tinted wl-more" data-seen-all>Show all</button>' : ''}</section>`;
@@ -391,6 +392,43 @@ view.addEventListener('click', (e) => {
   b.disabled = true;
   li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.9)', filter: 'blur(6px)' }], { duration: 260, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'forwards' }).finished.then(done, done);
 });
+// phones: swipe a row left to show a red Delete button behind it, as in iOS's Mail and Reminders; swipe all the way across
+// to delete it at once. A tap anywhere else (or on the open row) slides it back.
+(() => {
+  const W = 88, phone = matchMedia('(max-width: 719px)');
+  let row = null, open = null, x0 = 0, y0 = 0, dx = 0, base = 0, axis = null;
+  const set = (li, x, glide) => { li.classList.toggle('sw-drag', !glide); li.style.setProperty('--sx', `${x}px`); };
+  const shut = (li) => { if (!li) return; set(li, 0, true); li.classList.remove('sw-open'); if (open === li) open = null; };
+  view.addEventListener('touchstart', (e) => {
+    const li = e.target.closest('.wl-cl > li');
+    if (open && open !== li) shut(open);
+    row = null;
+    if (!li || !phone.matches || e.touches.length > 1) return;
+    row = li; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; axis = null; base = li === open ? -W : 0;
+  }, { passive: true });
+  view.addEventListener('touchmove', (e) => {
+    if (!row) return;
+    const mx = e.touches[0].clientX - x0, my = e.touches[0].clientY - y0;
+    if (!axis) { if (Math.abs(mx) < 8 && Math.abs(my) < 8) return; axis = Math.abs(mx) > Math.abs(my) ? 'x' : 'y'; }
+    if (axis !== 'x') { row = null; return; }
+    if (e.cancelable) e.preventDefault();
+    dx = Math.min(0, base + mx); set(row, dx, false);
+  }, { passive: false });
+  const end = () => {
+    if (!row) return; const li = row; row = null; if (axis !== 'x') return;
+    if (dx < -li.offsetWidth * .6) { window.tn.haptic?.(); set(li, -li.offsetWidth, true); li.querySelector('.wl-x')?.click(); open = null; return; }
+    if (dx < -W / 2) { if (li !== open) window.tn.haptic?.(); set(li, -W, true); li.classList.add('sw-open'); open = li; } else shut(li);
+  };
+  view.addEventListener('touchend', end); view.addEventListener('touchcancel', end);
+  // a tap on an open row slides it back rather than opening the title
+  view.addEventListener('click', (e) => {
+    if (open && e.target.closest('.wl-cl > li') === open && !e.target.closest('.wl-x')) { e.preventDefault(); e.stopPropagation(); shut(open); }
+  }, true);
+})();
+function swipeTip() {
+  if (matchMedia('(max-width: 719px)').matches && $('.wl-cl > li')) window.tn.tip({ id: 'watchlist-swipe', for: '.wl-cl > li', title: 'Swipe to delete',
+    text: 'Swipe a title left to show Delete, or all the way across to take it off straight away.' });
+}
 // saving or removing (here, in a sheet or in another tab) redraws the Watchlist and the row
 addEventListener('tn:sheet-closed', () => { if (state.savedDirty) { state.savedDirty = false; const y = scrollY; draw(); scrollTo(0, y); } });
 for (const ev of ['tn:marks', 'tn:account']) addEventListener(ev, () => { if (state.trending && !window.tnSheet?.isOpen?.()) { const y = scrollY; draw(); scrollTo(0, y); } else state.savedDirty = true; });

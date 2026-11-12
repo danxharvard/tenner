@@ -589,6 +589,21 @@ a.tb-btn:hover { text-decoration: none; }
   transition: color .2s ease, background-color .2s ease, opacity .2s ease; }
 .wl-x svg { width: 13px; height: 13px; }
 .wl-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; opacity: 1; }
+.wl-xl { display: none; }
+/* phones: swipe a row left for Delete (app.js), as in iOS. The row slides over a red button that grows with a long swipe. */
+@media (max-width: 719px) {
+  .wl-cl > li { position: relative; overflow: hidden; }
+  .wl-cl > li > a { position: relative; z-index: 1; background: var(--bg); translate: var(--sx, 0px) 0; transition: translate .4s var(--ease-spring); touch-action: pan-y; }
+  .wl-cl > li.sw-drag > a, .wl-cl > li.sw-drag > .wl-x { transition: none; }
+  .wl-cl > li > .wl-x { position: absolute; z-index: 0; top: 0; right: 0; bottom: 0; width: max(88px, calc(var(--sx, 0px) * -1)); height: auto; margin: 0;
+    border-radius: 0; color: #fff; background: #ff375f; opacity: 1; justify-content: end; transition: width .4s var(--ease-spring); }
+  .wl-cl > li > .wl-x::before { display: none; }
+  .wl-cl > li > .wl-x > svg:first-child { display: none; }
+  .wl-cl > li > .wl-x .wl-xl { display: grid; justify-items: center; gap: 3px; width: 88px; font: 500 13px/1 var(--font); -webkit-font-smoothing: antialiased; }
+  .wl-cl > li > .wl-x .wl-bin { width: 22px; height: 22px; }
+  .wl-cl > li > .wl-x:focus-visible { outline-offset: -3px; }
+  :root.still .wl-cl > li > a, :root.still .wl-cl > li > .wl-x { transition-duration: .01s; }
+}
 @media (hover: hover) {
   .wl-x { opacity: 0; }
   .wl-cl li:hover .wl-x, .wl-x:focus-visible { opacity: 1; }
@@ -2435,19 +2450,13 @@ dialog.adv { position: fixed; }
   .drawer .tabs button:active, .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
   /* hairlines between rows, from the words (not the icons), as in iOS */
   .drawer .tabs button + button::before, .drawer .top-act .tb-btn::before, .drawer .side-settings::before, .drawer .side-link + .side-link::before {
-    content: ""; position: absolute; top: 0; right: 0; left: 56px; height: .5px; background: var(--sep); }
+    content: ""; position: absolute; top: 0; right: 0; left: 50px; height: .5px; background: var(--sep); }
   .drawer .side-link + .side-link::before { left: 16px; }
-  /* the icons in coloured tiles, white and filled */
-  .drawer .tabs button svg, .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; box-sizing: border-box; width: 30px; height: 30px; padding: 5px;
-    border-radius: var(--r); color: #fff; background: #0a84ff; stroke-width: 1.8; }
-  .drawer .tabs .i-o { display: none; }
-  .drawer .tabs .i-f { display: block; }
-  .drawer .tabs [data-tab="new"] svg { background: #ff9f0a; }
-  .drawer .tabs [data-tab="top10"] svg { background: #ff375f; }
-  .drawer .tabs [data-tab="browse"] svg { background: #bf5af2; }
-  .drawer .tabs [data-tab="watchlist"] svg { background: #30d158; }
-  .drawer .top-act .tb-btn svg { background: #5e5ce6; }
-  .drawer .side-settings svg { background: #8e8e93; }
+  /* the icons: plain and monochrome, as in the sidebar on computers (the owner's pick); filled for the page you're on */
+  .drawer .tabs button svg, .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; width: 24px; height: 24px; padding: 0; color: var(--label); background: none; }
+  .drawer .tabs .i-f { display: none; }
+  .drawer .tabs [aria-selected="true"] .i-o { display: none; }
+  .drawer .tabs [aria-selected="true"] .i-f { display: block; }
   /* the small print: a group of its own, then the version underneath in grey */
   .drawer .side-link { height: 46px; padding-left: 16px; font-size: 16px; }
   .drawer .side-acct + .side-link { margin-top: 22px; border-radius: var(--r) var(--r) 0 0; }
