@@ -2544,3 +2544,5 @@ dialog.adv { position: fixed; }
 }
 /* phones: the scroll edge under the top bar stays inside the screen too (Safari would otherwise zoom the page out to show it) */
 @media (max-width: 719px) { .top-row::before { left: 0; right: 0; } }
+/* no Christmas lights on phones (the owner's pick) */
+@media (max-width: 719px) { .xl { display: none !important; } }

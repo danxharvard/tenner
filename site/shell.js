@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.84.1';
+  const version = '2.84.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1821,7 +1821,8 @@
   // only, off the main thread). Still otherwise, and under Reduce Motion. Never in the way: they can't be tapped.
   {
     const d = new Date(), m = d.getMonth();
-    if (m === 10 || (m === 11 && d.getDate() <= 26)) {
+    // not on phones (the owner's pick): computers and tablets only
+    if ((m === 10 || (m === 11 && d.getDate() <= 26)) && !matchMedia('(max-width: 719px)').matches) {
       const xl = document.createElement('div');
       xl.className = 'xl'; xl.setAttribute('aria-hidden', 'true');
       const C = { r: ['#fff6e8', '#ff5a47', '#e01b10', '#8f0c06'], g: ['#f4ffe9', '#4ef06e', '#16b23a', '#07601d'], u: ['#f1f8ff', '#55a6ff', '#1466f0', '#0a3590'] };
