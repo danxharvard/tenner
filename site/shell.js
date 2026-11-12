@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.83.1';
+  const version = '2.84.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -867,6 +867,15 @@
       dlg.addEventListener('close', () => dlg.style.removeProperty('--drag'));
     };
     swipeAway(drawer, shut);
+    // iOS 26: scrolling down tucks the tab bar in, scrolling up (or reaching either end) brings it back
+    let lastY = scrollY, tuck = false;
+    addEventListener('scroll', () => {
+      const y = scrollY, dy = y - lastY, end = y + innerHeight >= document.documentElement.scrollHeight - 40;
+      if (Math.abs(dy) < 6 && !end) return;
+      const t = drawerQ.matches && dy > 0 && y > 140 && !end;
+      if (t !== tuck) { tuck = t; root.classList.toggle('tb-min', t); }
+      lastY = y;
+    }, { passive: true });
     // introduce the new layout once, on phones: the menu now lives behind your account button
     if (drawerQ.matches) setTimeout(() => window.tn?.tip?.({ id: 'ios-more', for: '#menuBtn', title: 'Your account and more',
       text: 'The pages are along the bottom now, with Search beside them. Tap here for your account, About, Theme and Settings.' }), 0);

@@ -2448,36 +2448,95 @@ dialog.adv { position: fixed; }
 }
 
 /* ============================================================ phones: the tab bar in Liquid Glass, as Safari's own toolbar
-   on iOS 26 (the owner's reference): a clear capsule and a clear circle that the page shows through, lightly blurred and
-   brightened, with a bright rim of light along the top edge and a softer one below. The chosen tab sits in a capsule of
-   lighter glass. */
+   on iOS 26 (the owner's reference). A clear capsule and a clear circle the page shows through, lightly blurred, brightened
+   and saturated. Glass is built in layers, as light meets a real lens:
+   - the body: a faint sheen, a touch lighter at the top than the bottom, so it has volume
+   - the edge: a hairline rim that catches the light top left and again, more softly, bottom right; just inside it a soft
+     glow, where a lens bends the most light, and a slight shade along the foot
+   - a gloss across the upper half, and a soft, wide shadow underneath, so it floats
+   The chosen tab sits in a smaller lens of brighter glass that glides between tabs. Scrolling down tucks the bar in (the
+   labels fold away and it slims down); scrolling up, or reaching the end, brings it back, as in iOS 26. */
 @media (max-width: 719px) {
-  :root { --lg-fill: rgba(255, 255, 255, .34); --lg-pill: rgba(255, 255, 255, .62); --lg-shadow: 0 10px 34px -8px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .06);
-    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 40%, rgba(255, 255, 255, .12) 65%, rgba(255, 255, 255, .55)); }
-  :root[data-theme="dark"] { --lg-fill: rgba(28, 28, 32, .32); --lg-pill: rgba(255, 255, 255, .16); --lg-shadow: 0 12px 36px -8px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .3);
-    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 40%, rgba(255, 255, 255, .06) 65%, rgba(255, 255, 255, .26)); }
+  :root {
+    --lg-body: linear-gradient(to bottom, rgba(255, 255, 255, .42), rgba(255, 255, 255, .26));
+    --lg-blur: blur(9px) saturate(2) brightness(1.08);
+    --lg-rim: radial-gradient(90% 160% at 18% 0%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 60%),
+      radial-gradient(90% 160% at 82% 100%, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0) 60%), rgba(255, 255, 255, .28);
+    --lg-inner: inset 0 1px 1px rgba(255, 255, 255, .7), inset 0 0 10px 1px rgba(255, 255, 255, .28), inset 0 -10px 18px -14px rgba(0, 0, 0, .14);
+    --lg-drop: 0 18px 40px -14px rgba(0, 0, 0, .3), 0 4px 12px -4px rgba(0, 0, 0, .1), 0 0 0 .5px rgba(0, 0, 0, .06);
+    --lg-gloss: linear-gradient(to bottom, rgba(255, 255, 255, .34), rgba(255, 255, 255, .06) 46%, rgba(255, 255, 255, 0) 56%);
+    --lg-lens: linear-gradient(to bottom, rgba(255, 255, 255, .86), rgba(255, 255, 255, .6));
+    --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 0 0 .5px rgba(255, 255, 255, .6), inset 0 -1px 2px rgba(0, 0, 0, .05), 0 2px 8px -2px rgba(0, 0, 0, .16);
+    --lg-ink: #000; --lg-scrim: rgba(255, 255, 255, .7);
+  }
+  :root[data-theme="dark"] {
+    --lg-body: linear-gradient(to bottom, rgba(70, 70, 78, .36), rgba(24, 24, 28, .3));
+    --lg-blur: blur(9px) saturate(1.9) brightness(.92);
+    --lg-rim: radial-gradient(90% 160% at 18% 0%, rgba(255, 255, 255, .78), rgba(255, 255, 255, 0) 60%),
+      radial-gradient(90% 160% at 82% 100%, rgba(255, 255, 255, .42), rgba(255, 255, 255, 0) 60%), rgba(255, 255, 255, .13);
+    --lg-inner: inset 0 1px 1px rgba(255, 255, 255, .28), inset 0 0 12px 1px rgba(255, 255, 255, .09), inset 0 -10px 18px -14px rgba(0, 0, 0, .5);
+    --lg-drop: 0 18px 44px -12px rgba(0, 0, 0, .7), 0 4px 12px -4px rgba(0, 0, 0, .4);
+    --lg-gloss: linear-gradient(to bottom, rgba(255, 255, 255, .12), rgba(255, 255, 255, .02) 46%, rgba(255, 255, 255, 0) 56%);
+    --lg-lens: linear-gradient(to bottom, rgba(255, 255, 255, .22), rgba(255, 255, 255, .12));
+    --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .34), inset 0 0 0 .5px rgba(255, 255, 255, .14), 0 2px 10px -2px rgba(0, 0, 0, .4);
+    --lg-ink: #fff; --lg-scrim: rgba(0, 0, 0, .55);
+  }
+  /* the body */
   body > .tabbar .tabs, .tabbar > .tb-search {
-    position: relative; isolation: isolate; border-radius: 999px; background: var(--lg-fill);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.06); backdrop-filter: blur(10px) saturate(1.9) brightness(1.06);
-    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22), var(--lg-shadow); }
-  /* the rim of light: brightest along the top, as glass catches it */
+    position: relative; isolation: isolate; border-radius: 999px; background: var(--lg-body); color: var(--lg-ink);
+    -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur);
+    box-shadow: var(--lg-inner), var(--lg-drop);
+    transition: height .5s var(--ease-spring), width .5s var(--ease-spring), padding .5s var(--ease-spring), transform .45s var(--ease-spring); }
+  /* the edge: a hairline rim lit top left and bottom right */
   body > .tabbar .tabs::before, .tabbar > .tb-search::before {
-    content: ""; display: block; position: absolute; inset: 0; z-index: 2; border-radius: inherit; padding: 1px; pointer-events: none; background: var(--lg-rim);
+    content: ""; display: block; position: absolute; inset: 0; z-index: 3; border-radius: inherit; padding: 1px; pointer-events: none; background: var(--lg-rim);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
     mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  /* the gloss across the upper half */
+  body > .tabbar .tabs::after, .tabbar > .tb-search::after {
+    content: ""; position: absolute; inset: 1px; z-index: 0; border-radius: inherit; pointer-events: none; background: var(--lg-gloss); }
   body > .tabbar .tabs { padding: 5px; }
-  body > .tabbar .tab-ind { top: 5px; bottom: 5px; border-radius: 999px; background: var(--lg-pill); box-shadow: inset 0 .5px 0 rgba(255, 255, 255, .5); }
-  .tabs button { border-radius: 999px; }
-  .tabs button svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bg) 45%, transparent)); }
-  .tabbar > .tb-search svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bg) 45%, transparent)); }
+  body > .tabbar .tabs button { z-index: 1; color: var(--lg-ink); border-radius: 999px; font-weight: 600; }
+  body > .tabbar .tabs button[aria-selected="true"] { color: var(--accent); }
+  .tabbar > .tb-search svg { position: relative; z-index: 1; }
+  /* the chosen tab's lens */
+  body > .tabbar .tab-ind { z-index: 0; top: 5px; bottom: 5px; border-radius: 999px; background: var(--lg-lens); box-shadow: var(--lg-lens-edge); }
+  /* a press: the glass swells a little and brightens, as iOS's does */
+  body > .tabbar .tabs:has(button:active) { transform: scale(1.018); }
+  .tabbar > .tb-search:active { transform: scale(1.07); }
+  body > .tabbar .tabs button:active { transform: none; filter: none; }
+  body > .tabbar .tabs button:active svg { transform: scale(1.12); }
+  body > .tabbar .tabs button svg { transition: transform .4s var(--ease-spring); }
+  /* the foot of the screen softens into the page colour under the bar, so it reads over anything (iOS's scroll edge) */
+  body > .tabbar::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: calc(-10px - env(safe-area-inset-bottom, 0px)); height: calc(100% + 54px + env(safe-area-inset-bottom, 0px));
+    pointer-events: none; background: linear-gradient(to top, var(--lg-scrim), transparent); opacity: .85; }
+  /* tucked in while you scroll down: the labels fold away and the bar slims */
+  body > .tabbar .tabs button span { transition: opacity .25s ease, max-height .45s var(--ease-spring), margin .45s var(--ease-spring); max-height: 14px; }
+  body > .tabbar .tabs button { transition: height .5s var(--ease-spring), gap .5s var(--ease-spring), color .3s ease; }
+  .tb-min body > .tabbar .tabs button { height: 42px; gap: 0; }
+  .tb-min body > .tabbar .tabs button span { opacity: 0; max-height: 0; }
+  .tb-min .tabbar > .tb-search { width: 52px; height: 52px; }
+  .tb-min body > .tabbar .tabs { transform: none; }
+  :root.still body > .tabbar *, :root.still body > .tabbar .tabs { transition-duration: .01s !important; }
 }
 @media (max-width: 719px) and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --lg-fill: rgba(28, 28, 32, .32); --lg-pill: rgba(255, 255, 255, .16); --lg-shadow: 0 12px 36px -8px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .3);
-    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 40%, rgba(255, 255, 255, .06) 65%, rgba(255, 255, 255, .26)); }
+  :root:not([data-theme="light"]) {
+    --lg-body: linear-gradient(to bottom, rgba(70, 70, 78, .36), rgba(24, 24, 28, .3));
+    --lg-blur: blur(9px) saturate(1.9) brightness(.92);
+    --lg-rim: radial-gradient(90% 160% at 18% 0%, rgba(255, 255, 255, .78), rgba(255, 255, 255, 0) 60%),
+      radial-gradient(90% 160% at 82% 100%, rgba(255, 255, 255, .42), rgba(255, 255, 255, 0) 60%), rgba(255, 255, 255, .13);
+    --lg-inner: inset 0 1px 1px rgba(255, 255, 255, .28), inset 0 0 12px 1px rgba(255, 255, 255, .09), inset 0 -10px 18px -14px rgba(0, 0, 0, .5);
+    --lg-drop: 0 18px 44px -12px rgba(0, 0, 0, .7), 0 4px 12px -4px rgba(0, 0, 0, .4);
+    --lg-gloss: linear-gradient(to bottom, rgba(255, 255, 255, .12), rgba(255, 255, 255, .02) 46%, rgba(255, 255, 255, 0) 56%);
+    --lg-lens: linear-gradient(to bottom, rgba(255, 255, 255, .22), rgba(255, 255, 255, .12));
+    --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .34), inset 0 0 0 .5px rgba(255, 255, 255, .14), 0 2px 10px -2px rgba(0, 0, 0, .4);
+    --lg-ink: #fff; --lg-scrim: rgba(0, 0, 0, .55);
+  }
 }
 /* Reduce Transparency: solid, as everywhere else */
 @media (max-width: 719px) and (prefers-reduced-transparency: reduce) {
   body > .tabbar .tabs, .tabbar > .tb-search { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  body > .tabbar .tabs::after, .tabbar > .tb-search::after { display: none; }
 }
 /* phones: the rows of posters run right to the screen's edges, with no fade at either side (the owner's pick) */
 @media (max-width: 719px) {
