@@ -589,3 +589,6 @@ main.bwrap { position: relative; isolation: isolate; }
   .th-o { display: none; }
   .th-go { flex: 1; justify-content: center; }
 }
+
+/* phones: the glow stays inside the screen (anything past its sides makes iPhone Safari zoom the page out) */
+@media (max-width: 719px) { .s-amb { left: 0; right: 0; } }
