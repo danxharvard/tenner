@@ -589,20 +589,18 @@ a.tb-btn:hover { text-decoration: none; }
   transition: color .2s ease, background-color .2s ease, opacity .2s ease; }
 .wl-x svg { width: 13px; height: 13px; }
 .wl-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; opacity: 1; }
-.wl-xl { display: none; }
-/* phones: swipe a row left for Delete (app.js), as in iOS. The row slides over a red button that grows with a long swipe. */
+.wl-sw { display: none; }
+/* phones: swipe a row left for Delete (app.js), as in iOS. The row (its ✕ and all) slides left, and a red Delete button
+   grows in from the right edge to fill the gap; a long swipe stretches it across. At rest nothing changes. */
 @media (max-width: 719px) {
   .wl-cl > li { position: relative; overflow: hidden; }
-  .wl-cl > li > a { position: relative; z-index: 1; background: var(--bg); translate: var(--sx, 0px) 0; transition: translate .4s var(--ease-spring); touch-action: pan-y; }
-  .wl-cl > li.sw-drag > a, .wl-cl > li.sw-drag > .wl-x { transition: none; }
-  .wl-cl > li > .wl-x { position: absolute; z-index: 0; top: 0; right: 0; bottom: 0; width: max(88px, calc(var(--sx, 0px) * -1)); height: auto; margin: 0;
-    border-radius: 0; color: #fff; background: #ff375f; opacity: 1; justify-content: end; transition: width .4s var(--ease-spring); }
-  .wl-cl > li > .wl-x::before { display: none; }
-  .wl-cl > li > .wl-x > svg:first-child { display: none; }
-  .wl-cl > li > .wl-x .wl-xl { display: grid; justify-items: center; gap: 3px; width: 88px; font: 500 13px/1 var(--font); -webkit-font-smoothing: antialiased; }
-  .wl-cl > li > .wl-x .wl-bin { width: 22px; height: 22px; }
-  .wl-cl > li > .wl-x:focus-visible { outline-offset: -3px; }
-  :root.still .wl-cl > li > a, :root.still .wl-cl > li > .wl-x { transition-duration: .01s; }
+  .wl-cl > li > a, .wl-cl > li > .wl-x { translate: var(--sx, 0px) 0; transition: translate .4s var(--ease-spring); touch-action: pan-y; }
+  .wl-cl > li > .wl-sw { position: absolute; top: 0; right: 0; bottom: 0; display: grid; place-content: center; justify-items: center; gap: 3px; overflow: hidden;
+    width: calc(var(--sx, 0px) * -1); padding: 0; border: 0; color: #fff; background: #ff375f; font: 500 13px/1 var(--font); -webkit-font-smoothing: antialiased;
+    white-space: nowrap; cursor: pointer; transition: width .4s var(--ease-spring); }
+  .wl-cl > li > .wl-sw svg { width: 22px; height: 22px; }
+  .wl-cl > li.sw-drag > a, .wl-cl > li.sw-drag > .wl-x, .wl-cl > li.sw-drag > .wl-sw { transition: none; }
+  :root.still .wl-cl > li > a, :root.still .wl-cl > li > .wl-x, :root.still .wl-cl > li > .wl-sw { transition-duration: .01s; }
 }
 @media (hover: hover) {
   .wl-x { opacity: 0; }

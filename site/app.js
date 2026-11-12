@@ -236,7 +236,8 @@ function pageWatchlist() {
     const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
     return `<li data-type="${x.type === 'movie' ? 'movie' : 'tv'}"><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${sh}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${showLine(x)}${noteLine(x.k)}</span>${on ? `<span class="wl-on">${on}</span>` : ''}</a>
-      <button type="button" class="wl-x" data-unsave="${esc(x.k)}" aria-label="Remove ${esc(x.title)} from your Watchlist" title="Remove">${X}<span class="wl-xl">${TRASH}Delete</span></button></li>`;
+      <button type="button" class="wl-x" data-unsave="${esc(x.k)}" aria-label="Remove ${esc(x.title)} from your Watchlist" title="Remove">${X}</button>
+      <button type="button" class="wl-sw" data-unsave="${esc(x.k)}" tabindex="-1" aria-hidden="true">${TRASH}<span>Delete</span></button></li>`;
   }).join('');
   const both = list.some((x) => x.type === 'movie') && list.some((x) => x.type !== 'movie');
   const body = !list.length
@@ -265,7 +266,8 @@ function watchedList() {
     const what = [x.type === 'movie' ? 'Film' : 'Series', x.year, `Watched ${fmtDate(new Date(x.at), { day: 'numeric', month: 'short' })}`].filter(Boolean).join(' · ');
     return `<li><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${reg(wlInfo(x, 'Watched'))}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${noteLine(x.k)}</span></a>
-      <button type="button" class="wl-x" data-unseen="${esc(x.k)}" aria-label="Take ${esc(x.title)} off your Watched list" title="Take off Watched">${X}<span class="wl-xl">${TRASH}Delete</span></button></li>`;
+      <button type="button" class="wl-x" data-unseen="${esc(x.k)}" aria-label="Take ${esc(x.title)} off your Watched list" title="Take off Watched">${X}</button>
+      <button type="button" class="wl-sw" data-unseen="${esc(x.k)}" tabindex="-1" aria-hidden="true">${TRASH}<span>Delete</span></button></li>`;
   }).join('');
   return `<section class="wk wl-seen" aria-labelledby="wl-seen"><div class="wk-hd"><h2 class="row-h" id="wl-seen">Watched</h2><p>${all.length} title${all.length === 1 ? '' : 's'} you’ve marked as watched</p></div>
     <ol class="cl nw-cl wl-cl">${rows}</ol>${all.length > list.length ? '<button type="button" class="btn btn-tinted wl-more" data-seen-all>Show all</button>' : ''}</section>`;
@@ -392,7 +394,7 @@ view.addEventListener('click', (e) => {
   b.disabled = true;
   li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.9)', filter: 'blur(6px)' }], { duration: 260, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'forwards' }).finished.then(done, done);
 });
-// phones: swipe a row left to show a red Delete button behind it, as in iOS's Mail and Reminders; swipe all the way across
+// phones: swipe a row left to show a red Delete button beside it (the row itself stays as it is), as in iOS's Mail and Reminders; swipe all the way across
 // to delete it at once. A tap anywhere else (or on the open row) slides it back.
 (() => {
   const W = 88, phone = matchMedia('(max-width: 719px)');
@@ -416,13 +418,13 @@ view.addEventListener('click', (e) => {
   }, { passive: false });
   const end = () => {
     if (!row) return; const li = row; row = null; if (axis !== 'x') return;
-    if (dx < -li.offsetWidth * .6) { window.tn.haptic?.(); set(li, -li.offsetWidth, true); li.querySelector('.wl-x')?.click(); open = null; return; }
+    if (dx < -li.offsetWidth * .6) { window.tn.haptic?.(); set(li, -li.offsetWidth, true); li.querySelector('.wl-sw')?.click(); open = null; return; }
     if (dx < -W / 2) { if (li !== open) window.tn.haptic?.(); set(li, -W, true); li.classList.add('sw-open'); open = li; } else shut(li);
   };
   view.addEventListener('touchend', end); view.addEventListener('touchcancel', end);
   // a tap on an open row slides it back rather than opening the title
   view.addEventListener('click', (e) => {
-    if (open && e.target.closest('.wl-cl > li') === open && !e.target.closest('.wl-x')) { e.preventDefault(); e.stopPropagation(); shut(open); }
+    if (open && e.target.closest('.wl-cl > li') === open && !e.target.closest('.wl-sw')) { e.preventDefault(); e.stopPropagation(); shut(open); }
   }, true);
 })();
 function swipeTip() {
