@@ -180,7 +180,7 @@ body.home { overflow-x: clip; }
 .bx-row a:focus-visible :is(.bx-pc-art, .bx-lp-art) { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* trending: wide artwork cards (the first reference) */
-.bx-svc { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25); }
+.bx-svc { width: 26px; height: 26px; border-radius: var(--r-app); object-fit: cover; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25); }
 .bx-star { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
 .bx-star svg { width: 13px; height: 13px; color: #ffb340; }
 

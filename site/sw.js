@@ -3,7 +3,7 @@
 // last copy kept for when there's no connection, or when the network is too slow to answer within a few seconds. Fonts and icons: from the cache. TMDB's posters: from the cache, the most recent
 // 60 or so. A title's details and cast from the search API, and On TV this week: the network first, the last 150 kept
 // for offline. Everything on your Watchlist (its details and poster) is kept too, so its sheets open on a plane.
-const SHELL = 'tenner-shell-2.84.5', IMGS = 'tenner-img-v1', FONTS = 'tenner-font-v1', API = 'tenner-api-v1', KEEP = 'tenner-keep-v1';   // the shell cache follows the version; fonts never change
+const SHELL = 'tenner-shell-2.84.6', IMGS = 'tenner-img-v1', FONTS = 'tenner-font-v1', API = 'tenner-api-v1', KEEP = 'tenner-keep-v1';   // the shell cache follows the version; fonts never change
 const APIS = 'https://tenner-api.danseacroft.workers.dev', ONAIR = 'https://tenner-tv.danseacroft.workers.dev/api/onair';
 // the hourly data every page reads, fetched when the app is installed (and refreshed in the background where the device
 // allows), so each page opens offline even if it's never been visited
@@ -84,7 +84,7 @@ self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data?.json() || {}; } catch { d = { title: 'Tenner', body: e.data?.text() || '' }; }
   // the morning's alert carries how many Watchlist shows have a new episode today: the Home Screen icon shows it too
   if (Number.isInteger(d.badge) && self.navigator.setAppBadge) (d.badge ? self.navigator.setAppBadge(d.badge) : Promise.resolve()).catch(() => {});
-  e.waitUntil(self.registration.showNotification(d.title || 'Tenner', { body: d.body || '', icon: 'icon-192.png', badge: 'icon-96.png', tag: d.tag || 'tenner', data: { url: d.url || '/' } }));
+  e.waitUntil(self.registration.showNotification(d.title || 'Tenner', { body: d.body || '', icon: 'icon-192.png', badge: 'badge-96.png', tag: d.tag || 'tenner', data: { url: d.url || '/' } }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
