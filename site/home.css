@@ -387,3 +387,11 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 .bx-hd-btn { position: relative; flex: none; height: 36px; padding: 0 12px; gap: 6px; font-size: 15px; -webkit-font-smoothing: antialiased; text-shadow: none; }
 .bx-hd-btn svg { width: 15px; height: 15px; }
 .bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
+
+/* phones: no margin down the sides (the owner's pick). The featured artwork runs from edge to edge as in the Apple TV app,
+   and the rows of posters start and end right at the screen's edges; the headings keep their inset. */
+@media (max-width: 719px) {
+  .bx-hero { margin-inline: calc(-1 * var(--gutter)) calc(-1 * var(--gutter-r)); border-radius: 0; box-shadow: none;
+    -webkit-mask-image: linear-gradient(transparent, #000 40px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(transparent, #000 40px, #000 calc(100% - 44px), transparent); }
+  .bx-row { padding-inline: 0; scroll-padding-inline: 0; }
+}
