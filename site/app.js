@@ -427,9 +427,24 @@ view.addEventListener('click', (e) => {
     if (open && e.target.closest('.wl-cl > li') === open && !e.target.closest('.wl-sw')) { e.preventDefault(); e.stopPropagation(); shut(open); }
   }, true);
 })();
+// phones, once ever: "Swipe to delete" bounces on the first title, pointing the way, until it's swiped or a few seconds pass
 function swipeTip() {
-  if (matchMedia('(max-width: 719px)').matches && $('.wl-cl > li')) window.tn.tip({ id: 'watchlist-swipe', for: '.wl-cl > li', title: 'Swipe to delete',
-    text: 'Swipe a title left to show Delete, or all the way across to take it off straight away.' });
+  const li = $('.wl-cl > li'), K = 'tenner-swipe-hint';
+  if (!li || !matchMedia('(max-width: 719px)').matches || (navigator.webdriver && !window.tnTipsTest)) return;
+  try { if (localStorage.getItem(K)) return; } catch { return; }
+  const io = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting) return; io.disconnect();
+    const h = document.createElement('span'); h.className = 'wl-hint'; h.setAttribute('aria-hidden', 'true');
+    h.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Swipe to delete';
+    setTimeout(() => {
+      const row = $('.wl-cl > li'); if (!row || $('.wl-hint')) return;   // the list may have been redrawn meanwhile
+      try { if (localStorage.getItem(K)) return; localStorage.setItem(K, '1'); } catch {}
+      row.append(h); const li = row;
+      const go = () => { h.classList.add('out'); setTimeout(() => h.remove(), 300); li.removeEventListener('touchstart', go); };
+      li.addEventListener('touchstart', go, { passive: true }); setTimeout(go, 6000);
+    }, 700);
+  }, { threshold: .9 });
+  io.observe(li);
 }
 // saving or removing (here, in a sheet or in another tab) redraws the Watchlist and the row
 addEventListener('tn:sheet-closed', () => { if (state.savedDirty) { state.savedDirty = false; const y = scrollY; draw(); scrollTo(0, y); } });
