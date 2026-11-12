@@ -1776,6 +1776,8 @@ p { text-wrap: pretty; }
 :root:not(.still) .sw::after { transition: translate .45s var(--ease-snap), width .25s var(--ease-out); }
 :root:not(.still) :is(.mine-row, .set-row):active .sw::after { width: 33px; }
 :root:not(.still) :is(.mine-row, .set-row):active input:checked + .sw::after { translate: 14px 0; }
+:root:not(.still) .me-keep:active .sw::after { width: 27px; }
+:root:not(.still) .me-keep:active input:checked + .sw::after { translate: 11px 0; }
 
 /* popups that had no entrance of their own rise in gently over a fading backdrop */
 :root:not(.still) dialog.mine-dlg:not(.tn-dlg, .ac-del-dlg)[open] { animation: dlgIn .5s var(--ease-spring); }
@@ -2116,7 +2118,20 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
 .me-note { margin: 0 2px 4px; font-size: 14px; line-height: 1.45; color: var(--label2); }
 .me-mail { display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #4aa3ff, #0a6cff); }
 .me-mail svg { width: 26px; height: 26px; }
-.me-forgot { justify-self: end; margin: -2px 2px -4px; font-size: 13px; }
+.me-forgot { font-size: 13px; }
+/* Remember me (an iOS switch, a size down to sit in the form) and Forgot password? on one line */
+.me-opts { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 2px -4px; }
+.me-keep { position: relative; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; color: var(--label); cursor: pointer; -webkit-user-select: none; user-select: none; }
+.me-keep input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.me-opts > * { white-space: nowrap; }
+@media (max-width: 359px) { .me-keep { gap: 8px; font-size: 13px; } .me-opts .me-forgot { font-size: 12.5px; } }
+.me-keep .sw { width: 42px; height: 26px; border-radius: 13px; }
+.me-keep .sw::after { width: 22px; height: 22px; }
+.me-keep input:checked + .sw { background: var(--green); }
+.me-keep input:checked + .sw::after { translate: 16px 0; }
+.me-keep input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+.me-form.native-sw .me-keep input { position: static; opacity: 1; width: auto; height: auto; accent-color: var(--green); font-size: 14px; }
+.me-form.native-sw .me-keep .sw { display: none; }
 
 /* ============================================================ made for fingers (phones and tablets)
    Every tap lands on at least 44pt, even where the thing drawn is smaller (an invisible margin around it, so nothing

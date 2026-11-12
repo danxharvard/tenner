@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.84.6';
+  const version = '2.85.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1056,6 +1056,27 @@
   const SESS = 'tenner-session', ACC = 'tenner-account';
   const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch {} };
+  // Remember me (the switch on the sign-in form; on unless you turn it off). Off, this device is signed out once Tenner
+  // has been closed: every open Tenner tab marks itself (sessionStorage, which goes when the tab or browser closes) and
+  // leaves a "still open" time behind (tenner-alive, every 30 seconds and as it closes). A page that opens with neither,
+  // more than three minutes after the last Tenner tab went, signs out before anything else reads the sign-in. No cookies.
+  const KEEP = 'tenner-keep', ALIVE = 'tenner-alive', HERE = 'tenner-here';
+  const ssGet = (k) => { try { return sessionStorage.getItem(k); } catch { return null; } };
+  const ssSet = (k) => { try { sessionStorage.setItem(k, '1'); } catch {} };
+  const brief = () => lsGet(KEEP) === '0' && !!lsGet(SESS);
+  let aliveT = 0;
+  const stayAlive = () => {
+    if (!brief()) { clearInterval(aliveT); aliveT = 0; return; }
+    ssSet(HERE); lsSet(ALIVE, String(Date.now()));
+    aliveT ||= setInterval(() => (brief() ? lsSet(ALIVE, String(Date.now())) : stayAlive()), 30e3);
+  };
+  if (brief() && !ssGet(HERE) && !(Date.now() - (+lsGet(ALIVE) || 0) < 180e3)) {
+    const t = lsGet(SESS);
+    [SESS, ACC, KEEP, ALIVE].forEach((k) => lsSet(k, null));
+    fetch(`${api}/auth/logout`, { method: 'POST', keepalive: true, headers: { authorization: `Bearer ${t}` } }).catch(() => {});
+  }
+  stayAlive();
+  addEventListener('pagehide', () => { if (brief()) lsSet(ALIVE, String(Date.now())); });
   let applying = false, acctT = 0, syncing = null;
   const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const unb64u = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4)), (c) => c.charCodeAt(0));
@@ -1074,8 +1095,9 @@
       if (!r.ok) throw Object.assign(new Error(d.error || 'Something went wrong'), { status: r.status, data: d });
       return d;
     },
+    remember: lsGet(KEEP) !== '0',   // the sign-in form's Remember me switch (your last choice on this device)
     signedIn(token, user) {
-      lsSet(SESS, token); lsSet(ACC, JSON.stringify(user));
+      lsSet(SESS, token); lsSet(ACC, JSON.stringify(user)); lsSet(KEEP, account.remember ? null : '0'); stayAlive();
       dispatchEvent(new Event('tn:account')); return account.sync();
     },
     setUser(user) { lsSet(ACC, JSON.stringify(user)); dispatchEvent(new Event('tn:account')); },
@@ -1118,7 +1140,7 @@
       }).catch(() => {});
     },
     friendly: (e) => e?.name === 'NotAllowedError' ? 'Cancelled' : e?.name === 'InvalidStateError' ? 'This device already has a passkey for your account' : e?.message || 'Something went wrong',
-    forget() { lsSet(SESS, null); lsSet(ACC, null); dispatchEvent(new Event('tn:account')); },
+    forget() { lsSet(SESS, null); lsSet(ACC, null); lsSet(ALIVE, null); stayAlive(); dispatchEvent(new Event('tn:account')); },
     async signOut(clear) {
       try { await account.call('POST', '/auth/logout'); } catch {}
       account.forget();
@@ -1226,7 +1248,7 @@
            <button class="btn btn-tinted me-go-btn">${TICK}Save and sign in</button></form>`
         : `${GOOGLE_ID ? '<div class="me-google" hidden></div><p class="me-or" hidden><span>or</span></p>' : ''}
            <form class="me-form" novalidate>${up ? field('me-nm', 'text', 'given-name', 'Your name', 'maxlength="40"') : ''}${field('me-e', 'email', up ? 'email' : 'username', 'Email')}${field('me-p', 'password', up ? 'new-password' : 'current-password', up ? 'Password (8 or more characters)' : 'Password')}
-           ${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}<button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Sign up' : 'Sign in'}</button>
+           <div class="me-opts"><label class="me-keep"><input type="checkbox" switch role="switch" class="me-rem"${account.remember ? ' checked' : ''}><i class="sw" aria-hidden="true"></i>Remember me</label>${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}</div><button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Sign up' : 'Sign in'}</button>
            ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}</form>`;
       const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
@@ -1248,6 +1270,12 @@
         try { await account.call('POST', '/auth/password/resend', { email: o.email }); say('Sent. It can take a minute to arrive'); e.currentTarget.disabled = true; }
         catch (err) { say(account.friendly(err), true); }
       });
+      const rem = q('.me-rem');
+      if (rem) {
+        q('.me-form').classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari: the real iOS switch
+        rem.addEventListener('change', () => { account.remember = rem.checked; haptic(8); });
+        window.tn?.tip?.({ id: 'remember-me', for: rem.closest('.me-keep'), title: 'Remember me', text: 'On, you stay signed in on this device. Turn it off on a shared computer and you’re signed out once you close Tenner. Your browser can save your password for you.' });
+      }
       const g = q('.me-google');
       if (g) account.google(g, { onError: (err) => say(account.friendly(err), true), onShown: () => { g.hidden = false; q('.me-or').hidden = false; } });
       q('.me-pk')?.addEventListener('click', async (e) => {
