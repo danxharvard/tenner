@@ -82,15 +82,15 @@ body {
 }
 /* a soft wash of colour behind everything, so the page feels lit from above */
 body::before {
-  content: ""; position: fixed; z-index: -1; left: -10vw; right: -10vw; top: -20vh; height: 95vh; pointer-events: none;
+  content: ""; position: fixed; z-index: -1; left: 0; right: 0; top: 0; height: 80vh; pointer-events: none;   /* inside the screen: on iPhone, anything fixed past its sides makes Safari zoom the whole page out */
   background: radial-gradient(55% 55% at 18% 18%, var(--amb1), transparent 70%), radial-gradient(40% 45% at 92% 6%, var(--amb2), transparent 72%), radial-gradient(60% 50% at 62% 48%, var(--amb3), transparent 75%);
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 img { display: block; max-width: 100%; }
 [hidden] { display: none !important; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: 16px; top: 8px; z-index: 30; }
+.skip { position: absolute; left: 16px; top: 8px; z-index: 30; clip-path: inset(50%); }   /* hidden until focused, inside the screen (nothing past its sides) */
+.skip:focus { clip-path: none; }
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
 main:focus { outline: none; }
 ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
@@ -2542,3 +2542,5 @@ dialog.adv { position: fixed; }
 @media (max-width: 719px) {
   .bx-row, .b-people .sh-faces, .rb-track, .tt-row, .tt-row.at-start, .tt-row.at-end { -webkit-mask-image: none !important; mask-image: none !important; }
 }
+/* phones: the scroll edge under the top bar stays inside the screen too (Safari would otherwise zoom the page out to show it) */
+@media (max-width: 719px) { .top-row::before { left: 0; right: 0; } }

@@ -121,7 +121,7 @@
 :root:not(.still) .cx-send.busy svg { animation: cxFly .9s var(--ease-out) infinite; }
 @keyframes cxFly { 0% { transform: none; opacity: 1; } 55% { transform: translate(22px, -22px) scale(.6); opacity: 0; } 56% { transform: translate(-18px, 18px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 
-.c-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.c-hp { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); opacity: 0; }
 
 /* ---------- sent */
 .cx-done { display: grid; justify-items: center; gap: 8px; padding: clamp(30px, 6vw, 56px) 8px; text-align: center; outline: none; }
