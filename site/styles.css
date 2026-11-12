@@ -1918,7 +1918,7 @@ p { text-wrap: pretty; }
   @media (max-width: 999px) { .me-row.me-over:has(.bx-me:not([hidden])) { top: calc(env(safe-area-inset-top, 0px) + 60px); } }
   body:has(#bxMe) .side-acct { display: none; }   /* the pill speaks for your account (or invites you to make one) */
   /* ...and so does the Theme button: the pill's own sun or moon does its job (Auto is in Settings) */
-  :root.me-in .th-wrap, :root.me-in #thBtn { display: none; }
+  :root.signed-in .th-wrap, :root.signed-in #thBtn { display: none; }
   /* (above the Christmas lights, as the bar's glass is: the lights never cover your name) */
   .bx-me:not([hidden]) { position: relative; z-index: 49; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 8%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);

@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.84.3';
+  const version = '2.84.4';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -916,18 +916,6 @@
     }
   }
 
-  // ---------- ?edge: a small readout of the page's width and zoom, and a pink outline on anything wider than the screen
-  // (for tracking down a border round the page on a particular phone) ----------
-  if (/[?&]edge\b/.test(location.search)) setTimeout(() => {
-    const W = innerWidth, wide = [...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.left < -1 || r.right > W + 1); });
-    wide.forEach((e) => { e.style.outline = '2px solid #ff375f'; });
-    const box = document.createElement('pre');
-    box.style.cssText = 'position:fixed;z-index:999;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 60px);margin:0;padding:10px;border-radius:9px;background:#000;color:#fff;font:12px/1.35 ui-monospace,monospace;white-space:pre-wrap;max-height:45vh;overflow:auto';
-    box.textContent = `Page width ${W} · screen ${screen.width} · zoom ${(window.visualViewport?.scale || 1).toFixed(3)} · scroll width ${document.documentElement.scrollWidth}\n`
-      + (wide.length ? wide.slice(0, 12).map((e) => { const r = e.getBoundingClientRect(); return `${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(r.left)}..${Math.round(r.right)}`; }).join('\n') : 'Nothing is wider than the screen.');
-    document.body.append(box);
-  }, 1500);
-
   // ---------- a one-time note about privacy: not a consent banner (there's nothing to consent to), just reassurance ----------
   // Shown once, at the foot of the screen in Tenner's frosted style; Got it puts it away for good on this device.
   // Its wording changed when accounts arrived, so it's shown once more under a new name (the old one is tidied away).
@@ -1377,7 +1365,7 @@
     $('#bxMeOut').addEventListener('click', () => { closeMenu(); ask(); });
     const drawMe = () => {
       const u = account.user(), box = $('#bxMe');
-      box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('me-in', !!u);
+      box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('signed-in', !!u);   // (not 'me-in': that's the sign-in fields' class, which then styled the whole page)
       const c = $('#bxMeCard'), wide = matchMedia('(min-width: 720px)').matches;
       const DN = '<svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       if (!menu().hidden) fillMenu();   // signing in (or out) inside the dropdown: it turns into the other view where it is
