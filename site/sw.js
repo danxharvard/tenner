@@ -84,7 +84,7 @@ self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data?.json() || {}; } catch { d = { title: 'Tenner', body: e.data?.text() || '' }; }
   // the morning's alert carries how many Watchlist shows have a new episode today: the Home Screen icon shows it too
   if (Number.isInteger(d.badge) && self.navigator.setAppBadge) (d.badge ? self.navigator.setAppBadge(d.badge) : Promise.resolve()).catch(() => {});
-  e.waitUntil(self.registration.showNotification(d.title || 'Tenner', { body: d.body || '', icon: 'icon-192.png', badge: 'icon-96.png', tag: d.tag || 'tenner', data: { url: d.url || '/' } }));
+  e.waitUntil(self.registration.showNotification(d.title || 'Tenner', { body: d.body || '', icon: 'icon-192.png', badge: 'badge-96.png', tag: d.tag || 'tenner', data: { url: d.url || '/' } }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
