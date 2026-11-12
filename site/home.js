@@ -301,8 +301,8 @@
     return { x: Math.random() * sw, y: top ? -Math.random() * sh - 10 : -12, z, r: 1.2 + z * z * 5.5 + (z > .85 ? 3 : 0), vy: 16 + z * 44 + Math.random() * 8,
       a: .45 + z * .5, sway: 8 + Math.random() * 26, f: .15 + Math.random() * .45, ph: Math.random() * 6.3, soft: z > .82 };
   }
-  function sizeSnow() {
-    const d = Math.min(2, devicePixelRatio || 1); sw = innerWidth; sh = innerHeight;
+  function sizeSnow() {   // at 1x: the flakes are soft, so they look the same, and a full-window canvas at 2x is four times the pixels to send each frame
+    const d = 1; sw = innerWidth; sh = innerHeight;
     cv.width = Math.round(sw * d); cv.height = Math.round(sh * d); ctx.setTransform(d, 0, 0, d, 0, 0);
   }
   function snow(on) {
@@ -319,7 +319,10 @@
     } else { snowing = false; cv.classList.remove('on'); }
     if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(frame); }
   }
+  let odd = false;
   function frame(t) {
+    // while the page scrolls, every other frame: nobody can tell, and the scrolling gets the time
+    if ((odd = !odd) && document.documentElement.classList.contains('scrolling')) { raf = requestAnimationFrame(frame); return; }
     const dt = Math.min(.05, (t - lastT) / 1000); lastT = t;
     fade = Math.max(0, Math.min(1, fade + (snowing ? dt / .8 : -dt / 1.1)));
     ctx.clearRect(0, 0, sw, sh);

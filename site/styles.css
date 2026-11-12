@@ -322,7 +322,8 @@ a.tb-btn:hover { text-decoration: none; }
      sidebar takes on the colours of what's showing. It fades out down the sidebar and dims with the backdrop. */
   .bd-ext { display: block; position: fixed; z-index: 49; top: 0; left: 0; width: var(--side); height: clamp(640px, 94vh, 1000px); overflow: hidden; pointer-events: none;
     -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent); mask-image: linear-gradient(to bottom, #000 30%, transparent); }
-  .bd-ext .bd-l { transform: scaleX(-1) scale(1.3); transform-origin: center; object-position: left 20%; filter: blur(34px) saturate(1.5); opacity: .9; }
+  /* no blur of its own: it's only ever seen through the sidebar's frost, which blurs it already (a second blur redrawn every frame looked the same) */
+  .bd-ext .bd-l { transform: scaleX(-1) scale(1.3); transform-origin: center; object-position: left 20%; filter: saturate(1.5); opacity: .9; }
   @supports (animation-timeline: scroll()) { .bd-ext { animation: bdDim linear both; animation-timeline: scroll(root); animation-range: 0 80vh; } }
   .bd-l { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; opacity: 0; transition: opacity .6s var(--ease-out); }
   .bd-l.in { opacity: 1; }
@@ -1657,6 +1658,13 @@ button, .btn, .dd, .mb-badge, .pv-ok, .ft-ok, .sh-main .btn, .tn-opt, .coll-b, .
 @media (max-width: 719px) { .drawer { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); } }
 @media (min-width: 1000px) { .top-row { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); }
   .top-row .tabs, .top-row .top-act { background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+/* smooth scrolling on computers: every blurred layer is redrawn each frame the page moves, so nothing blurs twice or
+   unseen. A button inside a frosted box already sits on frost (blurring it again looks the same); a closed sheet is
+   invisible. While the page scrolls (shell.js sets .scrolling), the Christmas lights hold their twinkle. */
+@media (min-width: 1000px) {
+  .panel *, .sheet:not([open]), .sheet:not([open]) * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  :root.scrolling .xl-o { animation-play-state: paused; }
+}
 /* boxes inside a frosted box: the faint tint */
 .side-search input, .mine-subs .mine-row, .mine-all, .seg-thumb { background: var(--fr-in); }
 .side-search input:focus { background: color-mix(in srgb, var(--label) 11%, transparent); }
