@@ -43,8 +43,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.84.6">
-  <link rel="stylesheet" href="legal.css?v=2.84.6">
+  <link rel="stylesheet" href="styles.css?v=2.85.0">
+  <link rel="stylesheet" href="legal.css?v=2.85.0">
 </head>
 <body class="legal">
   <a class="skip" href="#main">Skip to the page</a>
@@ -90,7 +90,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.84.6</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.85.0</a>
     </div>
   </div>
 
@@ -149,7 +149,7 @@
         <li><strong>Browse:</strong> whether you like posters or a list, and that you’ve seen the note about Browse changing.</li>
         <li><strong>Suggestions:</strong> which of Tenner’s suggestion cards you’ve closed, so they stay closed, and, for the length of a visit, whether you’re seeing one.</li>
         <li><strong>Hearts:</strong> the shows and films you’ve loved, used only to suggest things you might like in For You.</li>
-        <li><strong>Your sign-in,</strong> if you have an account: the random code that keeps this device signed in, a copy of your name, picture, email address and colour so the menu can show who’s signed in straight away, and when your Watchlist, services and settings last changed, so your devices stay in step. They’re removed when you sign out (and you can choose to remove your Watchlist and the rest from the device too), or when you’re signed out from another device.</li>
+        <li><strong>Your sign-in,</strong> if you have an account: the random code that keeps this device signed in, a copy of your name, picture, email address and colour so the menu can show who’s signed in straight away, and when your Watchlist, services and settings last changed, so your devices stay in step. If you turn off Remember me as you sign in, this device also keeps a note of that and of when Tenner was last open, so it can sign you out once you’ve closed it. They’re removed when you sign out (and you can choose to remove your Watchlist and the rest from the device too), or when you’re signed out from another device.</li>
         <li><strong>Passkeys,</strong> if you add one: these are kept by your device or password manager, not by Tenner.</li>
         <li><strong>The privacy note:</strong> that you’ve pressed Got it, so the note about cookies isn’t shown again.</li>
       </ul>
@@ -233,6 +233,6 @@
   </main>
 
 
-  <script src="shell.js?v=2.84.6" defer></script>
+  <script src="shell.js?v=2.85.0" defer></script>
 </body>
 </html>
