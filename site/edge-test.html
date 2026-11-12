@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Edge test</title>
+  <style>
+    html, body { margin: 0; background: #000; color: #fff; font: 17px/1.4 -apple-system, system-ui, sans-serif; }
+    .edge { position: fixed; inset: 0; border: 3px solid #ff375f; pointer-events: none; }
+    main { padding: 70px 20px; }
+    h1 { font-size: 26px; margin: 0 0 12px; }
+    pre { white-space: pre-wrap; background: #1c1c1e; padding: 14px; border-radius: 9px; font-size: 15px; }
+    a { color: #0a84ff; }
+  </style>
+</head>
+<body>
+  <div class="edge"></div>
+  <main>
+    <h1>Edge test</h1>
+    <p>This page uses none of Tenner's design: it's plain black with a pink line round the very edge of the page.</p>
+    <p>If the pink line touches the sides of your screen, Safari is fine and the grey bars come from Tenner. If there are grey bars outside the pink line here too, they come from Safari or the iPhone's settings.</p>
+    <pre id="info"></pre>
+    <p><a href="./">Back to Tenner</a></p>
+  </main>
+  <script>
+    function show() {
+      var v = window.visualViewport;
+      document.getElementById('info').textContent =
+        'Page width: ' + innerWidth + '\nScreen width: ' + screen.width +
+        '\nZoom: ' + (v ? v.scale.toFixed(3) : 'n/a') + '\nPixel ratio: ' + devicePixelRatio;
+    }
+    show(); addEventListener('resize', show); if (window.visualViewport) visualViewport.addEventListener('resize', show);
+  </script>
+</body>
+</html>
