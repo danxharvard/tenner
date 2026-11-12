@@ -2446,3 +2446,40 @@ dialog.adv { position: fixed; }
   .tabs button span { text-overflow: clip; }
   .tabs button svg { width: 22px; height: 22px; }
 }
+
+/* ============================================================ phones: the tab bar in Liquid Glass, as Safari's own toolbar
+   on iOS 26 (the owner's reference): a clear capsule and a clear circle that the page shows through, lightly blurred and
+   brightened, with a bright rim of light along the top edge and a softer one below. The chosen tab sits in a capsule of
+   lighter glass. */
+@media (max-width: 719px) {
+  :root { --lg-fill: rgba(255, 255, 255, .34); --lg-pill: rgba(255, 255, 255, .62); --lg-shadow: 0 10px 34px -8px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .06);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 40%, rgba(255, 255, 255, .12) 65%, rgba(255, 255, 255, .55)); }
+  :root[data-theme="dark"] { --lg-fill: rgba(28, 28, 32, .32); --lg-pill: rgba(255, 255, 255, .16); --lg-shadow: 0 12px 36px -8px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .3);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 40%, rgba(255, 255, 255, .06) 65%, rgba(255, 255, 255, .26)); }
+  body > .tabbar .tabs, .tabbar > .tb-search {
+    position: relative; isolation: isolate; border-radius: 999px; background: var(--lg-fill);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.06); backdrop-filter: blur(10px) saturate(1.9) brightness(1.06);
+    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22), var(--lg-shadow); }
+  /* the rim of light: brightest along the top, as glass catches it */
+  body > .tabbar .tabs::before, .tabbar > .tb-search::before {
+    content: ""; display: block; position: absolute; inset: 0; z-index: 2; border-radius: inherit; padding: 1px; pointer-events: none; background: var(--lg-rim);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  body > .tabbar .tabs { padding: 5px; }
+  body > .tabbar .tab-ind { top: 5px; bottom: 5px; border-radius: 999px; background: var(--lg-pill); box-shadow: inset 0 .5px 0 rgba(255, 255, 255, .5); }
+  .tabs button { border-radius: 999px; }
+  .tabs button svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bg) 45%, transparent)); }
+  .tabbar > .tb-search svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bg) 45%, transparent)); }
+}
+@media (max-width: 719px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --lg-fill: rgba(28, 28, 32, .32); --lg-pill: rgba(255, 255, 255, .16); --lg-shadow: 0 12px 36px -8px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .3);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 40%, rgba(255, 255, 255, .06) 65%, rgba(255, 255, 255, .26)); }
+}
+/* Reduce Transparency: solid, as everywhere else */
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) {
+  body > .tabbar .tabs, .tabbar > .tb-search { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* phones: the rows of posters run right to the screen's edges, with no fade at either side (the owner's pick) */
+@media (max-width: 719px) {
+  .bx-row, .b-people .sh-faces, .rb-track, .tt-row, .tt-row.at-start, .tt-row.at-end { -webkit-mask-image: none !important; mask-image: none !important; }
+}
