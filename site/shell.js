@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.82.0';
+  const version = '2.83.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -675,6 +675,7 @@
     function show(on) {
       on = on && !!S.q;
       qi.setAttribute('aria-expanded', on); box.classList.toggle('on', on); $('#drawer')?.classList.toggle('finding', on && phone.matches);
+      if ($('#drH')) $('#drH').textContent = on && phone.matches ? 'Search' : 'More';
       box.parentElement.classList.toggle('finding', on && inline.matches && !phone.matches);
       if (inline.matches) { res.hidden = !on; return; }
       res.hidden = false; fit();
@@ -779,35 +780,56 @@
     window.tnFind();
   }
 
-  // ---------- phones: the Rakuten way. A round menu button opens a drawer that slides in from the left, laid out like
-  // the sidebar on computers (the pages, then More: TV Guide, About, Theme and Settings, then the small print); the bar keeps
-  // the logo in the middle, a round Search under the menu button and a round Share (or Filters) on the right. The drawer is a native modal <dialog>. ----------
+  // ---------- phones: the iOS way. The pages are a floating glass tab bar along the bottom, with Search as its own round
+  // tab beside it (as in iOS 26's Music, TV and App Store). The bar at the top: a back button on pages under More, the logo
+  // in the middle and, on the right, the page's Share (or Filters) and your account picture, which opens the More sheet:
+  // a native modal <dialog> that rises from the bottom (Search, your account, About, Theme, Settings and the small print),
+  // grouped like iOS Settings. Swipe it down, tap outside or press Done to put it away. ----------
   const drawerQ = matchMedia('(max-width: 719px)');
   const topRow = $('.top-row');
   if (topRow) {
-    const MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-    topRow.insertAdjacentHTML('afterbegin', `<button type="button" class="tb-round tb-menu" id="menuBtn" aria-label="Menu" aria-haspopup="dialog" aria-controls="drawer" aria-expanded="false">${MENU}</button>`);
-    // the right-hand slot: the page's own Share if it has one, otherwise the Filters menu if the page has filters.
-    // Search sits on the left, under the menu button.
+    const ME = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M5.6 19c1.2-3 3.6-4.6 6.4-4.6s5.2 1.6 6.4 4.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+    topRow.insertAdjacentHTML('afterbegin', '<div class="tb-right" id="tbRight"></div>');
+    const rightBox = $('#tbRight');
+    rightBox.insertAdjacentHTML('beforeend', `<button type="button" class="tb-round tb-menu" id="menuBtn" aria-label="Your account and more" aria-haspopup="dialog" aria-controls="drawer" aria-expanded="false">${ME}</button>`);
+    // pages under More (Settings, About, Contact…), not one of the tabs: iOS's back button, top left
+    if (['settings', 'about', 'account', 'contact', 'legal', 'updates', 'list'].some(onPage)) {
+      const back = Object.assign(document.createElement('a'), { className: 'tb-round tb-back', href: './',
+        innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' });
+      back.setAttribute('aria-label', 'Back');
+      back.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+        let same = false; try { same = !!document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1; } catch {}
+        if (same) { e.preventDefault(); history.back(); }
+      });
+      topRow.prepend(back);
+    }
+    // the right-hand slot: the page's own Share if it has one, otherwise the Filters menu if the page has filters
     const share = $('#shareChart');
     const filters = [...document.querySelectorAll('[data-filter]')];
-    const search = Object.assign(document.createElement('a'), { className: 'tb-round tb-search', href: 'browse.html#search', ariaLabel: 'Search',
-      innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' });
+    // Search: a round glass tab of its own, beside the tab bar
+    const search = Object.assign(document.createElement('a'), { className: 'tb-search', href: 'browse.html#search',
+      innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>' });
     search.setAttribute('aria-label', 'Search');
     const right = share, rightHome = share ? document.createComment('share') : null;
     if (rightHome) share.before(rightHome);
-    document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer" id="drawer" aria-label="Menu">
-      <div class="dr-head"><a class="dr-brand" href="./"><img src="logo.svg" alt="" width="34" height="34"><b>Tenner</b></a>
-        <button type="button" class="tb-round dr-x" id="drX" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer" id="drawer" aria-labelledby="drH">
+      <div class="dr-grab" aria-hidden="true"></div>
+      <div class="dr-head"><h2 class="dr-title" id="drH">More</h2>
+        <button type="button" class="btn btn-tinted dr-done" id="drX"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Done</button></div>
       <div class="dr-body" id="drBody"></div></dialog>`);
-    const drawer = $('#drawer'), drBody = $('#drBody'), menuBtn = $('#menuBtn');
-    // the sidebar's own pieces move into the drawer on phones (and back again on bigger screens), listeners and all
-    const movers = ['.side-search', '.tabbar', '#sideMore', '.side-about:not(.side-settings)', '.top-act', '.side-about.side-settings', '.side-links'].map((q) => $(q)).filter(Boolean);
+    const drawer = $('#drawer'), drBody = $('#drBody'), menuBtn = $('#menuBtn'), tabbar = $('.tabbar');
+    // the sidebar's own pieces move into the sheet on phones (and back again on bigger screens), listeners and all
+    const movers = ['.side-search', '.side-about:not(.side-settings)', '.top-act', '.side-about.side-settings', '.side-links'].map((q) => $(q)).filter(Boolean);
     const marks = movers.map((el) => { const m = document.createComment('drawer'); el.before(m); return m; });
+    // the tab bar leaves the top bar on phones (which is a backdrop root, so its frost would have nothing to blur)
+    const tbMark = tabbar ? document.createComment('tabbar') : null;
+    if (tbMark) tabbar.before(tbMark);
     const place = () => {
-      if (drawerQ.matches) { movers.forEach((el) => drBody.append(el)); if (right) topRow.append(right); topRow.append(search); }
+      if (drawerQ.matches) { movers.forEach((el) => drBody.append(el)); if (right) rightBox.prepend(right); if (tabbar) { tabbar.append(search); topRow.after(tabbar); } }
       else {
         if (drawer.open) drawer.close();
+        if (tbMark) tbMark.after(tabbar);
         movers.forEach((el, i) => marks[i].after(el));
         if (rightHome) rightHome.after(share); search.remove();
       }
@@ -816,27 +838,47 @@
     const shut = () => {
       if (!drawer.open || drawer.classList.contains('out')) return;
       if (reduce()) { drawer.close(); return; }
-      drawer.classList.add('out'); setTimeout(() => { drawer.classList.remove('out'); drawer.close(); }, 260);
+      drawer.classList.add('out'); setTimeout(() => { drawer.classList.remove('out'); drawer.close(); }, 300);
     };
     menuBtn.addEventListener('click', () => { drawer.showModal(); $('#drX').focus({ preventScroll: true }); });
-    // the round Search button opens the menu with its search box ready to type in (Browse focuses its own box)
+    // the round Search tab: Browse's own box on Browse, the More sheet's search box everywhere else
     search.addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); open('search'); });
     drawer.addEventListener('close', () => { menuBtn.setAttribute('aria-expanded', 'false'); root.classList.remove('drawer-open'); drawer.classList.remove('finding'); });
     drawer.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
     new MutationObserver(() => { const o = drawer.open; menuBtn.setAttribute('aria-expanded', o); root.classList.toggle('drawer-open', o); }).observe(drawer, { attributes: true, attributeFilter: ['open'] });
     $('#drX').addEventListener('click', shut);
     drawer.addEventListener('click', (e) => {
-      if (e.target === drawer) { const r = drawer.getBoundingClientRect(); if (e.clientX > r.right || e.clientY > r.bottom || e.clientY < r.top) shut(); return; }
-      if (e.target.closest('[role="tab"], a[href]')) setTimeout(shut, 60);   // a page or link chosen: the drawer gets out of the way
+      if (e.target === drawer) { const r = drawer.getBoundingClientRect(); if (e.clientY < r.top) shut(); return; }
+      if (e.target.closest('a[href]')) setTimeout(shut, 60);   // a link chosen: the sheet gets out of the way
     });
+    // swipe a sheet down to put it away (from its grabber and title, or anywhere once its list is at the top)
+    const swipeAway = (dlg, away) => {
+      let y0 = null, dy = 0;
+      dlg.addEventListener('touchstart', (e) => { if (dlg.scrollTop > 0 || e.target.closest('input, select, .ss-res')) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+      dlg.addEventListener('touchmove', (e) => {
+        if (y0 == null) return;
+        dy = Math.max(0, e.touches[0].clientY - y0);
+        if (dy > 4) { dlg.classList.add('dragging'); dlg.style.setProperty('--drag', `${dy}px`); }
+      }, { passive: true });
+      dlg.addEventListener('touchend', () => {
+        if (y0 == null) return; y0 = null; dlg.classList.remove('dragging');
+        if (dy > 110) { haptic(8); away(); } else dlg.style.removeProperty('--drag');
+      });
+      dlg.addEventListener('close', () => dlg.style.removeProperty('--drag'));
+    };
+    swipeAway(drawer, shut);
+    // introduce the new layout once, on phones: the menu now lives behind your account button
+    if (drawerQ.matches) setTimeout(() => window.tn?.tip?.({ id: 'ios-more', for: '#menuBtn', title: 'Your account and more',
+      text: 'The pages are along the bottom now, with Search beside them. Tap here for your account, About, Theme and Settings.' }), 0);
 
     // ---------- phones: the Filters menu, the left menu's twin, sliding in from the right. Any control on the page marked
     // data-filter="Its heading" moves in here on phones (and back on bigger screens), listeners and all, so a new filter
     // only needs the attribute. Done (or a tap outside) puts it away. ----------
     if (filters.length && !share) {
       const FILT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-      topRow.insertAdjacentHTML('beforeend', `<button type="button" class="tb-round tb-filt" id="filtBtn" aria-label="Filters" aria-haspopup="dialog" aria-controls="filters" aria-expanded="false">${FILT}</button>`);
+      rightBox.insertAdjacentHTML('afterbegin', `<button type="button" class="tb-round tb-filt" id="filtBtn" aria-label="Filters" aria-haspopup="dialog" aria-controls="filters" aria-expanded="false">${FILT}</button>`);
       document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer drawer-r" id="filters" aria-labelledby="flH">
+        <div class="dr-grab" aria-hidden="true"></div>
         <div class="dr-head"><h2 class="fl-h" id="flH">Filters</h2>
           <button type="button" class="tb-round dr-x" id="flX" aria-label="Close filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
         <div class="dr-body fl-body" id="flBody"></div>
@@ -860,6 +902,7 @@
       fl.addEventListener('cancel', (e) => { e.preventDefault(); fshut(); });
       new MutationObserver(() => { const o = fl.open; flBtn.setAttribute('aria-expanded', o); root.classList.toggle('drawer-open', o); }).observe(fl, { attributes: true, attributeFilter: ['open'] });
       $('#flX').addEventListener('click', fshut); $('#flDone').addEventListener('click', fshut);
+      swipeAway(fl, fshut);
       fl.addEventListener('click', (e) => { if (e.target !== fl) return; const r = fl.getBoundingClientRect(); if (e.clientX < r.left || e.clientY > r.bottom || e.clientY < r.top) fshut(); });
     }
   }
@@ -1117,7 +1160,9 @@
   const links = $('.side-links');
   if (links) {
     links.insertAdjacentHTML('afterbegin', '<a class="side-acct" id="sideAcct" href="account.html"></a>');
-    const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'or sign up, free'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page'); };
+    const draw = () => { const u = account.user(); $('#sideAcct').innerHTML = `${avatar(u)}<span><b>${u ? esc(u.name || 'You') : 'Sign in'}</b><small>${u ? 'Your account' : 'or sign up, free'}</small></span>`; if (onPage('account')) $('#sideAcct').setAttribute('aria-current', 'page');
+      // phones: your picture (or initial) on the round button top right, as in the App Store; the outline figure until you sign in
+      const mb = $('#menuBtn'); if (mb) { mb.dataset.icon ||= mb.innerHTML; mb.classList.toggle('has-av', !!u); mb.innerHTML = u ? avatar(u, 'mb-av') : mb.dataset.icon; } };
     draw(); addEventListener('tn:account', draw);
   }
   // signed in (computers and tablets): your picture and name top right of every page (on the homepage, above the dropdowns)

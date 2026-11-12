@@ -4,7 +4,6 @@
    Built on the tokens and shell in styles.css; layouts answer to the space they're in (container queries), not the window. */
 
 body.browse { overflow-x: clip; }
-.browse .top-row > .tb-search { display: none; }   /* phones: the page has its own search bar */
 .bwrap { container: page / inline-size; max-width: var(--max); margin: 0 auto 0 var(--page-left); padding-left: var(--gutter); padding-right: var(--gutter-r); }
 
 /* round, icon-only buttons: the house's dark circle with a white icon */
