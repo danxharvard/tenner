@@ -124,7 +124,7 @@ async function buildTrending() {
     if (!s) continue;
     ids[s.key].add(p.provider_id); seen[p.provider_id] = p.provider_name;
     const prio = p.display_priorities?.[REGION] ?? p.display_priority ?? 999;
-    if (p.logo_path && (!logos[s.key] || prio < logos[s.key].prio)) logos[s.key] = { prio, url: `${IMG}/w154${p.logo_path}` };
+    if (p.logo_path && (!logos[s.key] || prio < logos[s.key].prio)) logos[s.key] = { prio, url: `${IMG}/w185${p.logo_path}` };
   }
 
   // 2. Most popular titles currently streaming on each service in the UK.
@@ -532,7 +532,7 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
   // keep only the services something still uses
   const used = new Set(Object.values(items).flatMap((x) => [...(x.f || []), ...(x.fr || []), ...(x.re || []), ...(x.bu || [])]));
   for (const id of Object.keys(providers)) if (!used.has(+id)) delete providers[id];
-  return { v: TITLE_V, generatedAt: new Date().toISOString(), logo: `${IMG}/w92`, providers, items, refreshed: fetched.filter(([, d]) => d).length };
+  return { v: TITLE_V, generatedAt: new Date().toISOString(), logo: `${IMG}/w154`, providers, items, refreshed: fetched.filter(([, d]) => d).length };
 }
 
 // ---------- Watchmode (daily) ----------

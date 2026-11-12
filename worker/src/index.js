@@ -156,7 +156,7 @@ function titleShape(d, type, k) {
     f: ids(gb.flatrate), fr: ids([...(gb.free || []), ...(gb.ads || [])]), re: ids(gb.rent), bu: ids(gb.buy), tr: trailer, lg: logoOf(d),
   }).filter(([, v]) => v !== undefined && !(Array.isArray(v) && !v.length)));
   return {
-    logo: `${IMG}/w92`, providers, items: { [k]: item },
+    logo: `${IMG}/w154`, providers, items: { [k]: item },
     info: { k, type, title: d.title || d.name, year: (d.release_date || d.first_air_date || '').slice(0, 4) || null,
       rating: d.vote_count >= 20 ? Math.round(d.vote_average * 10) / 10 : null, overview: d.overview || '',
       poster: d.poster_path ? `${IMG}/w342${d.poster_path}` : null, backdrop: d.backdrop_path ? `${IMG}/w1280${d.backdrop_path}` : null, bds: stillsOf(d) },
