@@ -2353,98 +2353,91 @@ dialog.adv { position: fixed; }
 @keyframes t10Down { to { transform: translateY(30%); opacity: 0; } }
 
 /* ============================================================ phones: Tenner as an extension of iOS
-   The tabs are a floating glass tab bar along the bottom, with Search as a round tab of its own beside it (iOS 26's Music,
-   TV and App Store). The bar at the top is iOS's navigation bar: a back button on pages under More, the logo in the middle
-   (the page's title takes its place once the large title scrolls away) and, on the right, Share or Filters and your account
-   picture. That opens the More sheet, which rises from the bottom with a grabber and is grouped like iOS Settings. */
-.tb-right { display: none; }
+   The bar at the top is iOS's navigation bar: the menu button on the left (iOS's back button beside it on pages under the
+   menu), the logo in the middle and, on the right, Share or Filters and Search. The menu slides in from the left edge, full
+   height, in the one frost: Search, then the pages, your account, About, Theme and Settings and the small print, each a
+   group of rows like iOS Settings. The Filters sheet rises from the bottom with a grabber. */
+.tb-left, .tb-right { display: none; }
 @media (max-width: 719px) {
   /* the navigation bar */
   .top-row { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); margin-bottom: 0; }
   .top-row::before { bottom: -26px; }
-  .top-row > .tb-back { grid-area: 1 / 1; justify-self: start; }
+  .tb-left { grid-area: 1 / 1; justify-self: start; display: flex; align-items: center; gap: 8px; pointer-events: auto; min-width: 0; }
   .top-row > .top-brand { grid-area: 1 / 2; }
-  .tb-right { grid-area: 1 / 3; justify-self: end; display: flex; align-items: center; gap: 10px; pointer-events: auto; min-width: 0; }
-  .tb-right > * { flex: none; }
+  .tb-right { grid-area: 1 / 3; justify-self: end; display: flex; align-items: center; gap: 8px; pointer-events: auto; min-width: 0; }
+  .tb-left > *, .tb-right > * { flex: none; }
   .tb-back svg { width: 22px; height: 22px; margin-left: -2px; }
-  .tb-menu.has-av { padding: 0; overflow: hidden; }
-  .tb-menu .mb-av { width: 42px; height: 42px; font-size: 17px; }
-  .tb-menu img.mb-av { display: block; }
+  .tb-search svg { width: 20px; height: 20px; }
 
-  /* the tab bar: the five pages in one frosted bar, Search in a circle beside it */
-  body > .tabbar {
-    position: fixed; z-index: 50; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 max(14px, env(safe-area-inset-left, 0px)); pointer-events: none;
-  }
-  .tabbar > * { pointer-events: auto; }
-  body > .tabbar .tabs { flex: 1 1 auto; min-width: 0; max-width: 360px; padding: 4px;
-    background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 14px 34px -10px rgba(0, 0, 0, .4); }
-  body > .tabbar .tabs::before { display: none; }
-  .tab-ind { top: 4px; bottom: 4px; }
-  .tabs button { flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: center; height: 54px; padding: 3px 2px 0; gap: 3px;
-    font: 500 10.5px/1.1 var(--font); letter-spacing: 0; -webkit-font-smoothing: antialiased; }
-  .tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tabs button svg { width: 24px; height: 24px; stroke-width: 1.8; }
-  .tabbar > .tb-search { flex: none; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; color: var(--label);
-    background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 14px 34px -10px rgba(0, 0, 0, .4);
-    -webkit-tap-highlight-color: transparent; transition: transform .35s var(--ease-spring), filter .2s ease; }
-  .tabbar > .tb-search:hover { text-decoration: none; }
-  .tabbar > .tb-search:active { transform: scale(1.08); filter: brightness(1.12); }
-  .tabbar > .tb-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .tabbar > .tb-search svg { width: 24px; height: 24px; }
-  /* the end of every page clears the tab bar, and notes and toasts sit just above it */
-  body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-  .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
-  .pv-note { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
-
-  /* the More sheet: rises from the bottom, a grabber on top, pulled down (or Done) to put away */
-  .drawer { inset: auto 0 0 0; width: 100%; max-width: 100%; height: auto; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 18px);
-    padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 28px); border-radius: var(--r) var(--r) 0 0;
-    box-shadow: inset 0 1px 0 var(--fr-rim), 0 -20px 60px rgba(0, 0, 0, .35); translate: 0 var(--drag, 0px); transition: translate .4s var(--ease-spring); }
+  /* the menu: against the left edge, full height, slides in and is swiped back out */
+  #drawer { inset: 0 auto 0 0; width: min(320px, calc(100vw - 56px)); height: 100%; max-height: none;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px calc(env(safe-area-inset-bottom, 0px) + 24px) max(14px, env(safe-area-inset-left, 0px));
+    border-radius: 0 var(--r) var(--r) 0; box-shadow: inset -1px 0 0 var(--fr-rim), 24px 0 60px rgba(0, 0, 0, .3) !important;
+    translate: var(--drag, 0px) 0; transition: translate .4s var(--ease-spring); }
+  #drawer::before { display: none; }
   .drawer.dragging { transition: none; }
-  .drawer[open] { animation: drUp .55s var(--ease-spring) both; }
-  .drawer.out { animation: drDown .3s cubic-bezier(.4, 0, 1, 1) both; }
+  .drawer[open] { animation: drIn .5s var(--ease-spring) both; }
+  .drawer.out { animation: drOut .28s cubic-bezier(.4, 0, 1, 1) both; }
+  @keyframes drIn { from { transform: translateX(-100%); } }
+  @keyframes drOut { to { transform: translateX(-100%); } }
+  .drawer .dr-head { margin: 4px 0 16px 4px; padding: 0; }
+  .dr-title { margin: 0; font: 700 28px/1.1 var(--font); letter-spacing: -.02em; }
+  .dr-x { width: 36px !important; height: 36px !important; }
+  .dr-x svg { width: 16px; height: 16px; }
+  .drawer .dr-body:not(.fl-body) { gap: 0; }
+  #drawer .dr-body > *, #drawer .side-links > *, #drawer .dr-head { flex-shrink: 0; }
+
+  /* the Filters sheet: rises from the bottom, a grabber on top, pulled down (or Done) to put away */
+  .drawer.drawer-r { inset: auto 0 0 0; width: 100%; max-width: 100%; height: auto; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 18px);
+    padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 28px); border-radius: var(--r) var(--r) 0 0;
+    box-shadow: inset 0 1px 0 var(--fr-rim), 0 -20px 60px rgba(0, 0, 0, .35) !important; translate: 0 var(--drag, 0px); }
+  .drawer.drawer-r[open] { animation: drUp .55s var(--ease-spring) both; } .drawer.drawer-r.out { animation: drDown .3s cubic-bezier(.4, 0, 1, 1) both; }
   @keyframes drUp { from { transform: translateY(100%); } }
   @keyframes drDown { to { transform: translateY(100%); } }
-  .drawer.drawer-r { inset: auto 0 0 0; }
-  .drawer.drawer-r[open] { animation-name: drUp; } .drawer.drawer-r.out { animation-name: drDown; }
   .dr-grab { flex: none; width: 36px; height: 5px; margin: 0 auto 12px; border-radius: 3px; background: var(--label3); }
-  .drawer .dr-head { margin: 0 2px 16px 4px; }
-  .dr-title { margin: 0; font: 700 28px/1.1 var(--font); letter-spacing: -.02em; }
-  .dr-done { height: 36px; padding: 0 14px; font-size: 15px; }
-  .dr-done svg { width: 17px; height: 17px; }
-  .drawer .dr-body:not(.fl-body) { gap: 0; }
-  /* grouped like iOS Settings: Search, then your account in a card of its own, then About, Theme and Settings, then the small print */
-  .drawer .side-search { order: 0; margin: 0 0 20px; }
+  .drawer-r .dr-head { margin: 0 2px 16px 4px; }
+
+  /* grouped like iOS Settings: Search, the pages, your account in a card of its own, About, Theme and Settings, the small print */
+  .drawer .side-search { order: 0; margin: 0 0 18px; }
+  .drawer .tabbar { order: 1; display: block; margin: 0 0 22px; }
   .drawer .side-links { display: contents; }
-  .drawer .side-acct { order: 1; margin: 0 0 22px; padding: 12px 14px; min-height: 66px; border-radius: var(--r); background: var(--fr-in);
+  .drawer .side-acct { order: 2; flex: none; margin: 0 0 22px; padding: 12px 14px; min-height: 66px; border-radius: var(--r); background: var(--fr-in);
     background-image: var(--row-chev); background-repeat: no-repeat; background-position: right 16px center; background-size: 8px 13px; }
   .drawer .side-acct .av { width: 44px; height: 44px; font-size: 19px; }
   .drawer .side-acct b { font-size: 17px; font-weight: 600; }
   .drawer .side-acct small { font-size: 13px; }
-  .drawer .side-about:not(.side-settings) { order: 2; }
-  .drawer .top-act { order: 3; }
-  .drawer .side-settings { order: 4; }
-  .drawer .side-link { order: 5; }
-  .drawer .side-ver { order: 6; }
-  .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
-    position: relative; display: flex; align-items: center; gap: 14px; width: 100%; height: 50px; margin: 0; padding: 0 34px 0 12px; border-radius: 0;
-    color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; text-decoration: none;
-    background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; }
+  .drawer .side-about:not(.side-settings) { order: 3; }
+  .drawer .top-act { order: 4; }
+  .drawer .side-settings { order: 5; }
+  .drawer .side-link { order: 6; }
+  .drawer .side-ver { order: 7; }
+  .drawer .tabs { display: flex; flex-direction: column; gap: 0; max-width: none; padding: 0; border-radius: var(--r); overflow: hidden; isolation: auto;
+    background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; outline: none !important; }
+  .drawer .tabs::before, .drawer .tab-ind { display: none; }
+  .drawer .tabs button, .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
+    position: relative; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; width: 100%; height: 50px; margin: 0;
+    padding: 0 34px 0 12px; border: 0; border-radius: 0; color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; text-decoration: none;
+    -webkit-font-smoothing: antialiased; background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; }
+  .drawer .tabs button span { overflow: visible; }
   .drawer .top-act .tb-btn { background-image: var(--pop-chev); background-size: 9px 14px; }
   .drawer .top-act .tb-about { display: none; }
   .drawer .side-about:not(.side-settings) { border-radius: var(--r) var(--r) 0 0; }
   .drawer .side-settings { border-radius: 0 0 var(--r) var(--r); }
-  .drawer .side-about[aria-current] { font-weight: 400; background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
-  .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
+  .drawer .tabs button[aria-selected="true"], .drawer .side-about[aria-current] { font-weight: 600; background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
+  .drawer .tabs button:active, .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
   /* hairlines between rows, from the words (not the icons), as in iOS */
-  .drawer .top-act .tb-btn::before, .drawer .side-settings::before, .drawer .side-link + .side-link::before {
+  .drawer .tabs button + button::before, .drawer .top-act .tb-btn::before, .drawer .side-settings::before, .drawer .side-link + .side-link::before {
     content: ""; position: absolute; top: 0; right: 0; left: 56px; height: .5px; background: var(--sep); }
-  .drawer .side-link + .side-link::before { left: 14px; }
-  /* the icons in coloured tiles */
-  .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; box-sizing: border-box; width: 30px; height: 30px; padding: 5px; border-radius: var(--r); color: #fff; background: #0a84ff; }
+  .drawer .side-link + .side-link::before { left: 16px; }
+  /* the icons in coloured tiles, white and filled */
+  .drawer .tabs button svg, .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; box-sizing: border-box; width: 30px; height: 30px; padding: 5px;
+    border-radius: var(--r); color: #fff; background: #0a84ff; stroke-width: 1.8; }
+  .drawer .tabs .i-o { display: none; }
+  .drawer .tabs .i-f { display: block; }
+  .drawer .tabs [data-tab="new"] svg { background: #ff9f0a; }
+  .drawer .tabs [data-tab="top10"] svg { background: #ff375f; }
+  .drawer .tabs [data-tab="browse"] svg { background: #bf5af2; }
+  .drawer .tabs [data-tab="watchlist"] svg { background: #30d158; }
   .drawer .top-act .tb-btn svg { background: #5e5ce6; }
   .drawer .side-settings svg { background: #8e8e93; }
   /* the small print: a group of its own, then the version underneath in grey */
@@ -2456,69 +2449,8 @@ dialog.adv { position: fixed; }
 }
 :root { --row-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 13'%3E%3Cpath d='M1.5 1.5 6.5 6.5l-5 5' fill='none' stroke='%23999' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 @media (max-width: 359px) {
-  body > .tabbar { gap: 8px; padding: 0 10px; }
-  .tabbar > .tb-search { width: 58px; height: 58px; }
-  .tabs button { height: 50px; padding-inline: 0; font-size: 9.5px; letter-spacing: -.02em; }
-  .tabs button span { text-overflow: clip; }
-  .tabs button svg { width: 22px; height: 22px; }
-}
-
-/* ============================================================ phones: the tab bar in Liquid Glass, matched to Safari's own
-   toolbar on iOS 26 (the owner's reference, measured from his screenshots): a clean, even sheet of glass, no gradients or
-   glows inside it. A faint fill over a strong blur, a hairline rim that's brightest along the top and fainter along the
-   foot, and a soft shadow. The chosen tab sits in a plain lighter capsule. Scrolling down tucks the bar in (the labels fold
-   away); scrolling up brings it back, as in iOS 26. */
-@media (max-width: 719px) {
-  :root {
-    --lg-fill: rgba(255, 255, 255, .66); --lg-blur: blur(20px) saturate(1.8);
-    --lg-rim: inset 0 .5px 0 rgba(255, 255, 255, .95), inset 0 0 0 .5px rgba(0, 0, 0, .1), inset 0 -.5px 0 rgba(255, 255, 255, .5);
-    --lg-drop: 0 8px 24px -6px rgba(0, 0, 0, .18), 0 1px 3px rgba(0, 0, 0, .06);
-    --lg-lens: rgba(120, 120, 128, .16); --lg-ink: #1c1c1e;
-  }
-  :root[data-theme="dark"] {
-    --lg-fill: rgba(40, 40, 42, .6); --lg-blur: blur(20px) saturate(1.6);
-    --lg-rim: inset 0 .5px 0 rgba(255, 255, 255, .34), inset 0 0 0 .5px rgba(255, 255, 255, .08), inset 0 -.5px 0 rgba(255, 255, 255, .12);
-    --lg-drop: 0 8px 24px -6px rgba(0, 0, 0, .6);
-    --lg-lens: rgba(255, 255, 255, .13); --lg-ink: #fff;
-  }
-  body > .tabbar { bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); gap: 8px; padding: 0 max(16px, env(safe-area-inset-left, 0px)); }
-  body > .tabbar .tabs, .tabbar > .tb-search {
-    border-radius: 999px; background: var(--lg-fill); color: var(--lg-ink);
-    -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur);
-    box-shadow: var(--lg-rim), var(--lg-drop);
-    transition: transform .45s var(--ease-spring), width .45s var(--ease-spring), height .45s var(--ease-spring); }
-  body > .tabbar .tabs::before, .tabbar > .tb-search::before { display: none; }
-  body > .tabbar .tabs { max-width: 340px; padding: 4px; }
-  body > .tabbar .tabs button { z-index: 1; height: 48px; padding: 2px 0 0; gap: 2px; border-radius: 999px; color: var(--lg-ink);
-    font: 600 10px/1.1 var(--font); letter-spacing: .01em; }
-  body > .tabbar .tabs button svg { width: 23px; height: 23px; stroke-width: 1.7; transition: transform .4s var(--ease-spring); }
-  body > .tabbar .tabs button[aria-selected="true"] { color: var(--accent); }
-  body > .tabbar .tab-ind { z-index: 0; top: 4px; bottom: 4px; border-radius: 999px; background: var(--lg-lens); box-shadow: none; }
-  .tabbar > .tb-search { width: 56px; height: 56px; }
-  .tabbar > .tb-search svg { width: 22px; height: 22px; }
-  /* a press: the glass swells a little, as iOS's does */
-  body > .tabbar .tabs:has(button:active) { transform: scale(1.02); }
-  .tabbar > .tb-search:active { transform: scale(1.08); filter: none; }
-  body > .tabbar .tabs button:active { transform: none; filter: none; }
-  /* tucked in while you scroll down: the labels fold away and the bar slims */
-  body > .tabbar .tabs button span { max-height: 12px; transition: opacity .2s ease, max-height .4s var(--ease-spring); }
-  body > .tabbar .tabs button { transition: height .45s var(--ease-spring), gap .45s var(--ease-spring), color .3s ease; }
-  .tb-min body > .tabbar .tabs button { height: 38px; gap: 0; }
-  .tb-min body > .tabbar .tabs button span { opacity: 0; max-height: 0; }
-  .tb-min .tabbar > .tb-search { width: 46px; height: 46px; }
-  :root.still body > .tabbar *, :root.still body > .tabbar .tabs { transition-duration: .01s !important; }
-}
-@media (max-width: 719px) and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --lg-fill: rgba(40, 40, 42, .6); --lg-blur: blur(20px) saturate(1.6);
-    --lg-rim: inset 0 .5px 0 rgba(255, 255, 255, .34), inset 0 0 0 .5px rgba(255, 255, 255, .08), inset 0 -.5px 0 rgba(255, 255, 255, .12);
-    --lg-drop: 0 8px 24px -6px rgba(0, 0, 0, .6);
-    --lg-lens: rgba(255, 255, 255, .13); --lg-ink: #fff;
-  }
-}
-/* Reduce Transparency: solid, as everywhere else */
-@media (max-width: 719px) and (prefers-reduced-transparency: reduce) {
-  body > .tabbar .tabs, .tabbar > .tb-search { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tb-left, .tb-right { gap: 6px; }
+  .drawer { width: calc(100vw - 44px); }
 }
 /* phones: the rows of posters run right to the screen's edges, with no fade at either side (the owner's pick) */
 @media (max-width: 719px) {
