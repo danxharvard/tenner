@@ -49,9 +49,9 @@
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
   <script>/* the charts start downloading now, alongside the scripts, rather than once they've all run (app.js asks for these same addresses) */
   (function(){var v="?v="+Math.floor(Date.now()/6e5);["trending","new","browse","week","cinema","trail"].forEach(function(n){var l=document.createElement("link");l.rel="preload";l.as="fetch";l.crossOrigin="";l.href="data/"+n+".json"+v;document.head.appendChild(l)})})();</script>
-  <link rel="stylesheet" href="styles.css?v=2.93.0">
-  <link rel="stylesheet" href="home.css?v=2.93.0">
-  <link rel="stylesheet" href="new.css?v=2.93.0">
+  <link rel="stylesheet" href="styles.css?v=2.93.1">
+  <link rel="stylesheet" href="home.css?v=2.93.1">
+  <link rel="stylesheet" href="new.css?v=2.93.1">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -97,7 +97,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.1</a>
     </div>
   </div>
 
@@ -120,11 +120,11 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="shell.js?v=2.93.0" defer></script>
-  <script src="links.js?v=2.93.0" defer></script>
-  <script src="sheet.js?v=2.93.0" defer></script>
-  <script src="person.js?v=2.93.0" defer></script>
-  <script src="tonight.js?v=2.93.0" defer></script>
-  <script src="app.js?v=2.93.0" defer></script>
+  <script src="shell.js?v=2.93.1" defer></script>
+  <script src="links.js?v=2.93.1" defer></script>
+  <script src="sheet.js?v=2.93.1" defer></script>
+  <script src="person.js?v=2.93.1" defer></script>
+  <script src="tonight.js?v=2.93.1" defer></script>
+  <script src="app.js?v=2.93.1" defer></script>
 </body>
 </html>

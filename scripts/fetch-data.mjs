@@ -1030,7 +1030,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     //    (60 TMDB requests each time) and the live one carries on in between, or whenever a rebuild fails.
     let catalogue = null, newList = null;
     const [liveCat, liveMore] = await Promise.all([liveCopy('browse.json'), liveCopy('browse-more.json')]);
-    const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6;
+    // a service the live catalogue has nothing from (one just added, like Free to watch) is filled in straight away
+    const covers = (c) => data.services.filter((s) => s.providerIds?.length).every((s) => c.items.some((x) => x.s?.includes(s.key)));
+    const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6 && covers(liveCat);
     try {
       if (!built) throw new Error('the chart was not rebuilt this hour');
       if (keepCat) {
