@@ -1,5 +1,16 @@
 [
  {
+  "version": "2.88.2",
+  "date": "2026-11-13",
+  "title": "Leaving soon works again, and the backend is checked over",
+  "changes": [
+   "Leaving soon is filled in again: Watchmode’s answer wasn’t being read properly, so the list kept coming back empty (and with it the Last chance row, Browse’s Leaving soon and the leaving-soon alerts)",
+   "Each departure is matched to its title, so it shows its poster and opens its page, and the list is topped up every six hours",
+   "The search service and Tenner TV now deploy with the current version of Cloudflare’s tools instead of an out-of-date one"
+  ],
+  "notes": "Every automatic update was run by hand with the real keys: the charts, Netflix’s own Top 10, Browse, New This Week, the cinema list, prices, title details and their direct links, the slideshow, Tenner TV’s listings, the search service, the alerts and the Sunday email. TMDB, Watchmode, Netflix, Wikidata and the Freeview feed all answer."
+ },
+ {
   "version": "2.88.1",
   "date": "2026-11-13",
   "title": "More fixes from the full check of Tenner",
