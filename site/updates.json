@@ -1,5 +1,21 @@
 [
  {
+  "version": "2.87.4",
+  "date": "2026-11-13",
+  "title": "Fixes from a full check of Tenner",
+  "changes": [
+   "New This Week no longer empties itself if one background check can't reach the list",
+   "Alerts held back by your quiet hours now arrive when they end, rather than a day late",
+   "A confirmed email only counts for the account that confirmed it, so an old address can't skip the check on a new account",
+   "The Sunday email goes only to an address confirmed by its own account",
+   "Calendar reminders keep any backslash in a title",
+   "Search's keyboard shortcut no longer trips over the browser filling in a form, on Tenner and Tenner TV",
+   "The search service skips a needless lookup when listing films",
+   "Tenner TV's “On TV this week” answers properly while its list is being built"
+  ],
+  "notes": "A careful read through the site and its services turned up a handful of quiet bugs, now fixed. Nothing looks different."
+ },
+ {
   "version": "2.59.0",
   "date": "2026-11-10",
   "title": "The Update centre: every Tenner update in one place",
