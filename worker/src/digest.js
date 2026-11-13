@@ -41,7 +41,7 @@ export async function digestRun(env, force = false) {
   const [fresh, week] = await Promise.all([get('new.json'), get('week.json')]);
   // everyone with the Sunday email on, and the confirmed address to send it to
   const { results = [] } = await env.DB.prepare(`SELECT u.id, u.name, d.data, COALESCE(v.email, CASE WHEN u.google_sub IS NOT NULL THEN u.email END) AS email
-    FROM userdata d JOIN users u ON u.id = d.user_id LEFT JOIN passwords p ON p.user_id = u.id LEFT JOIN verified v ON v.email = p.email
+    FROM userdata d JOIN users u ON u.id = d.user_id LEFT JOIN passwords p ON p.user_id = u.id LEFT JOIN verified v ON v.email = p.email AND v.user_id = u.id
     WHERE d.data LIKE '%"digest":true%'`).all();
   let sent = 0;
   for (const u of results) {

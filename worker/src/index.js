@@ -46,7 +46,7 @@ export default {
     if (req.method !== 'GET') return json({ error: 'GET only' }, 405, cors);
     if (!env.TMDB_TOKEN) return json({ error: 'Not set up yet' }, 503, cors);
 
-    let path, params, shape, ttl;
+    let path, params, shape, ttl, links = false;
     if (url.pathname === '/search') {
       const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
       if (q.length < 2) return json({ results: [] }, 200, cors);
@@ -84,7 +84,7 @@ export default {
       if (!m) return json({ error: 'Not found' }, 404, cors);
       const type = m[1] === 'm' ? 'movie' : 'tv';
       path = `/${type}/${m[2]}`; params = { language: 'en-GB', append_to_response: `watch/providers,videos,images,${type === 'movie' ? 'release_dates' : 'content_ratings,external_ids'}`, include_image_language: 'en,null' };
-      shape = (d) => titleShape(d, type, m[1] + m[2]); ttl = 21600;
+      shape = (d) => titleShape(d, type, m[1] + m[2]); ttl = 21600; links = true;
     }
 
     // the edge cache, keyed on the request without its origin
@@ -94,7 +94,7 @@ export default {
       const r = await fetch(`${TMDB}${path}?${new URLSearchParams(params)}`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } });
       if (!r.ok) return json({ error: `TMDB ${r.status}` }, r.status === 404 ? 404 : 502, cors);
       const raw = await r.json(), body = shape(raw);
-      if (body.items) await addLinks(body, raw.imdb_id || raw.external_ids?.imdb_id);   // the title's own page on each service, from Wikidata
+      if (links && body.items) await addLinks(body, raw.imdb_id || raw.external_ids?.imdb_id);   // the title's own page on each service, from Wikidata
       hit = new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } });
       ctx.waitUntil(cache.put(key, hit.clone()));
     }
@@ -327,7 +327,7 @@ const TOPICS = ['Feedback', 'Suggestions', 'Support', 'Legal'];
 async function contact(req, env, cors) {
   if (!env.MAILER || !env.SUPPORT_EMAIL) return json({ error: 'Not set up yet' }, 503, cors);
   if (Number(req.headers.get('content-length') || 0) > 20000) return json({ error: 'Too long' }, 413, cors);
-  let f; try { f = await req.json(); } catch { return json({ error: 'Bad form' }, 400, cors); }
+  let f; try { f = (await req.json()) || {}; } catch { return json({ error: 'Bad form' }, 400, cors); }
   const clean = (v, n) => String(v ?? '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, n);
   const msg = clean(f.msg, 5000), name = clean(f.name, 80).replace(/[\r\n<>"]/g, ''), email = clean(f.email, 200);
   const topic = TOPICS.includes(f.topic) ? f.topic : 'Feedback';

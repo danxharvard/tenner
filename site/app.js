@@ -54,8 +54,9 @@ async function refresh() {
   let out = 'same';
   try {
     const d = await fetchData(true);
-    const changed = d.trending.generatedAt !== state.trending.generatedAt || d.fresh?.generatedAt !== state.fresh?.generatedAt;
-    if (changed) { out = 'new'; const y = scrollY; Object.assign(state, d, { cat: d.cat || state.cat, week: d.week || state.week, trail: d.trail || state.trail }); render(); requestAnimationFrame(() => scrollTo(0, y)); }
+    // a list that didn't load this time keeps the copy already on the page (rather than emptying New This Week)
+    const changed = d.trending.generatedAt !== state.trending.generatedAt || (d.fresh && d.fresh.generatedAt !== state.fresh?.generatedAt);
+    if (changed) { out = 'new'; const y = scrollY; Object.assign(state, d, { fresh: d.fresh || state.fresh, cat: d.cat || state.cat, week: d.week || state.week, cinema: d.cinema || state.cinema, trail: d.trail || state.trail }); render(); requestAnimationFrame(() => scrollTo(0, y)); }
   } catch { out = 'failed'; }   // the background check stays quiet: the next one catches up
   refreshing = false;
   return out;
@@ -872,7 +873,7 @@ function calendarFile(x) {
   const what = `${x.title}${x.season ? ` season ${x.season}` : ''}`, on = s?.label || 'streaming';
   const link = x.id ? `https://tenner.stream/?t=${k}` : 'https://tenner.stream/#new';
   const fold = (line) => line.replace(/(.{72})/g, '$1\r\n ').replace(/\r\n $/, '');
-  const txt = (t) => t.replace(/[\;,]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
+  const txt = (t) => t.replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
   return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tenner//Coming soon//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
     `UID:${k}-${d}@tenner.stream`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${end}`,
     fold(`SUMMARY:${txt(`${what} on ${on}`)}`), fold(`DESCRIPTION:${txt(`${what} arrives on ${on} today. Where to watch: ${link}`)}`), `URL:${link}`,

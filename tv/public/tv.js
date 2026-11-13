@@ -703,7 +703,7 @@
   // the keyboard: / or ⌘K (Ctrl+K) opens it; ↓ and ↑ move through the results, Enter opens one
   document.addEventListener('keydown', (e) => {
     const typing = e.target.closest?.('input, textarea, [contenteditable]');
-    if ((e.key === '/' && !typing) || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); openFind(); }
+    if ((e.key === '/' && !typing) || ((e.metaKey || e.ctrlKey) && (e.key || '').toLowerCase() === 'k')) { e.preventDefault(); openFind(); }
   });
   find.addEventListener('keydown', (e) => {
     const rows = [...fr.querySelectorAll('.fd-row')], i = rows.indexOf(document.activeElement);
