@@ -96,7 +96,7 @@
         if (f === 'again') { tonight.step = 0; tonight.seen.clear(); }
         else if (f === 'more') { /* same answers, the next few */ }
         else if (f === 'back') tonight.step = Math.max(0, tonight.step - 1);
-        else { tonight[f] = v; tonight.step++; navigator.vibrate?.(8); }
+        else { tonight[f] = v; tonight.step++; window.tn?.haptic?.(8); }
         drawTonight();
       });
       d.addEventListener('click', (e) => {   // a pick opens its title card

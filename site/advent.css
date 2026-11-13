@@ -31,7 +31,7 @@ dialog.adv { width: min(900px, calc(100vw - 32px)); max-width: none; max-height:
 /* the doors */
 .adv-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: clamp(62px, 7.6vw, 86px); gap: 9px; }
 .adv-d { position: relative; padding: 0; border: 0; border-radius: var(--r); background: none; color: #fff; font: inherit; cursor: pointer; perspective: 900px; -webkit-tap-highlight-color: transparent; }
-.adv-d.opening, .adv-d.open:hover { z-index: 2; }
+.adv-d.opening { z-index: 2; } @media (hover: hover) { .adv-d.open:hover { z-index: 2; } }
 /* behind the door: warm light, then the poster */
 .adv-in { position: absolute; inset: 0; overflow: hidden; border-radius: var(--r);
   background: radial-gradient(circle at 50% 45%, #ffe2a0, #ffad4a 30%, #5a1d3c 75%, #1a0b24); box-shadow: inset 0 2px 12px rgba(0, 0, 0, .65); }

@@ -98,7 +98,7 @@
   function showPhoto() {
     if (!pd?.photo) return;
     $('img', zoom).src = pd.photo; $('img', zoom).alt = pd.name; $('#psZn').textContent = pd.name;
-    zoom.showModal(); navigator.vibrate?.(8);
+    zoom.showModal(); window.tn?.haptic?.(8);
   }
   zoom.addEventListener('click', () => zoom.close());
   zoom.addEventListener('close', () => $('#psFace')?.focus({ preventScroll: true }));

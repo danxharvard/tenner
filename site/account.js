@@ -195,7 +195,7 @@
     const b = $('#acPhotoPick'); b.setAttribute('aria-busy', 'true'); b.lastChild.textContent = 'Saving…';
     try {
       me.user = (await account.call('POST', '/me/photo', { image: await squared() })).user;
-      account.setUser(me.user); draw(); say('#acNote', 'Photo saved'); navigator.vibrate?.(10);
+      account.setUser(me.user); draw(); say('#acNote', 'Photo saved'); window.tn?.haptic?.(10);
     } catch (err) { say('#acNote', friendly(err), true); draw(); }
     finally { b.removeAttribute('aria-busy'); URL.revokeObjectURL(crop.url); }
   });

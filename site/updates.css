@@ -9,7 +9,7 @@
 .u-row + .u-row { border-top: .5px solid var(--sep); }
 .u-meta { display: flex; flex-direction: column; gap: 2px; font: 400 13px/1.4 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
 .u-ver { color: var(--label); font-weight: 600; font-size: 14px; text-decoration: none; }
-.u-ver:hover { text-decoration: underline; }
+@media (hover: hover) { .u-ver:hover { text-decoration: underline; } }
 .u-kind { color: var(--label3); }
 .u-body { min-width: 0; overflow-wrap: anywhere; }
 .u-body h2 { margin: 0 0 4px; font: 600 15px/1.35 var(--font); letter-spacing: -.016em; }
