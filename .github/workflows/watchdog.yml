@@ -35,9 +35,9 @@ jobs:
             [ "$code" = "301 https://tenner.stream/browse.html" ] || echo "update.yml|www.tenner.stream answered $code"
             mins=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | age)   # rebuilt hourly
             [ "$mins" -le 120 ] || { [ "$mins" = 99999 ] && echo "update.yml|the charts couldn't be read" || echo "update.yml|the charts are $((mins/60)) hours old"; }
-            # the homepage's slideshow: today's trending titles, picked afresh each UK day (so never more than about a day and a half old)
+            # the big featured artwork's pool (Home's slideshow, Browse's spotlight): what's trending, rebuilt every three hours
             fmins=$(curl -s -m 30 "$LIVE/data/featured.json?v=$(date +%s)" | age)
-            [ "$fmins" -le 2160 ] || { [ "$fmins" = 99999 ] && echo "update.yml|the homepage slideshow's titles couldn't be read" || echo "update.yml|the homepage slideshow hasn't changed for $((fmins/60)) hours"; }
+            [ "$fmins" -le 720 ] || { [ "$fmins" = 99999 ] && echo "update.yml|the homepage slideshow's titles couldn't be read" || echo "update.yml|the homepage slideshow hasn't changed for $((fmins/60)) hours"; }
             # each title's own page (for link previews): the No. 1 show's must be there, with its name in the preview tags
             k=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log("t"+JSON.parse(s).overall.tv[0].id)}catch{console.log("t0")}})')
             curl -s -m 30 -A "$SAFARI" "https://tenner.stream/t/$k/" | grep -q 'property="og:title"' || echo "update.yml|the link preview page for $k is missing"
