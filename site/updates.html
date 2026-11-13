@@ -42,9 +42,10 @@
   try{tnMe(JSON.parse(localStorage.getItem("tenner-account")||"null"))}catch(e){}
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
+  try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.93.2">
-  <link rel="stylesheet" href="updates.css?v=2.93.2">
+  <link rel="stylesheet" href="styles.css?v=2.94.0">
+  <link rel="stylesheet" href="updates.css?v=2.94.0">
 </head>
 <body class="updates">
   <a class="skip" href="#main">Skip to the page</a>
@@ -52,7 +53,7 @@
   <!-- the bar at the top: the logo, the tabs (a floating bar at the bottom on phones) and the round button -->
   <div class="top-row">
     <div class="top-brand">
-      <a class="lt-logo" href="./" aria-label="Tenner, home"><img src="logo.svg" alt="" width="36" height="36"></a>
+      <a class="lt-logo" href="./" aria-label="Tenner, home"><span class="tm" aria-hidden="true"><i class="tm-glow"></i><i class="tm-ring"></i><svg viewBox="0 0 64 64"><path class="tm-one" pathLength="1" d="M13 22.5 19.5 18v28"/><path class="tm-play" d="M36.1 27.4 43.5 32l-7.4 4.6z"/></svg></span></a>
       <span class="brand-name">Tenner</span>
     </div>
     <nav class="tabbar" aria-label="Pages"><div class="tabs" role="tablist" id="tabs"><span class="tab-ind" id="tabInd" aria-hidden="true"></span>
@@ -90,7 +91,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.2</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.94.0</a>
     </div>
   </div>
 
@@ -110,7 +111,7 @@
     </div>
   </main>
 
-  <script src="shell.js?v=2.93.2" defer></script>
-  <script src="updates.js?v=2.93.2" defer></script>
+  <script src="shell.js?v=2.94.0" defer></script>
+  <script src="updates.js?v=2.94.0" defer></script>
 </body>
 </html>

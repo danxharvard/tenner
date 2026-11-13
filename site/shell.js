@@ -41,6 +41,13 @@
     const b = e.target.closest?.('.btn, .dd, .hc-r, .cal-add, .set-pill, .pv-ok, .ft-ok, .tn-opt');
     if (b && !root.classList.contains('still')) replay(b, 'tap-ring');
   }, true);
+  // the logo's ring spins once when it's pressed or a pointer arrives on it (styles.css; never mid-spin, never with Animations off)
+  document.querySelectorAll('.lt-logo .tm').forEach((m) => {
+    const spin = (e) => { if (reduce() || m.classList.contains('spin') || (e.type === 'pointerenter' && e.pointerType !== 'mouse')) return; m.classList.add('spin'); };
+    m.parentElement.addEventListener('pointerdown', spin); m.parentElement.addEventListener('pointerenter', spin);
+    const done = (e) => { if (e.animationName === 'tmSpin' && e.target.classList.contains('tm-ring')) m.classList.remove('spin'); };
+    m.addEventListener('animationend', done); m.addEventListener('animationcancel', done);
+  });
   document.addEventListener('change', (e) => {
     const t = e.target;
     if (t.matches?.('input[role="switch"]')) navigator.vibrate?.(6);
@@ -110,7 +117,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.93.2';
+  const version = '2.94.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1797,6 +1804,8 @@
     if (!ticking) { ticking = true; requestAnimationFrame(titleCheck); }
   };
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // and again once the bar has risen into place: measured mid-rise, it took Home's heading for scrolled away and hid the logo
+  brand?.addEventListener('animationend', (e) => { if (e.target === brand && !ticking) { ticking = true; requestAnimationFrame(titleCheck); } });
 
   // ---------- staying current: pages left open fetch the new hour's data by themselves ----------
   // Every 15 minutes while the page is on screen, and whenever you come back to it after a few minutes away,
