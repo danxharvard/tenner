@@ -657,6 +657,10 @@ a.tb-btn:hover { text-decoration: none; }
 .sh-next b { font-weight: 600; color: var(--accent); }
 .sh-next span { color: var(--label2); font-size: 14px; }
 .sh-next.done { background: var(--fill); } .sh-next.done b { color: var(--label2); }
+/* a show in its last season: a quiet glass badge before the line it sits in */
+.fin { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: var(--r); background: var(--gl-fill); box-shadow: inset 0 0 0 .5px var(--gl-rim);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 11px; font-weight: 600; line-height: 16px; letter-spacing: .01em; color: var(--label); vertical-align: 1px; white-space: nowrap; }
+.sh-next .fin { align-self: center; margin-right: 0; }
 .sh-prog, .sh-mine, .sh-track, .sh-cast, .sh-sec { margin-top: 22px; padding-top: 18px; border-top: .5px solid var(--sep); }
 .sh-prog h3, .sh-mine h3, .sh-track h3, .sh-cast h3, .sh-sec h3 { margin: 0 0 10px; font: 700 20px/1.2 var(--font); letter-spacing: .004em; }
 /* Cast & Crew in the sheet: a row of round faces, Apple TV style */
@@ -670,6 +674,10 @@ a.tb-btn:hover { text-decoration: none; }
 .sh-face img { width: 100%; height: 100%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; object-position: center 22%; }
 .sh-faces b { margin-top: 7px; width: 100%; font: 600 13px/1.2 var(--font); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .sh-faces small { width: 100%; color: var(--label2); font-size: 12px; line-height: 1.25; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Where have I seen them? two short lines at most, in the accent colour */
+.sh-faces small.sh-was { margin-top: 3px; color: var(--accent); font-size: 11.5px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+:root:not(.still) .sh-faces small.sh-was { animation: shWas .4s ease both; }
+@keyframes shWas { from { opacity: 0; } }
 @media (hover: hover) { .sh-faces a:hover .sh-face { transform: scale(1.06); } }
 .sh-faces a:focus-visible { outline: none; }
 .sh-faces a:focus-visible .sh-face { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }

@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.91.0';
+  const version = '2.92.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -242,6 +242,8 @@
   };
   // the next episode to watch after [s, e], given each season's episode count; null when you're caught up
   const nextUp = (p, sz) => { if (!p) return [1, 1]; const [s, e] = p; if (sz?.[s - 1] && e < sz[s - 1]) return [s, e + 1]; if (sz && s < sz.length) return [s + 1, 1]; return sz ? null : [s, e + 1]; };
+  // a show in its last season (data/titles.json's fs): a quiet glass badge, and the finale's day once TMDB knows it (fe)
+  const finalBadge = (x) => (x?.fs ? '<span class="fin">Final season</span>' : '');
   // "Today", "Tomorrow", "Fri 24 Oct (in 6 days)": when the next episode lands
   const whenText = (iso) => {
     const d = new Date(iso + 'T12:00:00'), t = new Date(); t.setHours(12, 0, 0, 0);
@@ -1633,7 +1635,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
   // the Update centre introduces itself once, at the build number in the menu (on phones, when the menu's open)
   if (!onPage('updates')) featureTip({ id: 'update-centre', for: '.side-ver', title: 'What’s new', text: 'Tap the build number to open the Update centre: every Tenner update, with its date, what changed and any notes.' });
 

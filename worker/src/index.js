@@ -4,6 +4,8 @@
 //   GET /people?q=…   people (cast and crew) matching a name, for the menu's search
 //   GET /person/123   one person: biography, and everything they've been in or made
 //   GET /credits/m123 a title's main cast and key crew
+//   GET /seen/m123?p=1,2&w=t1,m2  Where have I seen them? for each of those people (up to 12) in that title, the titles
+//                     from w (what you've watched, up to 300) they were also in, biggest part first. Nothing is kept
 //   GET /find/tt123   the film or show with that IMDb number (for imports and links shared from IMDb)
 //   GET /more/m123    the rest of TMDB's page for a title, for the sheet: its logo, More Like This, trailers and extras,
 //                     seasons, the film series it's part of, reviews, the Information section and its IMDb number
@@ -45,6 +47,8 @@ export default {
     if (url.pathname === '/contact') return req.method === 'POST' ? contact(req, env, cors) : json({ error: 'POST only' }, 405, cors);
     if (req.method !== 'GET') return json({ error: 'GET only' }, 405, cors);
     if (!env.TMDB_TOKEN) return json({ error: 'Not set up yet' }, 503, cors);
+
+    if (/^\/seen\/[mt]\d{1,9}$/.test(url.pathname)) return seenIn(env, ctx, url, cors);
 
     let path, params, shape, ttl, links = false;
     if (url.pathname === '/search') {
@@ -103,6 +107,39 @@ export default {
     return out;
   },
 };
+
+// ---------- Where have I seen them? ----------
+// Each person's credits (TMDB's combined credits) are looked up once a day and shared by everyone through the edge cache;
+// what you've watched is only compared here, never stored or cached.
+async function personKeys(env, ctx, id) {
+  const key = new Request(`https://tenner-cache/seen-p/${id}`), hit = await caches.default.match(key);
+  if (hit) return hit.json();
+  const r = await fetch(`${TMDB}/person/${id}/combined_credits?language=en-GB`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } });
+  if (!r.ok) return [];
+  const d = await r.json(), out = [], seen = new Set();
+  const self = (c) => /^(himself|herself|self|themselves)\b/i.test(c.character || '');
+  const size = (c) => (c.media_type === 'movie' ? 100 - Math.min(99, c.order ?? 50) : Math.min(100, (c.episode_count || 1) * 5));
+  for (const c of [...(d.cast || []).filter((c) => !self(c)).sort((a, b) => size(b) - size(a)), ...(d.crew || [])]) {
+    if (c.media_type !== 'movie' && c.media_type !== 'tv') continue;
+    const k = `${c.media_type === 'movie' ? 'm' : 't'}${c.id}`; if (seen.has(k)) continue;
+    seen.add(k); out.push([k, String(c.title || c.name || '').slice(0, 120), String(c.character || c.job || '').slice(0, 80)]);
+    if (out.length >= 600) break;
+  }
+  ctx.waitUntil(caches.default.put(key, new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=86400' } })));
+  return out;
+}
+async function seenIn(env, ctx, url, cors) {
+  const here = url.pathname.split('/')[2];
+  const ids = [...new Set((url.searchParams.get('p') || '').split(',').filter((x) => /^\d{1,9}$/.test(x)))].slice(0, 12);
+  const w = new Set((url.searchParams.get('w') || '').split(',').filter((x) => /^[mt]\d{1,9}$/.test(x) && x !== here).slice(0, 300));
+  if (!ids.length || !w.size) return json({ people: {} }, 200, { ...cors, 'cache-control': 'no-store' });
+  const people = {};
+  await Promise.all(ids.map(async (id) => {
+    const hits = (await personKeys(env, ctx, id).catch(() => [])).filter((x) => w.has(x[0])).slice(0, 2);
+    if (hits.length) people[id] = hits.map(([k, title, role]) => ({ k, title, role }));
+  }));
+  return json({ people }, 200, { ...cors, 'cache-control': 'no-store' });
+}
 
 const json = (o, status, headers) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json', ...headers } });
 
