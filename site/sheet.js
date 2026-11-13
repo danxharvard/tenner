@@ -605,7 +605,7 @@
       const on = window.tn.stars.toggle(current.k);
       b.outerHTML = starBtn(on); const nb = sheet.querySelector('.sh-star'); nb?.focus({ preventScroll: true });
       if (on && !reduce() && nb?.animate) nb.querySelector('svg').animate([{ scale: 1 }, { scale: 1.35 }, { scale: 1 }], { duration: 420, easing: 'cubic-bezier(.3,1.6,.5,1)' });
-      if (on) navigator.vibrate?.(10);
+      if (on) window.tn?.haptic?.(10);
       const t = $('#shThanks'); clearTimeout(thanksT);
       t.textContent = on ? 'Thanks. We’ll use the shows and films you like to offer you better recommendations.' : ''; t.classList.toggle('in', on);
       if (on) thanksT = setTimeout(() => t.classList.remove('in'), 4500);
@@ -615,7 +615,7 @@
       const off = on && window.tn.prefs.get().seenoff !== false && saved.has(current.k);
       if (off) { saved.remove(current.k); const sv = sheet.querySelector('.sh-save'); if (sv) sv.outerHTML = saveBtn(false); }
       b.outerHTML = seenBtn(on); sheet.querySelector('.sh-seen')?.focus({ preventScroll: true });
-      if (on) navigator.vibrate?.(10);
+      if (on) window.tn?.haptic?.(10);
       msay(on ? (off ? 'On your Watched list, and off your Watchlist' : 'On your Watched list') : 'Taken off your Watched list');
     }
     if (b.dataset.act === 'hide') {
@@ -806,7 +806,7 @@
     const { info, el } = card, b = e.target.closest('[data-hc]');
     if (b?.dataset.hc === 'save') {
       const on = saved.toggle(info); hcDirty = true;
-      b.outerHTML = saveRound(on); navigator.vibrate?.(10);
+      b.outerHTML = saveRound(on); window.tn?.haptic?.(10);
       const nb = $('[data-hc="save"]', hc); if (on && !calm() && nb?.animate) nb.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' });
       return;
     }

@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.87.4';
+  const version = '2.88.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1547,7 +1547,27 @@
 
   // how far a title climbed: a green badge (a round arrow, the places, and "up" beneath), as on Apple's Stocks
   const climb = (n) => `<span class="climb"><span class="sh-vh">, up ${+n || 0} ${+n === 1 ? 'place' : 'places'}</span><span class="climb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 12.6V4M4.4 7.4 8 3.8l3.6 3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="climb-n" aria-hidden="true"><b>${+n || 0}</b><small>${+n === 1 ? 'place' : 'places'}</small></span></span>`;
-  const haptic = (ms = 8) => { try { navigator.vibrate?.(ms); } catch {} };   // a small buzz, where the device has one
+  // A small buzz, where the device has one. iPhones have no vibrate(), but Safari (iOS 18 and later) gives its own tap of
+  // haptic feedback whenever its native switch flips, so on an iPhone a hidden switch is flipped instead. It sits in the
+  // open sheet when there is one (everything else is inert then), and its clicks and changes never reach the page.
+  let hapLab = null;
+  const haptic = (ms = 8) => {
+    try {
+      if (navigator.vibrate) { navigator.vibrate(ms); return; }
+      if (!isIOS) return;   // an older iPhone just flips it silently
+      if (!hapLab) {
+        hapLab = document.createElement('label');
+        hapLab.setAttribute('aria-hidden', 'true');
+        hapLab.className = 'tn-hap';
+        hapLab.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+        const stop = (e) => e.stopPropagation();
+        hapLab.addEventListener('click', stop); hapLab.addEventListener('change', stop); hapLab.addEventListener('input', stop);
+      }
+      const host = [...document.querySelectorAll('dialog[open]')].pop() || document.body;
+      if (hapLab.parentNode !== host) host.append(hapLab);
+      hapLab.click();
+    } catch {}
+  };
   // ---------- Tenner's own cut: the featured spots in motion, without YouTube ----------
   // In place of a trailer (YouTube's ads, its player and the words written over the footage), the title's own wordless
   // stills from TMDB, one after another: each drifts slowly (a push in or a pull out, panning a different way each time)
@@ -1795,7 +1815,7 @@
   document.addEventListener('focusout', () => hideTip());
   document.addEventListener('pointerdown', (e) => {
     held = false; const el = e.pointerType === 'touch' && e.target.closest?.('[data-tip]'); if (!el) return;
-    hold = { x: e.clientX, y: e.clientY, t: setTimeout(() => { held = true; showTip(el); navigator.vibrate?.(8); }, 450) };
+    hold = { x: e.clientX, y: e.clientY, t: setTimeout(() => { held = true; showTip(el); window.tn?.haptic?.(8); }, 450) };
   }, { passive: true });
   document.addEventListener('pointermove', (e) => { if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 10) { clearTimeout(hold.t); hold = null; } }, { passive: true });
   const letGo = () => { if (hold) { clearTimeout(hold.t); hold = null; } if (held) hideTip(1400); };

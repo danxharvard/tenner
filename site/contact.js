@@ -14,7 +14,7 @@
   const flag = (el, box, t) => {
     say(t, true); box.classList.add('bad');
     if (!still()) { box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
-    el.focus({ preventScroll: false }); navigator.vibrate?.(30);
+    el.focus({ preventScroll: false }); window.tn?.haptic?.(30);
   };
   const clear = (box) => box.classList.remove('bad', 'shake');
 
@@ -59,7 +59,7 @@
       $('#cDoneH').textContent = first ? `Thanks, ${first}` : 'Message sent';
       $('#cDoneP').textContent = `We’ve got it, and we’ll reply to ${email}, usually within a day.`;
       try { sessionStorage.removeItem(KEY); } catch {}
-      navigator.vibrate?.([12, 60, 18]);
+      window.tn?.haptic?.([12, 60, 18]);
       swap(() => { form.hidden = true; done.hidden = false; });
       done.focus();
       form.reset(); tally(); say(hint);

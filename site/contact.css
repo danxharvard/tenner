@@ -46,7 +46,7 @@
 .cx-help li + li { border-top: .5px solid var(--sep); margin-inline: 16px; }
 .cx-help li + li a { margin-inline: -16px; }
 .cx-help a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 13px 16px; color: var(--label); transition: background-color .2s; }
-.cx-help a:hover { text-decoration: none; }
+@media (hover: hover) { .cx-help a:hover { text-decoration: none; } }
 @media (hover: hover) { .cx-help a:hover { background: var(--fr-in); } }
 .cx-help .tx { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .cx-help .tx b { font-weight: 500; font-size: 16px; }

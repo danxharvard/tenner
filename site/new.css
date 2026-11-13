@@ -10,7 +10,7 @@
   background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--c) 16%, transparent), transparent 60%), var(--fr-bg);
   -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim);
   transition: transform .5s var(--ease-spring), background-color .2s ease; }
-.nw-stat:hover { text-decoration: none; }
+@media (hover: hover) { .nw-stat:hover { text-decoration: none; } }
 @media (hover: hover) { .nw-stat:hover { background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--c) 24%, transparent), transparent 65%), var(--fr-bg); }
   .nw-stat:hover .nw-chev { translate: 3px 0; color: var(--label2); } }
 .nw-stat:active { transform: scale(.98); }
@@ -122,7 +122,7 @@
 .race-list { padding-left: 10px; }
 .race-list li { height: var(--rh); transition: opacity .3s ease; }
 .race-list a { display: flex; align-items: center; gap: 11px; height: 100%; padding: 0 8px; border-radius: var(--r); color: inherit; transition: background-color .2s ease; }
-.race-list a:hover { text-decoration: none; }
+@media (hover: hover) { .race-list a:hover { text-decoration: none; } }
 .race-list img, .race-list .cl-ph { flex: none; height: calc(var(--rh) - 10px); width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: var(--r); box-shadow: 0 0 0 .5px var(--sep); }
 .race-t { display: grid; min-width: 0; }
 .race-t b { font-weight: 500; font-size: 14px; letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -182,7 +182,7 @@
 .tt-about p { margin: 0; color: var(--label2); font: 400 14px/1.45 var(--font); text-wrap: pretty; }
 .tt-about p + p { margin-top: 8px; }
 .tt-about a { color: var(--accent); font-weight: 500; text-decoration: none; }
-.tt-about a:hover { text-decoration: underline; }
+@media (hover: hover) { .tt-about a:hover { text-decoration: underline; } }
 :root:not(.still) .tt-about:not([hidden]) { animation: ttAboutIn .32s var(--ease-spring); transform-origin: calc(100% - 40px) 0; }
 @keyframes ttAboutIn { from { opacity: 0; transform: translateY(-4px) scale(.96); } }
 @media (prefers-reduced-transparency: reduce) { .tt-about { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }

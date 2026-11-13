@@ -781,7 +781,7 @@ function pageTop10() {
 const REFRESH_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M19.8 3.8v4.6h-4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 async function refreshNow(b) {
   if (b.getAttribute('aria-busy') === 'true') return;
-  b.setAttribute('aria-busy', 'true'); try { navigator.vibrate?.(8); } catch {}
+  b.setAttribute('aria-busy', 'true'); try { window.tn?.haptic?.(8); } catch {}
   const [out] = await Promise.all([refresh(), new Promise((r) => setTimeout(r, 600))]);   // long enough to see it turn
   b.removeAttribute('aria-busy');   // a new hour redraws the page, and the button with it
   const at = new Date(state.trending.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
