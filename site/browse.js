@@ -385,7 +385,6 @@
     else if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
     if (!q) spotlight();
     if (!q && !charting) moods(); else $('#moods').hidden = true;
-    rows();
   }
 
   // ---------- the Top 10: the UK's combined chart (trending.json's overall), shows then films, each numbered ----------
@@ -656,7 +655,6 @@
     const x = item(a.closest('.tile').dataset.k); if (x) window.tnSheet?.open(await sheetFor(x, x._rank ? `No. ${x._rank} ${x.t === 'movie' ? 'film' : 'show'} in the UK` : undefined));
   });
   window.tnSheet?.hover?.('#grid .tile a', (a) => { const x = item(a.closest('.tile').dataset.k); return x && sheetFor(x); });
-  window.tnSheet?.hover?.('#bRows a[data-row]', (a) => { const x = item(a.dataset.row); return x && sheetFor(x); });
 
   // ---------- searching everything: films and shows Tenner doesn't follow, from TMDB via the search API ----------
   // Below this hour's catalogue matches, as you type (after a short pause). Each opens the same title sheet.
@@ -781,33 +779,6 @@
     const b = e?.currentTarget || $('.b-dice'); if (!reduce() && b.animate) b.querySelector('svg').animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 500, easing: 'cubic-bezier(.3,.9,.3,1)' });
     window.tnSheet?.open({ ...(await sheetFor(x)), eye: 'Tenner’s surprise pick' });
   }
-
-  // ---------- For You (from your Discover swipes, stars and Watchlist; shell.js's forYou): a row of posters above the genres ----------
-  // TMDB's More Like This for your latest right swipes lifts the closest matches when you're signed in, as on Home
-  let like = {};
-  const likeNow = () => window.tn.moreLike?.(!!window.tn.account?.token()).then((l) => { like = l || {}; if (cat) rows(); });
-  likeNow(); ['tn:swiped', 'tn:account'].forEach((ev) => addEventListener(ev, () => setTimeout(likeNow, 1200)));
-  const forYou = () => window.tn.forYou(cat.items, (x) => !x._x && kindOk(x) && ok18(x) && (state.s.length ? x.s.some((k) => state.s.includes(k)) : x.s.length), like);
-  function rows() {
-    const box = $('#bRows');
-    if (state.q || state.g.length || state.c !== 'popular') { box.hidden = true; return; }
-    const poster = (x) => x.img ? (x.img.startsWith('/') ? cat.img + x.img : x.img) : null;
-    const art = (src, title) => src ? `<img src="${esc(src)}" alt="" loading="lazy" decoding="async">` : `<span class="ph" style="background:linear-gradient(160deg,hsl(${hue(title)} 45% 42%),hsl(${(hue(title) + 40) % 360} 55% 18%))">${esc(title)}</span>`;
-    const fy = forYou();
-    box.innerHTML = (fy ? `<section class="b-row" aria-labelledby="fyH"><div class="b-row-hd"><h2 id="fyH">For You</h2><p>${fy.because ? `Because you ${fy.how} ${esc(fy.because.n)}${fy.how === 'liked' ? ' in Discover' : ''}` : 'From what you’ve liked'}</p></div>
-        <ul class="nr">${fy.picks.map((x) => `<li><a href="https://www.themoviedb.org/${x.t}/${x.i}" target="_blank" rel="noopener" data-row="${x.t[0]}${x.i}">
-          <span class="nr-art">${art(poster(x), x.n)}</span><b>${esc(x.n)}</b><small>${esc([x.t === 'tv' ? 'Show' : 'Film', (x.d || '').slice(0, 4), x.r ? `★ ${x.r.toFixed(1)}` : ''].filter(Boolean).join(' · '))}</small></a></li>`).join('')}</ul></section>` : '');
-    box.hidden = !box.innerHTML;
-  }
-  $('#bRows').addEventListener('click', async (e) => {
-    const a = e.target.closest('[data-row]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-    e.preventDefault();
-    const x = item(a.dataset.row); if (x) window.tnSheet?.open(await sheetFor(x));
-  });
-  // saving or starring changes For You (once the sheet has closed, so nothing moves under it)
-  let rowsDirty = false;
-  ['tn:saved', 'tn:swiped'].forEach((ev) => addEventListener(ev, () => { if (!cat) return; if (window.tnSheet?.isOpen()) rowsDirty = true; else rows(); }));
-  addEventListener('tn:sheet-closed', () => { if (rowsDirty && cat) { rowsDirty = false; rows(); } });
 
   // ---------- the grid ----------
   const fmt = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
