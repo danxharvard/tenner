@@ -108,6 +108,17 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 - **Writing:** plain British English, short and friendly, no jargon.
 - **Before shipping anything visual:** screenshot it on phone and computer, light and dark, and look at it critically.
 
+### The Appllama skills (`.claude/skills/`, a second opinion, never the boss)
+Two skills from Appllama (MIT, copied from github.com/Appllama/appllama-skills at `dd5caae`, licence kept beside each):
+`appllama-app-design-skill` (the bar for native-feeling screens: HIG fidelity, anti-slop counts, navigation, motion,
+full state cycles) and `appllama-usage` (research with the paid Appllama MCP; it only applies if that's connected, and
+it isn't set up here). They're written for Expo / React Native apps, so translate them to the web: their "simulator
+loop" is our Playwright screenshots on phone and computer in both themes, their native controls are Safari's.
+**Where they disagree with this file, this file wins.** In particular: buttons keep the owner's solid deep tint with an
+icon and white words, never pills or capsules (ignore their "actions are pills"); one 9px `--r` corner everywhere is
+Tenner's shape lock; the shared frost on boxes, bars and sheets is Tenner's chosen material, not "glassmorphism slop";
+and don't generate stock illustrations: the shows' artwork is the imagery.
+
 ## How we work
 - Merge and push without asking. Always `git pull --rebase` first (the site is also edited from another device).
 - Bump the version with every update: patch for fixes, minor for features, with sed over `site/*.html site/shell.js site/sw.js`.
