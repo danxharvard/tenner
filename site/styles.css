@@ -2471,8 +2471,12 @@ dialog.adv { position: fixed; }
   .drawer .side-acct + .side-link { margin-top: 22px; border-radius: var(--r) var(--r) 0 0; }
   .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
   .drawer .side-link[aria-current] { font-weight: 400; color: var(--accent); }
-  .drawer .side-ver { margin: 12px 16px 0; color: var(--label3); font-size: 13px; text-decoration: none; }
+  /* its own height only: the sidebar's flex-basis: 100% stretched it to the menu's full height in this column, so the
+     menu scrolled on into a screen of empty space below the version */
+  .drawer .side-ver { flex: none; margin: 12px 16px 0; color: var(--label3); font-size: 13px; text-decoration: none; }
 }
+/* phones: the page stays still under the open menu, so a swipe on it never scrolls the page away behind */
+@media (max-width: 719px) { .drawer-open, .drawer-open body { overflow: hidden; } }
 :root { --row-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 13'%3E%3Cpath d='M1.5 1.5 6.5 6.5l-5 5' fill='none' stroke='%23999' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 @media (max-width: 359px) {
   .tb-left, .tb-right { gap: 6px; }
