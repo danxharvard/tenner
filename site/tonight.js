@@ -14,7 +14,7 @@
   const titles = () => opts.titles?.() || null;
 
   // How long you've got (an episode or two, a film, either), the mood, and who's watching; then the best-rated, most-watched
-  // matches from the Browse catalogue on your services (or all six), a few at random from the top so it's never the same.
+  // matches from the Browse catalogue on your services (or all of them), a few at random from the top so it's never the same.
   // Every answer has its own icon: a white glyph on an Apple-style gradient tile. Each step opens on a little scene of them.
   const TN_GLYPH = {
     tv: '<rect x="3" y="4.5" width="18" height="12.5" rx="3"/><path d="M8.5 20.5h7"/><path d="M10.3 8.3v5.4l4.5-2.7z" fill="currentColor"/>',
@@ -63,7 +63,7 @@
   ];
   function tonightCard() {
     return `<section class="tn-card"><div class="tn-c-art" aria-hidden="true">${tnIc('tv', 'tn-fl tn-c1')}${tnIc('feel', 'tn-fl tn-c2')}${tnIc('pop', 'tn-fl tn-c3')}</div>
-      <div class="tn-c-copy"><h2>What should I watch tonight?</h2><p>Three quick taps and Tenner picks from ${window.tn.mine.get().length ? 'your services' : 'all six services'}.</p></div>
+      <div class="tn-c-copy"><h2>What should I watch tonight?</h2><p>Three quick taps and Tenner picks from ${window.tn.mine.get().length ? 'your services' : 'every service'}.</p></div>
       <button type="button" class="btn btn-tinted" data-tonight><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z"/></svg>Help me choose</button></section>`;
   }
   const MOODS = [
@@ -122,7 +122,7 @@
     const head = (n, q, sub) => `${tnScene(TN_SCENES[n - 1])}<div class="tn-pane"><div class="tn-top"><div class="tn-prog" role="img" aria-label="Step ${n} of 3">${[1, 2, 3].map((i) => `<i${i <= n ? ' class="on"' : ''}></i>`).join('')}</div><span class="tn-step">${n} of 3</span></div>
       <h2 id="tnH" tabindex="-1">${q}</h2><p class="tn-sub">${sub}</p>`;
     const back = '<button type="button" class="tn-back" data-tn="back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>';
-    const svcs = window.tn.mine.get().length ? 'your services' : 'all six services';
+    const svcs = window.tn.mine.get().length ? 'your services' : 'every service';
     let h;
     if (s === 0) h = head(1, 'How long have you got?', `Three quick taps, then three picks from ${svcs}.`) + `<div class="tn-opts tn-row">${opt('len', 'tv', 'An episode or two', 'Shows')}${opt('len', 'movie', 'A film', 'Films')}${opt('len', 'any', 'Either', 'Surprise me')}</div></div>`;
     else if (s === 1) h = head(2, 'What are you in the mood for?', 'Pick the feeling you’re after.') + `<div class="tn-opts tn-grid">${MOODS.map(([v, l, sub]) => opt('mood', v, l, sub)).join('')}</div>${back}</div>`;
@@ -176,7 +176,7 @@
   function tonightBox() {
     return `<section class="bx-panel panel bx-tn" aria-labelledby="bxTn"><div class="bx-tn-art" aria-hidden="true">${tnIc('tv', 'tn-fl tn-c1')}${tnIc('feel', 'tn-fl tn-c2')}${tnIc('pop', 'tn-fl tn-c3')}</div>
       <h2 id="bxTn">What should I watch tonight?</h2>
-      <p class="bx-panel-say">Three quick taps and Tenner picks from ${window.tn.mine.get().length ? 'your services' : 'all six services'}.</p>
+      <p class="bx-panel-say">Three quick taps and Tenner picks from ${window.tn.mine.get().length ? 'your services' : 'every service'}.</p>
       <button type="button" class="btn btn-tinted bx-wide" data-tonight><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.5 3.5l1.8 4.9 4.9 1.8-4.9 1.8-1.8 4.9-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z"/></svg>Help me choose</button></section>`;
   }
   window.tnTonight = { card: tonightCard, box: tonightBox, use(o) { Object.assign(opts, o); } };

@@ -45,8 +45,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.92.0">
-  <link rel="stylesheet" href="browse.css?v=2.92.0">
+  <link rel="stylesheet" href="styles.css?v=2.93.0">
+  <link rel="stylesheet" href="browse.css?v=2.93.0">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -92,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.92.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.0</a>
     </div>
   </div>
 
@@ -111,7 +111,7 @@
     <section class="spot" id="spot" aria-roledescription="carousel" aria-label="Featured">
       <div class="spot-bg" aria-hidden="true"><div class="spot-ext" id="spotExt"></div><div class="spot-art" id="spotArt"></div><div class="spot-wash"></div></div>
       <h1 class="spot-h"><em class="grad">Browse</em></h1>
-      <!-- the services, as on Home: a rail of app icons that keeps everything to the ones you tap (All six for every service) -->
+      <!-- the services, as on Home: a rail of app icons that keeps everything to the ones you tap (All for every service) -->
       <nav class="bx-rail b-rail" id="svcRail" aria-label="Services"></nav>
       <div class="spot-feat" id="spotFeat" aria-live="polite" hidden>
         <p class="spot-eye" id="spotEye"></p>
@@ -232,10 +232,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.92.0" defer></script>
-  <script src="links.js?v=2.92.0" defer></script>
-  <script src="sheet.js?v=2.92.0" defer></script>
-  <script src="person.js?v=2.92.0" defer></script>
-  <script src="browse.js?v=2.92.0" defer></script>
+  <script src="shell.js?v=2.93.0" defer></script>
+  <script src="links.js?v=2.93.0" defer></script>
+  <script src="sheet.js?v=2.93.0" defer></script>
+  <script src="person.js?v=2.93.0" defer></script>
+  <script src="browse.js?v=2.93.0" defer></script>
 </body>
 </html>

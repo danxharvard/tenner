@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Free to watch">
+  <defs>
+    <linearGradient id="fw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34c759"/><stop offset="1" stop-color="#0a84ff"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" fill="url(#fw)"/>
+  <rect x="12" y="15" width="40" height="27" rx="5" fill="none" stroke="#fff" stroke-width="3.6"/>
+  <path d="M24 50h16" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/>
+  <text x="32" y="34.6" text-anchor="middle" fill="#fff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" letter-spacing=".2">£0</text>
+</svg>

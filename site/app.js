@@ -339,8 +339,6 @@ function wlDraw(x, it, info) {
   // Tenner's own cut of its wordless stills (tn.cut in shell.js), in place of YouTube's trailer and its ads
   const main = info.backdrop.split('/').pop(), frames = [...(info.bds || []).filter((f) => f.split('/').pop() !== main).map(window.tn.cut.src), info.backdrop];
   setTimeout(() => { if (wlh.k === x.k && !wlh.cut) { wlh.cut = window.tn.cut(box.querySelector('.bx-h-l'), frames); wlSync(); } }, 1200);
-  window.tn.tip({ id: 'watchlist-cut', for: box.querySelector('#wlShuffle') || box.querySelector('.bx-cta'), title: 'Your Watchlist, in motion',
-    text: 'The top of your Watchlist moves through the pictures of something you’ve saved, with no ads. Shuffle for another, or tap the trailer button for the official one.' });
 }
 // paused while it's out of sight (scrolled away, another tab, a title's sheet over it), carrying on when it's back
 const wlSync = () => wlh.cut?.hold(!(wlh.seen && !document.hidden && !window.tnSheet?.isOpen?.()));
@@ -639,9 +637,6 @@ function nwMount() {
     NW.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { NW.io.unobserve(e.target); countUp(e.target); } }), { threshold: .25 });
     counts.forEach((b) => NW.io.observe(b));
   }
-  const tip = window.tn.tip;
-  if ($('.nw-stats')) tip({ id: 'new-week-numbers', for: '.nw-stats', title: 'The week in numbers', text: 'What arrived, what’s on the way, what’s about to leave and what’s in cinemas. Tap a number to jump straight to it.' });
-  if ($('#rbTrack')) tip({ id: 'new-day-by-day', for: '#rbTrack', title: 'Day by day', text: 'Swipe along the days, or use the arrows. Pick one to see what landed on the services that day, or what’s on the way, with a calendar reminder for anything ahead.' });
 }
 // Top 10s: the week on the charts draws its lines in as it scrolls into view
 function weekMount() {
@@ -650,7 +645,6 @@ function weekMount() {
   const g = $('#raceG'); if (!g) return;
   if (reduceMotion()) g.classList.add('in');
   else { NW.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { NW.io.unobserve(g); g.classList.add('in'); } }), { threshold: .25 }); NW.io.observe(g); }
-  window.tn.tip({ id: 'new-chart-race', for: '#raceBox', title: 'The week on the charts', text: 'Each line is one of the UK’s top 10, traced through its place each day this week. Point at a title or its line to follow it, and tap a title to see where to watch.' });
 }
 function countUp(b) {
   const to = +b.dataset.count, t0 = performance.now(), dur = 900 + Math.min(600, to * 20);
@@ -840,8 +834,6 @@ function ttMount() {
     if (TT.kind !== 'both') NW.race = TT.kind;
     render();
   });
-  window.tn.tip({ id: 'top10s-every-chart', for: '#ttH', title: 'Every chart in one place', text: 'Each service’s top 10 side by side, then how the UK’s charts moved this week: the No. 1s, the biggest climbers and what’s new in the top 10.' });
-  window.tn.tip({ id: 'top10s-refresh', for: '#ttRefresh', delay: 2600, title: 'Refresh the charts', text: 'Tap to fetch the latest charts straight away. They’re rebuilt every hour, and this page also checks by itself every 15 minutes.' });
   if (!row) { go.forEach((b) => (b.hidden = true)); return; }
   const ends = () => {
     const max = row.scrollWidth - row.clientWidth - 2;

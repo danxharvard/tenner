@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.92.0';
+  const version = '2.93.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -256,7 +256,7 @@
     if (is(WL, PR, ST)) dispatchEvent(new Event('tn:saved')); if (is(MS)) dispatchEvent(new Event('tn:mine')); if (is(...Object.values(MARKS))) dispatchEvent(new Event('tn:marks')); if (is(PREFS)) { apply(); dispatchEvent(new Event('tn:prefs')); } if (is(SESS, ACC)) dispatchEvent(new Event('tn:account')); if (e.key === TIPS || e.key === null) tipQ.splice(0, tipQ.length, ...tipQ.filter((x) => !tips.seen(x.id))); });
 
   // ---------- My services: the ones you pay for, on this device. The Top 10 gets a chart of just those, and Browse
-  // starts filtered to them. Empty means "all six". ----------
+  // starts filtered to them. Empty means "all of them". ----------
   const MS = 'tenner-services';
   const mine = {
     get() { try { const l = JSON.parse(localStorage.getItem(MS) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } },
@@ -265,7 +265,7 @@
   // the picker: a card in the iOS Subscriptions style, in the popups' one look (styles.css). A round back button and the
   // title, one line on what the sheet is for, Watch before it goes (your Watchlist titles about to leave your services), then your services under Active and
   // the rest under Inactive (a tap moves one across), each a rounded card with its logo and what's waiting for you there,
-  // and a switch for all six below
+  // and a switch for all of them below
   const CHEV_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEV_R = '<svg class="mine-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CAL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m9 15 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -281,14 +281,14 @@
             <h3 class="mine-sec" id="mineOnH">Active</h3><div class="mine-list" id="mineOn" role="group" aria-labelledby="mineOnH"></div>
             <h3 class="mine-sec" id="mineOffH">Inactive</h3><div class="mine-list" id="mineOff" role="group" aria-labelledby="mineOffH"></div>
           </div>
-          <label class="mine-all"><span class="mine-l">All six services<small>Your Top 10 and Browse cover them all. Turn off to pick just yours. Saved on this device.</small></span>
+          <label class="mine-all"><span class="mine-l">All services<small>Your Top 10 and Browse cover them all. Turn off to pick just yours. Saved on this device.</small></span>
             <input type="checkbox" switch role="switch" id="mineAll"><i class="sw" aria-hidden="true"></i></label>
         </form></dialog>`);
       dlg = document.getElementById('mineDlg');
       dlg.addEventListener('close', () => {
         if (dlg.returnValue !== 'done') return;
         const on = [...dlg.querySelectorAll('.mine-list input:checked')].map((i) => i.value);
-        mine.set(on.length === dlg.querySelectorAll('.mine-list input').length ? [] : on);   // all six is the same as none chosen
+        mine.set(on.length === dlg.querySelectorAll('.mine-list input').length ? [] : on);   // every one is the same as none chosen
       });
       // a tap outside the card, or Escape, keeps what you've picked (the back button's job too)
       dlg.addEventListener('click', (e) => {
@@ -329,7 +329,7 @@
   // or, with nothing saved there, what's trending on it. Where each title streams comes from data/titles.json (and the
   // search service for anything saved that the charts don't cover, 40 at most); arrivals and leavers from data/new.json;
   // the services' charts from data/trending.json ----------
-  const SVC_MATCH = { netflix: /^netflix/, disney: /^disney plus/, prime: /^(amazon prime( video)?|prime video)/, hbomax: /^(hbo max|max)( with ads)?$/, paramount: /^paramount plus/, appletv: /^apple ?tv( plus|\+)?$/ };
+  const SVC_MATCH = { netflix: /^netflix/, disney: /^disney plus/, prime: /^(amazon prime( video)?|prime video)/, hbomax: /^(hbo max|max)( with ads)?$/, paramount: /^paramount plus/, appletv: /^apple ?tv( plus|\+)?$/, free: /^(bbc iplayer|itvx|channel 4|all 4|my5|channel 5|5)$/ };
   const planOne = new Map(), planP = {};   // each file and title asked for once a visit, however often the sheet opens
   const planFile = (f) => (planP[f] ||= fetch(`data/${f}.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
@@ -379,7 +379,6 @@
         <span class="mine-go-t"><b>${esc(x.title)}</b><small>Leaves ${esc(label(x.service))} ${esc(dayText(x.date))}</small></span>
         <button type="button" class="mine-cal" data-remind="${i}" aria-label="${esc(`Remind me to watch ${x.title}`)}">${CAL_IC}<span>Remind me</span></button></li>`).join('')}</ul>` : '';
     box.hidden = !w.go.length;
-    featureTip({ id: 'mine-waiting', for: '#mineOn', title: 'What’s waiting for you', text: 'Each of your services now shows what’s waiting for you there: titles from your Watchlist, what’s arriving soon, or what’s trending.' });
   }
   // Remind me: an all-day calendar event two days before the title leaves (or today, if that's sooner); the iPhone and
   // Mac open it in Calendar
@@ -398,12 +397,12 @@
     document.body.append(a); a.click(); a.remove(); haptic(10);
     b.classList.add('done'); b.querySelector('span').textContent = 'Added';
   }
-  // My services from anywhere: the six services with their logos (from this hour's charts)
+  // My services from anywhere: the services with their logos (from this hour's charts)
   const openMine = () => planFile('trending').then((t) => {
     const logo = Object.fromEntries((t?.services || []).map((x) => [x.key, x.logo]));
     pickMine(Object.keys(SVC_LABEL).map((k) => ({ key: k, label: SVC_LABEL[k], logo: logo[k] })));
   });
-  const SVC_LABEL = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
+  const SVC_LABEL = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' };
 
   // ---------- The Top 10s: every service's chart in one big popup, the way a plan picker lines up its plans. A wide
   // frosted card over the dimmed page (a native modal <dialog>): the services' logos on the left (each jumps to its
@@ -469,7 +468,6 @@
     const at = new Date(d?.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     dlg.querySelector('#t10When').textContent = when ? `Updated every hour, last at ${when}.` : 'Updated every hour.';
     row.setAttribute('aria-busy', 'false'); t10Ends(dlg);
-    featureTip({ id: 'top10s-popup', for: '#t10Row', title: 'Every Top 10 at once', text: 'Each service’s chart side by side. Scroll or swipe across the services, switch between shows and films, and tap a title to see where to watch.' });
   }
   // the arrows, the faded edges and which logo is lit follow the row as it scrolls
   function t10Ends(dlg) {
@@ -874,11 +872,6 @@
       dlg.addEventListener('close', () => dlg.style.removeProperty('--drag'));
     };
     swipeAway(drawer, shut, true);
-    // introduce the menu once, on phones
-    if (drawerQ.matches) setTimeout(() => window.tn?.tip?.({ id: 'ios-side-menu', for: '#menuBtn', title: 'The menu',
-      text: 'Tap here for Search, your account, Theme and Settings. Swipe it left to put it away.' }), 0);
-    if (drawerQ.matches && dock) setTimeout(() => window.tn?.tip?.({ id: 'phone-tab-bar', for: '#tabs', title: 'Your pages',
-      text: 'Every page is a tap away along the bottom. Your account is the last one, with a red dot while you’re signed out.' }), 0);
 
     // ---------- phones: the Filters menu, the left menu's twin, sliding in from the right. Any control on the page marked
     // data-filter="Its heading" moves in here on phones (and back on bigger screens), listeners and all, so a new filter
@@ -1272,7 +1265,6 @@
       if (rem) {
         q('.me-form').classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari: the real iOS switch
         rem.addEventListener('change', () => { account.remember = rem.checked; haptic(8); });
-        window.tn?.tip?.({ id: 'remember-me', for: rem.closest('.me-keep'), title: 'Remember me', text: 'On, you stay signed in on this device. Turn it off on a shared computer and you’re signed out once you close Tenner. Your browser can save your password for you.' });
       }
       const g = q('.me-google');
       if (g) account.google(g, { onError: (err) => say(account.friendly(err), true), onShown: () => { g.hidden = false; q('.me-or').hidden = false; } });
@@ -1397,13 +1389,9 @@
       if (!menu().hidden) fillMenu();   // signing in (or out) inside the dropdown: it turns into the other view where it is
       if (!u) {   // signed out: the same pill, inviting you to make an account or sign in, right in its dropdown
         c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span>${DN}`;
-        if (wide) setTimeout(() => featureTip({ id: 'account-signup-pill', for: '#bxMeCard', title: 'Your own Tenner account',
-          text: 'Tap here to sign in or sign up for free, without leaving the page. It keeps your Watchlist, progress and settings in step on every device.' }));
         return;
       }
       c.innerHTML = `${avatar(u)}<span><b>${esc(u.name || 'You')}</b><small>Your account</small></span>${DN}`;
-      if (wide) setTimeout(() => featureTip({ id: 'account-dropdown', for: '#bxMeCard', title: 'Your account at a glance',
-        text: 'Tap your name to see your sync status and your Tenner in numbers, with quick links to your account, Watchlist and settings.' }));
     };
     function placeMe() {
       const sl = $('#meSlot'); if (!sl) return;
@@ -1445,8 +1433,9 @@
     },
   };
 
-  // ---------- one-time feature tips (the owner's rule: every new feature introduces itself, once) ----------
-  // From the feature's own code, once it's on the page:  tn.tip({ id: 'live-list', for: '#liveBtn', title: '…', text: '…' })
+  // ---------- one-time feature tips: for major feature releases only (the owner's rule; small updates never get one) ----------
+  // From the feature's own code, once it's on the page:  tn.tip({ id: 'free-to-watch', major: true, for: '#svcRail', title: '…', text: '…' })
+  // Without major: true nothing is shown, so a tip can't sneak in for a small change.
   // A small frosted box points at the feature and says what it is and how it works. It's shown once and never again, here
   // or on your other devices if you're signed in (tenner-tips, synced with your account). One at a time, only while the
   // feature is on screen, never over the privacy note; Got it, Esc, or a tap anywhere else puts it away.
@@ -1460,7 +1449,7 @@
     return !(m && !m.contains(el)) && !el.closest('[inert]');
   };
   function featureTip(o) {
-    if (!o?.id || !o.for || tips.seen(o.id) || tipOn?.id === o.id || tipQ.some((x) => x.id === o.id)) return;
+    if (!o?.major || !o?.id || !o.for || tips.seen(o.id) || tipOn?.id === o.id || tipQ.some((x) => x.id === o.id)) return;
     if (navigator.webdriver && !window.tnTipsTest) return;   // keeps automated checks of the pages clean
     tipQ.push(o); setTimeout(nextTip, o.delay ?? 1200);
   }
@@ -1636,8 +1625,6 @@
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
   window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
-  // the Update centre introduces itself once, at the build number in the menu (on phones, when the menu's open)
-  if (!onPage('updates')) featureTip({ id: 'update-centre', for: '.side-ver', title: 'What’s new', text: 'Tap the build number to open the Update centre: every Tenner update, with its date, what changed and any notes.' });
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.
@@ -1928,8 +1915,6 @@
       // on Browse, inside its page (a layer of its own), so the search bar that holds on at the top stays above them
       (document.querySelector('main.bwrap') || document.body).append(xl); hang();
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
-      featureTip({ id: 'xmas-lights', for: xl, title: 'Christmas lights', delay: 2400,
-        text: 'Tenner\'s lit up for the season. The lights twinkle when Animations are on in Settings, and come down after Boxing Day.' });
     }
   }
 

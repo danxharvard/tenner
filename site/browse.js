@@ -1,5 +1,5 @@
 // Tenner Browse: the hour's catalogue (data/browse.json), filtered and sorted in the browser, worked the way Home is:
-// the services are a rail of app icons that keep everything to the ones you tap (All six for every service, starting from
+// the services are a rail of app icons that keep everything to the ones you tap (All for every service, starting from
 // My services); the big featured title is what's trending today (data/featured.json, Home's slideshow); and the Top 10 is
 // the UK's combined chart (data/trending.json), whatever services you've picked, with By service for each one's own.
 // Numbers only ever mean a place in a chart, so only the Top 10 has them.
@@ -49,7 +49,7 @@
     const q = new URLSearchParams(location.hash.slice(1));
     state.c = COLLECTIONS.some((c) => c.key === q.get('c')) ? q.get('c') : 'popular';
     state.k = ['tv', 'movie', 'both'].includes(q.get('k')) ? q.get('k') : KIND0;
-    // no services in the address: your own (My services), if you've chosen them; "all" means all six
+    // no services in the address: your own (My services), if you've chosen them; "all" means every service
     const mine = window.tn.mine.get().filter((k) => labels[k]);
     state.s = q.get('s') === 'all' ? [] : q.has('s') ? q.get('s').split(',').filter((k) => labels[k]) : mine;
     state.g = (q.get('g') || '').split(',').map(Number).filter((g) => cat.genres[g]);
@@ -91,8 +91,8 @@
     fetch('data/featured.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
   ])).then(([c, t, d, f, ft]) => {
     cat = c; certs = d; fresh = f; trend = t; feat = ft; mergeFresh();
-    for (const s of t?.services || []) if (!s.shop && !s.store) { logos[s.key] = s.logo; labels[s.key] = s.label; }   // the six (not the shops)
-    if (!Object.keys(labels).length) Object.assign(labels, { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' });
+    for (const s of t?.services || []) if (!s.shop && !s.store) { logos[s.key] = s.logo; labels[s.key] = s.label; }   // the services (not the shops)
+    if (!Object.keys(labels).length) Object.assign(labels, { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' });
     const wantSearch = location.hash === '#search';
     if (wantSearch) history.replaceState(null, '', location.pathname);
     readHash(); buildControls(); apply(false);
@@ -150,12 +150,12 @@
   // ---------- controls ----------
   const sheet = $('#filters');
   function buildControls() {
-    // the services: Home's rail of app icons. A tap turns one on or off, so you can pick several; All six clears them (and
-    // picking all six is the same). It keeps the featured titles, the collections and the genres to them; never the Top 10.
+    // the services: Home's rail of app icons. A tap turns one on or off, so you can pick several; All clears them (and
+    // picking every one is the same). It keeps the featured titles, the collections and the genres to them; never the Top 10.
     const rail = $('#svcRail'), keys = Object.keys(labels);
-    rail.innerHTML = `<button type="button" class="bx-svc-b" data-svc="all" aria-pressed="false"><span class="bx-app bx-app-all"><img src="logo.svg" alt=""></span><small>All six</small></button>`
+    rail.innerHTML = `<button type="button" class="bx-svc-b" data-svc="all" aria-pressed="false"><span class="bx-app bx-app-all"><img src="logo.svg" alt=""></span><small>All</small></button>`
       + keys.map((k) => `<button type="button" class="bx-svc-b" data-svc="${esc(k)}" aria-pressed="false">
-        <span class="bx-app"${logos[k] ? '' : ` style="--h:${hue(labels[k])}"`}>${logos[k] ? `<img src="${esc(logos[k])}" alt="">` : `<b>${esc(labels[k].slice(0, 1))}</b>`}</span><small>${esc(labels[k])}</small></button>`).join('');
+        <span class="bx-app"${logos[k] ? '' : ` style="--h:${hue(labels[k])}"`}>${logos[k] ? `<img src="${esc(logos[k])}" alt="">` : `<b>${esc(labels[k].slice(0, 1))}</b>`}</span><small>${esc(k === 'free' ? 'Free' : labels[k])}</small></button>`).join('');   // Free to watch, short enough for its tile
     rail.addEventListener('click', (e) => {
       const b = e.target.closest('[data-svc]'), k = b?.dataset.svc; if (!b || (k === 'all' && !state.s.length)) return;
       const l = k === 'all' ? [] : state.s.includes(k) ? state.s.filter((x) => x !== k) : [...state.s, k];
@@ -163,10 +163,8 @@
       window.tn.haptic?.(); apply(true);
     });
     arrows(rail, () => [...rail.querySelectorAll('button')]);
-    window.tn.tip({ id: 'browse-services-rail', for: '#svcRail', title: 'Your services, one tap away',
-      text: 'Tap a service to see only what’s on it, or tap a few to pick them together. All six shows everything. The Top 10 always covers the whole UK.' });
-    window.tn.tip({ id: 'browse-top10', for: '.coll-b[data-c="top10"]', delay: 2400, title: 'The Top 10, right here',
-      text: 'The UK’s Top 10, every service combined and updated every hour. By service has each one’s own chart.' });
+    window.tn.tip?.({ id: 'free-to-watch', major: true, for: '#svcRail [data-svc="free"]', title: 'Free to watch',
+      text: 'BBC iPlayer, ITVX, Channel 4 and 5 together, with their own Top 10. Tap it to see what you can watch without paying a penny.' });
 
     // collections: one frosted bar of words, the chosen one lit and underlined in rainbow (it scrolls sideways when narrow)
     $('#coll').insertAdjacentHTML('beforeend', COLLECTIONS.map((c) =>
@@ -194,7 +192,7 @@
     $('#mineLink').addEventListener('click', () => window.tn.pickMine(Object.keys(labels).map((k) => ({ key: k, label: labels[k], logo: logos[k] }))));
     addEventListener('tn:mine', () => { readHash(); apply(false); });
     $('#where').addEventListener('change', (e) => { const k = e.target.dataset.s; if (!k) return;
-      // every switch on is All six, as on the rail (and from All six, switching one off keeps the other five)
+      // every switch on is All, as on the rail (and from All, switching one off keeps the others)
       const all = Object.keys(labels), had = state.s.length ? state.s : all;
       const l = e.target.checked ? [...new Set([...had, k])] : had.filter((x) => x !== k);
       state.s = l.length >= all.length ? [] : l; apply(true, true); });
@@ -287,9 +285,6 @@
     new IntersectionObserver((es) => { if (es[0].isIntersecting) more(); }, { rootMargin: '600px 0px' }).observe($('#more'));
     addEventListener('hashchange', () => { readHash(); apply(false); });
 
-    // new here: the filters sheet and the row of what's in use (once, the owner's rule)
-    window.tn.tip({ id: 'browse-filter-sheet', for: '#openFilters', title: 'Filters, in one place',
-      text: 'Services, genres, ratings, years, age and length all live here now. Whatever you pick shows as a button under the collections: tap one to take it away.' });
   }
   function clearAll() { Object.assign(state, { s: [], g: [], sort: null, r: 0, y: null, a: '', rt: '' }); apply(true); }
 
@@ -364,13 +359,12 @@
     const many = list.length.toLocaleString('en-GB'), what = q || state.k === 'both' ? (list.length === 1 ? 'title' : 'titles') : state.k === 'movie' ? (list.length === 1 ? 'film' : 'films') : (list.length === 1 ? 'show' : 'shows');
     // nothing on the services: no "0 results" line; the full catalogue's results below say it
     $('#count').textContent = charting ? `${{ tv: 'Top 10 shows', movie: 'Top 10 films', both: 'Top 10' }[state.k]} in the UK`
-      : q ? (state.sc === 'people' || (!list.length && window.tn.api) ? '' : `${many} on the six services`) : `${many} ${what}`;
+      : q ? (state.sc === 'people' || (!list.length && window.tn.api) ? '' : `${many} on Tenner’s services`) : `${many} ${what}`;
     $('#rNote').hidden = $('#bySvc').hidden = !charting;
     document.body.classList.toggle('charting', charting);
     $('#showN').firstElementChild.textContent = charting ? 'Done' : list.length ? `Show ${many} ${what}` : 'No matches';
     document.body.classList.toggle('searching', !!q);
     $('#scopes').hidden = !q; if (!q) state.sc = 'all';
-    if (q) window.tn.tip({ id: 'browse-search-scopes', for: '#scopes', title: 'Search just what you want', text: 'While you search, look through everything, just shows, just films, or the cast and crew.' });
     $('#scopes').querySelectorAll('[data-sc]').forEach((b) => b.setAttribute('aria-checked', b.dataset.sc === state.sc));
     document.body.classList.toggle('sc-people', !!q && state.sc === 'people');
 
@@ -730,7 +724,7 @@
       $('#webGrid').insertAdjacentHTML('beforeend', res.map((x, i) => webCard(web.items.get(x.k), i)).join(''));
       $('#web').classList.toggle('solo', !list.length);   // nothing in the catalogue: these are the results
       const n = web.items.size;
-      $('#webNote').textContent = !d ? 'Couldn’t search everything right now.' : n ? `${n.toLocaleString('en-GB')}${web.page < web.pages ? '+' : ''}${list.length ? '' : ' · not on the six services right now'}` : list.length ? '' : `Nothing found for “${q}”. Try another spelling.`;
+      $('#webNote').textContent = !d ? 'Couldn’t search everything right now.' : n ? `${n.toLocaleString('en-GB')}${web.page < web.pages ? '+' : ''}${list.length ? '' : ' · not on Tenner’s services right now'}` : list.length ? '' : `Nothing found for “${q}”. Try another spelling.`;
       if (!list.length && !n) { web.on = false; $('#web').hidden = true; empty(); }
     } catch (e) { if (e.name !== 'AbortError') $('#webNote').textContent = 'Couldn’t search everything right now.'; }
     finally { web.busy = false; }

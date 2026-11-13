@@ -21,13 +21,13 @@
   const onAir = () => (airP ||= fetch('https://tenner-tv.danseacroft.workers.dev/api/onair').then((r) => (r.ok ? r.json() : null)).catch(() => null).then(retry(() => { airP = null; })));
   addEventListener('tn:check', () => { trailP = null; priceP = null; airP = null; });
   let trailD = null;
-  const CHART = { all: 'in the UK', netflix: 'on Netflix', disney: 'on Disney+', prime: 'on Prime Video', hbomax: 'on HBO Max', paramount: 'on Paramount+', appletv: 'on Apple TV' };
+  const CHART = { all: 'in the UK', netflix: 'on Netflix', disney: 'on Disney+', prime: 'on Prime Video', hbomax: 'on HBO Max', paramount: 'on Paramount+', appletv: 'on Apple TV', free: 'free to watch' };
 
   // ---------- trackers ----------
   // On the chart: a line of the title's rank (No. 1 at the top) over the last month, or the last day while the history
   // is still building up, gaps where it was out of the top 10; and its life on the charts so far (days in the top 10,
   // its peak, days at No. 1, when it first charted)
-  const SVC = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
+  const SVC = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' };
   function lifeHtml(t) {
     const p = t.p; if (!p?.n) return '';
     const peak = p.u ? `Peaked at No. ${p.u} in the UK` : p.b ? `Peaked at No. ${p.b[0]} on ${SVC[p.b[1]] || p.b[1]}` : '';
@@ -305,7 +305,6 @@
       a.insertAdjacentHTML('beforeend', `<small class="sh-was" title="${esc(`${hit.title}${hit.role ? ` (${hit.role})` : ''}`)}">You saw them in ${esc(hit.title)}</small>`);
       any = true;
     }
-    if (any) t.tip?.({ id: 'seen-them-in', for: '#shCast .sh-was', title: 'Where have I seen them?', text: 'Under the cast, Tenner names something you’ve watched them in. It uses what you’ve marked as watched, are partway through or loved.' });
   }
   // ---------- the lower half: episodes, trailers and extras, the film series, More Like This, reviews, Information ----------
   const longDate = (iso) => (iso ? new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
@@ -347,7 +346,6 @@
         <small class="sh-epn">${nextOne ? 'Up next · ' : ''}Episode ${e.n}</small><b${ah}>${esc(e.name)}</b>${e.ov ? `<p${ah}>${esc(e.ov)}</p>` : ''}<small>${esc([when, runtime(e.rt)].filter(Boolean).join(' · '))}</small></li>`;
     }).join('')}</ul>`;
     if (!reduce()) el.firstChild.classList.add('sh-in');
-    if (shield && el.querySelector('.spoil')) window.tn.tip?.({ id: 'spoiler-shield', for: '#shEps .spoil .sh-unspoil', title: 'Spoiler shield', text: 'Episodes after where you’re up to are blurred so nothing gets spoiled. Tap Show to see one, or turn it off in Settings.' });
     // the row starts at the episode you're up to
     const row = el.firstChild, at = row.querySelector('[data-up]');
     if (at) row.scrollLeft = at.offsetLeft - row.firstChild.offsetLeft;
@@ -467,13 +465,6 @@
         <p class="sh-foot" id="shFoot">Where-to-watch information from JustWatch, via TMDB.${info.tmdb ? ` <a href="${esc(info.tmdb)}" target="_blank" rel="noopener">More on TMDB</a>` : ''}</p>
       </div>`;
     fillCast(info); fillOv(info);
-    if (x.fs) window.tn.tip?.({ id: 'final-season', for: '.sh-next .fin', title: 'Final season', text: 'This show is in its last season. Save it to your Watchlist and Tenner will tell you the morning the finale is out.' });
-    if ($('.sh-mine')) {   // Just for You (signed in) introduces itself, once each
-      const tip = window.tn.tip;
-      tip?.({ id: 'mark-watched', for: '.sh-seen', title: 'Mark as watched', text: 'Keep a list of everything you’ve watched. It’s on your Watchlist page, and by default it takes the title off your Watchlist too (change that in Settings).' });
-      tip?.({ id: 'not-interested', for: '.sh-hide', title: 'Not interested', text: 'Not for you? Tap this and it stays out of Home, Browse, Discover and For You. Bring it back here or in Settings.' });
-      tip?.({ id: 'private-notes', for: '.sh-note textarea', title: 'Your notes', text: 'Jot down why you saved something, or who recommended it. Only you can see it, and it shows under the title on your Watchlist.' });
-    }
     if (lg && !lgOk) showLogo(info, lg);
     if (d) fillMore(info);
   }

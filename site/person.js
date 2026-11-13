@@ -1,6 +1,6 @@
 // A person's sheet: an actor, director or writer from the menu's search or a title sheet's Cast & Crew, in the same
 // sheet as a title (a bottom sheet on phones, a centred card on computers). What they're best known for as the artwork,
-// their portrait and name, a few facts, the biography, what of theirs is on the six services now, Known For, and their
+// their portrait and name, a few facts, the biography, what of theirs is on Tenner’s services now, Known For, and their
 // whole career. The address gains ?p=… so a person can be shared, and Back closes it. A title opens its own sheet.
 (() => {
   const { esc, hue, api, segment } = window.tn;
@@ -14,7 +14,7 @@
     if (!cache.has(id)) cache.set(id, fetch(`${api}/person/${id}`).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((d) => { if (!d) cache.delete(id); return d; }));   // a failure isn't kept, so trying again can work
     return cache.get(id);
   };
-  // which titles are streaming on the six services right now (the Browse catalogue), and the services' names and logos
+  // which titles are streaming on Tenner’s services right now (the Browse catalogue), and the services' names and logos
   let catP = null;
   const catalogue = () => (catP ||= Promise.all([
     fetch(`data/browse.json?v=${Math.floor(Date.now() / 600000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
@@ -88,7 +88,6 @@
     if (seg) { segment(seg, pick); seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) pick(b); }); }
     const bio = $('#psBio'), t = bio?.firstChild;   // four lines, then More
     if (t && t.scrollHeight > t.clientHeight + 2) { bio.classList.add('clip'); bio.insertAdjacentHTML('beforeend', '<button type="button" class="sh-ovmore" aria-label="Read the whole biography">More</button>'); }
-    if (p.photo) window.tn.tip?.({ id: 'person-photo-zoom', for: '#psFace', title: 'See them up close', text: 'Tap a photo to see it larger. Tap anywhere to close it.' });
     $('#psShare').addEventListener('click', () => window.tn.share({ heading: `Share ${p.name}`, title: `${p.name} on Tenner`, text: `${p.name}: everything they’ve made, and where to watch it`, url: `${location.origin}/?p=${p.id}` }));
   }
 

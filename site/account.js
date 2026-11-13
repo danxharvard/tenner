@@ -52,8 +52,6 @@
     if (document.activeElement !== $('#acEditName')) $('#acEditName').value = u.name || '';
     $('#acPhotoRm').hidden = !u.picture; $('#acPhotoPick').lastChild.textContent = u.picture ? 'Change' : 'Choose';
     $('#acPhotoNow').textContent = u.picture ? 'On your account and shared Watchlist' : 'Show it instead of your initial';
-    window.tn.tip?.({ id: 'profile-photo', for: '#acPhotoPick', title: 'Your profile photo', text: 'Choose a photo of yourself, then move and scale it to fit the circle. It shows on your account, in the menu on every device and on your shared Watchlist.' });
-    window.tn.tip?.({ id: 'your-colour', for: '#acSw', title: 'Your colour', text: 'Pick a colour and Tenner takes it on: links, highlights, the menu and the glow behind every page change to match, by day and by night.' });
     $('#acSw').innerHTML = HUES.map((h) => `<button type="button" class="ac-hue" style="--h:${h}" data-hue="${h}" aria-pressed="${h === u.hue}" aria-label="${HUE_NAME[h]}" title="${HUE_NAME[h]}"></button>`).join('');
     $('#acWays').innerHTML = me.passkeys.map((p) => `<div class="set-row"><span class="set-l">${esc(p.label || 'Passkey')}<small>Added ${esc(when(p.created))}${p.used ? ` · last used ${esc(when(p.used).toLowerCase())}` : ''}</small></span><button type="button" class="ac-x" data-pk="${esc(p.id)}">Remove</button></div>`).join('')
       + (u.google ? `<div class="set-row"><span class="set-l">Google<small>${esc(u.email || 'Linked')}</small></span><button type="button" class="ac-x" data-unlink>Unlink</button></div>` : '')
@@ -70,7 +68,7 @@
   }
   // ---------- Your Tenner: worked out on this device from what your account keeps (Watched, progress, loves, Watchlist) ----------
   let statsData = null;
-  const SVCS = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
+  const SVCS = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' };
   async function stats() {
     const sec = $('#acStatsSec'), tn = window.tn;
     if (!account.token() || tn.prefs.get().stats === false) { sec.hidden = true; return; }
@@ -98,7 +96,6 @@
     $('#acStats').innerHTML = `<div class="ac-nums">${num(seen.length, seen.length === 1 ? 'title watched' : 'titles watched')}${num(eps, eps === 1 ? 'episode' : 'episodes')}${num(hrs, hrs === 1 ? 'hour, about' : 'hours, about')}${num(wl.length, 'on your Watchlist')}</div>`
       + `<div class="set-row"><span class="set-l">Favourite genres<small>${esc(genres.length ? genres.join(', ') : 'Watch, save or love a few titles to see yours')}</small></span></div>`
       + `<div class="set-row"><span class="set-l">Where you watch most<small>${esc(where.length ? where.join(', ') : 'We’ll know once you’ve watched a few things')}</small></span></div>`;
-    tn.tip?.({ id: 'your-tenner', for: '#acStats', title: 'Your Tenner', text: 'Your watching in numbers: titles watched, episodes, hours, your favourite genres and where you watch most. It grows as you mark things as watched.' });
   }
   ['tn:synced', 'tn:marks', 'tn:prefs'].forEach((e) => addEventListener(e, () => { if (me) stats(); }));
 

@@ -5,7 +5,7 @@
   const form = document.getElementById('setForm'), note = document.getElementById('setNote');
   const say = (t) => { note.textContent = t; clearTimeout(say.t); say.t = setTimeout(() => (note.textContent = ''), 3000); };
   form.classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);   // Safari: the real iOS switch
-  const LABELS = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
+  const LABELS = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' };
   let logos = {};
   const MEMBER = ['spoil', 'seenoff', 'notewl', 'hideni', 'stats', 'alarr', 'alep', 'alleave', 'altv', 'alprice'];
 
@@ -20,7 +20,7 @@
     const n = window.tn.hidden.list().length;
     document.getElementById('hidNow').textContent = n ? `${n} title${n === 1 ? '' : 's'} hidden` : 'Nothing hidden. Choose Not interested on any title';
     const m = mine.get();
-    document.getElementById('mineNow').textContent = m.length ? m.map((k) => LABELS[k] || k).join(', ') : 'All six';
+    document.getElementById('mineNow').textContent = m.length ? m.map((k) => LABELS[k] || k).join(', ') : 'All';
   }
   form.addEventListener('change', (e) => {
     const el = e.target, n = el.name; if (!n) return;
@@ -279,13 +279,11 @@
     // Just for you, and the alert choices: only while signed in (they're kept with your account)
     document.getElementById('setMineSec').hidden = !u;
     document.getElementById('setAlMore').hidden = !u;
-    if (u) window.tn.tip?.({ id: 'alert-choices', for: '#setAlMore > summary', title: 'Choose your alerts', text: 'Pick which Watchlist alerts you get, and set quiet hours so nothing arrives overnight. They follow you on every device you sign in on.' });
     const dg = document.getElementById('setDigest'); dg.disabled = !u; dg.checked = !!u && !!prefs.get().digest;
     putState(document.getElementById('dgNow'), !u ? 'Sign in to get a short round-up of your Watchlist each Sunday morning'
       : dg.checked ? 'On. Each Sunday morning: new episodes, arrivals and what’s leaving from your Watchlist, sent to your account’s email'
       : 'Off. Turn on for a short round-up each Sunday morning: new episodes, arrivals and what’s leaving from your Watchlist');
   };
   acct(); addEventListener('tn:account', acct); addEventListener('tn:prefs', acct);
-  window.tn.tip?.({ id: 'settings-more', for: '.set-more:not([hidden]) > summary', title: 'More settings', text: 'The everyday settings sit at the top of each group. Open More for the rest: they all still work the same.' });
   show();
 })();

@@ -44,8 +44,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.92.0">
-  <link rel="stylesheet" href="about.css?v=2.92.0">
+  <link rel="stylesheet" href="styles.css?v=2.93.0">
+  <link rel="stylesheet" href="about.css?v=2.93.0">
 
 </head>
 <body class="about">
@@ -92,7 +92,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.92.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.0</a>
     </div>
   </div>
 
@@ -109,7 +109,7 @@
     <div class="ab-hero-copy">
       <p class="ab-eye">About Tenner</p>
       <h1 id="h-about" data-title="About">Find your next <span class="grad">favourite.</span></h1>
-      <p class="ab-lede">Live charts from the six biggest streamers, each service’s own Top 10 side by side, and a quicker way to discover something new. Free, and all in one place.</p>
+      <p class="ab-lede">Live charts from the six biggest streamers and the free players, each service’s own Top 10 side by side, and a quicker way to discover something new. Free, and all in one place.</p>
       <div class="ab-acts">
         <a class="btn btn-tinted ab-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10s</a>
         <a class="btn btn-tinted ab-btn" href="./#discover"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>Start discovering</a>
@@ -119,7 +119,7 @@
 
   <main id="main" class="awrap ab" tabindex="-1">
 
-    <!-- 1. the live charts: the hour's real top five, and the six services it covers -->
+    <!-- 1. the live charts: the hour's real top five, and the services it covers -->
     <section class="ab-ch" aria-labelledby="h-live">
       <div class="ab-copy">
         <p class="ab-k ab-k1"><i class="ab-live" aria-hidden="true"></i><span id="abUpd">Live charts</span></p>
@@ -130,7 +130,7 @@
       <div class="ab-vis ab-box lit">
         <div class="ab-box-hd"><h3>Top shows in the UK</h3><span class="ab-pill" id="abHour">This hour</span></div>
         <ol class="cl ab-cl" id="abTop"></ol>
-        <ul class="ab-six" id="abSix" aria-label="The six services"></ul>
+        <ul class="ab-six" id="abSix" aria-label="The services"></ul>
       </div>
     </section>
 
@@ -191,12 +191,12 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.92.0</a></p>
+    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.93.0</a></p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
   (function(){
-    var SIX=['netflix','disney','prime','hbomax','paramount','appletv'];
+    var SIX=['netflix','disney','prime','hbomax','paramount','appletv','free'];
     var $=function(id){return document.getElementById(id)};
     var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
     var still=document.documentElement.classList.contains('still');
@@ -249,6 +249,6 @@
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.92.0" defer></script>
+  <script src="shell.js?v=2.93.0" defer></script>
 </body>
 </html>
