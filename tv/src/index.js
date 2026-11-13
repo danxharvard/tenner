@@ -157,7 +157,9 @@ export default {
     // On TV this week, for tenner.stream's title sheets (across sites). Its own address, not /data/onair.json: a file in
     // public/ is served straight from the assets without this Worker running, so it couldn't carry the header
     if (url.pathname === '/api/onair') {
-      const a = await env.ASSETS.fetch(new Request(new URL('/data/onair.json', url))), r = new Response(a.body, a);
+      const a = await env.ASSETS.fetch(new Request(new URL('/data/onair.json', url)));
+      if (!a.ok || !(a.headers.get('content-type') || '').includes('json')) return new Response('{}', { status: 404, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=300' } });   // not built yet: not the page
+      const r = new Response(a.body, a);
       r.headers.set('access-control-allow-origin', '*'); r.headers.set('cache-control', 'public, max-age=900');
       return r;
     }

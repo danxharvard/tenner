@@ -65,8 +65,10 @@ export async function pushRun(env, force = false) {
   const r = await fetch(`${DATA}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
   if (!r.ok) return;
   const fresh = await r.json();
-  if (!force && fresh.generatedAt && (await env.PUSH.get('meta:new')) === fresh.generatedAt) return;   // nothing new since last time
+  // nothing new since last time, and nobody's quiet hours are holding an alert back from this list: nothing to do
+  if (!force && fresh.generatedAt && (await env.PUSH.get('meta:new')) === fresh.generatedAt && (await env.PUSH.get('meta:held')) !== fresh.generatedAt) return;
   await env.PUSH.put('meta:new', fresh.generatedAt || String(Date.now()));
+  await env.PUSH.delete('meta:held');   // whoever is still in quiet hours marks it again
   let cursor; const ids = [];
   do { const page = await env.PUSH.list({ prefix: 'sub:', cursor }); ids.push(...page.keys.map((k) => k.name)); cursor = page.list_complete ? null : page.cursor; } while (cursor);
   for (let i = 0; i < ids.length; i += 10) {
@@ -79,7 +81,7 @@ export async function pushRun(env, force = false) {
 export async function pushSend(req, env) {
   if (req.headers.get('x-tenner-run') !== await sha(env.VAPID_JWK || '')) return new Response('No', { status: 403 });
   const { ids, kind } = await req.json();
-  const r = await fetch(`${DATA}/data/new.json`); if (!r.ok) return new Response('No list', { status: 502 });
+  const r = await fetch(`${DATA}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } }); if (!r.ok) return new Response('No list', { status: 502 });
   await (kind === 'morning' ? morningBatch : sendBatch)(env, ids, await r.json());
   return new Response('OK');
 }
@@ -214,10 +216,13 @@ async function sendBatch(env, ids, fresh) {
   const label = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV' };
   const arrived = (fresh.items || []).filter((x) => x.id && x.date <= today && x.date >= since);
   for (const id of ids) {
-    const s = await env.PUSH.get(id, 'json'); if (!s || !wants(s, 'a') || quietNow(s.al?.quiet)) continue;   // quiet: told next hour after
+    const s = await env.PUSH.get(id, 'json'); if (!s || !wants(s, 'a')) continue;
     const want = new Set(s.watch), seen = new Set(s.seen || []);
     const hits = arrived.filter((x) => want.has(`${x.type === 'movie' ? 'm' : 't'}${x.id}`) && !seen.has(`${x.type[0]}${x.id}:${x.season || 0}`));
     if (!hits.length) continue;
+    // quiet hours: told in the first run after they end (new.json changes once a day, so the hourly run checks again
+    // while anyone is waiting)
+    if (quietNow(s.al?.quiet)) { if (fresh.generatedAt) await env.PUSH.put('meta:held', fresh.generatedAt, { expirationTtl: 2 * 86400 }); continue; }
     const what = (x) => `${x.title}${x.season ? ` season ${x.season}` : ''}`;
     const msg = hits.length === 1
       ? { title: `${what(hits[0])} is on ${label[hits[0].service] || 'streaming'}`, body: hits[0].season > 1 ? 'A new season from your Watchlist has landed.' : 'From your Watchlist, ready to watch now.', url: `/?t=${hits[0].type === 'movie' ? 'm' : 't'}${hits[0].id}` }

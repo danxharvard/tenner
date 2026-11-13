@@ -241,7 +241,7 @@ const verifyGoogle = (token, env) => verifyIdToken(token, { keys: 'https://www.g
 export async function authRoute(req, env, ctx, url, json, cors, origin) {
   if (!env.DB) return json({ error: 'Accounts aren’t set up yet' }, 503, cors);
   const p = url.pathname, m = req.method;
-  const body = ['POST', 'PUT', 'PATCH'].includes(m) ? await req.json().catch(() => ({})) : {};
+  const body = ['POST', 'PUT', 'PATCH'].includes(m) ? (await req.json().catch(() => ({}))) || {} : {};
   const ok = (o, status = 200) => json(o, status, cors);
   const fail = (msg, status = 400) => json({ error: msg }, status, cors);
   const rpId = rpFor(origin), rpHash = await sha(rpId);
@@ -352,7 +352,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       if (mm[1] === 'resend') {
         if (email) {
           const row = await env.DB.prepare('SELECT user_id FROM passwords WHERE email = ?').bind(email).first();
-          if (row && !await isVerified(env, email)) await sendVerify(env, row.user_id, email);
+          if (row && !await isVerified(env, email, row.user_id)) await sendVerify(env, row.user_id, email);
         }
         return ok({ ok: true });
       }
@@ -363,7 +363,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
         // An address that was never confirmed, on an account with other ways in (a passkey, Google): someone may have
         // attached your email to their own account. Proving the address gives you an account of your own instead of theirs.
         const pw = await env.DB.prepare('SELECT email FROM passwords WHERE user_id = ?').bind(r.user_id).first();
-        if (pw && !await isVerified(env, pw.email) && await ways(env, { id: r.user_id, google_sub: (await env.DB.prepare('SELECT google_sub FROM users WHERE id = ?').bind(r.user_id).first())?.google_sub }) > 1) {
+        if (pw && !await isVerified(env, pw.email, r.user_id) && await ways(env, { id: r.user_id, google_sub: (await env.DB.prepare('SELECT google_sub FROM users WHERE id = ?').bind(r.user_id).first())?.google_sub }) > 1) {
           const uid = rand(16);
           await env.DB.batch([env.DB.prepare('INSERT INTO users (id, name, hue, created) VALUES (?, ?, ?, ?)').bind(uid, pw.email.split('@')[0].slice(0, 40), startHue(), now()),
             env.DB.prepare('UPDATE passwords SET user_id = ? WHERE user_id = ?').bind(uid, r.user_id),
@@ -398,7 +398,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
         return fail('That email and password don’t match', 401);
       }
       await env.DB.prepare('UPDATE passwords SET fails = 0 WHERE user_id = ?').bind(row.user_id).run();
-      if (env.RESEND_API_KEY && !await isVerified(env, email)) return json({ error: 'Confirm your email first: tap the link we sent you', unverified: email }, 403, cors);
+      if (env.RESEND_API_KEY && !await isVerified(env, email, row.user_id)) return json({ error: 'Confirm your email first: tap the link we sent you', unverified: email }, 403, cors);
       const u = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(row.user_id).first();
       return ok({ token: await newSession(env, row.user_id, req), user: publicUser(u) });
     }
@@ -416,7 +416,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
         passkeys: pks.results.map((x) => ({ id: x.id, label: x.label, created: x.created, used: x.used })),
         sessions: ss.results.map((x) => ({ id: x.id, label: x.label, created: x.created, seen: x.seen, here: x.token === me.token })),
         ...await (async () => { const pw = (await env.DB.prepare('SELECT email FROM passwords WHERE user_id = ?').bind(me.id).first())?.email || null;
-          return { password: pw, password_ok: !pw || !env.RESEND_API_KEY || await isVerified(env, pw) }; })(), mail: !!env.RESEND_API_KEY });
+          return { password: pw, password_ok: !pw || !env.RESEND_API_KEY || await isVerified(env, pw, me.id) }; })(), mail: !!env.RESEND_API_KEY });
     }
     if (p === '/me' && m === 'PATCH') {
       const name = typeof body.name === 'string' ? body.name.trim().slice(0, 40) : null, hue = typeof body.hue === 'number' && Number.isFinite(body.hue) ? ((Math.round(body.hue) % 360) + 360) % 360 : null;   // (a null or empty hue was read as 0: red)
@@ -481,12 +481,12 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       const salt = rand(16);
       await env.DB.prepare('INSERT INTO passwords (user_id, email, salt, hash, created) VALUES (?, ?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET email = excluded.email, salt = excluded.salt, hash = excluded.hash, fails = 0')
         .bind(me.id, email, salt, await pwHash(salt, key), now()).run();
-      if (env.RESEND_API_KEY && !await isVerified(env, email)) { await sendVerify(env, me.id, email); return ok({ verify: email }); }
+      if (env.RESEND_API_KEY && !await isVerified(env, email, me.id)) { await sendVerify(env, me.id, email); return ok({ verify: email }); }
       return ok({ ok: true });
     }
     if (p === '/me/verify' && m === 'POST') {   // send the link again
       const pw = await env.DB.prepare('SELECT email FROM passwords WHERE user_id = ?').bind(me.id).first();
-      if (pw && env.RESEND_API_KEY && !await isVerified(env, pw.email)) await sendVerify(env, me.id, pw.email);
+      if (pw && env.RESEND_API_KEY && !await isVerified(env, pw.email, me.id)) await sendVerify(env, me.id, pw.email);
       return ok({ ok: true });
     }
     if (p === '/me/password' && m === 'DELETE') {
@@ -567,7 +567,8 @@ export async function sendMail(env, to, subject, { html, text, headers }) {
   if (!r.ok) console.log('Resend', r.status, (await r.text()).slice(0, 200));
   return r.ok;
 }
-const isVerified = async (env, email) => !!(await env.DB.prepare('SELECT 1 FROM verified WHERE email = ?').bind(email).first());
+// an address counts as confirmed only for the account that confirmed it (someone else may have used it before and moved on)
+const isVerified = async (env, email, userId) => !!(await env.DB.prepare('SELECT 1 FROM verified WHERE email = ? AND user_id = ?').bind(email, userId).first());
 // the welcome email with its "Confirm your email" link (a day to use it; at most one a minute and five a day)
 async function sendVerify(env, userId, email) {
   const last = await env.DB.prepare('SELECT MAX(created) AS t, COUNT(*) AS n FROM verifies WHERE user_id = ? AND created > ?').bind(userId, now() - 864e5).first();
