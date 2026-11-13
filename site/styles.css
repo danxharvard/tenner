@@ -2494,7 +2494,7 @@ dialog.adv { position: fixed; }
 @media (prefers-reduced-motion: reduce) { .wl-hint { animation: none; } }
 
 /* ============================================================ phones: the tab bar (the owner's photo). A frosted bar that floats
-   above the foot of the screen, in the one frost: each page an icon above its name, a soft tint of your colour behind the one
+   above the foot of the screen, in Liquid Glass: each page an icon above its name, a soft tint of your colour behind the one
    you're on (gliding across as you move), and you as the last tab: your picture, with a red badge while you're signed out.
    True pills here, the one exception to the 9px corner (the owner's pick). */
 .tab-me { display: none !important; }
@@ -2502,19 +2502,38 @@ dialog.adv { position: fixed; }
   .tb-dock { position: fixed; z-index: 48; display: block; left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px));
     bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); max-width: 460px; margin: 0 auto; pointer-events: none; }
   .drawer-open .tb-dock, .sheet-up .tb-dock { opacity: 0; transform: translateY(24px); }
+  /* Liquid Glass (the owner's ask, the tab bar only): a clear lens over the page rather than frost, so the artwork shows through
+     bent and brightened; a specular rim that's brightest top and bottom, light caught inside the curved edges as if refracted,
+     and the chosen tab under a smaller drop of the same glass */
+  .tb-dock { --lg-fill: rgba(255, 255, 255, .34); --lg-blur: blur(12px) saturate(2) brightness(1.08);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 35%, rgba(255, 255, 255, .12) 65%, rgba(255, 255, 255, .7));
+    --lg-edge: inset 1.5px 2px 5px -1px rgba(255, 255, 255, .85), inset -1.5px -2px 5px -1px rgba(255, 255, 255, .55);
+    --lg-drop: 0 14px 34px -8px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .08);
+    --lg-lens: rgba(255, 255, 255, .55); --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -1px 2px rgba(0, 0, 0, .06), 0 3px 10px -3px rgba(0, 0, 0, .18);
+    --lg-ink: #1c1c1e; }
+  :root[data-theme="dark"] .tb-dock { --lg-fill: rgba(28, 28, 32, .32); --lg-blur: blur(12px) saturate(1.8) brightness(.9);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1) 35%, rgba(255, 255, 255, .05) 65%, rgba(255, 255, 255, .3));
+    --lg-edge: inset 1.5px 2px 5px -1px rgba(255, 255, 255, .3), inset -1.5px -2px 5px -1px rgba(255, 255, 255, .16);
+    --lg-drop: 0 14px 34px -8px rgba(0, 0, 0, .7), 0 2px 6px rgba(0, 0, 0, .3);
+    --lg-lens: rgba(255, 255, 255, .14); --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -1px 0 rgba(255, 255, 255, .08), 0 3px 10px -3px rgba(0, 0, 0, .5);
+    --lg-ink: #fff; }
   :root .tb-dock .tabs { display: flex; gap: 0; padding: 5px; border-radius: 999px; outline: none; pointer-events: auto;
-    background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 32px rgba(0, 0, 0, .22), 0 2px 6px rgba(0, 0, 0, .08); }
-  :root .tb-dock .tabs::before { display: none; }
+    background: var(--lg-fill); -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur); box-shadow: var(--lg-drop); }
+  :root .tb-dock .tabs::before { display: block; padding: 1px; background: var(--lg-rim); }
+  :root .tb-dock .tabs::after { content: ""; position: absolute; inset: 0; z-index: 0; border-radius: inherit; pointer-events: none; box-shadow: var(--lg-edge);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 45%); }
   :root .tb-dock .tabs button, .tb-dock .tab-me { flex: 1 1 0; min-width: 0; height: 54px; display: flex !important; flex-direction: column; align-items: center;
-    justify-content: center; gap: 4px; padding: 0 2px; border-radius: 999px; color: var(--label); font: 500 11px/1.1 var(--font); letter-spacing: -.01em;
+    justify-content: center; gap: 4px; padding: 0 2px; border-radius: 999px; color: var(--lg-ink); font: 500 11px/1.1 var(--font); letter-spacing: -.01em;
     -webkit-font-smoothing: antialiased; }
   .tb-dock .tabs button > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tb-dock .tabs button svg { width: 24px; height: 24px; stroke-width: 1.8; color: inherit; }
   :root .tb-dock .tabs button[aria-selected="true"] { color: var(--accent); background: none; font-weight: 600; }
-  :root .tb-dock .tabs .tab-ind { top: 5px; bottom: 5px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: none; }
+  :root .tb-dock .tabs .tab-ind { top: 5px; bottom: 5px; border-radius: 999px; box-shadow: var(--lg-lens-edge);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, .12), transparent 60%), color-mix(in srgb, var(--accent) 12%, var(--lg-lens)); }
   .tb-dock .tabs button:active { transform: scale(.94); filter: none; }
-  @media (hover: hover) { .tb-dock .tabs button[aria-selected="false"]:hover { color: var(--label); } }
+  @media (hover: hover) { .tb-dock .tabs button[aria-selected="false"]:hover { color: var(--lg-ink); } }
+  /* a word or icon over bright artwork stays readable through the clear glass */
+  .tb-dock .tabs button > * { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bg) 55%, transparent)); }
   /* you: your picture in a small circle, the badge sitting on its top-right edge */
   .tab-av { position: relative; display: block; width: 26px; height: 26px; margin: -1px 0; font-style: normal; }
   .tab-av .av { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; object-fit: cover; font-size: 12px; }
@@ -2531,5 +2550,15 @@ dialog.adv { position: fixed; }
   :root .tb-dock .tabs button, .tb-dock .tab-me { font-size: 10px; letter-spacing: -.02em; }
   .tb-dock .tabs button svg { width: 22px; height: 22px; }
 }
-@media (max-width: 719px) and (prefers-reduced-transparency: reduce) { :root .tb-dock .tabs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (max-width: 719px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tb-dock { --lg-fill: rgba(28, 28, 32, .32); --lg-blur: blur(12px) saturate(1.8) brightness(.9);
+    --lg-rim: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1) 35%, rgba(255, 255, 255, .05) 65%, rgba(255, 255, 255, .3));
+    --lg-edge: inset 1.5px 2px 5px -1px rgba(255, 255, 255, .3), inset -1.5px -2px 5px -1px rgba(255, 255, 255, .16);
+    --lg-drop: 0 14px 34px -8px rgba(0, 0, 0, .7), 0 2px 6px rgba(0, 0, 0, .3);
+    --lg-lens: rgba(255, 255, 255, .14); --lg-lens-edge: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -1px 0 rgba(255, 255, 255, .08), 0 3px 10px -3px rgba(0, 0, 0, .5);
+    --lg-ink: #fff; }
+}
+/* Reduce Transparency: the glass turns solid */
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) { :root .tb-dock .tabs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :root .tb-dock .tabs::after { display: none; } }
 @media (max-width: 719px) and (prefers-reduced-motion: no-preference) { .tb-dock { transition: opacity .25s ease, transform .4s var(--ease-spring); } }
