@@ -146,12 +146,15 @@ const ukTime = (t) => {
   return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''}${h < 12 ? 'am' : 'pm'}`;
 };
 export async function nextEpisode(env, id) {
-  const key = new Request(`https://tenner-cache/next/${id}`), hit = await caches.default.match(key);
+  const key = new Request(`https://tenner-cache/next2/${id}`), hit = await caches.default.match(key);
   if (hit) return hit.json();
   const r = await fetch(`https://api.themoviedb.org/3/tv/${id}?language=en-GB`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } });
   if (!r.ok) return null;
   const d = await r.json(), n = d.next_episode_to_air;
-  const out = { title: d.name || '', nx: n?.air_date ? [n.air_date, n.season_number, n.episode_number] : null };
+  // the series finale: the last season's finale, once TMDB marks the show as ending (as the site's Final season badge does)
+  const lastSeason = n && n.season_number === Math.max(0, ...(d.seasons || []).map((x) => x.season_number));
+  const ending = /Ended|Canceled/.test(d.status || '') || d.in_production === false || /\bfinal\b/i.test((d.seasons || []).find((x) => x.season_number === n?.season_number)?.name || '');
+  const out = { title: d.name || '', nx: n?.air_date ? [n.air_date, n.season_number, n.episode_number] : null, fin: !!(n?.episode_type === 'finale' && lastSeason && ending) };
   await caches.default.put(key, new Response(JSON.stringify(out), { headers: { 'cache-control': 'public, max-age=43200' } }));
   return out;
 }
@@ -182,8 +185,9 @@ async function morningBatch(env, ids, fresh) {
       if (e?.title) names[k] = e.title;
       if (!e?.nx || e.nx[0] !== day) continue;
       const tag = `e${k}:${e.nx[1]}:${e.nx[2]}`;
-      if (!seen.has(tag)) hits.push({ tag, k, ep: 1, short: `${e.title} S${e.nx[1]} E${e.nx[2]}`,
-        title: `New episode of ${e.title} today`, body: `Season ${e.nx[1]}, episode ${e.nx[2]} is out today.` });
+      if (!seen.has(tag)) hits.push({ tag, k, ep: 1, short: `${e.title} S${e.nx[1]} E${e.nx[2]}${e.fin ? ' (the finale)' : ''}`,
+        title: e.fin ? `The series finale of ${e.title} is out today` : `New episode of ${e.title} today`,
+        body: e.fin ? `Season ${e.nx[1]}, episode ${e.nx[2]}: the very last one.` : `Season ${e.nx[1]}, episode ${e.nx[2]} is out today.` });
     }
     if (air?.titles) {
       for (const k of [...want].filter((k) => k[0] === 'm').slice(0, 60)) names[k] = await filmName(env, k.slice(1)).catch(() => '');

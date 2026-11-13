@@ -76,8 +76,9 @@
   // Shows: when the next episode lands, and where you're up to (kept on this device)
   function nextHtml(info, x) {
     if (info.type !== 'tv') return '';
-    if (x.nx) return `<p class="sh-next"><b>New episode ${esc(whenText(x.nx[0]))}</b><span>Season ${x.nx[1]}, episode ${x.nx[2]}</span></p>`;
-    return x.en ? '<p class="sh-next done"><b>Series ended</b></p>' : '';
+    const fin = window.tn.finalBadge(x), last = x.fs && x.fe && x.nx?.[0] === x.fe;
+    if (x.nx) return `<p class="sh-next">${fin}<b>${last ? 'Series finale' : 'New episode'} ${esc(whenText(x.nx[0]))}</b><span>Season ${x.nx[1]}, episode ${x.nx[2]}</span></p>`;
+    return x.en || x.fs ? `<p class="sh-next done">${fin}<b>${x.en ? 'Series ended' : 'All episodes out'}</b></p>` : '';
   }
   function progressHtml(info, x) {
     if (info.type !== 'tv' || !info.k || !x.sz?.length) return '';
@@ -287,6 +288,24 @@
       <span class="sh-face" style="--h:${hue(p.name)}">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async">` : esc(p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
       <b>${esc(p.name)}</b><small>${esc(p.role)}</small></a></li>`).join('')}</ul>`;
     sec.hidden = false;
+    seenIn(info, people.slice(0, 12), sec);
+  }
+  // Where have I seen them? Under anyone in the cast who was in something you've watched (marked watched, partway
+  // through, or loved), one line naming it. The search API looks through their credits; nothing's asked when you
+  // haven't watched anything yet, and it never holds up the sheet.
+  async function seenIn(info, people, sec) {
+    const t = window.tn, mine = [...new Set([...t.seen.list().map((x) => x.k), ...Object.keys(t.progress.all()), ...t.stars.all()])]
+      .filter((k) => /^[mt]\d+$/.test(k) && k !== info.k).slice(0, 300);
+    if (!mine.length || !people.length || !t.api) return;
+    const r = await fetch(`${t.api}/seen/${info.k}?p=${people.map((p) => p.id).join(',')}&w=${mine.join(',')}`).then((x) => (x.ok ? x.json() : null)).catch(() => null);
+    if (current !== info || !r?.people) return;
+    let any = false;
+    for (const a of sec.querySelectorAll('.sh-faces a[data-p]')) {
+      const hit = r.people[a.dataset.p]?.[0]; if (!hit || a.querySelector('.sh-was')) continue;
+      a.insertAdjacentHTML('beforeend', `<small class="sh-was" title="${esc(`${hit.title}${hit.role ? ` (${hit.role})` : ''}`)}">You saw them in ${esc(hit.title)}</small>`);
+      any = true;
+    }
+    if (any) t.tip?.({ id: 'seen-them-in', for: '#shCast .sh-was', title: 'Where have I seen them?', text: 'Under the cast, Tenner names something you’ve watched them in. It uses what you’ve marked as watched, are partway through or loved.' });
   }
   // ---------- the lower half: episodes, trailers and extras, the film series, More Like This, reviews, Information ----------
   const longDate = (iso) => (iso ? new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
@@ -448,6 +467,7 @@
         <p class="sh-foot" id="shFoot">Where-to-watch information from JustWatch, via TMDB.${info.tmdb ? ` <a href="${esc(info.tmdb)}" target="_blank" rel="noopener">More on TMDB</a>` : ''}</p>
       </div>`;
     fillCast(info); fillOv(info);
+    if (x.fs) window.tn.tip?.({ id: 'final-season', for: '.sh-next .fin', title: 'Final season', text: 'This show is in its last season. Save it to your Watchlist and Tenner will tell you the morning the finale is out.' });
     if ($('.sh-mine')) {   // Just for You (signed in) introduces itself, once each
       const tip = window.tn.tip;
       tip?.({ id: 'mark-watched', for: '.sh-seen', title: 'Mark as watched', text: 'Keep a list of everything you’ve watched. It’s on your Watchlist page, and by default it takes the title off your Watchlist too (change that in Settings).' });

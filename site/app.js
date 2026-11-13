@@ -370,8 +370,9 @@ function showLine(x) {
   if (x.type !== 'tv') return '';
   const d = det(x.k), p = window.tn.progress.get(x.k), up = p && window.tn.nextUp(p, d?.sz);
   const bits = [p ? (up ? `<b class="wl-go">Continue S${up[0]} E${up[1]}</b>` : '<b class="wl-go">All caught up</b>') : '',
-    d?.nx ? `New episode ${esc(window.tn.whenText(d.nx[0]))}` : d?.en ? 'Ended' : ''].filter(Boolean);
-  return bits.length ? `<small class="wl-next">${bits.join(' · ')}</small>` : '';
+    d?.nx ? `${d.fs && d.fe === d.nx[0] ? 'Series finale' : 'New episode'} ${esc(window.tn.whenText(d.nx[0]))}` : d?.en ? 'Ended' : ''].filter(Boolean);
+  const fin = window.tn.finalBadge(d);
+  return bits.length || fin ? `<small class="wl-next">${fin}${bits.join(' · ')}</small>` : '';
 }
 // Coming up: new episodes of your saved shows over the next month, soonest first
 function comingUp(list) {

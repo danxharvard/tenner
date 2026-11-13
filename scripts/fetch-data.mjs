@@ -514,6 +514,7 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
     const trailer = (vids.find((v) => v.type === 'Trailer' && v.official) || vids.find((v) => v.type === 'Trailer') || vids[0])?.key;
     const runtime = type === 'movie' ? d.runtime : (d.episode_run_time?.[0] || d.last_episode_to_air?.runtime || null);
     const nx = d.next_episode_to_air;   // shows: the next episode's date, for the countdown
+    const fin = type === 'tv' ? finalSeason(d) : null;   // shows in their last season (the badge), and the finale's date when known
     // its logo, shown over the artwork in place of the name (English or wordless, the best liked; the file name only)
     const logo = (d.images?.logos || []).filter((x) => x.file_path && (x.iso_639_1 === 'en' || !x.iso_639_1) && x.aspect_ratio >= 1)
       .sort((a, b) => (b.iso_639_1 === 'en') - (a.iso_639_1 === 'en') || b.vote_average - a.vote_average)[0]?.file_path?.replace(/\.svg$/, '.png');
@@ -521,6 +522,7 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
       nx: type === 'tv' && nx?.air_date ? [nx.air_date, nx.season_number, nx.episode_number] : undefined,
       sz: type === 'tv' ? (d.seasons || []).filter((s) => s.season_number > 0 && s.episode_count > 0).map((s) => s.episode_count) : undefined,
       en: type === 'tv' && /Ended|Canceled/.test(d.status || '') ? 1 : undefined,
+      fs: fin ? fin.s : undefined, fe: fin?.fe,
       at: Date.now(), rt: runtime || undefined, se: type === 'tv' ? d.number_of_seasons || undefined : undefined, c: cert || undefined,
       g: (d.genres || []).map((g) => g.name).slice(0, 3), tl: d.tagline || undefined,
       im: d.imdb_id || d.external_ids?.imdb_id || undefined,   // its IMDb ID, for finding its links on Wikidata
@@ -533,6 +535,23 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
   const used = new Set(Object.values(items).flatMap((x) => [...(x.f || []), ...(x.fr || []), ...(x.re || []), ...(x.bu || [])]));
   for (const id of Object.keys(providers)) if (!used.has(+id)) delete providers[id];
   return { v: TITLE_V, generatedAt: new Date().toISOString(), logo: `${IMG}/w154`, providers, items, refreshed: fetched.filter(([, d]) => d).length };
+}
+
+// A show in its last season: TMDB marks the series Ended (or Cancelled) once the final season is confirmed, names a season
+// "Final Season", or stops production with episodes still to come. Only while that season is airing, or finished within
+// the last six weeks, so the badge is news rather than history. Gives { s: the season, fe: the finale's date } or null.
+export function finalSeason(d, now = Date.now()) {
+  const nx = d.next_episode_to_air, last = d.last_episode_to_air;
+  const seasons = (d.seasons || []).filter((x) => x.season_number > 0), top = Math.max(0, ...seasons.map((x) => x.season_number));
+  const cur = nx?.season_number || last?.season_number;
+  if (!cur || cur !== top || top < 2) return null;
+  const named = /\bfinal\b/i.test(seasons.find((x) => x.season_number === cur)?.name || '');
+  const ended = /Ended|Canceled/.test(d.status || ''), stopped = d.in_production === false;
+  const recent = last?.air_date && last.season_number === cur && now - Date.parse(last.air_date) < 42 * 864e5;
+  if (!(named || (ended && (nx || recent)) || (stopped && nx))) return null;
+  if (!nx && !recent) return null;
+  const fe = nx?.episode_type === 'finale' && nx.air_date ? nx.air_date : last?.episode_type === 'finale' && recent ? last.air_date : undefined;
+  return { s: cur, fe };
 }
 
 // ---------- Watchmode (daily) ----------

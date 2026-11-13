@@ -596,7 +596,7 @@
         <a class="see-all" href="${href}">See all<span class="chev" aria-hidden="true"></span></a></div>
       <ol class="cl">${l.map((it, i) => `<li><a href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(infoFor(it, eye(i)))}>
         ${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
-        <span class="cl-t"><b>${esc(it.title)}</b><small>${esc([state.picks.length === 1 ? '' : label(it), it.year].filter(Boolean).join(' · '))}</small></span>
+        <span class="cl-t"><b>${esc(it.title)}</b><small>${window.tn.finalBadge(det(keyOf(it)))}${esc([state.picks.length === 1 ? '' : label(it), it.year].filter(Boolean).join(' · '))}</small></span>
         ${it.rating ? `<span class="cl-r">★ ${it.rating.toFixed(1)}</span>` : ''}
       </a></li>`).join('')}</ol></section>`;
   }
