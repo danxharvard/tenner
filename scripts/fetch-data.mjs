@@ -536,6 +536,7 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
 }
 
 // ---------- Watchmode (daily) ----------
+const LEAVING_V = 2;   // bump when Leaving soon's reader changes, so the next run fetches it afresh
 const realNew = (j) => !!j && Array.isArray(j.items) && !j.disabled && !j.error && !j.sample;
 export async function buildNew() {
   const key = process.env.WATCHMODE_API_KEY;
@@ -547,8 +548,12 @@ export async function buildNew() {
 
   // Reuse the copy already live on the site if it's less than 20 hours old.
   const prev = await liveCopy('new.json');
-  if (realNew(prev) && prev.leaving && hoursOld(prev) < 20) {   // (an older copy without Coming soon or Leaving soon is fetched afresh)
+  if (realNew(prev) && prev.lv === LEAVING_V && hoursOld(prev) < 20) {   // (an older copy, from before Leaving soon was read right, is fetched afresh)
     console.log('Reusing live new.json from', prev.generatedAt);
+    // Leaving soon is only ever the next ten departures, so it's looked at every six hours (two credits) and added to
+    if (!(hoursOld({ generatedAt: prev.leavingAt || prev.generatedAt }) < 6)) {
+      prev.leaving = mergeLeaving(prev.leaving, await buildLeaving(key)); prev.leavingAt = new Date().toISOString();
+    }
     return prev;
   }
 
@@ -583,23 +588,41 @@ export async function buildNew() {
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  return { generatedAt: new Date().toISOString(), note: 'Release dates are mostly US dates from Watchmode.', items, leaving: await buildLeaving(key) };
+  const leaving = mergeLeaving(realNew(prev) && prev.lv === LEAVING_V ? prev.leaving : [], await buildLeaving(key));
+  return { generatedAt: new Date().toISOString(), leavingAt: new Date().toISOString(), lv: LEAVING_V, note: 'Release dates are mostly US dates from Watchmode.', items, leaving };
 }
 
-// Leaving soon: Watchmode's calendar of titles about to leave a service (the free plan shows the next ten). The dates
-// are mostly American, so the page says so. A missing or changed answer just means no Leaving soon section.
+// Leaving soon: Watchmode's calendar of titles about to leave a service in the UK (the free plan shows the next ten).
+// It answers { leaving_dates: [{ id, title, title_type, region, leaving_date, provider_id, season }] }: Watchmode's own
+// IDs, so each service comes from its Watchmode number (WM_SOURCES, from /v1/sources/?regions=GB) and each title is found
+// on TMDB by its name, for its poster and so the title sheet, Browse and the alerts know it. The free plan only ever shows
+// the next ten departures (often all on one day, and custom dates need a paid plan), so each look is added to the last
+// (mergeLeaving) until a title's day has gone. The dates are mostly American, so the page says so. A missing or changed
+// answer just means no Leaving soon section.
+const mergeLeaving = (old, add) => {
+  const today = new Date().toISOString().slice(0, 10), out = new Map();
+  for (const x of [...(old || []), ...(add || [])]) if (x?.title && x.date >= today) out.set(`${x.service}|${x.type}|${x.id || x.title}|${x.season || 0}`, x);
+  return [...out.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 60);
+};
+const WM_SOURCES = { 203: 'netflix', 26: 'prime', 372: 'disney', 387: 'hbomax', 371: 'appletv', 444: 'paramount' };
 async function buildLeaving(key) {
   try {
-    const json = await getJSON('https://api.watchmode.com/v1/title-leaving-dates/', { 'X-API-Key': key }, 2);
-    const list = Array.isArray(json) ? json : json.titles || json.results || json.leaving || json.releases || json.data || [];
-    if (list[0]) console.log('Leaving dates fields:', Object.keys(list[0]).join(', '));
-    const dateOf = (r) => { for (const [f, v] of Object.entries(r)) if (/date|leav|expir|end/i.test(f) && /^\d{4}-?\d{2}-?\d{2}/.test(String(v))) return String(v).replace(/^(\d{4})-?(\d{2})-?(\d{2}).*/, '$1-$2-$3'); return null; };
+    const json = await getJSON(`https://api.watchmode.com/v1/title-leaving-dates/?regions=${REGION}`, { 'X-API-Key': key }, 2);
+    const list = (Array.isArray(json) ? json : json.leaving_dates || json.titles || json.results || []).filter((r) => !r.region || r.region === REGION);
+    const svcOf = (r) => WM_SOURCES[r.provider_id ?? r.source_id] || (r.source_name && serviceFor(r.source_name)?.key) || null;
     const today = new Date().toISOString().slice(0, 10);
-    return list.map((r) => ({ r, s: serviceFor(r.source_name || r.source || r.service || '') })).filter(({ s }) => s).map(({ r, s }) => ({
-      title: r.title || r.name, type: (r.tmdb_type || r.type) === 'movie' ? 'movie' : 'tv', date: dateOf(r), service: s.key,
-      poster: r.poster_url || r.poster || null, id: r.tmdb_id || null,
-      url: r.tmdb_id ? `https://www.themoviedb.org/${(r.tmdb_type || r.type) === 'movie' ? 'movie' : 'tv'}/${r.tmdb_id}/watch?locale=${REGION}` : null,
-    })).filter((x) => x.title && x.date && x.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+    const rows = list.map((r) => ({ r, service: svcOf(r), date: String(r.leaving_date || r.date || '').slice(0, 10), type: /movie/.test(r.title_type || r.tmdb_type || r.type || '') ? 'movie' : 'tv' }))
+      .filter((x) => x.service && x.r.title && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && x.date >= today);
+    const out = await pool(rows.map(({ r, service, date, type }) => async () => {
+      // only a title of exactly that name: a near miss would put the wrong poster up (and alert the wrong Watchlists)
+      let hit = null; try { hit = r.tmdb_id ? null : await matchTmdb(r.title, type, null); } catch {}
+      if (hit && !same(type === 'movie' ? hit.title : hit.name, r.title) && !same(type === 'movie' ? hit.original_title : hit.original_name, r.title)) hit = null;
+      const id = r.tmdb_id || hit?.id || null, it = hit ? toItem(hit, type) : null;
+      return { title: r.title, type, season: r.season || null, date, service, poster: it?.poster || r.poster_url || null, id,
+        url: id ? `https://www.themoviedb.org/${type}/${id}/watch?locale=${REGION}` : null };
+    }), 4);
+    console.log(`Leaving soon: ${out.length} titles (${out.filter((x) => x.id).length} found on TMDB)`);
+    return out.sort((a, b) => a.date.localeCompare(b.date));
   } catch (err) { console.log('Leaving soon skipped:', err.message); return []; }
 }
 

@@ -66,6 +66,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
           secrets: TMDB_TOKEN
+          # the action installs an old Wrangler 3 unless told otherwise; the rest of the workflow already uses 4
+          wranglerVersion: '4'
         env:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
       # The alerts' signing key: made once, here, and kept only as a Worker secret (never printed or stored anywhere else)
