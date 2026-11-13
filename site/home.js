@@ -342,14 +342,17 @@
   }
 
   // ---------- the featured title ----------
-  // only what's trending: the day's featured shows and films (data/featured.json, a show then a film, chosen once a UK day
-  // so the slideshow changes by itself each morning), kept to the kind and services you've picked; should that leave too
-  // few, the chart's most popular with artwork stand in. The first one moves (Tenner's own cut); Christmas comes second.
+  // only what's trending: a random ten from the trending pool (data/featured.json, rebuilt every three hours from TMDB's
+  // trending lists, so it keeps changing by itself), a fresh mix each visit (tn.featured), kept to the kind and services
+  // you've picked; should that leave too few, the chart's most popular with artwork stand in. The first one moves
+  // (Tenner's own cut), so one with stills leads; Christmas comes second.
   let heroList = [], heroTimer = 0;
   function drawHero() {
     const day = (state.feat?.items || []).filter((it) => kinds().includes(it.type) && pickedAny(it.on)).map((it) => ({ it: { ...it } }));
     const picks = popular(), withArt = picks.filter((p) => p.it.backdrop);
-    heroList = (day.length >= 3 ? day : withArt.length >= 3 ? withArt : picks).slice(0, 10);
+    heroList = window.tn.featured.pick(day.length >= 3 ? day : (withArt.length >= 3 ? withArt : picks).slice(0, 20), (p) => keyOf(p.it) || p.it.title, 10);
+    const lead = heroList.findIndex((p) => p.it.bds?.length);
+    if (lead > 0) heroList.unshift(...heroList.splice(lead, 1));
     if (heroList[0]?.it.bds?.length) heroList[0].it.cut = true;
     if (XMAS && heroList.length) heroList.splice(heroList[0].it.cut ? 1 : 0, 0, { it: XMAS_IT });
     const box = $('#bxHero'); box.classList.remove('sk');
@@ -367,6 +370,7 @@
   }
   function showHero(i, first) {
     state.hero = i; const { it } = heroList[i];
+    if (!it.xmas) window.tn.featured.saw(keyOf(it));   // so the next visit leads with others
     const art = $('#bxArt'), layer = document.createElement('div');
     layer.className = 'bx-h-l'; layer.innerHTML = it.xmas ? '<img class="bx-h-ximg" src="xmas.webp" alt="">' : it.backdrop ? `<img src="${esc(it.backdrop.replace('/w1280/', '/original/'))}" srcset="${esc(it.backdrop)} 1280w, ${esc(it.backdrop.replace('/w1280/', '/original/'))} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="">` : wide(it);
     const put = () => {
@@ -408,7 +412,7 @@
       ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
       <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
     window.tn.tip({ id: 'home-trending-daily', for: '#bxStrip', title: 'Trending today',
-      text: 'The big slideshow now shows only what’s trending, a mix of shows and films, and picks a fresh line-up by itself every morning.' });
+      text: 'The big slideshow shows what’s trending right now, a random mix of shows and films that changes by itself through the day.' });
     const lg = c.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
     markSaved();
   }

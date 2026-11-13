@@ -488,7 +488,7 @@
   }
 
   // ---------- the featured hero: what's trending today, one at a time (Home's slideshow) ----------
-  // The day's featured shows and films (data/featured.json, chosen once a UK day), kept to Shows or films and the services
+  // A random five from the trending pool (data/featured.json, rebuilt every three hours from TMDB's trending lists), kept to Shows or films and the services
   // you've picked; should that leave too few, the charts' most popular with artwork stand in, and then the most popular in
   // the catalogue. Its wide artwork fills the top of the page and runs on, blurred, under the sidebar's glass; without one,
   // the poster blurred big does the same, so the hero is never empty. A thin bar for each pick fills
@@ -518,11 +518,11 @@
     $('#spotEye').textContent = `Trending ${where()} today`;
     const m = await moreData();
     if (!cat) return;
-    // five, in the day's order (the day's line-up is the same for everyone, as on Home)
+    // a random five from what's trending (as on Home): a fresh mix each visit, settled for the page (tn.featured)
     const wide = (x) => !!(x._bd || m?.items?.[fk(x)]?.[1]);
-    const pool = trending().filter((x) => wide(x) || x.img).slice(0, 5), key = pool.map(fk).join(',');
+    const pool = trending().filter((x) => wide(x) || x.img), key = pool.map(fk).join(',');
     if (key === spot.key) return;
-    const picks = pool;
+    const picks = window.tn.featured.pick(pool.length > 24 ? pool.slice(0, 24) : pool, fk, 5, wide);
     spot.key = key; spot.picks = picks; spot.at = 0;
     const art = $('#spotArt'), ext = $('#spotExt');
     $('#spot').classList.toggle('has-feat', !!picks.length); $('#spotFeat').hidden = !picks.length; $('#spotNav').hidden = picks.length < 2;

@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.88.2';
+  const version = '2.89.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1411,16 +1411,21 @@
   meHue(); addEventListener('tn:account', meHue);
 
   // ---------- variety in the big featured artwork (the homepage's hero, Browse's spotlight) ----------
-  // Remembers when each title last had the spotlight on this device, so the next visit leads with ones you haven't
-  // seen lately instead of the same No. 1 every time. Titles with artwork come first; the rest are shuffled.
-  const FT = 'tenner-featured';
+  // A random mix from what's trending (data/featured.json's pool), a fresh one each visit: ones this device hasn't had in
+  // the spotlight lately come first, and titles with artwork before the rest. The order is settled once per page, so an
+  // hourly refresh or a change of services doesn't shuffle what's already on screen.
+  const FT = 'tenner-featured', ftRoll = new Map();
+  let ftSeen = null;
   const featured = {
     all() { try { const o = JSON.parse(localStorage.getItem(FT) || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; } },
-    // n of the pool (each title once), the ones featured longest ago (or never) first
+    // n of the pool (each title once), the ones featured longest ago (or never) first, ties in a random order
     pick(pool, key, n, art = () => true) {
-      const seen = featured.all(), have = new Set();
+      const seen = ftSeen || (ftSeen = featured.all()), have = new Set(), day = 864e5, now = Date.now();
+      const roll = (k) => ftRoll.get(k) ?? (ftRoll.set(k, Math.random()), ftRoll.get(k));
+      // seen within the last day counts as seen; anything older is as good as new
+      const recent = (k) => (now - (seen[k] || 0) < day ? seen[k] : 0);
       return pool.filter((x) => { const k = key(x); return k && !have.has(k) && have.add(k); })
-        .map((x) => [x, !art(x), seen[key(x)] || 0, Math.random()])
+        .map((x) => [x, !art(x), recent(key(x)), roll(key(x))])
         .sort((a, b) => a[1] - b[1] || a[2] - b[2] || a[3] - b[3]).slice(0, n).map((a) => a[0]);
     },
     saw(k) {

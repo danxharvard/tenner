@@ -788,24 +788,55 @@ export async function buildCinema() {
   return { v: CINEMA_V, generatedAt: new Date().toISOString(), now: nowItems, soon: soonItems };
 }
 
-// ---------- The homepage's featured slideshow: today's trending shows and films, chosen once a day ----------
-// The UK's most popular shows and films across the six services (the chart's "All"), taken in turn (a show, a film, a
-// show...), each with its wordless stills for Tenner's own cut. Picked once a UK day and kept until the next, so the
-// slideshow is the same all day and changes by itself every morning; the live copy carries on if TMDB has a bad moment.
-const FEATURED_V = 1, FEATURED_N = 10;
+// ---------- The big featured artwork (Home's slideshow, Browse's spotlight): what's trending right now ----------
+// TMDB's own trending lists (today's, then this week's), kept to titles streaming on one of the six services in the UK,
+// shows and films in turn. The charts rank by all-time popularity, which long-running shows top week after week; trending
+// is what people are actually watching now, so the line-up keeps changing. A pool of up to 24 is rebuilt every three
+// hours and each visitor's page picks a random mix from it (tn.featured in shell.js). Each title keeps its wordless
+// stills for Tenner's own cut (fetched once, then carried over). Should trending fail, the chart's most popular stand in,
+// and the live copy carries on if TMDB has a bad moment.
+const FEATURED_V = 2, FEATURED_N = 24, FEATURED_HOURS = 3;
 const ukDay = (t = Date.now()) => new Date(t).toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
-export function pickFeatured(data, n = FEATURED_N) {
-  const [tv, mv] = ['tv', 'movie'].map((k) => (data?.overall?.[k] || []).filter((it) => it.backdrop).map((it) => ({ ...it, type: it.type || k })));
+const interleave = (tv, mv, n) => {
   const out = [];
   for (let i = 0; out.length < n && (i < tv.length || i < mv.length); i++) { if (tv[i]) out.push(tv[i]); if (mv[i] && out.length < n) out.push(mv[i]); }
   return out;
+};
+export function pickFeatured(data, n = FEATURED_N) {
+  const [tv, mv] = ['tv', 'movie'].map((k) => (data?.overall?.[k] || []).filter((it) => it.backdrop).map((it) => ({ ...it, type: it.type || k })));
+  return interleave(tv, mv, n);
 }
-export async function buildFeatured(data, prev) {
-  const today = ukDay();
-  if (prev?.v === FEATURED_V && prev.day === today && prev.items?.length) { console.log('Featured: keeping today\'s from', prev.generatedAt); return prev; }
-  const items = pickFeatured(data);
+async function trendingNow(ids) {
+  const svc = new Map();
+  for (const [key, set] of Object.entries(ids || {})) for (const id of set) svc.set(id, key);
+  if (!svc.size) throw new Error('no service providers to check against');
+  const out = {};
+  await Promise.all(['tv', 'movie'].map(async (type) => {
+    const pages = await Promise.all([['day', 1], ['day', 2], ['week', 1]].map(([w, page]) =>
+      tmdb(`/trending/${type}/${w}`, { language: 'en-GB', page: String(page) }).catch(() => ({ results: [] }))));
+    const seen = new Set();
+    const cands = pages.flatMap((p) => p.results || []).filter((r) => r.backdrop_path && r.poster_path && !r.adult && !seen.has(r.id) && seen.add(r.id)).slice(0, 30);
+    const checked = await pool(cands.map((r) => async () => {
+      try {
+        const gb = (await tmdb(`/${type}/${r.id}/watch/providers`)).results?.[REGION] || {};
+        const on = [...new Set([...(gb.flatrate || []), ...(gb.free || []), ...(gb.ads || [])].map((p) => svc.get(p.provider_id)).filter(Boolean))];
+        return on.length ? { ...toItem(r, type), on } : null;
+      } catch { return null; }
+    }), 6);
+    out[type] = checked.filter(Boolean);
+  }));
+  return out;
+}
+export async function buildFeatured(data, ids, prev) {
+  if (prev?.v === FEATURED_V && hoursOld(prev) < FEATURED_HOURS && prev.items?.length) { console.log('Featured: keeping the trending pool from', prev.generatedAt); return prev; }
+  if (!ids && prev?.v === FEATURED_V && prev.items?.length && hoursOld(prev) < 72) { console.log('Featured: no fresh chart this hour, keeping the live pool'); return prev; }
+  let items = [], from = 'trending';
+  try { const t = await trendingNow(ids); items = interleave(t.tv, t.movie, FEATURED_N); } catch (err) { warn('Featured', `trending lists failed (${err.message})`); }
+  if (items.length < 8) { from = 'chart'; items = pickFeatured(data); }
   if (items.length < 4) throw new Error(`only ${items.length} trending titles have artwork`);
+  const old = new Map((prev?.items || []).filter((it) => it.bds).map((it) => [`${it.type}${it.id}`, it.bds]));
   await pool(items.map((it) => async () => {
+    if (old.has(`${it.type}${it.id}`)) { it.bds = old.get(`${it.type}${it.id}`); return; }
     try {
       const im = await tmdb(`/${it.type}/${it.id}/images`, { include_image_language: 'null' });
       const main = it.backdrop.split('/').pop();
@@ -813,8 +844,8 @@ export async function buildFeatured(data, prev) {
         .sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count).slice(0, 8).map((x) => x.file_path);
     } catch {}
   }), 5);
-  console.log(`Featured: ${items.length} trending titles for ${today}`);
-  return { v: FEATURED_V, day: today, generatedAt: new Date().toISOString(), items };
+  console.log(`Featured: ${items.length} titles from ${from} (${items.map((it) => it.title).join(', ')})`);
+  return { v: FEATURED_V, day: ukDay(), from, generatedAt: new Date().toISOString(), items };
 }
 
 // ---------- A page for each title, for link previews ----------
@@ -1024,13 +1055,27 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       catch (err) { warn('Prices', err.message); if (prevP) await write('prices.json', prevP); }
     }
 
-    // 4. Title details (where to watch, runtime, age rating, trailer) for everything Tenner shows.
+    // 4. The big featured artwork's trending pool, every three hours (the live copy carries on for up to three days if it fails)
+    let featured = null;
+    {
+      const prev = await liveCopy('featured.json');
+      try { featured = await buildFeatured(data, built?.ids, prev); }
+      catch (err) {
+        const keep = prev?.items?.length && hoursOld(prev) < 72;
+        warn('Featured', `not rebuilt (${err.message})${keep ? ', keeping the live one' : ''}`);
+        if (keep) featured = prev;
+      }
+      if (featured) await write('featured.json', featured);
+    }
+
+    // 4a. Title details (where to watch, runtime, age rating, trailer) for everything Tenner shows.
     try {
       const key = (type, id) => (typeof id === 'number' || /^\d+$/.test(String(id)) ? `${type === 'movie' ? 'm' : 't'}${id}` : null);
       const chartKeys = new Set();
       for (const sv of data.services) for (const t of ['tv', 'movie']) for (const it of sv[t] || []) { const k = key(t, it.id); if (k) chartKeys.add(k); }
       for (const t of ['tv', 'movie']) for (const it of data.overall?.[t] || []) { const k = key(t, it.id); if (k) chartKeys.add(k); }
       for (const it of newList?.items || []) { const k = it.id && key(it.type, it.id); if (k) chartKeys.add(k); }
+      for (const it of featured?.items || []) { const k = key(it.type, it.id); if (k) chartKeys.add(k); }
       const catalogueKeys = new Set((catalogue?.items || []).map((x) => `${x.t[0]}${x.i}`));
       const prevTitles = await liveCopy('titles.json');
       const titles = await buildTitles(chartKeys, catalogueKeys, prevTitles);
@@ -1052,17 +1097,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const prev = await liveCopy('titles.json');
       warn('Title details', `not rebuilt (${err.message})${prev ? ', keeping the live copy' : ''}`);
       if (prev) await write('titles.json', prev);
-    }
-
-    // 4a. The homepage's featured slideshow, once a day (the live copy carries on for up to three days if it fails)
-    {
-      const prev = await liveCopy('featured.json');
-      try { await write('featured.json', await buildFeatured(data, prev)); }
-      catch (err) {
-        const keep = prev?.items?.length && hoursOld(prev) < 72;
-        warn('Featured', `not rebuilt (${err.message})${keep ? ', keeping the live one' : ''}`);
-        if (keep) await write('featured.json', prev);
-      }
     }
 
     // 5. A page for each title, so a shared link shows its artwork (never a reason for the run to fail)
