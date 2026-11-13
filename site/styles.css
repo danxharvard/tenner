@@ -2396,8 +2396,8 @@ dialog.adv { position: fixed; }
 /* ============================================================ phones: Tenner as an extension of iOS
    The bar at the top is iOS's navigation bar: the menu button on the left (iOS's back button beside it on pages under the
    menu), the logo in the middle and, on the right, Share or Filters and Search. The menu slides in from the left edge, full
-   height, in the one frost: Search, then the pages, your account, About, Theme and Settings and the small print, each a
-   group of rows like iOS Settings. The Filters sheet rises from the bottom with a grabber. */
+   height, in the one frost: Search, your account, About, Theme and Settings and the small print, each a
+   group of rows like iOS Settings. The pages themselves float along the foot of the screen in a frosted tab bar. The Filters sheet rises from the bottom with a grabber. */
 .tb-left, .tb-right { display: none; }
 @media (max-width: 719px) {
   /* the navigation bar */
@@ -2440,7 +2440,6 @@ dialog.adv { position: fixed; }
 
   /* grouped like iOS Settings: Search, the pages, your account in a card of its own, About, Theme and Settings, the small print */
   .drawer .side-search { order: 0; margin: 0 0 18px; }
-  .drawer .tabbar { order: 1; display: block; margin: 0 0 22px; }
   .drawer .side-links { display: contents; }
   .drawer .side-acct { order: 2; flex: none; margin: 0 0 22px; padding: 12px 14px; min-height: 66px; border-radius: var(--r); background: var(--fr-in);
     background-image: var(--row-chev); background-repeat: no-repeat; background-position: right 16px center; background-size: 8px 13px; }
@@ -2452,29 +2451,22 @@ dialog.adv { position: fixed; }
   .drawer .side-settings { order: 5; }
   .drawer .side-link { order: 6; }
   .drawer .side-ver { order: 7; }
-  .drawer .tabs { display: flex; flex-direction: column; gap: 0; max-width: none; padding: 0; border-radius: var(--r); overflow: hidden; isolation: auto;
-    background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; outline: none !important; }
-  .drawer .tabs::before, .drawer .tab-ind { display: none; }
-  .drawer .tabs button, .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
+  .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
     position: relative; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; width: 100%; height: 50px; margin: 0;
     padding: 0 34px 0 12px; border: 0; border-radius: 0; color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; text-decoration: none;
     -webkit-font-smoothing: antialiased; background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; }
-  .drawer .tabs button span { overflow: visible; }
   .drawer .top-act .tb-btn { background-image: var(--pop-chev); background-size: 9px 14px; }
   .drawer .top-act .tb-about { display: none; }
   .drawer .side-about:not(.side-settings) { border-radius: var(--r) var(--r) 0 0; }
   .drawer .side-settings { border-radius: 0 0 var(--r) var(--r); }
-  .drawer .tabs button[aria-selected="true"], .drawer .side-about[aria-current] { font-weight: 600; background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
-  .drawer .tabs button:active, .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
+  .drawer .side-about[aria-current] { font-weight: 600; background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
+  .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
   /* hairlines between rows, from the words (not the icons), as in iOS */
-  .drawer .tabs button + button::before, .drawer .top-act .tb-btn::before, .drawer .side-settings::before, .drawer .side-link + .side-link::before {
+  .drawer .top-act .tb-btn::before, .drawer .side-settings::before, .drawer .side-link + .side-link::before {
     content: ""; position: absolute; top: 0; right: 0; left: 50px; height: .5px; background: var(--sep); }
   .drawer .side-link + .side-link::before { left: 16px; }
   /* the icons: plain and monochrome, as in the sidebar on computers (the owner's pick); filled for the page you're on */
-  .drawer .tabs button svg, .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; width: 24px; height: 24px; padding: 0; color: var(--label); background: none; }
-  .drawer .tabs .i-f { display: none; }
-  .drawer .tabs [aria-selected="true"] .i-o { display: none; }
-  .drawer .tabs [aria-selected="true"] .i-f { display: block; }
+  .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; width: 24px; height: 24px; padding: 0; color: var(--label); background: none; }
   /* the small print: a group of its own, then the version underneath in grey */
   .drawer .side-link { height: 46px; padding-left: 16px; font-size: 16px; }
   .drawer .side-acct + .side-link { margin-top: 22px; border-radius: var(--r) var(--r) 0 0; }
@@ -2500,3 +2492,44 @@ dialog.adv { position: fixed; }
 /* no Christmas lights on phones (the owner's pick) */
 @media (max-width: 719px) { .xl { display: none !important; } }
 @media (prefers-reduced-motion: reduce) { .wl-hint { animation: none; } }
+
+/* ============================================================ phones: the tab bar (the owner's photo). A frosted bar that floats
+   above the foot of the screen, in the one frost: each page an icon above its name, a soft tint of your colour behind the one
+   you're on (gliding across as you move), and you as the last tab: your picture, with a red badge while you're signed out.
+   True pills here, the one exception to the 9px corner (the owner's pick). */
+.tab-me { display: none !important; }
+@media (max-width: 719px) {
+  .tb-dock { position: fixed; z-index: 48; display: block; left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); max-width: 460px; margin: 0 auto; pointer-events: none; }
+  .drawer-open .tb-dock, .sheet-up .tb-dock { opacity: 0; transform: translateY(24px); }
+  :root .tb-dock .tabs { display: flex; gap: 0; padding: 5px; border-radius: 999px; outline: none; pointer-events: auto;
+    background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+    box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 32px rgba(0, 0, 0, .22), 0 2px 6px rgba(0, 0, 0, .08); }
+  :root .tb-dock .tabs::before { display: none; }
+  :root .tb-dock .tabs button, .tb-dock .tab-me { flex: 1 1 0; min-width: 0; height: 54px; display: flex !important; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; padding: 0 2px; border-radius: 999px; color: var(--label); font: 500 11px/1.1 var(--font); letter-spacing: -.01em;
+    -webkit-font-smoothing: antialiased; }
+  .tb-dock .tabs button > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tb-dock .tabs button svg { width: 24px; height: 24px; stroke-width: 1.8; color: inherit; }
+  :root .tb-dock .tabs button[aria-selected="true"] { color: var(--accent); background: none; font-weight: 600; }
+  :root .tb-dock .tabs .tab-ind { top: 5px; bottom: 5px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: none; }
+  .tb-dock .tabs button:active { transform: scale(.94); filter: none; }
+  @media (hover: hover) { .tb-dock .tabs button[aria-selected="false"]:hover { color: var(--label); } }
+  /* you: your picture in a small circle, the badge sitting on its top-right edge */
+  .tab-av { position: relative; display: block; width: 26px; height: 26px; margin: -1px 0; font-style: normal; }
+  .tab-av .av { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; object-fit: cover; font-size: 12px; }
+  .tab-av .av svg { width: 17px; height: 17px; }
+  .tab-me[aria-selected="true"] .tab-av .av { box-shadow: 0 0 0 1.5px var(--accent); }
+  .tab-badge { position: absolute; top: -5px; right: -9px; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
+    color: #fff; background: #ff3b30; font: 700 11px/1 var(--font); box-shadow: 0 0 0 2px var(--bg); }
+  /* the page runs on under the bar, and what pops up from the foot of the screen sits above it */
+  body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important; }
+  .pv-note { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 359px) {
+  :root .tb-dock .tabs button, .tb-dock .tab-me { font-size: 10px; letter-spacing: -.02em; }
+  .tb-dock .tabs button svg { width: 22px; height: 22px; }
+}
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) { :root .tb-dock .tabs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (max-width: 719px) and (prefers-reduced-motion: no-preference) { .tb-dock { transition: opacity .25s ease, transform .4s var(--ease-spring); } }

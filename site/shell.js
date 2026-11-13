@@ -110,7 +110,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.89.0';
+  const version = '2.90.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -818,14 +818,20 @@
       <div class="dr-body" id="drBody"></div></dialog>`);
     const drawer = $('#drawer'), drBody = $('#drBody'), menuBtn = $('#menuBtn');
     // the sidebar's own pieces (the pages among them) move into the menu on phones (and back again on bigger screens), listeners and all
-    const movers = ['.side-search', '.tabbar', '.side-about:not(.side-settings)', '.top-act', '.side-about.side-settings', '.side-links'].map((q) => $(q)).filter(Boolean);
+    const movers = ['.side-search', '.side-about:not(.side-settings)', '.top-act', '.side-about.side-settings', '.side-links'].map((q) => $(q)).filter(Boolean);
     const marks = movers.map((el) => { const m = document.createComment('drawer'); el.before(m); return m; });
+    // the pages themselves: a floating frosted tab bar along the foot of the screen on phones (the owner's photo)
+    const dock = $('.tabbar'), dockHome = dock && document.createComment('tabbar');
+    if (dock) dock.before(dockHome);
     const place = () => {
-      if (drawerQ.matches) { movers.forEach((el) => drBody.append(el)); if (right) rightBox.prepend(right); rightBox.append(search); }
-      else {
+      if (drawerQ.matches) {
+        movers.forEach((el) => drBody.append(el)); if (right) rightBox.prepend(right); rightBox.append(search);
+        if (dock) { document.body.append(dock); dock.classList.add('tb-dock'); dispatchEvent(new Event('resize')); }
+      } else {
         if (drawer.open) drawer.close();
         movers.forEach((el, i) => marks[i].after(el));
         if (rightHome) rightHome.after(share); search.remove();
+        if (dock) { dockHome.after(dock); dock.classList.remove('tb-dock'); dispatchEvent(new Event('resize')); }
       }
     };
     place(); drawerQ.addEventListener('change', place);
@@ -868,7 +874,9 @@
     swipeAway(drawer, shut, true);
     // introduce the menu once, on phones
     if (drawerQ.matches) setTimeout(() => window.tn?.tip?.({ id: 'ios-side-menu', for: '#menuBtn', title: 'The menu',
-      text: 'Tap here for every page, your account, Theme and Settings. Swipe it left to put it away.' }), 0);
+      text: 'Tap here for Search, your account, Theme and Settings. Swipe it left to put it away.' }), 0);
+    if (drawerQ.matches && dock) setTimeout(() => window.tn?.tip?.({ id: 'phone-tab-bar', for: '#tabs', title: 'Your pages',
+      text: 'Every page is a tap away along the bottom. Your account is the last one, with a red dot while you’re signed out.' }), 0);
 
     // ---------- phones: the Filters menu, the left menu's twin, sliding in from the right. Any control on the page marked
     // data-filter="Its heading" moves in here on phones (and back on bigger screens), listeners and all, so a new filter
@@ -1660,6 +1668,19 @@
   });
 
   // ---------- tabs ----------
+  // phones: the last tab is you, as in iOS apps: your picture (or a person), with a red badge while you're signed out
+  const tabList = $('#tabs');
+  if (tabList) {
+    tabList.insertAdjacentHTML('beforeend', `<button type="button" role="tab" class="tab-me" data-tab="me" aria-selected="${onPage('account')}" tabindex="-1"><i class="tab-av"></i><span></span></button>`);
+    const me = tabList.querySelector('.tab-me');
+    const drawMe = () => {
+      const u = account.user();
+      me.querySelector('.tab-av').innerHTML = `${avatar(u)}${u ? '' : '<b class="tab-badge" aria-hidden="true">!</b>'}`;
+      me.querySelector(':scope > span').textContent = u ? 'Account' : 'Sign in';
+      me.setAttribute('aria-label', u ? 'Your account' : 'Sign in, you’re signed out');
+    };
+    drawMe(); addEventListener('tn:account', drawMe);
+  }
   const tabs = [...document.querySelectorAll('#tabs [role=tab]')], ind = $('#tabInd'), names = tabs.map((t) => t.dataset.tab);
   let cur = tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab ?? null, placed = false;
   const placeInd = (animate) => glide(ind, tabs[names.indexOf(cur)], animate, 1.18);
@@ -1675,6 +1696,7 @@
       if (q) { q.focus(); q.select(); scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
       findAnywhere(); return;
     }
+    if (name === 'me') { if (cur !== 'me') { loading.show('nav'); location.href = 'account.html'; } else scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
     if (name === 'top10' && cur !== 'top10') { top10s(); return; }   // the Top 10s open as a popup (on their own page, the tab takes you back to the top)
     if (window.tnOnTab) return window.tnOnTab(name);
     if (name === cur) { scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
