@@ -130,7 +130,7 @@
       // only what looks like Tenner's own: a title key, and progress as [season, episode]; the Watchlist keeps its 500 limit
       const ok = (k) => typeof k === 'string' && /^[mt]\d{1,9}$/.test(k);
       const add = (Array.isArray(d.watchlist) ? d.watchlist : []).filter((x) => ok(x?.k) && !keys.has(x.k) && keys.add(x.k))
-        .map((x) => ({ k: x.k, type: x.k[0] === 'm' ? 'movie' : 'tv', title: String(x.title || '').slice(0, 200), year: x.year || null, poster: typeof x.poster === 'string' ? x.poster : null, at: +x.at || Date.now() }));
+        .map((x) => ({ k: x.k, type: x.k[0] === 'm' ? 'movie' : 'tv', title: String(x.title || '').slice(0, 200), year: +x.year || null, poster: typeof x.poster === 'string' && /^https:\/\//.test(x.poster) ? x.poster : null, at: +x.at || Date.now() }));
       saved.set([...have, ...add].slice(0, 500));
       for (const [k, p] of Object.entries(d.progress || {})) if (ok(k) && Array.isArray(p) && p.length === 2 && p.every((n) => Number.isInteger(n) && n > 0 && n < 1000) && !progress.get(k)) progress.set(k, p);
       if (!mine.get().length && d.services?.length) mine.set(d.services);
@@ -216,8 +216,11 @@
     const m = location.hash.match(/^#take=([jz][\w-]+)$/); if (!m) return;
     history.replaceState(null, '', location.pathname);
     let d; try { d = JSON.parse(await unsqueeze(m[1])); if (d?.v !== 1) throw 0; } catch { say('That link didn’t work. Make a new one on the other device'); return; }
-    const have = new Set(saved.all().map((x) => x.k)), add = (d.w || []).filter(([k]) => /^[mt]\d+$/.test(k) && !have.has(k));
-    const prog = Object.keys(d.p || {}).filter((k) => !progress.get(k)).length, svcs = (d.s || []).filter((k) => LABELS[k]);
+    // a link can come from anyone, so only what looks like Tenner's own is taken (as with an imported file)
+    const ok = (k) => typeof k === 'string' && /^[mt]\d{1,9}$/.test(k), okP = (p) => Array.isArray(p) && p.length === 2 && p.every((n) => Number.isInteger(n) && n > 0 && n < 1000);
+    const have = new Set(saved.all().map((x) => x.k)), add = (Array.isArray(d.w) ? d.w : []).filter((x) => Array.isArray(x) && ok(x[0]) && !have.has(x[0]) && have.add(x[0]));
+    const takeP = Object.entries(d.p && typeof d.p === 'object' ? d.p : {}).filter(([k, p]) => ok(k) && okP(p) && !progress.get(k));
+    const prog = takeP.length, svcs = (Array.isArray(d.s) ? d.s : []).filter((k) => LABELS[k]);
     const bits = [add.length ? `${add.length} title${add.length === 1 ? '' : 's'} for your Watchlist` : '', prog ? `where you’re up to in ${prog} show${prog === 1 ? '' : 's'}` : '',
       svcs.length && !mine.get().length ? `your services (${svcs.map((k) => LABELS[k]).join(', ')})` : ''].filter(Boolean);
     const dlg = document.getElementById('takeDlg');
@@ -226,8 +229,9 @@
     dlg.returnValue = ''; dlg.showModal();
     dlg.addEventListener('close', () => {
       if (dlg.returnValue !== 'yes') return;
-      saved.set([...add.map(([k, title, year, poster]) => ({ k, type: k[0] === 'm' ? 'movie' : 'tv', title, year: year || null, poster: poster ? (poster.startsWith('http') ? poster : IMG + poster) : null, at: Date.now() })), ...saved.all()].slice(0, 500));
-      for (const [k, p] of Object.entries(d.p || {})) if (!progress.get(k) && Array.isArray(p)) progress.set(k, p);
+      saved.set([...add.map(([k, title, year, poster]) => ({ k, type: k[0] === 'm' ? 'movie' : 'tv', title: typeof title === 'string' ? title.slice(0, 200) : '', year: +year || null,
+        poster: typeof poster === 'string' && poster ? (/^https:\/\//.test(poster) ? poster : IMG + poster) : null, at: Date.now() })), ...saved.all()].slice(0, 500));
+      for (const [k, p] of takeP) progress.set(k, p);
       if (svcs.length && !mine.get().length) mine.set(svcs);
       show(); say(`Added ${add.length} title${add.length === 1 ? '' : 's'}`);
     }, { once: true });

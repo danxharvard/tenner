@@ -234,7 +234,7 @@
     const r = btn.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, n === 25 ? 30 : 18, n === 25 ? 200 : 120);
     const p = await got;
     if (!p) {
-      btn.classList.remove('open', 'opening'); busy = false;
+      busy = false; paint(); $(`.adv-d[data-day="${n}"]`, dlg)?.focus({ preventScroll: true });   // the door as it was, Today tag and all
       say('That door’s a bit stuck. Check your connection and try again.'); return;
     }
     const st2 = store.get(); st2.doors[n] = { ...p, at: Date.now() }; store.set(st2);

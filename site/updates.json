@@ -1,5 +1,17 @@
 [
  {
+  "version": "2.88.1",
+  "date": "2026-11-13",
+  "title": "More fixes from the full check of Tenner",
+  "changes": [
+   "A Move to another device link only brings in what looks like Tenner's own titles and progress, so a link from someone else can't slip in anything odd",
+   "An imported Tenner file is checked the same way",
+   "A Christmas calendar door that doesn't open keeps its Today tag",
+   "Tenner TV's calendar events keep any backslash in a programme's name"
+  ],
+  "notes": "The second half of the full check: the Tonight picker, the Christmas calendar, Settings, Contact, shared Watchlists, the Update centre and Tenner TV's page."
+ },
+ {
   "version": "2.87.4",
   "date": "2026-11-13",
   "title": "Fixes from a full check of Tenner",

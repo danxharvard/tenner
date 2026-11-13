@@ -777,7 +777,7 @@
   $('#toast').addEventListener('click', (e) => { const b = e.target.closest('[data-cal]'); if (!b) return; const r = rem.all().find((o) => o.id === b.dataset.cal); if (r) calendar([r]); $('#toast').classList.remove('in'); });
   // a calendar file: the programme as an event, with an alarm 5 minutes before. iPhone, iPad and Mac open it in Calendar
   const icsT = (t) => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-  const icsS = (v) => String(v || '').replace(/[\;,]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
+  const icsS = (v) => String(v || '').replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
   function calendar(list) {
     if (!list.length) return;
     const ev = list.map((r) => ['BEGIN:VEVENT', `UID:${r.id}@tv.tenner.stream`, `DTSTAMP:${icsT(Date.now())}`, `DTSTART:${icsT(r.at)}`, `DTEND:${icsT(r.end)}`,
