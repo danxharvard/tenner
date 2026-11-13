@@ -34,14 +34,18 @@ export const SERVICES = [
   { key: 'paramount', label: 'Paramount+',  match: /^paramount plus/ },
   // TMDB's 350 is the subscription (Apple TV+ until Apple renamed it "Apple TV"); its 2, also "Apple TV", is the store
   { key: 'appletv',   label: 'Apple TV',    match: /^apple ?tv plus/, ids: [350] },
+  // Free to watch: the UK's free players together as a seventh "service", with Tenner's own icon (site/free.svg). Only the
+  // charts and Browse use it (serviceFor's free flag), so New, Leaving soon and share pages keep the players' own names.
+  { key: 'free',      label: 'Free to watch', match: /^(bbc iplayer|itvx|channel 4|all 4|my5|channel 5|5)$/, free: true, logo: 'free.svg' },
 ];
+const PAID = SERVICES.filter((s) => !s.free);
 const RESELLER = /\b(amazon|apple tv|roku premium|roku) channel\b/;
 
 const norm = (s) => s.toLowerCase().replace(/\+/g, ' plus').replace(/[^a-z0-9]+/g, ' ').trim();
-export const serviceFor = (name, id) => {
+export const serviceFor = (name, id, free = false) => {
   const n = norm(name);
   if (RESELLER.test(n)) return null;
-  return SERVICES.find((s) => s.match.test(n) || s.ids?.includes(id)) || null;
+  return SERVICES.find((s) => (free || !s.free) && (s.match.test(n) || s.ids?.includes(id))) || null;
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -120,7 +124,7 @@ async function buildTrending() {
   const logos = {}; // the service's main plan has the best (lowest) display priority
   const seen = {};
   for (const p of [...pm.results, ...pt.results]) {
-    const s = serviceFor(p.provider_name, p.provider_id);
+    const s = serviceFor(p.provider_name, p.provider_id, true);
     if (!s) continue;
     ids[s.key].add(p.provider_id); seen[p.provider_id] = p.provider_name;
     const prio = p.display_priorities?.[REGION] ?? p.display_priority ?? 999;
@@ -132,7 +136,7 @@ async function buildTrending() {
     const providerIds = [...ids[s.key]];
     if (!providerIds.length) {
       console.warn(`! No TMDB provider matched ${s.label}. Check the regex in SERVICES.`);
-      return { key: s.key, label: s.label, logo: logos[s.key]?.url || null, providerIds, movie: [], tv: [] };
+      return { key: s.key, label: s.label, logo: s.logo || logos[s.key]?.url || null, providerIds, movie: [], tv: [] };
     }
     const q = {
       watch_region: REGION,
@@ -145,7 +149,7 @@ async function buildTrending() {
     };
     const [m, t] = await Promise.all([tmdb('/discover/movie', q), tmdb('/discover/tv', q)]);
     return {
-      key: s.key, label: s.label, logo: logos[s.key]?.url || null, providerIds,
+      key: s.key, label: s.label, logo: s.logo || logos[s.key]?.url || null, providerIds,
       movie: m.results.slice(0, PER_LIST).map((r) => toItem(r, 'movie')),
       tv: t.results.slice(0, PER_LIST).map((r) => toItem(r, 'tv')),
     };
@@ -740,7 +744,7 @@ function sample() {
     };
   };
   const services = SERVICES.map((s, si) => ({
-    key: s.key, label: s.label, providerIds: [],
+    key: s.key, label: s.label, logo: s.logo || null, providerIds: [],
     tv: Array.from({ length: PER_LIST }, (_, i) => make('tv', i, si)),
     movie: Array.from({ length: PER_LIST }, (_, i) => make('movie', i, si)),
   }));
@@ -750,10 +754,10 @@ function sample() {
     generatedAt: today.toISOString(), note: 'Sample data.',
     items: [-5, -3, -1, 0, 2, 4, 6, 9, 13, 18, 24].map((d, i) => ({
       title: names[(i * 5 + 2) % names.length], type: i % 3 ? 'tv' : 'movie', season: i % 3 ? (i % 4) + 1 : null,
-      date: iso(d), service: SERVICES[(i * 3) % SERVICES.length].key, original: i % 2 === 0, poster: null, url: null,
+      date: iso(d), service: PAID[(i * 3) % PAID.length].key, original: i % 2 === 0, poster: null, url: null,
     })),
     leaving: [3, 5, 11].map((d, i) => ({ title: names[(i * 7 + 4) % names.length], type: i % 2 ? 'tv' : 'movie', date: iso(d),
-      service: SERVICES[(i * 2 + 1) % SERVICES.length].key, poster: null, id: null, url: null })),
+      service: PAID[(i * 2 + 1) % PAID.length].key, poster: null, id: null, url: null })),
   };
   return {
     trending: { generatedAt: today.toISOString(), region: REGION, sample: true, services, overall: overall(services) },

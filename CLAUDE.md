@@ -80,7 +80,7 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 - **The sidebar (computers):** its original shape (full height, against the window's edge, no rounded pane or rim), fixed
   in place; a light frost (milky by day, smoky by night), regular-weight names and plain monochrome icons.
 - **My services:** the iOS Subscriptions card: round back button, centred title, Active / Inactive headings, a rounded
-  card per service (logo tile, name, grey line, note, chevron) and the all-six switch in its own card.
+  card per service (logo tile, name, grey line, note, chevron) and the all-services switch in its own card.
 - **One corner everywhere:** every button, search bar, box, card, panel, sheet and poster uses `--r` (9px) in
   styles.css; never a one-off radius. Only icon-only circles, switches, app-icon logos and hairline-thin bars differ.
 - **One frost everywhere:** every box, bar, search box, sheet and popup uses `--fr-bg` (the page colour at 80%) over
@@ -90,9 +90,10 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   (Browse's search bar).
 - **The chart numbers never shine:** no rainbow sweep, colour turn (`hue-rotate`) or any other moving effect on the neon
   ranks, on hover or otherwise. It was removed twice because it slowed the site; the glow is drawn once and stays still.
-- **Every new feature introduces itself once** (the owner's rule): call the shared tip from the feature's own code,
-  once its button or box is on the page:
-  `tn.tip({ id: 'live-picks', for: '#pickList', title: 'Your picks', text: 'What it is and how it works, in a sentence or two.' })`.
+- **Only major features introduce themselves** (the owner's rule, changed in 2.93.0: tips for small updates annoyed people).
+  A big new feature or service may call the shared tip once its button or box is on the page; small features, tweaks and
+  fixes never get one. `major: true` is required, or nothing shows:
+  `tn.tip({ id: 'free-to-watch', major: true, for: '#svcRail [data-svc="free"]', title: 'Free to watch', text: 'What it is and how it works, in a sentence or two.' })`.
   `id` is a new kebab-case name per feature (never reuse one); `for` is a selector or element to point at; `delay` (ms,
   default 1200) is optional. The frosted box (`.ft` in styles.css, `tn.tip` in shell.js) points at the feature, waits until it's
   on screen and the privacy note is away, shows one tip at a time, and is never shown again once seen: kept in

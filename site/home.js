@@ -1,5 +1,5 @@
 // Tenner's home page: a streaming dashboard built from Tenner's own data.
-// The six services as a rail of app icons that filter everything (tap several to pick them together) (with Shows, films or both and a genre beside them), a big featured
+// The services as a rail of app icons that filter everything (tap several to pick them together) (with Shows, films or both and a genre beside them), a big featured
 // title from what's popular (its scores in a frosted box, its genres as pills, where to watch and a Watchlist button),
 // rows of the most popular and newest, and the top rated at a glance; beside them a column of boxes: Discover's swipe deck,
 // the Top 10 itself, What should I watch tonight?, this week's biggest climbers and Tenner TV.
@@ -22,7 +22,7 @@
   const LOGO = 'https://image.tmdb.org/t/p/w500';
   const KINDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
   const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, titles: null };
-  // the services you've picked in the rail (none means all six): this visit's choice, or else My services, as with Show.
+  // the services you've picked in the rail (none means all of them): this visit's choice, or else My services, as with Show.
   // Changing My services (in Settings, or on another device) starts the rail from them again.
   const PICKS = 'tenner-home-svc';
   try { localStorage.removeItem(PICKS); } catch {}   // kept for good before 2.66.0, where it hid later changes to My services
@@ -169,12 +169,14 @@
 
   // the services as a rail of app icons (the first reference's left-hand rail, laid across the top of the rows)
   function drawRail() {
-    const first = `<button type="button" class="bx-svc-b" data-svc="all" aria-pressed="${all()}"><span class="bx-app bx-app-all"><img src="logo.svg" alt=""></span><small>All six</small></button>`;
+    const first = `<button type="button" class="bx-svc-b" data-svc="all" aria-pressed="${all()}"><span class="bx-app bx-app-all"><img src="logo.svg" alt=""></span><small>All</small></button>`;
     $('#bxRail').innerHTML = first + services().map((s) => `<button type="button" class="bx-svc-b" data-svc="${esc(s.key)}" aria-pressed="${state.picks.includes(s.key)}">
-      <span class="bx-app"${s.logo ? '' : ` style="--h:${hue(s.label)}"`}>${s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<b>${esc(s.label.slice(0, 1))}</b>`}</span><small>${esc(s.label)}</small></button>`).join('');
+      <span class="bx-app"${s.logo ? '' : ` style="--h:${hue(s.label)}"`}>${s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<b>${esc(s.label.slice(0, 1))}</b>`}</span><small>${esc(s.key === 'free' ? 'Free' : s.label)}</small></button>`).join('');   // Free to watch, short enough for its tile
+    window.tn.tip?.({ id: 'free-to-watch', major: true, for: '#bxRail [data-svc="free"]', title: 'Free to watch',
+      text: 'BBC iPlayer, ITVX, Channel 4 and 5 together, with their own Top 10. Tap it to see what you can watch without paying a penny.' });
   }
   $('#bxRail').addEventListener('click', (e) => {
-    // a tap turns a service on or off, so you can pick several; All six clears them (and picking all six is the same)
+    // a tap turns a service on or off, so you can pick several; All clears them (and picking every one is the same)
     const b = e.target.closest('[data-svc]'), k = b?.dataset.svc; if (!b || (k === 'all' && all())) return;
     const l = k === 'all' ? [] : state.picks.includes(k) ? state.picks.filter((x) => x !== k) : [...state.picks, k];
     state.picks = l.length >= services().length ? [] : l; state.hero = 0;
@@ -411,8 +413,6 @@
       <p class="bx-h-meta">${svcIcon(on)}<span>${meta.map(esc).join(' · ')}</span>${x.c ? `<b class="bx-cert">${esc(x.c)}</b>` : ''}</p>
       ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
       <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
-    window.tn.tip({ id: 'home-trending-daily', for: '#bxStrip', title: 'Trending today',
-      text: 'The big slideshow shows what’s trending right now, a random mix of shows and films that changes by itself through the day.' });
     const lg = c.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
     markSaved();
   }
@@ -486,7 +486,7 @@
     if (PHONE.matches) {
       $('#bxRows').innerHTML = phoneRows() || '<p class="bx-empty">Nothing matches. Try another genre.</p>';
       for (const r of main.querySelectorAll('.bx-row')) edges(r);
-      nsTip(); return;
+      return;
     }
     const cat = catalogue(), g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const words = { both: 'shows and films', tv: 'shows', movie: 'films' }[state.kind];
@@ -504,7 +504,6 @@
       + kinds().map(topList).join('') + newList()
       || '<p class="bx-empty">Nothing matches. Try another service or genre.</p>';
     for (const r of main.querySelectorAll('.bx-row')) edges(r);
-    nsTip();
   }
   // ---------- For you (signed in): picks from what you swiped right on in Discover (and loved and saved) ----------
   // shell.js's forYou weighs the genres; TMDB's More Like This for your latest right swipes (shell.js's moreLike) lifts
@@ -571,10 +570,6 @@
     return l.sort((a, b) => b.p - a.p).slice(0, 10).map(fromCat);
   }
   function NS() { const g = state.genre != null ? state.cat?.genres?.[state.genre] : null; return `New shows proving popular${g ? ` in ${esc(g)}` : ''}`; }
-  function nsTip() {
-    if ($('#bxNs')) window.tn.tip?.({ id: 'new-shows-popular', for: '#bxNs', title: 'New shows proving popular',
-      text: 'The ten most popular shows that started in the last few months, on the services you’ve picked. It updates every hour, so it’s a quick way to spot the next big thing.' });
-  }
   function newList() {
     const l = newShows(); if (!l.length) return '';
     const q = new URLSearchParams({ c: 'new', k: 'tv', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
@@ -623,8 +618,6 @@
     // Discover lives here now: old links (discover.html, About, Tenner TV) arrive at #discover, once, and land on its box
     // (and the #discover then leaves the address, so going back from a title's sheet never jumps the page there again)
     if (location.hash === '#discover' && !drawSide.landed) { drawSide.landed = true; history.replaceState(history.state, '', location.pathname + location.search); toDiscover('auto'); }
-    if ($('#bxTt') && !PHONE.matches) window.tn.tip?.({ id: 'home-top10-combined', for: '#bxTt', title: 'One Top 10 for the UK',
-      text: 'This chart combines every service. The services you pick at the top only change the slideshow and the rows on the left; By service has each one’s own chart.' });
   }
   // Tenner TV (the TV guide): its own box here instead of a place in the menu, while it's in beta
   function tvGuide() {

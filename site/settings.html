@@ -43,8 +43,8 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.92.0">
-  <link rel="stylesheet" href="settings.css?v=2.92.0">
+  <link rel="stylesheet" href="styles.css?v=2.93.0">
+  <link rel="stylesheet" href="settings.css?v=2.93.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -90,7 +90,7 @@
       <a class="side-link" href="legal.html#privacy">Privacy Policy</a>
       <a class="side-link" href="legal.html#cookies">Cookies</a>
       <a class="side-link" href="contact.html">Contact</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.92.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.93.0</a>
     </div>
   </div>
 
@@ -133,7 +133,7 @@
               <select name="start"><option value="auto">Home</option><option value="new">New</option><option value="top10">Top 10s</option><option value="watchlist">Watchlist</option></select></label>
             <label class="set-row set-row-ic"><i class="set-ic set-ic-s" style="--c:#bf5af2" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 5v14M16 5v14M4 9.7h4M4 14.3h4M16 9.7h4M16 14.3h4"/></svg></i><span class="set-l">Show<small>Shows, films or both, wherever Tenner starts you off</small></span>
               <select name="kind"><option value="tv">Shows</option><option value="movie">Films</option><option value="both">Shows and films</option></select></label>
-            <button type="button" class="set-row set-row-ic set-link" id="setMine"><i class="set-ic set-ic-s" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="11.5" rx="1.6"/><path d="M8.5 20h7"/></svg></i><span class="set-l">My services<small id="mineNow">All six</small></span><span class="set-pill">Choose</span></button>
+            <button type="button" class="set-row set-row-ic set-link" id="setMine"><i class="set-ic set-ic-s" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="11.5" rx="1.6"/><path d="M8.5 20h7"/></svg></i><span class="set-l">My services<small id="mineNow">All</small></span><span class="set-pill">Choose</span></button>
             <details class="set-more">
               <summary class="set-row set-row-ic"><i class="set-ic set-ic-s" style="--c:#8e8e93" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.5 12h.01M12 12h.01M17.5 12h.01" style="stroke-width:3.2"/></svg></i><span class="set-l">More<small>Up and down arrows and star ratings</small></span><span class="set-chev" aria-hidden="true"></span></summary>
               <div class="set-more-in">
@@ -250,7 +250,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.92.0" defer></script>
-  <script src="settings.js?v=2.92.0" defer></script>
+  <script src="shell.js?v=2.93.0" defer></script>
+  <script src="settings.js?v=2.93.0" defer></script>
 </body>
 </html>
