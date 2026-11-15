@@ -102,8 +102,39 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>${on ? 'In Watchlist' : 'Watchlist'}</button>`;
   // the heart (phones): a round button that tells Tenner you love this, for better recommendations; it does nothing else.
   // A grey circle with an outline heart, red with a filled heart once loved
+  // The heart and a round seed drawn with the same six curves, so one can morph smoothly into the other
+  const HEART = 'M12 20.5C9 18.6 4.2 15 4.2 9.9C4.2 7.4 6.1 5.5 8.4 5.5C10 5.5 11.3 6.4 12 7.6C12.7 6.4 14 5.5 15.6 5.5C17.9 5.5 19.8 7.4 19.8 9.9C19.8 15 15 18.6 12 20.5Z';
+  const SEED = 'M12 20C7.858 20 4.5 16.642 4.5 12.5C4.5 10.511 5.291 8.603 6.697 7.197C8.103 5.791 10.011 5 12 5C13.989 5 15.897 5.791 17.303 7.197C18.709 8.603 19.5 10.511 19.5 12.5C19.5 16.642 16.142 20 12 20Z';
   const starBtn = (on) => `<button type="button" class="btn btn-tinted sh-star${on ? ' on' : ''}" data-act="star" aria-pressed="${on}" aria-label="${on ? 'Loved' : 'Love it'}: tell Tenner you like this" title="${on ? 'Loved' : 'Love it, for better recommendations'}">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.6-4.6-7.6-10.3A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.6 2.5c0 5.7-7.6 10.3-7.6 10.3z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>`;
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="${HEART}" fill="currentColor" fill-opacity="${on ? 1 : 0}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>`;
+  // the heart morph: loving it squeezes the outline into a round seed that blooms back out as a filled heart with a
+  // little spring past its size; un-loving deflates it gently and lets the fill drain away. Drawn frame by frame so it
+  // runs the same in Safari, Chrome and Firefox (CSS can't yet animate a path's shape everywhere)
+  const nums = (d) => d.match(/-?[\d.]+/g).map(Number);
+  const H = nums(HEART), S = nums(SEED), CMDS = HEART.split(/-?[\d.]+/);
+  const shape = (a, b, t, k) => CMDS.reduce((o, c, i) => o + c + (i < a.length ? +((12 + (a[i] + (b[i] - a[i]) * t - 12) * k)).toFixed(2) : ''), '');
+  function morph(path, on) {
+    cancelAnimationFrame(path._m);
+    const dur = on ? 620 : 360, t0 = performance.now();
+    const spring = (x) => 1 - Math.exp(-6 * x) * Math.cos(9 * x);   // overshoots a touch, then settles
+    const step = (now) => {
+      const x = Math.min(1, (now - t0) / dur);
+      if (on) {
+        // first third: heart to a smaller seed; the rest: the seed springs open into the heart
+        const a = Math.min(1, x / .3), b = x < .3 ? 0 : spring((x - .3) / .7);
+        const t = x < .3 ? a * a : 1 - b, k = x < .3 ? 1 - .28 * a : .72 + .28 * b;
+        path.setAttribute('d', shape(H, S, t, k));
+        path.setAttribute('fill-opacity', x < .3 ? 0 : Math.min(1, (x - .3) / .25).toFixed(2));
+      } else {
+        const t = Math.sin(Math.PI * x) * .35, k = 1 - Math.sin(Math.PI * x) * .12;
+        path.setAttribute('d', shape(H, S, t, k));
+        path.setAttribute('fill-opacity', (1 - Math.min(1, x / .6)).toFixed(2));
+      }
+      if (x < 1) path._m = requestAnimationFrame(step);
+      else { path.setAttribute('d', HEART); path.setAttribute('fill-opacity', on ? 1 : 0); }
+    };
+    path._m = requestAnimationFrame(step);
+  }
   // ---------- Just for You (signed in): Watched, Not interested and a note only you can see, kept with your account ----------
   const SEEN_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2"/><path class="c" d="m8.2 12.3 2.6 2.6 5-5.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const HIDE_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 19.5 19.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -614,8 +645,11 @@
     }
     if (b.dataset.act === 'star') {
       const on = window.tn.stars.toggle(current.k);
-      b.outerHTML = starBtn(on); const nb = sheet.querySelector('.sh-star'); nb?.focus({ preventScroll: true });
-      if (on && !reduce() && nb?.animate) nb.querySelector('svg').animate([{ scale: 1 }, { scale: 1.35 }, { scale: 1 }], { duration: 420, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+      // updated in place (not redrawn) so the heart can morph
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+      b.setAttribute('aria-label', `${on ? 'Loved' : 'Love it'}: tell Tenner you like this`); b.title = on ? 'Loved' : 'Love it, for better recommendations';
+      const hp = b.querySelector('path');
+      if (reduce()) hp.setAttribute('fill-opacity', on ? 1 : 0); else morph(hp, on);
       if (on) window.tn?.haptic?.(10);
       const t = $('#shThanks'); clearTimeout(thanksT);
       t.textContent = on ? 'Thanks. We’ll use the shows and films you like to offer you better recommendations.' : ''; t.classList.toggle('in', on);
