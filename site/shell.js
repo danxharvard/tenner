@@ -68,8 +68,17 @@
     if (was === undefined || !animate || reduce() || !ind.animate) { ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`; return; }
     const t0 = ind.style.transform, w0 = ind.style.width, mw = Math.max(parseFloat(w0), w) * stretch, mid = (was + x) / 2 - (mw - w) / 2;
     ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`;
-    ind.animate([{ transform: t0, width: w0 }, { transform: `translateX(${mid}px)`, width: mw + 'px', offset: 0.45 }, { transform: `translateX(${x}px)`, width: w + 'px' }],
+    const a = ind.animate([{ transform: t0, width: w0 }, { transform: `translateX(${mid}px)`, width: mw + 'px', offset: 0.45 }, { transform: `translateX(${x}px)`, width: w + 'px' }],
       { duration: 520, easing: 'cubic-bezier(.3,1.15,.4,1)' });
+    ind.tnGlide = a; lens(ind, x - was); a.finished.then(() => { if (ind.tnGlide === a) lens(ind, 0); }, () => {});
+  }
+  // The lens in motion (after Edo Lunardi's Liquid Glass tab bar): while a selection travels it lifts a little and its rim
+  // splits the light, blue on the leading edge and pink behind; once it stops it settles back into clear glass.
+  // dx: how far (and which way) it's moving; 0 settles it.
+  function lens(el, dx) {
+    if (!el) return;
+    if (dx) el.dataset.dir = dx < 0 ? 'l' : 'r';
+    el.classList.toggle('lens-go', !!dx && !reduce());
   }
   // Arrow keys move through a group of radio-like buttons (segmented controls, menus), as on Apple platforms.
   function arrows(group, items, pick) {
@@ -101,11 +110,13 @@
       if (!drag || e.pointerId !== drag.id) return;
       const dx = e.clientX - drag.x0; if (Math.abs(dx) > 3) moved = true;
       thumb.getAnimations?.().forEach((a) => a.cancel());
-      thumb.style.transform = `translateX(${Math.min(drag.max, Math.max(drag.min, drag.x + dx))}px)`;
+      const nx = Math.min(drag.max, Math.max(drag.min, drag.x + dx));
+      if (moved && nx !== (drag.last ?? drag.x)) lens(thumb, nx - (drag.last ?? drag.x)); drag.last = nx;
+      thumb.style.transform = `translateX(${nx}px)`;
     });
     const end = (e) => {
       if (!drag || e.pointerId !== drag.id) return;
-      drag = null; thumb.classList.remove('held');
+      drag = null; thumb.classList.remove('held'); lens(thumb, 0);
       if (!moved) return;
       // snap to whichever option the thumb's centre is over
       const r = thumb.getBoundingClientRect(), mid = r.left + r.width / 2;
@@ -117,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.94.2';
+  const version = '2.95.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1715,6 +1726,44 @@
   }
   tabs.forEach((t) => t.addEventListener('click', () => open(t.dataset.tab)));
   arrows($('#tabs'), () => tabs, (n) => open(n.dataset.tab));   // the visible tabs only (About is hidden in the sidebar)
+  // phones: hold the lens and slide it along the tab bar, as on iOS. The tab under your finger is magnified, a small buzz
+  // marks each one you cross, and letting go opens it; a plain tap works as before
+  {
+    const bar = $('#tabs'); let sc = null, eatClick = 0;
+    const shown = () => tabs.filter((t) => t.offsetWidth);
+    const under = (cx) => shown().reduce((b, t) => { const r = t.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - cx); return d < b.d ? { t, d } : b; }, { t: null, d: Infinity }).t;
+    const mark = (t) => tabs.forEach((n) => n.classList.toggle('lens-under', n === t));
+    bar?.addEventListener('pointerdown', (e) => {
+      if (!bar.closest('.tb-dock') || e.button || !e.target.closest('[role=tab]')) return;
+      sc = { id: e.pointerId, x0: e.clientX, on: false, at: null, last: null };
+    });
+    bar?.addEventListener('pointermove', (e) => {
+      if (!sc || e.pointerId !== sc.id) return;
+      if (!sc.on) {
+        if (Math.abs(e.clientX - sc.x0) < 10) return;
+        sc.on = true; bar.setPointerCapture(e.pointerId); bar.classList.add('scrub'); ind.classList.add('held');
+      }
+      const list = shown(), w = list[0].offsetWidth, br = bar.getBoundingClientRect();
+      const nx = Math.min(list.at(-1).offsetLeft, Math.max(list[0].offsetLeft, e.clientX - br.left - w / 2));
+      ind.getAnimations?.().forEach((a) => a.cancel());
+      if (sc.last !== null && nx !== sc.last) lens(ind, nx - sc.last);
+      ind.style.width = w + 'px'; ind.style.transform = `translateX(${nx}px)`; from.set(ind, nx); sc.last = nx;
+      const t = under(e.clientX);
+      if (t !== sc.at) { if (sc.at) haptic(5); sc.at = t; mark(t); }
+    });
+    const end = (e) => {
+      if (!sc || e.pointerId !== sc.id) return;
+      const was = sc; sc = null;
+      if (!was.on) return;
+      bar.classList.remove('scrub'); ind.classList.remove('held'); mark(null);
+      const t = e.type === 'pointerup' ? under(e.clientX) : null, n = t?.dataset.tab;
+      eatClick = performance.now() + 400;   // the click that follows a slide isn't a tap
+      if (n && n !== cur) { open(n); if (cur !== n && n !== 'top10' && n !== 'search') { select(n); return; } }
+      placeInd(true);
+    };
+    bar?.addEventListener('pointerup', end); bar?.addEventListener('pointercancel', end);
+    bar?.addEventListener('click', (e) => { if (performance.now() < eatClick) { eatClick = 0; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  }
   addEventListener('resize', () => placeInd(false));
   document.fonts?.ready.then(() => placeInd(false));
   placeInd(false); placed = true;
