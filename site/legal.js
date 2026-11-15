@@ -27,6 +27,7 @@
     bulb: ic('<path d="M12 3.5a5.8 5.8 0 0 0-3.5 10.4c.7.5 1 1.2 1 2V17h5v-1.1c0-.8.3-1.5 1-2A5.8 5.8 0 0 0 12 3.5z"/><path d="M9.8 20.3h4.4"/>'),
     check: ic('<path d="M6 12.5l4 4 8-9"/>'),
     home: ic('<path d="M4 10.4 12 4l8 6.4V20h-5v-5.6H9V20H4z"/>'),
+    news: ic('<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4"/><path d="M12 8v4.3l2.8 1.7"/>'),
     search: ic('<circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.6 15.6 4.6 4.6"/>'),
   };
   const CHEV = '<span class="hq-chev" aria-hidden="true"></span>';
@@ -74,7 +75,8 @@
   const home = () => `
     <section class="hq-sec" aria-labelledby="hqTopicsH"><h2 class="hq-h" id="hqTopicsH">Browse help topics</h2>
       <ul class="hq-cats">${cats.map((c) => `<li><a class="hq-card" href="#${c.id}" style="--c:${c.c}"><span class="gi">${c.ic}</span><b>${esc(c.title)}</b><small>${esc(c.sub)}</small><span class="hq-n">${c.arts.length} articles${CHEV}</span></a></li>`).join('')}
-        <li><a class="hq-card" href="contact.html" style="--c:#ff375f"><span class="gi">${IC.chat}</span><b>Contact us</b><small>Can’t find what you need? Write to us and a real person will reply.</small><span class="hq-n">Usually within a day${CHEV}</span></a></li></ul>
+        <li><a class="hq-card" href="contact.html" style="--c:#ff375f"><span class="gi">${IC.chat}</span><b>Contact us</b><small>Can’t find what you need? Write to us and a real person will reply.</small><span class="hq-n">Usually within a day${CHEV}</span></a></li>
+        <li><a class="hq-card" href="updates.html" style="--c:#40c8e0"><span class="gi">${IC.news}</span><b>Update centre</b><small>Every Tenner release, with what changed and when.</small><span class="hq-n">What’s new${CHEV}</span></a></li></ul>
     </section>
     <section class="hq-sec" aria-labelledby="hqPopH"><h2 class="hq-h" id="hqPopH">Popular articles</h2>
       <ul class="hq-list">${arts.filter((a) => a.pop).map((a) => row(a, true)).join('')}</ul>
