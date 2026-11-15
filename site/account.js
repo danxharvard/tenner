@@ -64,7 +64,7 @@
     eyes($('#acWays'));
     $('#acDevices').innerHTML = me.sessions.map((x) => `<div class="set-row"><span class="set-l"><span>${esc(x.label)}${x.here ? ' <em class="ac-here">This device</em>' : ''}</span><small>Signed in ${esc(when(x.created).toLowerCase())}${x.here ? '' : ` · seen ${esc(when(x.seen).toLowerCase())}`}</small></span>${x.here || !x.id ? '' : `<button type="button" class="ac-x" data-ses="${+x.id}" aria-label="Sign out ${esc(x.label)}">Remove</button>`}</div>`).join('')
       + (me.sessions.length > 1 ? '<button type="button" class="set-row set-link" id="acOthers"><span class="set-l">Sign out everywhere else</span></button>' : '');
-    $('#acDelete').querySelector('small').textContent = u.google ? 'Unlink Google first, then you can delete it' : 'Removes it and everything in it from Tenner. What’s on this device stays';
+    $('#acDelete').querySelector('small').textContent = u.google ? 'Unlink Google first, then you can delete it' : 'Removes it and everything in it from Tenner and this device';
     syncLine(); stats();
   }
   // ---------- Your Tenner: worked out on this device from what your account keeps (Watched, progress, loves, Watchlist) ----------
@@ -207,7 +207,7 @@
   function askDelete() {
     if (me?.user.google) return askUnlink();
     const n = window.tn.saved.all().length;
-    $('#acDelP').textContent = `Deleting your account removes ${n ? `your Watchlist of ${n} title${n === 1 ? '' : 's'}` : 'your Watchlist'}, where you’re up to and your settings from Tenner for good. What’s on this device stays. This can’t be undone.`;
+    $('#acDelP').textContent = `Deleting your account removes ${n ? `your Watchlist of ${n} title${n === 1 ? '' : 's'}` : 'your Watchlist'}, where you’re up to and your settings from Tenner and this device for good. This can’t be undone.`;
     delDlg.returnValue = ''; delDlg.showModal();
   }
   delDlg.addEventListener('click', (e) => { if (e.target === delDlg) delDlg.close(); });   // a tap outside keeps it, as on iPhone
