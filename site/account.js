@@ -64,6 +64,7 @@
     eyes($('#acWays'));
     $('#acDevices').innerHTML = me.sessions.map((x) => `<div class="set-row"><span class="set-l"><span>${esc(x.label)}${x.here ? ' <em class="ac-here">This device</em>' : ''}</span><small>Signed in ${esc(when(x.created).toLowerCase())}${x.here ? '' : ` · seen ${esc(when(x.seen).toLowerCase())}`}</small></span>${x.here || !x.id ? '' : `<button type="button" class="ac-x" data-ses="${+x.id}" aria-label="Sign out ${esc(x.label)}">Remove</button>`}</div>`).join('')
       + (me.sessions.length > 1 ? '<button type="button" class="set-row set-link" id="acOthers"><span class="set-l">Sign out everywhere else</span></button>' : '');
+    $('#acDelete').querySelector('small').textContent = u.google ? 'Unlink Google first, then you can delete it' : 'Removes it and everything in it from Tenner. What’s on this device stays';
     syncLine(); stats();
   }
   // ---------- Your Tenner: worked out on this device from what your account keeps (Watched, progress, loves, Watchlist) ----------
@@ -204,12 +205,37 @@
   // ---------- delete: ask once, kindly, saying what goes; keeping it is the default, deleting one tap away ----------
   const delDlg = $('#acDelDlg');
   function askDelete() {
+    if (me?.user.google) return askUnlink();
     const n = window.tn.saved.all().length;
     $('#acDelP').textContent = `Deleting your account removes ${n ? `your Watchlist of ${n} title${n === 1 ? '' : 's'}` : 'your Watchlist'}, where you’re up to and your settings from Tenner for good. What’s on this device stays. This can’t be undone.`;
     delDlg.returnValue = ''; delDlg.showModal();
   }
   delDlg.addEventListener('click', (e) => { if (e.target === delDlg) delDlg.close(); });   // a tap outside keeps it, as on iPhone
   delDlg.addEventListener('close', () => { if (delDlg.returnValue === 'delete') { del2Dlg.returnValue = ''; del2Dlg.showModal(); } });
+  // Google still linked: deleting waits until it's unlinked, and this alert does that in one tap, then carries on to
+  // the delete alert. If Google is the only way in, a passkey comes first (the Worker won't unlink your last way in)
+  const gDlg = $('#acGDlg'), gGo = $('#acGGo');
+  const onlyGoogle = () => !me.passkeys.length && !me.password;
+  function askUnlink() {
+    const only = onlyGoogle(), who = me.user.email ? ` (${me.user.email})` : '';
+    $('#acGP').textContent = only
+      ? `Your account is linked to Google${who}, and it’s your only way to sign in. Add a passkey first, then unlink Google and you can delete your account.`
+      : `Your account is still linked to Google${who}. Unlink it first, then you can delete your account.`;
+    gGo.querySelector('span').textContent = only ? 'Add a passkey' : 'Unlink Google';
+    gGo.querySelector('.ac-g-pk').toggleAttribute('hidden', !only); gGo.querySelector('.ac-g-un').toggleAttribute('hidden', only);   // (an svg has no .hidden)
+    gDlg.querySelector('.ac-del-alt').hidden = !only;
+    if (!gDlg.open) gDlg.showModal();
+  }
+  gDlg.addEventListener('click', async (e) => {
+    if (e.target === gDlg || e.target.closest('#acGNo')) { gDlg.close(); return; }
+    if (!e.target.closest('#acGGo') || gGo.disabled) return;
+    gGo.disabled = true;
+    try {
+      if (onlyGoogle()) { await makePasskey(); await load(); askUnlink(); say('#acNote', 'Passkey added'); }
+      else { await account.call('DELETE', '/me/google'); await load(); gDlg.close(); say('#acNote', 'Google unlinked'); askDelete(); }
+    } catch (err) { if (err.name !== 'NotAllowedError') { gDlg.close(); say('#acNote', friendly(err), true); } }
+    finally { gGo.disabled = false; }
+  });
   // the last word: are you sure? No (or a tap outside) heads back to Tenner; Yes deletes it
   const del2Dlg = $('#acDel2Dlg');
   del2Dlg.addEventListener('click', (e) => { if (e.target === del2Dlg) del2Dlg.close(); });
