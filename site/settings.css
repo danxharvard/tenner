@@ -165,3 +165,11 @@
 
 /* hairlines above a row with an icon start at its words (after the More rows' own rules above) */
 .set-page .set-group > .set-row-ic:not(:first-child)::before, .set-page .set-group > .set-more:has(> .set-row-ic)::before { left: 58px; }
+
+/* Your data: Import | Export | Clear all as one button group, with a grey line saying what each does */
+.set-acts { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; cursor: default; }
+.set-acts .bgrp { width: 100%; }
+.set-acts .bgrp .btn { position: relative; height: 44px; gap: 7px; justify-content: center; font-size: 15px; white-space: nowrap; }
+.set-acts .bgrp .btn svg { width: 17px; height: 17px; flex: none; }
+.set-acts .set-file { z-index: 1; }
+.set-acts-note { color: var(--label2); font-size: 13px; line-height: 1.35; }

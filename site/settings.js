@@ -250,7 +250,7 @@
     const l = window.tn.hidden.list();
     hidList.innerHTML = l.length ? l.map((x) => `<li>${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : `<span class="hid-ph" style="--h:${window.tn.hue(x.title)}"></span>`}
       <span class="set-l"><b>${esc(x.title)}</b><small>${esc([x.type === 'movie' ? 'Film' : 'Series', x.year].filter(Boolean).join(' · '))}</small></span>
-      <button type="button" class="btn btn-tinted" data-unhide="${esc(x.k)}">Show again</button></li>`).join('') : '<li class="hid-none">Nothing hidden. Everything’s back.</li>';
+      <button type="button" class="btn btn-tinted btn-2nd" data-unhide="${esc(x.k)}">Show again</button></li>`).join('') : '<li class="hid-none">Nothing hidden. Everything’s back.</li>';
   };
   document.getElementById('setHidden').addEventListener('click', () => { drawHidden(); hidDlg.showModal(); });
   hidDlg.addEventListener('click', (e) => {

@@ -44,8 +44,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.99.1">
-  <link rel="stylesheet" href="contact.css?v=2.99.1">
+  <link rel="stylesheet" href="styles.css?v=2.100.0">
+  <link rel="stylesheet" href="contact.css?v=2.100.0">
 </head>
 <body class="contact">
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +88,7 @@
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <div class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.99.1</span>
+      <span class="side-ver">Tenner 2.100.0</span>
     </div>
   </div>
 
@@ -138,7 +138,7 @@
         <p id="cDoneP">Thanks for writing. We’ll reply to your email, usually within a day.</p>
         <div class="cx-done-btns">
           <a class="btn btn-tinted" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.4 12 4l8 6.4V20h-5v-5.6H9V20H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Back to Tenner</a>
-          <button type="button" class="btn btn-tinted" id="cAgain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Write another</button>
+          <button type="button" class="btn btn-tinted btn-2nd" id="cAgain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Write another</button>
         </div>
       </div>
     </section>
@@ -152,7 +152,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.99.1" defer></script>
-  <script src="contact.js?v=2.99.1" defer></script>
+  <script src="shell.js?v=2.100.0" defer></script>
+  <script src="contact.js?v=2.100.0" defer></script>
 </body>
 </html>
