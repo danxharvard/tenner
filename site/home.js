@@ -7,14 +7,11 @@
 // The Top 10 lives here (its own page is gone); New and Watchlist live on charts.html, and old links to them here are sent on.
 
 (() => {
-  // links from before the charts had their own page (bookmarks, alerts, emails, the Home Screen) and Settings' "Open
-  // Tenner on" go straight to the charts
+  // links from before the charts had their own page (bookmarks, alerts, emails, the Home Screen) go straight to the charts.
+  // Tenner always opens on Home: the old "Open Tenner on" setting is gone, and a choice saved from it is ignored.
   {
-    const h = location.hash.slice(1), start = window.tn.prefs.get().start;
-    const chart = /^(new|top10|watchlist|week)$/.test(h);   // (#discover stays here: Discover lives on this page)
-    let first = true; try { first = !sessionStorage.getItem('tenner-opened'); sessionStorage.setItem('tenner-opened', '1'); } catch {}
-    const opener = first && !h && !location.search && ['new', 'top10', 'watchlist'].includes(start);
-    if (chart || opener) { location.replace(`charts.html${location.search}#${chart ? h : start}`); return; }
+    const h = location.hash.slice(1);
+    if (/^(new|top10|watchlist|week)$/.test(h)) { location.replace(`charts.html${location.search}#${h}`); return; }   // (#discover stays here: Discover lives on this page)
   }
   const { esc, hue } = window.tn;
   const reduce = () => document.documentElement.classList.contains('still');   // Animations off, or Reduce Motion (read live)
