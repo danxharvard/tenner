@@ -871,6 +871,30 @@ export async function buildFeatured(data, ids, prev) {
   return { v: FEATURED_V, day: ukDay(), from, generatedAt: new Date().toISOString(), items };
 }
 
+// ---------- Home's spotlight: a big splash halfway down the page for one title Tenner wants to show off ----------
+// Each entry here becomes data/spotlight.json: the title's details from TMDB and its best wordless backdrop (the most
+// liked one with no language, so the artwork has no words on it). Rebuilt once a day; the live copy carries on for a
+// week if TMDB has a bad moment, and Home simply leaves the splash out if there's nothing.
+const SPOTLIGHT_V = 1, SPOTLIGHT_HOURS = 24;
+const SPOTLIGHT = [{ type: 'tv', id: 84773, on: ['prime'], eye: 'Only on Prime Video' }];   // The Lord of the Rings: The Rings of Power
+export async function buildSpotlight(prev) {
+  const same = prev?.v === SPOTLIGHT_V && prev.items?.length && SPOTLIGHT.every((s, i) => prev.items[i]?.id === s.id);
+  if (same && hoursOld(prev) < SPOTLIGHT_HOURS) { console.log('Spotlight: keeping the one from', prev.generatedAt); return prev; }
+  const items = (await pool(SPOTLIGHT.map((s) => async () => {
+    try {
+      const [r, im] = await Promise.all([tmdb(`/${s.type}/${s.id}`, { language: 'en-GB' }), tmdb(`/${s.type}/${s.id}/images`, { include_image_language: 'null' }).catch(() => ({}))]);
+      const bd = (im.backdrops || []).filter((x) => x.file_path && !x.iso_639_1 && x.width >= 1280 && x.aspect_ratio > 1.6)
+        .sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count)[0]?.file_path || r.backdrop_path;
+      if (!bd) return null;
+      return { ...toItem({ ...r, backdrop_path: bd }, s.type), on: s.on, eye: s.eye };
+    } catch (err) { warn('Spotlight', `${s.type} ${s.id}: ${err.message}`); return null; }
+  }), 2)).filter(Boolean);
+  if (!items.length) throw new Error('no spotlight titles came back');
+  console.log(`Spotlight: ${items.map((it) => it.title).join(', ')}`);
+  return { v: SPOTLIGHT_V, generatedAt: new Date().toISOString(), items };
+}
+export const spotlightKeys = () => SPOTLIGHT.map((s) => `${s.type === 'movie' ? 'm' : 't'}${s.id}`);
+
 // ---------- A page for each title, for link previews ----------
 // t/m123/index.html for every title Tenner has details for: its name, artwork and where it streams in the tags that
 // Messages, WhatsApp, Slack and the rest read when a link is shared, and straight on to the title's sheet for people.
@@ -965,6 +989,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const st = buildTrackers(trending, sh);
     await write('trending.json', trending); await write('featured.json', { v: FEATURED_V, day: ukDay(), generatedAt: trending.generatedAt, sample: true, items: pickFeatured(trending) });
     await write('trail.json', st.trail); await write('week.json', st.week);
+    { const it = trending.overall.tv.find((x) => x.backdrop) || trending.overall.tv[0]; await write('spotlight.json', { v: SPOTLIGHT_V, generatedAt: trending.generatedAt, sample: true, items: it ? [{ ...it, type: 'tv', on: [trending.services[0]?.key].filter(Boolean), eye: 'A sample spotlight' }] : [] }); }
     await write('titles.json', { v: 1, generatedAt: trending.generatedAt, logo: '', providers: sp, items: sItems, sample: true });
     const pItems = {};   // sample prices, for a few of the chart's films
     for (const it of trending.overall.movie.slice(0, 5)) pItems[`m${it.id}`] = { at: Date.now(), o: [['Apple TV', 'rent', 3.99 + (it.id % 3), 'HD', ''], ['Sky Store', 'rent', 4.99, 'HD', ''], ['Apple TV', 'buy', 9.99 + (it.id % 5), '4K', '']].sort((x, y) => x[2] - y[2]) };
@@ -1093,6 +1118,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (featured) await write('featured.json', featured);
     }
 
+    // 4b. Home's spotlight (once a day; the live copy carries on for a week if it fails)
+    {
+      const prev = await liveCopy('spotlight.json');
+      try { await write('spotlight.json', await buildSpotlight(prev)); }
+      catch (err) {
+        const keep = prev?.items?.length && hoursOld(prev) < 168;
+        warn('Spotlight', `not rebuilt (${err.message})${keep ? ', keeping the live one' : ''}`);
+        if (keep) await write('spotlight.json', prev);
+      }
+    }
+
     // 4a. Title details (where to watch, runtime, age rating, trailer) for everything Tenner shows.
     try {
       const key = (type, id) => (typeof id === 'number' || /^\d+$/.test(String(id)) ? `${type === 'movie' ? 'm' : 't'}${id}` : null);
@@ -1101,6 +1137,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       for (const t of ['tv', 'movie']) for (const it of data.overall?.[t] || []) { const k = key(t, it.id); if (k) chartKeys.add(k); }
       for (const it of newList?.items || []) { const k = it.id && key(it.type, it.id); if (k) chartKeys.add(k); }
       for (const it of featured?.items || []) { const k = key(it.type, it.id); if (k) chartKeys.add(k); }
+      for (const k of spotlightKeys()) chartKeys.add(k);   // the spotlight's logo, genres and trailer
       const catalogueKeys = new Set((catalogue?.items || []).map((x) => `${x.t[0]}${x.i}`));
       const prevTitles = await liveCopy('titles.json');
       const titles = await buildTitles(chartKeys, catalogueKeys, prevTitles);

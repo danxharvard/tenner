@@ -38,6 +38,9 @@ jobs:
             # the big featured artwork's pool (Home's slideshow, Browse's spotlight): what's trending, rebuilt every three hours
             fmins=$(curl -s -m 30 "$LIVE/data/featured.json?v=$(date +%s)" | age)
             [ "$fmins" -le 720 ] || { [ "$fmins" = 99999 ] && echo "update.yml|the homepage slideshow's titles couldn't be read" || echo "update.yml|the homepage slideshow hasn't changed for $((fmins/60)) hours"; }
+            # Home's spotlight (the big splash halfway down): rebuilt once a day
+            smins=$(curl -s -m 30 "$LIVE/data/spotlight.json?v=$(date +%s)" | age)
+            [ "$smins" -le 2880 ] || { [ "$smins" = 99999 ] && echo "update.yml|Home's spotlight couldn't be read" || echo "update.yml|Home's spotlight hasn't been rebuilt for $((smins/60)) hours"; }
             # each title's own page (for link previews): the No. 1 show's must be there, with its name in the preview tags
             k=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log("t"+JSON.parse(s).overall.tv[0].id)}catch{console.log("t0")}})')
             curl -s -m 30 -A "$SAFARI" "https://tenner.stream/t/$k/" | grep -q 'property="og:title"' || echo "update.yml|the link preview page for $k is missing"

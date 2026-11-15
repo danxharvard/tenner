@@ -395,3 +395,12 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
     -webkit-mask-image: linear-gradient(transparent, #000 40px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(transparent, #000 40px, #000 calc(100% - 44px), transparent); }
   .bx-row { padding-inline: 0; scroll-padding-inline: 0; }
 }
+
+/* ---------- the spotlight: a second splash halfway down (home.js's drawSpot), drawn like the featured title ---------- */
+.bx-spot { margin-top: 34px; min-height: clamp(400px, 50vh, 540px); }
+.bx-spot .bx-h-copy { max-width: 600px; }
+@media (min-width: 720px) and (max-width: 1299px) { .bx-spot { order: 2; } }   /* with the lists, below the side column */
+@media (max-width: 719px) {
+  .bx-spot { margin-top: 26px; height: clamp(460px, 118vw, 580px); }
+  .bx-spot .bx-h-copy { padding-bottom: 26px; }
+}
