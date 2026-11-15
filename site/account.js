@@ -294,7 +294,8 @@
         : lede || 'Your Tenner, everywhere. It’s optional: Tenner works just the same without.';
     }
   }
-  addEventListener('tn:account', () => { if (!!account.token() === $('#acOut').hidden) return; show(); });
+  // signing in or out here swaps the whole page, so it starts again from its title (the sign-in form may have scrolled it)
+  addEventListener('tn:account', () => { if (!!account.token() === $('#acOut').hidden) return; show(); scrollTo(0, 0); });
   $('#acIn').classList.toggle('native-sw', 'switch' in HTMLInputElement.prototype);
   show();
 })();
