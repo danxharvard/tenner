@@ -135,7 +135,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.100.0';
+  const version = '2.101.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -901,7 +901,7 @@
     // ---------- phones: the Filters menu, the left menu's twin, sliding in from the right. Any control on the page marked
     // data-filter="Its heading" moves in here on phones (and back on bigger screens), listeners and all, so a new filter
     // only needs the attribute. Done (or a tap outside) puts it away. ----------
-    if (filters.length && !share) {
+    if (filters.length) {
       const FILT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
       rightBox.insertAdjacentHTML('afterbegin', `<button type="button" class="tb-round tb-filt" id="filtBtn" aria-label="Filters" aria-haspopup="dialog" aria-controls="filters" aria-expanded="false">${FILT}</button>`);
       document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer drawer-r" id="filters" aria-labelledby="flH">
