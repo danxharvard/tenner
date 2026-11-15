@@ -28,6 +28,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   seen INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
+CREATE TABLE IF NOT EXISTS gone (   -- sessions of deleted accounts (hashes), so those devices clear themselves; kept six months
+  token TEXT PRIMARY KEY,
+  at INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS challenges (
   id TEXT PRIMARY KEY,
   challenge TEXT NOT NULL,

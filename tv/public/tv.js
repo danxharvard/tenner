@@ -895,7 +895,10 @@
       const t = acct.token();
       const r = await fetch(`${API}${path}`, { method, headers: { 'content-type': 'application/json', ...(t ? { authorization: `Bearer ${t}` } : {}) }, body: body ? JSON.stringify(body) : undefined });
       const d = await r.json().catch(() => ({}));
-      if (r.status === 401 && t) acct.forget();
+      if (r.status === 401 && t) {   // signed out elsewhere; or the account was deleted, and then what it kept here goes too
+        if (d.deleted) { [FAV, REM, GONE, 'tenner-tv-pat'].forEach((k) => store.set(k, null)); remChanged(true); toast('Your Tenner account was deleted, so its reminders and pins are gone from here too'); }
+        acct.forget();
+      }
       if (!r.ok) throw new Error(d.error || 'Something went wrong');
       return d;
     },
