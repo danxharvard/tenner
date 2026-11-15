@@ -78,8 +78,8 @@ function render() {
 }
 // Swap the page through a View Transition where the browser has one, so changes crossfade instead of jumping.
 function morph(fn) {
-  if (!document.startViewTransition || reduceMotion() || !view.firstElementChild || view.querySelector('.loading')) { fn(); return; }
-  document.startViewTransition(fn).ready.catch(() => {});   // a newer change can cut one short: that's fine
+  if (!view.firstElementChild || view.querySelector('.loading')) { fn(); return; }
+  window.tn.morph(fn);
 }
 function draw() {
   selectTab(state.route);

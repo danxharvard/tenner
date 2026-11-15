@@ -21,7 +21,6 @@
 .hq-aura i:nth-child(2) { width: 44vmax; height: 44vmax; right: -12vmax; top: 26vh; opacity: .1; background: radial-gradient(closest-side, #bf5af2, transparent); }
 .hq-aura i:nth-child(3) { width: 50vmax; height: 50vmax; left: -10vmax; bottom: -32vmax; opacity: .1; }
 :root[data-theme="dark"] .hq-aura i { opacity: .3; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme]) .hq-aura i { opacity: .3; } }
 :root:not(.still) .hq-aura i { animation: hqDrift 24s ease-in-out infinite alternate; }
 @keyframes hqDrift { to { transform: translate(-5vmax, 4vmax) scale(1.1); } }
 

@@ -47,7 +47,7 @@
   try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
-  addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
+  ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
   <script>/* the charts start downloading now, alongside the scripts, rather than once they've all run (app.js asks for these same addresses) */
   (function(){var v="?v="+Math.floor(Date.now()/6e5);["trending","new","browse","week","cinema","trail"].forEach(function(n){var l=document.createElement("link");l.rel="preload";l.as="fetch";l.crossOrigin="";l.href="data/"+n+".json"+v;document.head.appendChild(l)})})();</script>
   <link rel="stylesheet" href="styles.css?v=2.100.0">

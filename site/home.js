@@ -211,7 +211,7 @@
     $('#bxGenDD').classList.toggle('on', state.genre != null);
     morph(() => { drawRows(); drawSide(); markSaved(); });
   });
-  const morph = (fn) => (document.startViewTransition && !document.documentElement.classList.contains('still') ? document.startViewTransition(fn).ready.catch(() => {}) : fn());   // one cut short by a newer change is fine
+  const morph = (fn) => window.tn.morph(fn);
 
   // ---------- Christmas (1 November to Boxing Day): a festive slide among the featured titles ----------
   // Its own artwork (a snowy village at night, a lit tree), a countdown in the scores' box, a nudge to add Tenner to the
