@@ -36,8 +36,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <script>/* Night is the default; Day or Auto only when chosen */
-  function tnTheme(t){var r=document.documentElement;if(t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);
-    var c=t==="auto"?null:(t==="light"?"#ffffff":"#000000");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){if(!m.dataset.c)m.dataset.c=m.content;m.content=c||m.dataset.c;});}
+  function tnTheme(t){var r=document.documentElement,q=matchMedia("(prefers-color-scheme: dark)"),d=t==="auto"?(q.matches?"dark":"light"):t;r.setAttribute("data-theme",d);r.toggleAttribute("data-auto",t==="auto");
+    if(!tnTheme.q){tnTheme.q=1;q.addEventListener("change",function(){if(r.hasAttribute("data-auto"))tnTheme("auto")})}document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d==="light"?"#ffffff":"#000000"})}
   /* your account's colour as the accent (links, highlights, glows): a deeper shade by day, a lighter one by night, both legible */
   function tnMe(a){var r=document.documentElement,s=r.style,h=a&&a.hue!=null?+a.hue:210;if([265,330,5,30,145,175].indexOf(h)<0){r.removeAttribute("data-me");return}
     r.setAttribute("data-me","");s.setProperty("--me-h",h);s.setProperty("--me-d","hsl("+h+" 80% "+(h<20||h>=215?44:h<35||h>=200?36:26)+"%)");s.setProperty("--me-n","hsl("+h+" 90% "+(h>=225&&h<=280?72:64)+"%)")}

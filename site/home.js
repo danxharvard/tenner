@@ -294,7 +294,7 @@
     else { gr.addColorStop(0, '#fff'); gr.addColorStop(.42, 'rgba(255,255,255,.95)'); gr.addColorStop(.62, light ? 'rgba(120,140,180,.35)' : 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); }
     g.fillStyle = gr; g.fillRect(0, 0, s, s); return c;
   }
-  const isLight = () => { const t = document.documentElement.getAttribute('data-theme'); return t === 'light' || (!t && matchMedia('(prefers-color-scheme: light)').matches); };
+  const isLight = () => document.documentElement.getAttribute('data-theme') === 'light';
   function flake(top) {
     const z = Math.random() ** 1.6;   // most are far away
     return { x: Math.random() * sw, y: top ? -Math.random() * sh - 10 : -12, z, r: 1.2 + z * z * 5.5 + (z > .85 ? 3 : 0), vy: 16 + z * 44 + Math.random() * 8,

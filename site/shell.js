@@ -1786,11 +1786,11 @@
 
   // ---------- Theme: Auto, Day or Night (Night by default) ----------
   const modeBtns = document.querySelectorAll('.th-list button');
-  const mode = () => root.getAttribute('data-theme') || 'auto';
+  const mode = () => (root.hasAttribute('data-auto') ? 'auto' : root.getAttribute('data-theme') || 'dark');
   function showTheme() {
     const m = mode();
     modeBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
-    const dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    const dark = root.getAttribute('data-theme') === 'dark';
     $('#thIc').innerHTML = $(`.th-list [data-mode="${dark ? 'dark' : 'light'}"] i`).innerHTML; // the round button: a moon by night, a sun by day
     const meTh = $('#bxMeTh');   // ...and the same in the account pill, which flips between Day and Night
     if (meTh) { meTh.innerHTML = $('#thIc').innerHTML; meTh.setAttribute('aria-label', dark ? 'Switch to Day' : 'Switch to Night'); meTh.title = meTh.getAttribute('aria-label'); }
