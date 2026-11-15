@@ -1,5 +1,17 @@
 [
  {
+  "version": "2.101.0",
+  "date": "2026-11-15",
+  "title": "Tenner rebuilt from the ground up",
+  "changes": [
+   "The whole look rebuilt from scratch: one tidy stylesheet in place of years of layered fixes, with every page looking just as before",
+   "Auto theme now follows your device the moment it switches between Day and Night",
+   "Tapping a tab while a page is still fading in no longer trips an error",
+   "Smoother crossfades everywhere, all sharing one quick path"
+  ],
+  "notes": "Every page was checked at five screen sizes in Day and Night against the old site before release."
+ },
+ {
   "version": "2.88.2",
   "date": "2026-11-13",
   "title": "Leaving soon works again, and the backend is checked over",
