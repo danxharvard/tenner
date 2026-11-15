@@ -13,7 +13,7 @@
     const p = prefs.get(), th = (() => { try { return localStorage.getItem('tenner-theme') || 'dark'; } catch { return 'dark'; } })();
     const kind = (() => { try { return localStorage.getItem('tenner-kind') || 'both'; } catch { return 'both'; } })();
     form.theme.value = ['auto', 'light', 'dark'].includes(th) ? th : 'dark';
-    form.kind.value = kind; form.start.value = ['new', 'top10', 'watchlist'].includes(p.start) ? p.start : 'auto'; form.trailers.value = p.trailers;
+    form.kind.value = kind; form.trailers.value = p.trailers;
     for (const k of ['anim', 'moves', 'ratings', 'autoplay', 'no18']) form[k].checked = !!p[k];
     for (const k of MEMBER) form[k].checked = p[k] !== false && !!p[k];
     form.quiet.value = ['off', '22-7', '23-8', '21-9'].includes(p.quiet) ? p.quiet : 'off';
@@ -241,7 +241,7 @@
     if (!confirm('Clear your Watchlist, progress, My services and settings on this device? This can’t be undone.')) return;
     try { ['tenner-watchlist', 'tenner-progress', 'tenner-services', 'tenner-settings', 'tenner-kind'].forEach((k) => localStorage.removeItem(k)); } catch {}
     try { ['tenner-home-svc', 'tenner-home-kind', 'tenner-tt-kind', 'tenner-discover-kind'].forEach((k) => sessionStorage.removeItem(k)); } catch {}   // this visit's picks too
-    saved.set([]); mine.set([]); prefs.set('start', 'auto'); show(); say('Cleared');
+    saved.set([]); mine.set([]); show(); say('Cleared');
   });
   // ---------- Not interested (signed in): the hidden titles, each one tap from coming back ----------
   const hidDlg = document.getElementById('hidDlg'), hidList = document.getElementById('hidList');

@@ -14,7 +14,7 @@
     edit(fn) { const m = meta.get(); fn(m); try { localStorage.setItem(SYNC, JSON.stringify(m)); } catch {} },
   };
   // ---------- settings (settings.html), on this device (and in your account, if you sign in) ----------
-  const PREFS = 'tenner-settings', DEF = { start: 'auto', anim: false, moves: true, ratings: true, trailers: 'here', autoplay: true, no18: false, digest: false,
+  const PREFS = 'tenner-settings', DEF = { anim: false, moves: true, ratings: true, trailers: 'here', autoplay: true, no18: false, digest: false,
     // signed in only: Spoiler shield, watched titles leave the Watchlist, hide Not interested titles, notes on the Watchlist,
     // Your Tenner on the account page, which alerts to send and when to stay quiet (the Worker reads these from the account)
     spoil: false, seenoff: true, hideni: true, notewl: true, stats: true, alarr: true, alep: true, alleave: true, altv: true, alprice: true, quiet: 'off' };
@@ -117,7 +117,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.94.0';
+  const version = '2.94.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
