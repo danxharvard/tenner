@@ -128,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.98.2';
+  const version = '2.98.3';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1242,7 +1242,7 @@
     // ---------- tap the pill: a dropdown with your account at a glance (status, numbers, links). It grows out of the pill
     // like a drop of liquid (springy scale and a softening blur, the rows following one after another), only with motion on.
     let syncedAt = 0;
-    addEventListener('tn:synced', () => { syncedAt = Date.now(); if (!$('#meMenu').hidden) fillMenu(); });
+    addEventListener('tn:synced', () => { syncedAt = Date.now(); if (!$('#meMenu').hidden) { fillMenu(); placeMenu(); } });
     const ago = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : `${Math.round(m / 60)} hr ago`; };
     const ME_I = {
       acct: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.8 19.5c1.2-3.6 4-5.3 7.2-5.3s6 1.7 7.2 5.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
@@ -1350,10 +1350,15 @@
           ${u.share_id ? `<div class="me-share-link"><span>${esc(`${location.origin}/list.html?u=${u.share_id}`)}</span><button type="button" class="me-copy" id="meCopy">Copy</button></div>` : ''}</div>`;
     }
     const menu = () => $('#meMenu'), card = () => $('#bxMeCard');
+    // placed under the pill every time it's drawn, so it can never be left somewhere the pill isn't
+    function placeMenu() {
+      const m = menu(), r = $('#bxMe').getBoundingClientRect();
+      m.style.top = `${Math.max(0, r.bottom) + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
+    }
+    let byPage = false;   // the account page opened it for you (signed out), rather than you tapping the pill
     function openMenu(tapped) {   // tapped: you opened it (a buzz); the account page opening it for you stays quiet
-      fillMenu(); const m = menu(), r = $('#bxMe').getBoundingClientRect();
-      m.style.top = `${r.bottom + scrollY + 10}px`; m.style.right = `${Math.max(16, document.documentElement.clientWidth - r.right)}px`;
-      m.hidden = false; card().setAttribute('aria-expanded', 'true'); if (tapped) haptic(6);
+      fillMenu(); const m = menu(); byPage = !tapped;
+      m.hidden = false; placeMenu(); card().setAttribute('aria-expanded', 'true'); if (tapped) haptic(6);
       requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('in')));
       if (account.user()) account.sync();   // freshen the numbers while it's open
       else setTimeout(() => $('#meMenu .me-in:not([readonly])')?.focus({ preventScroll: true }), 120);
@@ -1421,7 +1426,9 @@
       box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('signed-in', !!u);   // (not 'me-in': that's the sign-in fields' class, which then styled the whole page)
       const c = $('#bxMeCard'), wide = matchMedia('(min-width: 720px)').matches;
       const DN = '<svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      if (!menu().hidden) fillMenu();   // signing in (or out) inside the dropdown: it turns into the other view where it is
+      // signing in (or out) inside the dropdown: it turns into the other view where it is. On the account page, though, the
+      // page itself shows your account once you're in, so the sign-in form it opened for you is put away instead
+      if (!menu().hidden) { if (u && byPage && onPage('account')) closeMenu(); else { fillMenu(); placeMenu(); } }
       if (!u) {   // signed out: the same pill, inviting you to make an account or sign in, right in its dropdown
         c.innerHTML = `${avatar(null)}<span><b>Sign up for Tenner</b><small>or sign in to your account</small></span>${DN}`;
         return;
