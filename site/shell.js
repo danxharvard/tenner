@@ -117,7 +117,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.94.1';
+  const version = '2.94.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -163,13 +163,18 @@
     },
   };
   // Discover's swipes: { k: [1 (right, saved) or 0 (left, skipped), when] }, the newest 1,500, kept with your account so
-  // For You learns from them on every device. (Discover's own deck still uses the skip list on this device.)
+  // For You learns from them on every device, and Discover's deck never deals a swiped title again, wherever it was swiped.
   const SW = 'tenner-swipes';
   const swipes = {
     map() { try { const m = JSON.parse(localStorage.getItem(SW) || '{}'); return m && typeof m === 'object' ? m : {}; } catch { return {}; } },
     liked() { return Object.entries(swipes.map()).filter(([, v]) => v?.[0]).sort((a, b) => b[1][1] - a[1][1]).map(([k]) => k); },
     set(k, yes) {
       if (!k) return; const m = swipes.map(); if (yes == null) delete m[k]; else m[k] = [yes ? 1 : 0, Date.now()];
+      swipes.save(m);
+    },
+    // several at once (older swipes from this device's skip list), keeping any newer swipe already there
+    merge(o) { const m = swipes.map(); for (const [k, v] of Object.entries(o || {})) if (!m[k] || v[1] > m[k][1]) m[k] = v; swipes.save(m); },
+    save(m) {
       const ks = Object.keys(m); if (ks.length > 1500) ks.sort((a, b) => m[a][1] - m[b][1]).slice(0, ks.length - 1500).forEach((x) => delete m[x]);
       try { localStorage.setItem(SW, JSON.stringify(m)); } catch {} dispatchEvent(new Event('tn:swiped'));
     },
@@ -1154,12 +1159,16 @@
     sync() {
       if (!account.token()) return Promise.resolve(null);
       if (syncing) return syncing;
-      const was = account.token();
-      syncing = account.call('PUT', '/me/data', { data: account.local() }).then(({ data, user }) => {
+      const was = account.token(), sent = JSON.stringify(account.local());
+      let again = false;
+      syncing = account.call('PUT', '/me/data', { data: JSON.parse(sent) }).then(({ data, user }) => {
         if (account.token() !== was) return null;   // signed out (or in as someone else) while it was on its way: that wins
         if (user && JSON.stringify(user) !== JSON.stringify(account.user())) account.setUser(user);   // a new name or photo from another device
+        // something changed here while it was on its way (a swipe, a save): the reply doesn't have it, so rather than
+        // overwrite it, send again and take that reply instead
+        if (JSON.stringify(account.local()) !== sent) { again = true; return data; }
         applyData(data); return data; })
-        .catch(() => null).finally(() => { syncing = null; });
+        .catch(() => null).finally(() => { syncing = null; if (again) soon(); });
       return syncing;
     },
   };
