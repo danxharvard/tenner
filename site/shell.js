@@ -128,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.98.0';
+  const version = '2.98.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1283,8 +1283,9 @@
         catch (err) { say(account.friendly(err), true); }
       });
       q('.me-resend')?.addEventListener('click', async (e) => {
-        try { await account.call('POST', '/auth/password/resend', { email: o.email }); say('Sent. It can take a minute to arrive'); e.currentTarget.disabled = true; }
-        catch (err) { say(account.friendly(err), true); }
+        const b = e.currentTarget; b.disabled = true; say('Sending…');   // keep the button: currentTarget is null once the await returns
+        try { await account.call('POST', '/auth/password/resend', { email: o.email }); say('Sent. It can take a minute to arrive'); haptic(8); }
+        catch (err) { say(account.friendly(err), true); b.disabled = false; }
       });
       const rem = q('.me-rem');
       if (rem) {
