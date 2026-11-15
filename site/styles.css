@@ -2612,3 +2612,29 @@ dialog.adv { position: fixed; }
 @media (max-width: 719px) and (prefers-reduced-transparency: reduce) { :root .tb-dock .tabs { background: var(--bg2); -webkit-backdrop-filter: none; backdrop-filter: none; }
   :root .tb-dock .tabs::after { display: none; } }
 @media (max-width: 719px) and (prefers-reduced-motion: no-preference) { .tb-dock { transition: opacity .25s ease, transform .4s var(--ease-spring); } }
+
+/* ============================================================ the lens in motion (after Edo Lunardi's Liquid Glass tab bar)
+   A selection that travels (the tab bar's lens, every segmented thumb) lifts a little as it goes, and its rim splits the
+   light like a real lens: blue on the leading edge, pink behind, a bright line across the top. When it stops it settles
+   back into clear glass. Drawn only while moving (shell.js adds .lens-go), so an idle page costs nothing. */
+.tab-ind::after, .seg-thumb::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  box-shadow: inset -2px 0 3px -1px rgba(10, 132, 255, .75), inset 2px 0 3px -1px rgba(255, 55, 95, .65), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: opacity .4s ease;
+}
+:is(.tab-ind, .seg-thumb)[data-dir="l"]::after {
+  box-shadow: inset 2px 0 3px -1px rgba(10, 132, 255, .75), inset -2px 0 3px -1px rgba(255, 55, 95, .65), inset 0 1px 0 rgba(255, 255, 255, .9); }
+:root:not(.still) :is(.tab-ind, .seg-thumb).lens-go::after { opacity: 1; transition-duration: .12s; }
+:root:not(.still) .tab-ind { transition: scale .45s var(--ease-spring); }
+:root:not(.still) .tab-ind.lens-go { scale: 1.04 1.1; }
+:root:not(.still) .seg-thumb.lens-go { scale: 1.04 1.12; }
+/* phones: the tab bar's lens rises clear of the bar while it moves or is held, and the tab beneath it is magnified */
+@media (max-width: 719px) {
+  .tb-dock .tabs { touch-action: pan-y; }
+  :root:not(.still) .tb-dock .tab-ind.lens-go, :root:not(.still) .tb-dock .tab-ind.held { scale: 1.08 1.2; }
+  :root:not(.still) .tb-dock .tab-ind.held::after { opacity: 1; }
+  .tb-dock .tabs [role=tab] > * { transition: scale .35s var(--ease-spring); }
+  :root:not(.still) .tb-dock .tabs.scrub [role=tab].lens-under > * { scale: 1.16; }
+  .tb-dock .tabs.scrub [role=tab].lens-under { color: var(--accent); }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) { .tab-ind::after, .seg-thumb::after { display: none; } }
