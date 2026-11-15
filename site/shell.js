@@ -128,10 +128,8 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.96.0';
+  const version = '2.97.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
-  // the build number opens the Update centre (every release, its changes and notes)
-  if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
   const contact = 'support@tenner.stream';
@@ -1907,15 +1905,8 @@
   document.addEventListener('contextmenu', (e) => { if (e.target.closest?.('[data-tip]') && (held || hold)) e.preventDefault(); });
   addEventListener('scroll', () => tipFor && hideTip(), { passive: true, capture: true });
 
-  // the Help Centre: the menu marks the part you're on (Privacy, Terms, Cookies, or the Help Centre itself for everything else)
-  const legal = [...document.querySelectorAll('.side-link[href^="legal.html"]')];
-  if (onPage('legal') && legal.length) {
-    const mark = () => {
-      const at = legal.find((a) => a.hash && (a.hash === location.hash || location.hash.startsWith(`${a.hash}-`))) || legal.find((a) => !a.hash);
-      for (const a of legal) { if (a === at) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); }
-    };
-    addEventListener('hashchange', mark); addEventListener('tn:route', mark); mark();
-  }
+  // the Help Centre: the menu marks it while you're in it (the Update centre is part of it)
+  if (onPage('legal') || onPage('updates')) document.querySelector('.side-link[href="legal.html"]')?.setAttribute('aria-current', 'page');
 
   window.tnShell = { select, current: () => cur };
 
