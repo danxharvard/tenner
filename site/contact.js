@@ -26,8 +26,15 @@
   const u = account?.user?.();
   if (u) { if (!nameI.value && u.name) nameI.value = u.name; if (!emailI.value && u.email) emailI.value = u.email; }
   // ?about=Feedback (from Browse's note): the topic chosen already
-  const about = new URL(location.href).searchParams.get('about');
+  const params = new URL(location.href).searchParams, about = params.get('about');
   if (about) pick(about);
+  // from the Help Centre: the article it's about (?re=) and, after Report a problem, this device's details (kept for the
+  // visit by the Help Centre, never in the address) start the message; you can see and change them before sending
+  if (!msgI.value.trim()) {
+    let details = ''; if (params.get('details')) try { details = sessionStorage.getItem('tenner-help-details') || ''; } catch {}
+    const re = (params.get('re') || '').slice(0, 120);
+    if (re || details) msgI.value = `${re ? `About “${re}”: ` : ''}\n\n${details ? `— My device —\n${details}` : ''}`.replace(/\n+$/, '');
+  }
 
   const tally = () => { const n = msgI.value.length; count.textContent = n ? `${n.toLocaleString('en-GB')} / 5,000` : ''; count.classList.toggle('near', n > 4500); };
   tally();

@@ -128,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.95.0';
+  const version = '2.96.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the build number opens the Update centre (every release, its changes and notes)
   if (onPage('updates')) document.querySelectorAll('a.side-ver').forEach((a) => a.setAttribute('aria-current', 'page'));
@@ -1907,18 +1907,14 @@
   document.addEventListener('contextmenu', (e) => { if (e.target.closest?.('[data-tip]') && (held || hold)) e.preventDefault(); });
   addEventListener('scroll', () => tipFor && hideTip(), { passive: true, capture: true });
 
-  // Privacy & Terms: only the part you're reading is marked in the menu (it marked all three at once), following you as you scroll
-  const legal = [...document.querySelectorAll('.side-link[href^="legal.html#"]')];
+  // the Help Centre: the menu marks the part you're on (Privacy, Terms, Cookies, or the Help Centre itself for everything else)
+  const legal = [...document.querySelectorAll('.side-link[href^="legal.html"]')];
   if (onPage('legal') && legal.length) {
-    const parts = legal.map((a) => [a, document.getElementById(a.hash.slice(1))]).filter(([, el]) => el);
     const mark = () => {
-      const order = parts.slice().sort((x, y) => x[1].offsetTop - y[1].offsetTop), end = innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
-      const line = innerHeight * 0.35, at = (end && scrollY > 0 && order.at(-1)) || parts.filter(([, el]) => el.getBoundingClientRect().top < line).sort((x, y) => y[1].getBoundingClientRect().top - x[1].getBoundingClientRect().top)[0]
-        || parts.find(([a]) => a.hash === location.hash) || order[0];
-      for (const [a] of parts) { if (a === at?.[0]) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); }
+      const at = legal.find((a) => a.hash && (a.hash === location.hash || location.hash.startsWith(`${a.hash}-`))) || legal.find((a) => !a.hash);
+      for (const a of legal) { if (a === at) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); }
     };
-    let lt = false; addEventListener('scroll', () => { if (!lt) { lt = true; requestAnimationFrame(() => { lt = false; mark(); }); } }, { passive: true });
-    addEventListener('hashchange', mark); mark();
+    addEventListener('hashchange', mark); addEventListener('tn:route', mark); mark();
   }
 
   window.tnShell = { select, current: () => cur };
