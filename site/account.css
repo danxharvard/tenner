@@ -57,7 +57,8 @@
 .ac-slide { --x: 0px; --p: 0; position: relative; width: 100%; height: 56px; border-radius: var(--r); overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
   background: var(--gl-fill); box-shadow: inset 0 0 0 1px var(--gl-rim); }
 .ac-slide:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.ac-fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--x) + 52px); border-radius: inherit; background: linear-gradient(90deg, rgba(255, 69, 58, .15), rgba(255, 69, 58, .45)); opacity: calc(.4 + var(--p) * .6); }
+/* the red trail grows out of the knob as it slides: its own round ends, and nothing at all while the knob is at rest (no box round the circle) */
+.ac-fill { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc(var(--x) + 48px); border-radius: 24px; background: linear-gradient(90deg, rgba(255, 69, 58, .15), rgba(255, 69, 58, .45)); opacity: min(1, calc(var(--p) * 4)); }
 .ac-slide-t { position: absolute; inset: 0; display: grid; place-items: center; padding-left: 40px; font: 400 17px/1 var(--font); letter-spacing: -.01em; -webkit-font-smoothing: antialiased;
   color: transparent; background: linear-gradient(100deg, var(--label3) 0%, var(--label3) 40%, var(--label) 50%, var(--label3) 60%, var(--label3) 100%) 0 0 / 250% 100%;
   -webkit-background-clip: text; background-clip: text; opacity: calc(1 - var(--p) * 1.6); }
