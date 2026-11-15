@@ -128,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.98.1';
+  const version = '2.98.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1105,7 +1105,9 @@
       const r = await fetch(`${api}${path}`, { method, headers: { 'content-type': 'application/json', ...(t ? { authorization: `Bearer ${t}` } : {}) }, body: body ? JSON.stringify(body) : undefined })
         .catch(() => { throw new Error(navigator.onLine === false ? 'You’re offline. Try again when you’re back online' : 'Couldn’t reach Tenner. Check your connection and try again'); });   // not the browser's "Failed to fetch"
       const d = await r.json().catch(() => ({}));
-      if (r.status === 401 && t) { account.forget(); }   // signed out elsewhere (or the account was deleted)
+      // signed out elsewhere; or the account was deleted (on another device), and then its copy here goes too, so none
+      // of it can sync into another account signed in here later
+      if (r.status === 401 && t) { account.forget(); if (d.deleted) account.wipe(); }
       if (!r.ok) throw Object.assign(new Error(d.error || 'Something went wrong'), { status: r.status, data: d });
       return d;
     },
@@ -1158,7 +1160,14 @@
     async signOut(clear) {
       try { await account.call('POST', '/auth/logout'); } catch {}
       account.forget();
-      if (clear) { ['tenner-watchlist', 'tenner-progress', 'tenner-services', 'tenner-stars', SW, SYNC, ...Object.values(MARKS)].forEach((k) => lsSet(k, null)); dispatchEvent(new Event('tn:saved')); dispatchEvent(new Event('tn:mine')); }
+      if (clear) account.wipe();
+    },
+    // what this device kept of an account (Watchlist, progress, loves, services, swipes, marks and when each changed):
+    // gone when you sign out and choose to clear it, and always when the account is deleted, so a new account starts empty
+    wipe() {
+      clearTimeout(acctT);
+      [WL, PR, MS, ST, SW, SYNC, ...Object.values(MARKS)].forEach((k) => lsSet(k, null));
+      ['tn:saved', 'tn:mine', 'tn:swiped', 'tn:marks'].forEach((e) => dispatchEvent(new Event(e)));
     },
     local() {
       const m = meta.get();

@@ -22,7 +22,8 @@
 //   POST /me/handoff              → { token, to }: a session for Tenner TV, handed over in the address it opens
 //   DELETE /me/sessions/:id (sign out one other device), DELETE /me/sessions (every other device)
 //   DELETE /me/passkeys/:id, DELETE /me/google, DELETE /me (the account and everything in it;
-//   refused while Google is still linked: unlink it first)
+//   refused while Google is still linked: unlink it first). Its other devices' sessions are remembered (hashed) as
+//   deleted for six months, so when one of them next calls, the 401 says { deleted: true } and that device clears itself too
 //   GET  /share/:id               a shared Watchlist: { name, picture, hue, list }
 // A session is a random token kept on the device (no cookies); only a hash of it is stored here.
 
@@ -406,7 +407,13 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
 
     // ---- everything else needs you signed in
     const me = await sessionUser(req, env);
-    if (!me) return fail('Signed out', 401);
+    if (!me) {
+      // a device still signed in to an account that's since been deleted: tell it, so it clears what it kept of it
+      const t = (req.headers.get('authorization') || '').replace(/^Bearer /, '');
+      if (t.length >= 20 && await goneTable(env).then(async () => env.DB.prepare('SELECT 1 FROM gone WHERE token = ?').bind(await hashToken(t)).first()).catch(() => null))
+        return json({ error: 'That account has been deleted', deleted: true }, 401, cors);
+      return fail('Signed out', 401);
+    }
     if (p === '/auth/logout' && m === 'POST') { await env.DB.prepare('DELETE FROM sessions WHERE token = ?').bind(me.token).run(); return ok({ ok: true }); }
     if (p === '/me' && m === 'GET') {
       const [d, pks, ss] = await Promise.all([
@@ -511,6 +518,10 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       const pic = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
       if (pic) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${pic.id}`)));
       const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(me.id).all()).results;
+      // every device signed in to it is remembered as deleted (only the sessions' hashes, nothing about you), so the
+      // others clear their copy of the account when they next check in, and nothing of it can sync into a new account
+      await goneTable(env).then(() => env.DB.batch([env.DB.prepare('DELETE FROM gone WHERE at < ?').bind(now() - SESSION_IDLE),
+        env.DB.prepare('INSERT OR IGNORE INTO gone (token, at) SELECT token, ? FROM sessions WHERE user_id = ?').bind(now(), me.id)])).catch(() => {});
       await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
         .map((q) => env.DB.prepare(q).bind(me.id)));
       if (env.PUSH) for (const s of subs) { const v = await env.PUSH.get(s.sub_key, 'json'); if (v) { delete v.user; await env.PUSH.put(s.sub_key, JSON.stringify(v)); } }
@@ -523,6 +534,10 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
 }
 // ---------- profile photos: kept in D1 beside the account (small: the page sends a square of at most 512px) ----------
 const PHOTO_MAX = 150000;   // bytes, once decoded
+// deleted accounts' sessions (hashes only), made here too the first time it's needed, like photos below
+let goneReady = null;
+const goneTable = (env) => (goneReady ||= env.DB.prepare('CREATE TABLE IF NOT EXISTS gone (token TEXT PRIMARY KEY, at INTEGER NOT NULL)').run()
+  .catch((e) => { goneReady = null; throw e; }));
 // the table is made here too, the first time it's needed, so photos work even if the deploy couldn't update the database
 let photosReady = null;
 const photosTable = (env) => (photosReady ||= env.DB.prepare('CREATE TABLE IF NOT EXISTS photos (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, type TEXT NOT NULL, data TEXT NOT NULL, created INTEGER NOT NULL)').run()

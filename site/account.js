@@ -241,7 +241,7 @@
   del2Dlg.addEventListener('click', (e) => { if (e.target === del2Dlg) del2Dlg.close(); });
   del2Dlg.addEventListener('close', async () => {
     if (del2Dlg.returnValue !== 'delete') { location.href = '/'; return; }
-    try { await account.call('DELETE', '/me'); account.forget(); show(); tn.signIn({ note: 'Your account has been deleted' }, $('#acSignIn')); }
+    try { await account.call('DELETE', '/me'); account.forget(); account.wipe(); show(); tn.signIn({ note: 'Your account has been deleted' }, $('#acSignIn')); }
     catch (err) { say('#acNote', friendly(err), true); }
   });
   $('#acIn').addEventListener('submit', async (e) => {
