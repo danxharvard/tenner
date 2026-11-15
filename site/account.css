@@ -82,7 +82,14 @@
 .ac-del-acts .btn { width: 100%; height: 44px; border-radius: var(--r); font-size: 16px; font-weight: 500; -webkit-font-smoothing: antialiased; }
 .ac-del-keep { color: #fff; background: var(--bt-fill); }   /* the site's button, as in every alert */
 .ac-del-go { color: #ff453a; background: var(--bt-round); }
-@media (hover: hover) { .ac-del-keep:hover { background: var(--bt-hover); } .ac-del-go:hover { background: var(--bt-round-hover); } }
+.ac-del-no { color: #fff; background: var(--bt-round); }
+@media (hover: hover) { .ac-del-keep:hover { background: var(--bt-hover); } .ac-del-go:hover, .ac-del-no:hover { background: var(--bt-round-hover); } }
+/* Unlink Google first: Tenner's blue tile, and the button's icon beside its words */
+.ac-del-link { background: linear-gradient(160deg, #5ac8fa, #0a84ff 60%, #0060df); box-shadow: 0 8px 22px rgba(10, 132, 255, .35); }
+.ac-g-go { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.ac-g-go svg { width: 19px; height: 19px; flex: none; }
+.ac-g-go svg[hidden] { display: none; }
+.ac-g-go:disabled { opacity: .6; }
 :root:not(.still) .ac-del-dlg[open] { animation: acDelIn .42s cubic-bezier(.2, 1.2, .3, 1); }
 :root:not(.still) .ac-del-dlg[open]::backdrop { animation: acDelFade .3s ease; }
 @keyframes acDelIn { from { opacity: 0; scale: .9; } }

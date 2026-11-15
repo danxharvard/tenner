@@ -21,7 +21,8 @@
 //   POST /me/share                { on } → { share_id }
 //   POST /me/handoff              → { token, to }: a session for Tenner TV, handed over in the address it opens
 //   DELETE /me/sessions/:id (sign out one other device), DELETE /me/sessions (every other device)
-//   DELETE /me/passkeys/:id, DELETE /me/google, DELETE /me (the account and everything in it)
+//   DELETE /me/passkeys/:id, DELETE /me/google, DELETE /me (the account and everything in it;
+//   refused while Google is still linked: unlink it first)
 //   GET  /share/:id               a shared Watchlist: { name, picture, hue, list }
 // A session is a random token kept on the device (no cookies); only a hash of it is stored here.
 
@@ -503,6 +504,8 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       return ok({ ok: true });
     }
     if (p === '/me' && m === 'DELETE') {
+      // Google has to be unlinked first (the owner's rule), so no account is deleted with Google still connected to it
+      if (me.google_sub) return fail('Unlink Google from your account first, then you can delete it', 409);
       await photosTable(env);
       // the profile photo stops being served at once (this data centre's copy; it isn't in the database any more either)
       const pic = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
