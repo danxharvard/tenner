@@ -92,7 +92,7 @@
           <select data-pr="s" aria-label="Season">${opts(x.sz.length, p ? s : 0, (n) => `Season ${n}`)}${p ? '' : '<option value="" selected>Season</option>'}</select>
           <select data-pr="e" aria-label="Episode"${p ? '' : ' disabled'}>${opts(x.sz[s - 1] || 1, p?.[1] || 0, (n) => `Episode ${n}`)}</select></label>
         ${up ? `<button type="button" class="btn btn-tinted" data-act="watched" aria-keyshortcuts="E">Mark S${up[0]} E${up[1]} watched</button>` : ''}
-        ${p ? '<button type="button" class="btn btn-tinted sh-reset" data-act="reset" aria-label="Clear progress" title="Clear progress">Clear</button>' : ''}
+        ${p ? '<button type="button" class="btn btn-tinted btn-2nd sh-reset" data-act="reset" aria-label="Clear progress" title="Clear progress">Clear</button>' : ''}
       </div>
       <p class="sh-pstat">${esc(status)}${p && !(p[0] === last[0] && p[1] === last[1]) ? (() => { const n = x.sz.reduce((a, c) => a + c, 0) - (x.sz.slice(0, p[0] - 1).reduce((a, c) => a + c, 0) + p[1]); return n > 0 ? ` · ${n} episode${n === 1 ? '' : 's'} to go` : ''; })() : ''}</p>
     </section>`;
@@ -138,13 +138,13 @@
   // ---------- Just for You (signed in): Watched, Not interested and a note only you can see, kept with your account ----------
   const SEEN_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2"/><path class="c" d="m8.2 12.3 2.6 2.6 5-5.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const HIDE_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 19.5 19.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-  const seenBtn = (on) => `<button type="button" class="btn btn-tinted sh-seen${on ? ' on' : ''}" data-act="seen" aria-pressed="${on}">${SEEN_IC}${on ? 'Watched' : 'Mark as watched'}</button>`;
-  const hideBtn = (on) => `<button type="button" class="btn btn-tinted sh-hide${on ? ' on' : ''}" data-act="hide" aria-pressed="${on}">${HIDE_IC}${on ? 'Hidden' : 'Not interested'}</button>`;
+  const seenBtn = (on) => `<button type="button" class="btn btn-tinted btn-2nd sh-seen${on ? ' on' : ''}" data-act="seen" aria-pressed="${on}">${SEEN_IC}${on ? 'Watched' : 'Mark as watched'}</button>`;
+  const hideBtn = (on) => `<button type="button" class="btn btn-tinted btn-2nd sh-hide${on ? ' on' : ''}" data-act="hide" aria-pressed="${on}">${HIDE_IC}${on ? 'Hidden' : 'Not interested'}</button>`;
   function mineHtml(info) {
     if (!info.k || !window.tn.member()) return '';
     const { seen, hidden, notes } = window.tn, note = notes.get(info.k)?.[0] || '', at = seen.get(info.k)?.[1];
     return `<section class="sh-mine" aria-labelledby="shM"><h3 id="shM">Just for You</h3>
-      <div class="sh-mbtns">${seenBtn(!!at)}${hideBtn(hidden.has(info.k))}</div>
+      <div class="sh-mbtns bgrp" role="group" aria-label="Watched or not interested">${seenBtn(!!at)}${hideBtn(hidden.has(info.k))}</div>
       <label class="sh-note"><span class="sh-vh">Your note on ${esc(info.title)}</span><textarea data-note rows="2" maxlength="280" placeholder="Add a note. Only you can see it">${esc(note)}</textarea></label>
       <p class="sh-msay" id="shMsay" role="status">${at ? `Watched ${esc(new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))}` : ''}</p></section>`;
   }
@@ -265,8 +265,8 @@
     const on = watchOn(info, d);
     const trailer = x.tr ? `<button type="button" class="btn btn-tinted" data-act="trailer" aria-keyshortcuts="T"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"/></svg>Trailer</button>` : '';
     const watch = on ? `<a class="btn btn-tinted" href="${esc(on.href)}" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"/></svg>Watch on ${esc(on.name)}</a>` : '';
-    const share = `<button type="button" class="btn btn-tinted" data-act="share" aria-keyshortcuts="S"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11v8.5h12V11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>`;
-    const main = watch || trailer, rest = [watch ? trailer : '', info.k ? saveBtn(saved.has(info.k)) : '', info.k ? starBtn(window.tn.stars.has(info.k)) : '', share].filter(Boolean);
+    const share = `<button type="button" class="btn btn-tinted btn-2nd" data-act="share" aria-keyshortcuts="S"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11v8.5h12V11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>`;
+    const main = watch || trailer, rest = [watch ? trailer.replace('btn-tinted', 'btn-tinted btn-2nd') : '', info.k ? saveBtn(saved.has(info.k)) : '', info.k ? starBtn(window.tn.stars.has(info.k)) : '', share].filter(Boolean);
     return `<div class="sh-btns">${main ? `<div class="sh-main">${main}</div>` : ''}<div class="sh-more">${rest.join('')}</div><p class="sh-thanks" id="shThanks" role="status"></p></div>`;
   }
   // Cast & Crew: round faces in a row, each opening that person’s sheet (person.js), from the search API

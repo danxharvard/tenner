@@ -201,7 +201,7 @@ body.browse { overflow-x: clip; }
 .chip-ic { display: inline-flex; }
 .chip-ic img { width: 18px; height: 18px; border-radius: 4px; }
 .chip-ic img + img { margin-left: -4px; box-shadow: 0 0 0 1.5px var(--bt-fill); }
-.chip-all { padding: 0 13px; background: var(--bt-round) !important; }
+.chip-all { padding: 0 13px; }
 .chip { position: relative; }
 .chip::before { content: ""; position: absolute; inset: -5px -2px; }
 :root:not(.still) .chip { animation: chipIn .35s var(--ease-spring) both; }

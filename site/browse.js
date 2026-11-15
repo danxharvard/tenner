@@ -476,7 +476,7 @@
     if (state.rt) c.push(['rt', `Up to ${LENS.find(([v]) => v === state.rt)[1]}`]);
     if (c.length > 1) c.push(['all', 'Clear all']);
     const box = $('#chips');
-    box.innerHTML = c.map(([k, l, ic]) => `<button type="button" class="btn btn-tinted chip${k === 'all' ? ' chip-all' : ''}" data-chip="${esc(k)}" aria-label="${k === 'all' ? 'Clear all filters' : `Remove ${esc(l)}`}">${ic ? `<span class="chip-ic">${ic}</span>` : ''}<span>${esc(l)}</span>${k === 'all' ? '' : X}</button>`).join('');
+    box.innerHTML = c.map(([k, l, ic]) => `<button type="button" class="btn btn-tinted btn-2nd chip${k === 'all' ? ' chip-all' : ''}" data-chip="${esc(k)}" aria-label="${k === 'all' ? 'Clear all filters' : `Remove ${esc(l)}`}">${ic ? `<span class="chip-ic">${ic}</span>` : ''}<span>${esc(l)}</span>${k === 'all' ? '' : X}</button>`).join('');
     box.hidden = !c.length;
   }
 

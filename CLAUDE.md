@@ -77,6 +77,13 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 - **Buttons (the owner's chosen design, use it for every button):** solid deep tinted fills (`--bt-fill` navy, `--bt-round`
   dark grey for icon-only circles), no glass or rim, softly rounded rectangles, never capsules, circles when there's only an icon, an icon beside the words where there is one, and **white words and icons**, in Day and Night.
   Regular weight (500) with font smoothing, never bold. Pills and badges that aren't buttons stay glass.
+- **Secondary buttons** (`.btn-2nd`, added beside `btn btn-tinted`): the less important action next to a main one (Cancel,
+  Not now, Share and Trailer beside Watch, Start again, Copy link, Delete in red). iOS's quiet grey (`--bt2`: the system fill over
+  the frost) with the page's text colour, so dark words by day and white by night; same icon, corner and weight. Main actions
+  stay navy; a lone button is never secondary.
+- **Button groups** (`.bgrp`): related secondary actions joined into one bar with hairline dividers and a fine rim, the 9px
+  corner on the outside only (Settings' Import | Export | Clear all, the sheet's Mark as watched | Not interested, the Help
+  Centre's Yes | No). Use one wherever related actions sit side by side, especially in Settings.
 - **The sidebar (computers):** its original shape (full height, against the window's edge, no rounded pane or rim), fixed
   in place; a light frost (milky by day, smoky by night), regular-weight names and plain monochrome icons.
 - **My services:** the iOS Subscriptions card: round back button, centred title, Active / Inactive headings, a rounded

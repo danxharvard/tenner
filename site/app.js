@@ -271,7 +271,7 @@ function watchedList() {
       <button type="button" class="wl-sw" data-unseen="${esc(x.k)}" tabindex="-1" aria-hidden="true">${TRASH}<span>Delete</span></button></li>`;
   }).join('');
   return `<section class="wk wl-seen" aria-labelledby="wl-seen"><div class="wk-hd"><h2 class="row-h" id="wl-seen">Watched</h2><p>${all.length} title${all.length === 1 ? '' : 's'} you’ve marked as watched</p></div>
-    <ol class="cl nw-cl wl-cl">${rows}</ol>${all.length > list.length ? '<button type="button" class="btn btn-tinted wl-more" data-seen-all>Show all</button>' : ''}</section>`;
+    <ol class="cl nw-cl wl-cl">${rows}</ol>${all.length > list.length ? '<button type="button" class="btn btn-tinted btn-2nd wl-more" data-seen-all>Show all</button>' : ''}</section>`;
 }
 // ---------- the Watchlist's trailer (signed in): a random title from your list at the top, its trailer playing with the
 // sound off over its artwork, blended into the page like the homepage's featured title (its colours glow behind the

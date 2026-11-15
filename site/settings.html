@@ -44,8 +44,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   addEventListener("pagereveal",function(e){if(e.viewTransition&&document.documentElement.classList.contains("still")){e.viewTransition.ready.catch(function(){});e.viewTransition.skipTransition()}});</script>
-  <link rel="stylesheet" href="styles.css?v=2.99.1">
-  <link rel="stylesheet" href="settings.css?v=2.99.1">
+  <link rel="stylesheet" href="styles.css?v=2.100.0">
+  <link rel="stylesheet" href="settings.css?v=2.100.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +88,7 @@
     <a class="side-about side-settings" href="settings.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <div class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.99.1</span>
+      <span class="side-ver">Tenner 2.100.0</span>
     </div>
   </div>
 
@@ -208,15 +208,14 @@
           <h2 class="set-h" id="setHData">Your data</h2>
           <div class="set-group">
             <button type="button" class="set-row set-row-ic set-link" id="setMove"><i class="set-ic set-ic-s" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="11" height="8" rx="1.6"/><path d="M1.5 16h14"/><rect x="16" y="8" width="6" height="11" rx="1.6"/></svg></i><span class="set-l">Move to another device<small>A code to scan or a link to open on your other phone or computer</small></span><span class="set-chev" aria-hidden="true"></span></button>
-            <label class="set-row set-row-ic set-link"><i class="set-ic set-ic-s" style="--c:#bf5af2" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5V14M8 10.3l4 3.7 4-3.7M3.5 14.5V18a2.5 2.5 0 0 0 2.5 2.5h12a2.5 2.5 0 0 0 2.5-2.5v-3.5"/></svg></i><span class="set-l">Import from a file<small>A Tenner export, or your Letterboxd, IMDb, Trakt or Netflix history. Adds to what's already here</small></span><span class="set-chev" aria-hidden="true"></span>
-              <input type="file" id="setImport" accept="application/json,.json,text/csv,.csv" class="set-file"></label>
-            <details class="set-more">
-              <summary class="set-row set-row-ic"><i class="set-ic set-ic-s" style="--c:#8e8e93" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.5 12h.01M12 12h.01M17.5 12h.01" style="stroke-width:3.2"/></svg></i><span class="set-l">More<small>Export, or clear everything</small></span><span class="set-chev" aria-hidden="true"></span></summary>
-              <div class="set-more-in">
-                <button type="button" class="set-row set-link" id="setExport"><span class="set-l">Export Watchlist and progress<small>A file to move them to another device</small></span><span class="set-chev" aria-hidden="true"></span></button>
-                <button type="button" class="set-row set-link set-danger" id="setClear"><span class="set-l">Clear everything<small>Watchlist, progress, My services and these settings</small></span></button>
+            <div class="set-row set-acts">
+              <div class="bgrp" role="group" aria-label="Import, export or clear">
+                <label class="btn btn-tinted btn-2nd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M5 16v3.5h14V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Import<input type="file" id="setImport" accept="application/json,.json,text/csv,.csv" class="set-file" aria-label="Import from a file"></label>
+                <button type="button" class="btn btn-tinted btn-2nd" id="setExport"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5v-11M7.5 8 12 3.5 16.5 8M5 16v3.5h14V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Export</button>
+                <button type="button" class="btn btn-tinted btn-2nd bgrp-danger" id="setClear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9.5 6.5V4.5h5v2M6.5 6.5l.9 13h9.2l.9-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Clear all</button>
               </div>
-            </details>
+              <small class="set-acts-note">Import a Tenner export, or your Letterboxd, IMDb, Trakt or Netflix history: it adds to what’s already here. Export saves a file of your Watchlist and progress. Clear all empties this device.</small>
+            </div>
           </div>
         </section>
       </div>
@@ -228,12 +227,12 @@
       <form method="dialog"><h2 id="moveH">Move to another device</h2>
         <p id="moveP">Scan this with the other phone’s camera, or open the link there. Your Watchlist, where you’re up to and your services come with it. Nothing is uploaded: it’s all in the link.</p>
         <div class="move-qr" id="moveQr"></div>
-        <div class="mine-acts"><button type="button" class="btn btn-tinted" id="moveCopy">Copy link</button><button class="btn btn-tinted mine-done" value="done">Done</button></div>
+        <div class="mine-acts"><button type="button" class="btn btn-tinted btn-2nd" id="moveCopy">Copy link</button><button class="btn btn-tinted mine-done" value="done">Done</button></div>
       </form></dialog>
     <dialog class="mine-dlg move-dlg" id="takeDlg" aria-labelledby="takeH">
       <form method="dialog"><h2 id="takeH">Bring your Tenner here?</h2>
         <p id="takeP"></p>
-        <div class="mine-acts"><button class="btn btn-tinted" value="no">Not now</button><button class="btn btn-tinted mine-done" value="yes">Add them</button></div>
+        <div class="mine-acts"><button class="btn btn-tinted btn-2nd" value="no">Not now</button><button class="btn btn-tinted mine-done" value="yes">Add them</button></div>
       </form></dialog>
     <!-- Not interested: the titles you've hidden, each with Show again -->
     <dialog class="mine-dlg hid-dlg" id="hidDlg" aria-labelledby="hidH">
@@ -246,7 +245,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.99.1" defer></script>
-  <script src="settings.js?v=2.99.1" defer></script>
+  <script src="shell.js?v=2.100.0" defer></script>
+  <script src="settings.js?v=2.100.0" defer></script>
 </body>
 </html>

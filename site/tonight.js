@@ -165,7 +165,7 @@
           <span class="tn-t"><b>${esc(x.n)}</b><small>${esc([x.t === 'movie' ? 'Film' : 'Series', info.year, x.r ? `★ ${x.r.toFixed(1)}` : ''].filter(Boolean).join(' · '))}</small>
           <small>On ${esc(svcs.map((s) => s.label).join(', '))}</small></span></a></li>`;
       }).join('')}</ul>
-      <div class="tn-acts"><button type="button" class="btn btn-tinted" data-tn="again">${AGAIN}Start again</button><button type="button" class="btn btn-tinted mine-done" data-tn="more">${SPARK}Show me others</button></div>`;
+      <div class="tn-acts"><button type="button" class="btn btn-tinted btn-2nd" data-tn="again">${AGAIN}Start again</button><button type="button" class="btn btn-tinted mine-done" data-tn="more">${SPARK}Show me others</button></div>`;
   }
   document.addEventListener('click', (e) => {
     if (!e.target.closest('[data-tonight]')) return;

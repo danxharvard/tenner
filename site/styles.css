@@ -729,7 +729,7 @@ a.tb-btn:hover { text-decoration: none; }
   box-shadow: var(--frost-line); }
 .sh-prow select:disabled { opacity: .45; }
 .sh-prow .btn { height: 34px; padding: 0 14px; font-size: 14px; }
-.sh-reset { color: var(--label2); }
+
 .sh-pstat { margin: 10px 0 0; font-size: 14px; color: var(--label2); }
 .sh-tsum { margin: 0 0 8px; font-size: 14px; color: var(--label2); }
 /* its life on the charts: three figures in a row, the Apple Fitness way, and when it first charted */
@@ -2083,8 +2083,6 @@ p { text-wrap: pretty; }
 .out-acts { display: grid; gap: 8px; }
 .out-acts .btn { justify-content: center; gap: 8px; height: 44px; font-size: 16px; }
 .out-acts .btn svg { width: 19px; height: 19px; }
-.out-dlg .out-stay { background: var(--bt-round) !important; }
-@media (hover: hover) { .out-dlg .out-stay:hover { background: var(--bt-round-hover) !important; } }
 @media (prefers-reduced-motion: reduce) { .bx-me-card, .bx-me-out { transition: none; } }
 
 /* Christmas lights (shell.js): old-fashioned C9 bulbs in red, green and blue, pinned along the top of every page in the
@@ -2635,3 +2633,33 @@ dialog.adv { position: fixed; }
   .tb-dock .tabs.scrub [role=tab].lens-under { color: var(--accent); }
 }
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) { .tab-ind::after, .seg-thumb::after { display: none; } }
+
+/* ============================================================ secondary buttons (the owner’s ask, 2.100.0): for the less
+   important action beside a main one (Cancel, Not now, Share beside Watch, Start again). The quiet grey of iOS's own
+   grey buttons: the system fill over the shared frost, with the page's own text colour (dark by day, white by night),
+   an icon beside the words where there is one, and the same 9px corner. Main actions keep the deep navy. */
+:root:root { --bt2: var(--fill); --bt2-hover: var(--fill-strong); --bt2-ink: var(--label); }
+:root .btn-2nd.btn-2nd {
+  background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg) !important; color: var(--bt2-ink) !important; box-shadow: none !important;
+  -webkit-backdrop-filter: var(--fr-blur) !important; backdrop-filter: var(--fr-blur) !important; border-radius: var(--r) !important; }
+:root .btn-2nd.btn-2nd svg { color: inherit; }
+@media (hover: hover) { :root .btn-2nd.btn-2nd:hover { background: linear-gradient(var(--bt2-hover), var(--bt2-hover)) var(--fr-bg) !important; } }
+:root .btn-2nd.btn-2nd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:root .btn-2nd.ac-del-go, :root .btn-2nd.bgrp-danger { color: #ff3b30 !important; }
+.chip.btn-2nd .chip-ic img + img { box-shadow: 0 0 0 1.5px var(--bg2); }
+@media (prefers-contrast: more) { :root .btn-2nd.btn-2nd { box-shadow: inset 0 0 0 1px var(--label3) !important; } }
+
+/* button groups: related secondary actions joined into one bar, split by hairlines (Import | Export | Clear all in
+   Settings, Mark as watched | Not interested in the sheet). One frosted bar with a fine edge and the 9px corner; the
+   buttons inside give up their own fill and corners so it reads as one control. */
+.bgrp { display: inline-flex; align-items: stretch; gap: 0 !important; max-width: 100%; border-radius: var(--r); overflow: hidden;
+  background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg); box-shadow: inset 0 0 0 1px var(--fr-rim);
+  -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); }
+:root .bgrp > .btn-2nd.btn-2nd { position: relative; flex: 1 1 0; min-width: 0; border-radius: 0 !important; background: transparent !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important; transform: none; }
+:root .bgrp > .btn-2nd.btn-2nd + .btn-2nd::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--fr-rim); }
+@media (hover: hover) { :root .bgrp > .btn-2nd.btn-2nd:hover { background: var(--bt2) !important; } }
+:root .bgrp > .btn-2nd.btn-2nd:active { background: var(--bt2-hover) !important; }
+:root .bgrp > .btn-2nd.btn-2nd:focus-visible, :root .bgrp > label.btn-2nd:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sh-mbtns.bgrp { display: grid; width: 100%; }
+:root .bgrp > .btn-2nd.btn-2nd[aria-pressed="true"] { color: var(--accent) !important; }   /* on (Watched, Hidden): the accent blue */

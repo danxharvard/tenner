@@ -128,7 +128,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.99.1';
+  const version = '2.100.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1267,14 +1267,14 @@
       const field = (c, type, ac, ph, extra = '') => `<input class="me-in ${c}" type="${type}" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph.replace(/ \(.*/, '')}" ${extra}>`;
       const body = m === 'check'
         ? `<p class="me-note">${esc(o.fresh ? `We’ve sent a link to ${o.email}. Tap it to confirm your email and finish making your account.` : `${o.email} isn’t confirmed yet. Tap the link we emailed you, or have it sent again.`)}</p>
-           <div class="me-form"><button type="button" class="btn btn-tinted me-go-btn me-resend">${MAIL}Send it again</button></div>`
+           <div class="me-form"><button type="button" class="btn btn-tinted btn-2nd me-go-btn me-resend">${MAIL}Send it again</button></div>`
         : m === 'reset'
         ? `<form class="me-form" novalidate>${field('me-e', 'email', 'username', 'Email', `value="${esc(o.email || '')}" readonly`)}${field('me-p', 'password', 'new-password', 'New password (8 or more characters)')}
            <button class="btn btn-tinted me-go-btn">${TICK}Save and sign in</button></form>`
         : `${GOOGLE_ID ? '<div class="me-google" hidden></div><p class="me-or" hidden><span>or</span></p>' : ''}
            <form class="me-form" novalidate>${up ? field('me-nm', 'text', 'given-name', 'Your name', 'maxlength="40"') : ''}${field('me-e', 'email', up ? 'email' : 'username', 'Email')}${field('me-p', 'password', up ? 'new-password' : 'current-password', up ? 'Password (8 or more characters)' : 'Password')}
            <div class="me-opts"><label class="me-keep"><input type="checkbox" switch role="switch" class="me-rem"${account.remember ? ' checked' : ''}><i class="sw" aria-hidden="true"></i>Remember me</label>${m === 'in' ? '<button type="button" class="me-link me-forgot">Forgot password?</button>' : ''}</div><button class="btn btn-tinted me-go-btn">${up ? PLUS : IN}${up ? 'Sign up' : 'Sign in'}</button>
-           ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted me-pk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}</form>`;
+           ${window.PublicKeyCredential ? `<button type="button" class="btn btn-tinted btn-2nd me-pk">${KEY}${up ? 'Use a passkey instead' : 'Sign in with a passkey'}</button>` : ''}</form>`;
       const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
@@ -1403,7 +1403,7 @@
         document.body.insertAdjacentHTML('beforeend', `<dialog class="mine-dlg out-dlg" id="outDlg" aria-labelledby="outH" aria-describedby="outP" closedby="any"><form method="dialog">
           <span class="out-ic" aria-hidden="true"><i></i><i></i><i></i><i></i></span><h2 id="outH">Sign out of Tenner?</h2>
           <p id="outP">Your Watchlist and settings stay on this device. Sign in again any time to sync them.</p>
-          <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted out-stay" value="stay" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Cancel</button></div>
+          <div class="out-acts"><button class="btn btn-tinted" value="out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6.5M10.5 12h10M17 8.3l3.7 3.7-3.7 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign out</button><button class="btn btn-tinted btn-2nd out-stay" value="stay" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Cancel</button></div>
         </form></dialog>`);
         dlg = $('#outDlg');
         dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close('stay'); });   // tap outside to close
