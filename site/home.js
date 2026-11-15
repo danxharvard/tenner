@@ -624,19 +624,29 @@
       <a class="btn btn-tinted bx-wide" href="https://tv.tenner.stream/">${I.tv}Open Tenner TV</a></section>`;
   }
   // Discover, in a box: Tenner's swipe deck from Discover, one card at a time. Swipe right (or the bookmark) to add it to
-  // your Watchlist, left (or the cross) to skip it, tap for its details. Skips are shared with the Discover page.
+  // your Watchlist, left (or the cross) to skip it, tap for its details. Once swiped, a title never comes back: every swipe
+  // is kept in tn.swipes (synced with your account, so your other devices skip it too), and the older skip list on this
+  // device still counts (it's copied into tn.swipes once, so those reach the account as well).
   const SKIP = 'tenner-skipped';
-  const skips = { all() { try { return JSON.parse(localStorage.getItem(SKIP) || '{}') || {}; } catch { return {}; } },
+  const skips = { all() { try { const o = JSON.parse(localStorage.getItem(SKIP) || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; } },
     add(k) { const o = skips.all(); o[k] = Date.now(); try { localStorage.setItem(SKIP, JSON.stringify(o)); } catch {} } };
+  (() => {   // the skip list into tn.swipes, once (newest first, so the 1,500 kept are the latest)
+    try { if (localStorage.getItem('tenner-skipped-moved')) return; localStorage.setItem('tenner-skipped-moved', '1'); } catch { return; }
+    const sw = window.tn.swipes.map(), add = Object.entries(skips.all()).filter(([k, t]) => /^[mt]\d+$/.test(k) && !sw[k] && +t);
+    if (add.length) window.tn.swipes.merge(Object.fromEntries(add.map(([k, t]) => [k, [0, +t]])));
+  })();
+  // swiped either way (here or on another device), skipped on this device, or on your Watchlist
+  const swiped = () => { const sw = window.tn.swipes.map(), sk = skips.all(), have = new Set(window.tn.saved.all().map((x) => x.k)); return (k) => !!(sw[k] || sk[k] || have.has(k)); };
   let dk = { sig: '', list: [], at: 0 };
   function deck() {
     const sig = [state.kind, state.genre, state.cat?.generatedAt].join('|');   // the right-hand column ignores the services above
+    const done = swiped();
     if (sig !== dk.sig) {
-      const skip = skips.all(), have = new Set(window.tn.saved.all().map((x) => x.k));
-      const pool = catalogue(true).filter((x) => x.img && !skip[`${x.t[0]}${x.i}`] && !have.has(`${x.t[0]}${x.i}`)).sort((a, b) => b.p - a.p).slice(0, 120);
+      const pool = catalogue(true).filter((x) => x.img && !done(`${x.t[0]}${x.i}`)).sort((a, b) => b.p - a.p).slice(0, 120);
       for (let i = pool.length - 1; i > 0; i--) { const j = Math.max(0, i - 1 - Math.floor(Math.random() * 6)); [pool[i], pool[j]] = [pool[j], pool[i]]; }   // popular first, shuffled a little
       dk = { sig, list: pool, at: 0 };
     }
+    while (dk.list[dk.at] && done(`${dk.list[dk.at].t[0]}${dk.list[dk.at].i}`)) dk.at++;   // swiped since the deck was dealt (another device, say)
     return dk.list[dk.at] ? fromCat(dk.list[dk.at]) : null;
   }
   function discover() {
@@ -661,11 +671,12 @@
     const it = dk.list[dk.at] ? fromCat(dk.list[dk.at]) : null; if (!it) return;
     const card = $('#bxDcCard'), k = keyOf(it);
     dk.at++;
-    // the choice lands once the card has gone (a save redraws the side column itself)
+    // remembered at once (so leaving the page mid-flight can't lose it); For You learns from it too
+    window.tn.swipes.set(k, yes); if (!yes) skips.add(k);
+    // the card's next one comes up once it has gone (a save redraws the side column itself)
     const next = () => {
       const adds = yes && !window.tn.saved.has(k);   // a new save redraws the column itself; anything else brings up the next card here
-      if (yes) { if (adds) window.tn.saved.toggle(infoFor(it)); toast(`${it.title} is on your Watchlist`); } else skips.add(k);
-      window.tn.swipes.set(k, yes);   // For You learns from it
+      if (yes) { if (adds) window.tn.saved.toggle(infoFor(it)); toast(`${it.title} is on your Watchlist`); }
       const box = $('#bxSide [aria-labelledby="bxDc"]'); if (box && !adds) box.outerHTML = discover();
     };
     if (card && !still()) { card.style.transition = 'transform .35s cubic-bezier(.3,.7,.4,1), opacity .35s ease'; card.style.transform = `translateX(${yes ? 130 : -130}%) rotate(${yes ? 14 : -14}deg)`; card.style.opacity = '0'; setTimeout(next, 300); } else next();
