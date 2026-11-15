@@ -18,7 +18,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const LOGO = 'https://image.tmdb.org/t/p/w500';
   const KINDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
-  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, titles: null };
+  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, spot: null, titles: null };
   // the services you've picked in the rail (none means all of them): this visit's choice, or else My services, as with Show.
   // Changing My services (in Settings, or on another device) starts the rail from them again.
   const PICKS = 'tenner-home-svc';
@@ -57,16 +57,16 @@
   // ---------- data ----------
   const get = (n, bust) => fetch(`data/${n}.json${bust ? `?v=${Date.now()}` : ''}`, bust ? { cache: 'no-store' } : {}).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   async function load(bust) {
-    const [data, cat, week, feat] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust)]);
+    const [data, cat, week, feat, spot] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust), get('spotlight', bust)]);
     if (!data) { if (!state.data) $('#bxRows').innerHTML = '<p class="bx-empty">The charts didn’t load. Check your connection and try again.</p>'; return; }
     // the quarter-hour check: nothing new this hour, so nothing moves (the featured titles carry on where they were)
     const same = (a, b) => !a || a.generatedAt === b?.generatedAt;
-    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week) && same(feat, state.feat)) return;
-    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week, feat: feat || state.feat });
+    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week) && same(feat, state.feat) && same(spot, state.spot)) return;
+    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week, feat: feat || state.feat, spot: spot || state.spot });
     state.picks = state.picks.filter((k) => services().some((s) => s.key === k));
     if (state.picks.length >= services().length) state.picks = [];
     draw(); refreshFy();
-    window.tnSheet?.details().then((d) => { if (d) { state.titles = d; drawHeroCopy(); drawSide(); } });   // genres, age ratings, logos, episodes
+    window.tnSheet?.details().then((d) => { if (d) { state.titles = d; drawHeroCopy(); drawSpot(); drawSide(); } });   // genres, age ratings, logos, episodes
     openFromUrl();
   }
   addEventListener('tn:check', () => load(true));
@@ -477,13 +477,13 @@
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
       'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
-    return top.join('') + forYouRow() + best.join('') + fresh;
+    return top.join('') + forYouRow() + best.join('') + spotSlot() + fresh;
   }
   function drawRows() {
     if (PHONE.matches) {
       $('#bxRows').innerHTML = phoneRows() || '<p class="bx-empty">Nothing matches. Try another genre.</p>';
       for (const r of main.querySelectorAll('.bx-row')) edges(r);
-      return;
+      drawSpot(); return;
     }
     const cat = catalogue(), g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const words = { both: 'shows and films', tv: 'shows', movie: 'films' }[state.kind];
@@ -498,10 +498,39 @@
     });
     $('#bxRows').innerHTML = forYouRow() + row('bxTop', `Most popular${g ? ` in ${esc(g)}` : ''}`, `The ${words} everyone’s looking at${all() ? '' : ` ${where()}`}`, top, 'bx-row-p', 'browse.html')
       + row('bxNew', `Latest releases${g ? ` in ${esc(g)}` : ''}`, 'The newest arrivals, most recent first', fresh, 'bx-row-p', 'charts.html#new')
-      + kinds().map(topList).join('') + newList()
+      + kinds().map(topList).join('') + spotSlot() + newList()
       || '<p class="bx-empty">Nothing matches. Try another service or genre.</p>';
     for (const r of main.querySelectorAll('.bx-row')) edges(r);
+    drawSpot();
   }
+  // ---------- the spotlight: a second big splash halfway down, between Top rated and New shows proving popular ----------
+  // One title Tenner wants to show off (data/spotlight.json, rebuilt daily from TMDB): its wordless artwork melting into
+  // the page like the featured title's, with its logo, genres, a line about it and the same buttons. Left out when the
+  // kind or the services you've picked don't include it.
+  const spotIt = () => (state.spot?.items || []).find((it) => kinds().includes(it.type) && pickedAny(it.on));
+  const spotSlot = () => (spotIt() ? '<section class="bx-hero bx-spot" id="bxSpot" aria-labelledby="bxSpotT"></section>' : '');
+  function drawSpot() {
+    const box = $('#bxSpot'), it = spotIt(); if (!box || !it) return;
+    const x = det(keyOf(it)) || {}, info = infoFor(it, it.eye || 'Spotlight'), on = (it.on || []).map(svcOf).filter(Boolean)[0];
+    const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
+    const genres = (x.g || []).slice(0, 3), big = it.backdrop?.replace('/w1280/', '/original/');
+    box.innerHTML = `<div class="bx-h-art"><div class="bx-h-l in">${it.backdrop ? `<img src="${esc(big)}" srcset="${esc(it.backdrop)} 1280w, ${esc(big)} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="" loading="lazy" decoding="async">` : wide(it)}</div></div>
+      <div class="bx-h-copy">
+        <p class="bx-eye">${I.sparkle}<span>${esc(it.eye || 'Spotlight')}</span></p>
+        ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}
+        <h2 class="bx-h-t" id="bxSpotT">${x.lg ? `<img class="bx-h-logo" src="${esc(LOGO + x.lg)}" alt="${esc(it.title)}">` : esc(it.title)}</h2>
+        <p class="bx-h-meta">${svcIcon(on)}<span>${meta.map(esc).join(' · ')}</span>${x.c ? `<b class="bx-cert">${esc(x.c)}</b>` : ''}</p>
+        ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
+        <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-str aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>
+      </div>`;
+    const lg = box.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
+    markSaved();
+  }
+  main.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-str]')) return;
+    window.tn.haptic?.(); const it = spotIt(); if (it) window.tnSheet?.open(infoFor(it, it.eye || 'Spotlight'), false, { trailer: true });
+  });
+
   // ---------- For you (signed in): picks from what you swiped right on in Discover (and loved and saved) ----------
   // shell.js's forYou weighs the genres; TMDB's More Like This for your latest right swipes (shell.js's moreLike) lifts
   // the closest matches. While those load, the row holds its place with skeletons.
