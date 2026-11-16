@@ -23,7 +23,9 @@
     { key: 'gems', label: 'Hidden gems', sort: 'rating', test: (x) => x.s.length && x.r >= 7.2 && x.v >= 30 && x.v < 600 },
     { key: 'acclaimed', label: 'Acclaimed', sort: 'rating', test: (x) => x.s.length && x.r >= 8 && x.v >= 1500 },
     { key: 'leaving', label: 'Leaving soon', extra: true, order: (a, b) => a._gone.localeCompare(b._gone) || b.p - a.p, test: (x) => x._gone },
-  ];
+    // 1 November to Boxing Day: the services' most popular Christmas films and shows (marked in the catalogue's build)
+    { key: 'xmas', label: 'Christmas', sort: 'pop', season: true, test: (x) => x.s.length && x.xm },
+  ].filter((c) => !c.season || (() => { const d = new Date(); return d.getMonth() === 10 || (d.getMonth() === 11 && d.getDate() <= 26); })());
   // Filters beyond genre and rating: age rating (UK certificates), length (minutes; episodes for shows) and release years.
   // Certificates and lengths come from the title details (data/titles.json), loaded the first time either is used.
   const AGES = [['', 'Any'], ['U', 'U'], ['PG', 'PG'], ['12', '12'], ['15', '15']];

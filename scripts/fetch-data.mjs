@@ -679,8 +679,16 @@ export async function buildPrices(films, prev) {
 // The most popular ~100 shows and ~100 films on each service, merged into one
 // compact list the Browse page filters and sorts in the browser. Short keys keep the file small:
 // i id, t 'tv'|'movie', n title, d first date, r rating (when 20+ votes), v votes, p popularity, img poster path,
-// g genre ids, s services it was found on.
+// g genre ids, s services it was found on, xm 1 when it's a Christmas title (in the Christmas season only, see below).
 const PAGES = 5;
+// Christmas: from late October to Boxing Day the catalogue also takes in the most popular Christmas films and shows on
+// each service (TMDB's "christmas" keyword), so Home's Top Christmas list and Browse's Christmas collection fill themselves.
+export const xmasSeason = (d = new Date()) => (d.getUTCMonth() === 9 && d.getUTCDate() >= 25) || d.getUTCMonth() === 10 || (d.getUTCMonth() === 11 && d.getUTCDate() <= 26);
+const XMAS_PAGES = 2;
+async function xmasKeyword() {
+  const res = await tmdb('/search/keyword', { query: 'christmas' });
+  return (res.results || []).find((k) => k.name.toLowerCase() === 'christmas')?.id || null;
+}
 async function pool(tasks, limit = 8) {
   const out = []; let next = 0;
   await Promise.all(Array.from({ length: limit }, async () => { while (next < tasks.length) { const i = next++; out[i] = await tasks[i](); } }));
@@ -694,10 +702,18 @@ export async function buildCatalogue(ids) {
     for (const type of ['tv', 'movie']) for (let page = 1; page <= PAGES; page++)
       jobs.push(async () => ({ type, key: s.key, res: await tmdb(`/discover/${type}`, { ...base, page, with_watch_providers: providerIds.join('|'), with_watch_monetization_types: 'flatrate|free|ads' }) }));
   }
+  // the Christmas titles (a missing keyword or a failed page never stops the catalogue)
+  let kw = null;
+  if (xmasSeason()) try { kw = await xmasKeyword(); if (!kw) warn('Christmas', 'TMDB has no "christmas" keyword'); } catch (err) { warn('Christmas', `keyword lookup failed (${err.message})`); }
+  if (kw) for (const s of SERVICES) {
+    const providerIds = [...(ids[s.key] || [])]; if (!providerIds.length) continue;
+    for (const type of ['tv', 'movie']) for (let page = 1; page <= XMAS_PAGES; page++)
+      jobs.push(async () => ({ type, key: s.key, xmas: true, res: await tmdb(`/discover/${type}`, { ...base, page, with_keywords: String(kw), with_watch_providers: providerIds.join('|'), with_watch_monetization_types: 'flatrate|free|ads' }).catch(() => ({ results: [] })) }));
+  }
   const [results, gm, gt] = await Promise.all([pool(jobs), tmdb('/genre/movie/list', { language: 'en-GB' }), tmdb('/genre/tv/list', { language: 'en-GB' })]);
 
   const byId = new Map(), more = {};
-  for (const { type, key, res } of results) for (const r of res.results || []) {
+  for (const { type, key, res, xmas } of results) for (const r of res.results || []) {
     if (!r.poster_path) continue;
     const id = `${type[0]}${r.id}`;
     let it = byId.get(id);
@@ -710,7 +726,9 @@ export async function buildCatalogue(ids) {
       byId.set(id, it);
     }
     if (!it.s.includes(key)) it.s.push(key);
+    if (xmas) it.xm = 1;
   }
+  if (kw) console.log(`Christmas: ${[...byId.values()].filter((x) => x.xm).length} titles`);
   const genres = {};
   for (const g of [...gm.genres, ...gt.genres]) genres[g.id] = g.name;
   const cat = { generatedAt: new Date().toISOString(), region: REGION, img: `${IMG}/w342`, genres, items: [...byId.values()] };
@@ -1057,7 +1075,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const [liveCat, liveMore] = await Promise.all([liveCopy('browse.json'), liveCopy('browse-more.json')]);
     // a service the live catalogue has nothing from (one just added, like Free to watch) is filled in straight away
     const covers = (c) => data.services.filter((s) => s.providerIds?.length).every((s) => c.items.some((x) => x.s?.includes(s.key)));
-    const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6 && covers(liveCat);
+    const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6 && covers(liveCat)
+      && (!xmasSeason() || liveCat.items.some((x) => x.xm));   // Christmas titles from the season's first run
     try {
       if (!built) throw new Error('the chart was not rebuilt this hour');
       if (keepCat) {

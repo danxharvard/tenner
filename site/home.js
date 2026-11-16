@@ -477,7 +477,9 @@
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
       'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
-    return top.join('') + newWeek() + forYouRow() + best.join('') + spotSlot() + fresh;
+    const xm = xmasTop(), xmas = xm.length ? row('bxXm', XM(), 'Festive favourites, most popular first', xm.map((it) => card(it, infoFor(it, XM_EYE(it)), it.year)),
+      'bx-row-p', XM_ALL()) : '';
+    return top.join('') + newWeek() + xmas + forYouRow() + best.join('') + spotSlot() + fresh;
   }
   function drawRows() {
     if (PHONE.matches) {
@@ -499,7 +501,7 @@
     $('#bxRows').innerHTML = forYouRow() + row('bxTop', `Most popular${g ? ` in ${esc(g)}` : ''}`, `The ${words} everyone’s looking at${all() ? '' : ` ${where()}`}`, top, 'bx-row-p', 'browse.html')
       + newWeek()
       + row('bxNew', `Latest releases${g ? ` in ${esc(g)}` : ''}`, 'The newest arrivals, most recent first', fresh, 'bx-row-p', 'charts.html#new')
-      + kinds().map(topList).join('') + spotSlot() + newList()
+      + xmasList() + kinds().map(topList).join('') + spotSlot() + newList()
       || '<p class="bx-empty">Nothing matches. Try another service or genre.</p>';
     for (const r of main.querySelectorAll('.bx-row')) edges(r);
     nwkStart(); drawSpot();
@@ -662,6 +664,14 @@
     const q = new URLSearchParams({ c: 'new', k: 'tv', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
     return clList('bxNs', NS(), l, () => `New show proving popular${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);
   }
+  // Top Christmas films and shows (1 November to Boxing Day): the services' most popular Christmas titles (the catalogue
+  // marks them each build, from TMDB's "christmas" keyword), kept to the kind, service and genre you've picked
+  function xmasTop() { return XMAS ? catalogue().filter((x) => x.xm).sort((a, b) => b.p - a.p).slice(0, 10).map(fromCat) : []; }
+  function XM() { const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
+    return `Top Christmas ${{ both: 'films and shows', tv: 'shows', movie: 'films' }[state.kind]}${g ? ` in ${esc(g)}` : ''}`; }
+  const XM_EYE = (it) => `Top Christmas ${it.type === 'movie' ? 'film' : 'show'}${all() ? '' : ` ${where()}`}`;
+  const XM_ALL = () => `browse.html#${esc(String(new URLSearchParams({ c: 'xmas', k: state.kind, ...(all() ? {} : { s: state.picks.join(',') }) })))}`;
+  function xmasList() { const l = xmasTop(); return l.length ? clList('bxXm', XM(), l, (i) => XM_EYE(l[i]), XM_ALL()) : ''; }
   function topList(k) {
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const l = topRated(k);
