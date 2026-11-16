@@ -14,7 +14,6 @@
 
 import { linkAlerts } from './auth.js';
 
-const SITE = 'https://tenner.stream';
 // the site's hourly data is read from its own Cloudflare address: tenner.stream itself puts automated requests through
 // Cloudflare's bot check, which a Worker's fetch can't pass
 export const DATA = 'https://tenner-site.danseacroft.workers.dev';

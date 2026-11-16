@@ -455,7 +455,7 @@
   }
 
   // ---------- the rows ----------
-  // the way from the combined Top 10 to each service's own chart (Top 10 by Service), on the box and on the phone rows
+  // the way from the combined Top 10 to each service's own chart (Top 10 by Service), on the phone rows
   const BY_SERVICE = `<a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a>`;
   const row = (id, title, sub, items, cls, more, act = '') => !items.length ? '' : `<section class="bx-sec" aria-labelledby="${id}">
       <header class="bx-sec-hd"><div><h2 id="${id}">${title}</h2>${sub ? `<p>${esc(sub)}</p>` : ''}</div>

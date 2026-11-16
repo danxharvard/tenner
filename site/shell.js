@@ -21,6 +21,8 @@
   const prefs = {
     get() { try { const p = JSON.parse(localStorage.getItem(PREFS) || '{}'); delete p.still; return { ...DEF, ...p }; } catch { return { ...DEF }; } },   // still: the old Reduce motion setting, gone
     set(k, v) { const p = prefs.get(); p[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(p)); } catch {} meta.edit((m) => { m.pfat = Date.now(); }); apply(); dispatchEvent(new Event('tn:prefs')); },
+    // back to how Tenner starts, dated now so an account takes the reset rather than restoring the old settings
+    reset() { try { localStorage.removeItem(PREFS); } catch {} meta.edit((m) => { m.pfat = Date.now(); }); apply(); dispatchEvent(new Event('tn:prefs')); },
   };
   // ---------- one-time feature tips you've seen: { id: when }, on this device (and in your account, if you sign in) ----------
   const TIPS = 'tenner-tips';
@@ -135,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.105.0';
+  const version = '2.105.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1664,7 +1666,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, arrows, segment, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.
@@ -1923,7 +1925,7 @@
   // the Help Centre: the menu marks it while you're in it (the Update centre is part of it)
   if (onPage('legal') || onPage('updates')) document.querySelector('.side-link[href="legal.html"]')?.setAttribute('aria-current', 'page');
 
-  window.tnShell = { select, current: () => cur };
+  window.tnShell = { select };
 
   // ---------- computers: frosted cards catch a soft light under the pointer (drawn in CSS from --mx / --my) ----------
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
