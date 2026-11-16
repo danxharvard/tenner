@@ -901,12 +901,12 @@
     const place = () => {
       if (drawerQ.matches) {
         movers.forEach((el) => drBody.append(el)); rightBox.append(search);
-        if (dock) { document.body.append(dock); dock.classList.add('tb-dock'); dispatchEvent(new Event('resize')); }
+        if (dock) { drBody.append(dock); dispatchEvent(new Event('resize')); }   // the pages: rows in the menu, as in the computer's sidebar
       } else {
         if (drawer.open) drawer.close();
         movers.forEach((el, i) => marks[i].after(el));
         search.remove();
-        if (dock) { dockHome.after(dock); dock.classList.remove('tb-dock'); dispatchEvent(new Event('resize')); }
+        if (dock) { dockHome.after(dock); dispatchEvent(new Event('resize')); }
       }
     };
     place(); drawerQ.addEventListener('change', place);
