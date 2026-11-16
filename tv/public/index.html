@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>What’s on UK TV tonight · Tenner TV</title>
   <meta name="description" content="What’s on UK TV tonight and all week: the main Freeview channels and Sky’s favourites, beautifully laid out.">
-  <meta name="theme-color" content="#050508">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -16,7 +17,7 @@
   <meta property="og:description" content="Every UK channel, now and next, and the whole evening.">
   <meta property="og:image" content="https://tenner.stream/og.jpg">
   <link rel="preconnect" href="https://images.metadata.sky.com">
-  <link rel="stylesheet" href="tv.css?v=3.5.0">
+  <link rel="stylesheet" href="tv.css?v=4.0.0">
   <!-- the listings start downloading now, alongside the page's own files (not after them) -->
   <script>(() => { const t = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(Date.now()), q = new URLSearchParams(location.search).get('d'), d = /^\d{4}-\d\d-\d\d$/.test(q || '') && q >= t ? q : t;
     const day = fetch('/api/day?d=' + d), meta = fetch('/data/meta.json').then((r) => (r.ok ? r.json() : null)).catch(() => null); day.catch(() => {});
@@ -41,8 +42,9 @@
     </nav>
     <div class="side-links">
       <button type="button" class="side-acct" id="acctSide" aria-haspopup="dialog"></button>
+      <button type="button" class="side-fb" data-fb>Send feedback</button>
       <a href="https://tenner.stream/legal.html#terms">Terms of Service</a><a href="https://tenner.stream/legal.html#privacy">Privacy Policy</a><a href="https://tenner.stream/legal.html#cookies">Cookies</a><a href="https://tenner.stream/contact.html">Contact</a>
-      <span class="side-ver">Tenner TV 3.5.0</span>
+      <span class="side-ver">Tenner TV 4.0.0</span>
     </div>
   </aside>
   <header class="bar">
@@ -55,7 +57,8 @@
     <section class="hero">
       <!-- in the corner: a popular programme on the guide, its artwork melting into the page (tap for what it's about) -->
       <button type="button" class="corner" id="corner" hidden><span class="corner-art"><img alt="" decoding="async"><img alt="" decoding="async"></span><span class="corner-cap" id="cornerCap"></span></button>
-      <!-- the Met Office's weather warnings, when there are any: bad weather can knock out a dish or an aerial's signal -->
+      <!-- the Met Office's weather warnings, when there are any (bad weather can knock out a dish or an aerial's signal):
+           a compact notification that opens for the details -->
       <aside class="wx" id="wx" aria-labelledby="wxT" hidden></aside>
       <p class="eye" id="eye">&nbsp;</p>
       <h1 id="h1">What’s on <br class="ph-br"><em class="grad">tonight</em>.</h1>
@@ -116,7 +119,7 @@
 
   <footer class="foot">
     <p>Listings from the open <a href="https://github.com/dp247/Freeview-EPG" rel="noopener">Freeview EPG</a> project and Sky’s own TV guide, with <a href="https://www.tvmaze.com/" rel="noopener">TVmaze</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener license">CC BY-SA 4.0</a>) filling any gaps. Channel logos are their owners’ trademarks. Times are UK time.</p>
-    <p>Part of <a href="https://tenner.stream/">Tenner</a>, the UK’s streaming top 10, every hour.</p>
+    <p>Part of <a href="https://tenner.stream/">Tenner</a>, the UK’s streaming top 10, every hour. New look? <button type="button" class="side-fb" data-fb>Tell us what you think</button></p>
   </footer>
 
   <!-- search: every channel, all week -->
@@ -140,10 +143,12 @@
   <dialog class="sheet rems" id="remSheet" aria-labelledby="remT"><div class="sh-in" id="remIn"></div></dialog>
   <!-- your account -->
   <dialog class="sheet acs" id="acSheet" aria-labelledby="acT"><div class="sh-in" id="acIn"></div></dialog>
+  <!-- what's new in Tenner TV 4 (shown once), and the feedback form it leads to -->
+  <dialog class="sheet hello" id="hello" aria-labelledby="hlT"><div class="sh-in" id="hlIn"></div></dialog>
   <!-- small confirmations, and the alert when a reminder comes round -->
   <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
   <div class="banner" id="banner" role="alert" popover="manual"></div>
 
-  <script src="tv.js?v=3.5.0" defer></script>
+  <script src="tv.js?v=4.0.0" defer></script>
 </body>
 </html>

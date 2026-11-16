@@ -6,12 +6,6 @@
   'use strict';
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  // a programme's colour, from its genre (Apple's system colours): the preview box is lit in it and glides from one to the
-  // next as you move around the guide, and On now's tiles take it as you hover, the way tenner.stream's Contact page does
-  const TONES = [[/film|movie/, '#0a84ff'], [/sport/, '#64d2ff'], [/news|current affairs|politic|weather/, '#8e8e93'],
-    [/child|kids|animat|cartoon/, '#ffd60a'], [/comedy|sitcom/, '#ff9f0a'], [/drama|soap|crime|thriller|mystery|detective/, '#bf5af2'],
-    [/entertain|game|quiz|music|talent|reality|talk|chat/, '#ff375f'], [/doc|factual|nature|wildlife|history|science|lifestyle|food|cook|home|garden|travel|arts|religio/, '#30d158']];
-  const tone = (x) => { const g = `${(x.g || []).join(' ')} ${x.type || ''}`.toLowerCase(); return (TONES.find(([re]) => re.test(g)) || [0, '#0a84ff'])[1]; };
 
   const hue = (s) => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -72,7 +66,7 @@
   const epLine = (x) => [x.s && x.n ? `Series ${x.s}, episode ${x.n}` : x.n ? `Episode ${x.n}` : '', x.ep].filter(Boolean).join(' · ');
   const art = (x) => (x.wide ? `<img src="${esc(x.wide)}" alt="" loading="lazy" decoding="async">`
     : x.poster ? `<img class="bed" src="${esc(x.poster)}" alt="" loading="lazy" decoding="async"><img class="pst" src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">`
-    : `<span class="ph" style="background:linear-gradient(150deg,hsl(${hue(x.t)} 45% 40%),hsl(${(hue(x.t) + 50) % 360} 55% 18%))">${esc(x.t)}</span>`);
+    : `<span class="ph" style="background:hsl(${hue(x.t)} 38% 34%)">${esc(x.t)}</span>`);
 
   // ---------- channels: logo tiles (our own, made for dark), or initials if a channel has none ----------
   const logo = (name) => state.data?.logos?.[name];
@@ -463,7 +457,6 @@
     const t = Date.now(), started = isLive(x, t);
     $('#pvCh').innerHTML = logo(x.ch) ? `<img class="pv-logo" src="${esc(logo(x.ch))}" alt="${esc(x.ch)}">` : esc(x.ch);
     $('#pvT').textContent = x.t;
-    $('#pv').style.setProperty('--tone', tone(x));
     $('#pvSum').textContent = x.sum || epLine(x) || (x.g || []).join(', ');
     $('#pvLive').innerHTML = liveBtn(x);
     $('#pvMeta').textContent = [started ? `Started at ${hm(x.at)}` : `${x.end <= t ? 'Was on' : `${x.at - t < 864e5 && ukDay(x.at) === today ? 'On' : dayName(ukDay(x.at), { weekday: 'long' })}`} at ${hm(x.at)}`,
@@ -472,7 +465,7 @@
     // behind the picture (and in its place when there isn't one, or it won't load): the title's own colours and the
     // channel's logo, so the box is never empty
     const h = hue(x.t), ph = $('#pvPh');
-    ph.style.background = `linear-gradient(150deg, hsl(${h} 45% 34%), hsl(${(h + 50) % 360} 55% 14%))`;
+    ph.style.background = `hsl(${h} 38% 30%)`;
     ph.innerHTML = logo(x.ch) ? `<img src="${esc(logo(x.ch))}" alt="">` : `<b>${esc(x.t)}</b>`;
     $('#pv').classList.toggle('poster', !x.wide && !!x.poster);
     if (!src) { img.hidden = true; img.removeAttribute('src'); return; }
@@ -493,7 +486,7 @@
     if (box.classList.contains('sh-art')) { box.querySelectorAll('img').forEach((i) => i.remove()); box.classList.remove('sh-poster'); return; }
     const t = x?.t || '', h = hue(t);
     box.querySelectorAll('img').forEach((i) => i.remove());
-    if (!box.querySelector('.ph')) box.insertAdjacentHTML('afterbegin', `<span class="ph" style="background:linear-gradient(150deg,hsl(${h} 45% 40%),hsl(${(h + 50) % 360} 55% 18%))">${esc(t)}</span>`);
+    if (!box.querySelector('.ph')) box.insertAdjacentHTML('afterbegin', `<span class="ph" style="background:hsl(${h} 38% 34%)">${esc(t)}</span>`);
   }, true);
   const over = (e) => { const b = e.target.closest?.('.blk, .pick, .tile'); if (b) preview(shown.get(b.dataset.p)); };
   document.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse') over(e); });
@@ -582,6 +575,8 @@
   const BELL_O = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 2H4.4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M10 21h4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
   const CAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 13v4.5M9.75 15.25h4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
   const SHARE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M8 7.2l4-3.7 4 3.7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5H7a2.5 2.5 0 0 0-2.5 2.5v5A2.5 2.5 0 0 0 7 20.5h10a2.5 2.5 0 0 0 2.5-2.5v-5a2.5 2.5 0 0 0-2.5-2.5h-1.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  const PERSON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.5 20.5c1-4 4-6 7.5-6s6.5 2 7.5 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h7M10.5 12h9M16.5 8.5 20 12l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const closeAll = () => { for (const d of document.querySelectorAll('dialog[open]')) d.close(); };
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-p]'); if (!b || sheet.contains(b)) return;
@@ -597,7 +592,7 @@
       <div class="sh-body"><p class="sh-when">${when}</p>
         <h2 id="shT">${x.isNew ? '<i class="new">New</i>' : ''}${esc(x.t)}</h2>${epLine(x) ? `<p class="sh-ep">${esc(epLine(x))}</p>` : ''}
         ${isLive(x, now) ? `<div class="sh-prog" aria-label="${minsLeft(x, now)} minutes left"><i style="width:${Math.round(((now - x.at) / (x.end - x.at)) * 100)}%"></i></div>` : ''}
-        <div class="sh-acts">${liveBtn(x)}${soon ? remBtn(x) : ''}${soon ? `<button type="button" class="act" id="shCal">${CAL}<span>Add to Calendar</span></button>` : ''}<button type="button" class="act" id="shShare">${SHARE}<span>Share</span></button></div>
+        <div class="sh-acts">${liveBtn(x)}${soon ? remBtn(x) : ''}${soon ? `<button type="button" class="act alt" id="shCal">${CAL}<span>Add to Calendar</span></button>` : ''}<button type="button" class="act${soon || liveBtn(x) ? ' alt' : ''}" id="shShare">${SHARE}<span>Share</span></button></div>
         ${x.sum ? `<p class="sh-sum">${esc(x.sum)}</p>` : '<p class="sh-sum sh-none">No description yet.</p>'}
         ${x.g?.length ? `<ul class="sh-tags">${x.g.map((g) => `<li>${esc(g)}</li>`).join('')}${x.r ? `<li>★ ${x.r.toFixed(1)}</li>` : ''}</ul>` : ''}
         <p class="sh-more"><button type="button" class="sh-link" id="shCh">${esc(x.ch)}’s week</button>${x.url ? `<a class="sh-link" href="${esc(x.url)}" target="_blank" rel="noopener">More on TVmaze</a>` : ''}</p>
@@ -754,7 +749,7 @@
     $('#tiles').innerHTML = names.map((n) => {
       const l = chItems(n), i = l.findIndex((o) => o.x.at <= at && at < o.end); if (i < 0) return '';
       const { x, end, next } = l[i], p = Math.round(((at - x.at) / (end - x.at)) * 100);
-      return `<li><button type="button" class="tile${live ? ' live' : ''}" style="--c:${tone(x)}" ${reg(x, n, next)} aria-label="${esc(`${n}: ${x.t}, ${hm(x.at)} to ${hm(end)}${next ? `. Then ${next.t}` : ''}`)}">
+      return `<li><button type="button" class="tile${live ? ' live' : ''}" ${reg(x, n, next)} aria-label="${esc(`${n}: ${x.t}, ${hm(x.at)} to ${hm(end)}${next ? `. Then ${next.t}` : ''}`)}">
         <span class="tile-art">${art(x)}<span class="tile-ch">${badge(n)}</span>${rem.has(x.id) ? `<span class="chip-bell">${BELL}</span>` : ''}</span>
         <span class="tile-copy"><b>${x.isNew ? '<i class="new">New</i>' : ''}${esc(x.t)}</b>
           <small>${hm(x.at)}–${hm(end)}${live ? ` · ${minsLeft({ end }, at)} min left` : ''}</small>
@@ -853,7 +848,7 @@
     closeAll(); chOpen = n;
     const pin = favs.all().includes(n), live = LIVE[n];
     $('#chIn').innerHTML = `<div class="sh-grab" aria-hidden="true"></div><header class="sh-hd chs-hd">${badge(n)}<span><h2 id="chT">${esc(n)}</h2><small>The week ahead</small></span><button type="button" class="sh-x" id="chX" aria-label="Close">${X}</button></header>
-      <div class="sh-acts chs-acts"><button type="button" class="act${pin ? ' on' : ''}" id="chPin" aria-pressed="${pin}">${star(pin)}<span>${pin ? 'Pinned to the top' : 'Pin to the top'}</span></button>
+      <div class="sh-acts chs-acts"><button type="button" class="act${pin ? ' on' : ''}${live ? ' alt' : ''}" id="chPin" aria-pressed="${pin}">${star(pin)}<span>${pin ? 'Pinned to the top' : 'Pin to the top'}</span></button>
         ${live ? `<a class="live-btn" href="${esc(live[1])}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Watch live on ${esc(live[0])}</a>` : ''}</div>
       ${awardBox(n)}<div id="chDays"></div>`;
     drawChannel();
@@ -953,8 +948,8 @@
       ${u ? `<ul class="list ac-list"><li><span class="li-row"><span class="tile-ic">${BELL}</span><span class="fd-t"><b>Reminders</b><small>${n ? `${n} coming up` : 'None yet'}</small></span></span></li>
         <li><span class="li-row"><span class="tile-ic star">${star(true)}</span><span class="fd-t"><b>Pinned channels</b><small>${favs.all().length || 'None yet'}</small></span></span></li>
         <li><span class="li-row"><span class="tile-ic wl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17L12 16.6 6.5 20.5z" fill="currentColor"/></svg></span><span class="fd-t"><b>Your Watchlist</b><small>${w ? `${w} title${w === 1 ? '' : 's'}, shown here when they’re on TV` : 'Add titles on tenner.stream'}</small></span></span></li></ul>
-        <div class="ac-acts"><a class="act" href="https://tenner.stream/account.html">Manage account</a><button type="button" class="act" id="acOut">Sign out</button></div>`
-      : `<div class="ac-acts"><a class="act primary" href="https://tenner.stream/account.html?to=tv">Sign in with Tenner</a></div><p class="sh-note">Don’t have one? You can make one there in a moment. It’s free, and Tenner TV works just the same without.</p>`}`;
+        <div class="ac-acts"><a class="act" href="https://tenner.stream/account.html">${PERSON}<span>Manage account</span></a><button type="button" class="act alt" id="acOut">${OUT}<span>Sign out</span></button></div>`
+      : `<div class="ac-acts"><a class="act primary" href="https://tenner.stream/account.html?to=tv">${PERSON}<span>Sign in with Tenner</span></a></div><p class="sh-note">Don’t have one? You can make one there in a moment. It’s free, and Tenner TV works just the same without.</p>`}`;
     acSheet.showModal(); $('#acX').focus({ preventScroll: true });
   }
   for (const b of ['#acctSide', '#acctBar']) $(b).addEventListener('click', openAcct);
@@ -1000,9 +995,11 @@
     }
   }, 60e3);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && ukDay() !== today) location.reload(); });
-  // ---------- weather warnings: when the Met Office has one, a box in the top right says so (bad weather can knock a
-  // dish or an aerial out, and live TV can still be watched online). It glides in, flashes red twice and stays until
-  // closed; a closed warning stays closed, a new one shows again. Checked every quarter of an hour. ----------
+  // ---------- weather warnings: when the Met Office has one, a notification at the top of the page says so (bad weather
+  // can knock a dish or an aerial out, and live TV can still be watched online). Compact, like a notification on a Mac:
+  // the warning, where and when; tap it for what it means for your picture, any other warnings and the Met Office's page.
+  // It glides in once and stays until closed; a closed warning stays closed, a new (or raised, or extended) one shows
+  // again. Checked every quarter of an hour, and warnings that run out while the page is open go by themselves. ----------
   const WX = 'tv-wx-closed', LV = { red: 'Red', amber: 'Amber', yellow: 'Yellow' };
   const closedWx = { all() { try { const l = JSON.parse(localStorage.getItem(WX) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } },
     add(ids) { try { localStorage.setItem(WX, JSON.stringify([...new Set([...this.all(), ...ids])].slice(-40))); } catch {} } };
@@ -1013,47 +1010,122 @@
     thunderstorm: 'Thunderstorms can interrupt satellite and aerial signals, and lightning can cut the power.',
     snow: 'Snow building up on a satellite dish can block its signal.',
     ice: 'Ice on a satellite dish can block its signal.',
+    fog: 'Fog doesn’t usually affect your TV signal, but take care if you’re out.',
+    heat: 'Extreme heat doesn’t usually affect your TV signal. Keep cool, and keep the box somewhere it can breathe.',
   };
   const tip = (type) => Object.entries(TIPS).find(([k]) => type.includes(k))?.[1] || 'Bad weather can interrupt satellite and aerial signals.';
   const clock = (t) => { const [h, m] = hm(t).split(':').map(Number); return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''}${h < 12 ? 'am' : 'pm'}`; };
   const onDay = (t) => { const d = ukDay(t); return d === ukDay() ? 'today' : d === ukDay(Date.now() + 864e5) ? 'tomorrow' : dayName(d, { weekday: 'short' }); };
   const when = (w, now = Date.now()) => {
     const to = w.to ? `${clock(w.to)} ${onDay(w.to)}` : '';
-    if (!w.from || w.from <= now) return to ? `In force until ${to}` : 'In force now';
+    if (!w.from || w.from <= now) return to ? `Until ${to}` : 'In force now';
     const from = `${clock(w.from)} ${onDay(w.from)}`;
     return `From ${from}${to ? ` until ${w.to && ukDay(w.to) === ukDay(w.from) ? clock(w.to) : to}` : ''}`;
   };
-  const tri = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 2.6 17.6A2 2 0 0 0 4.3 20.6h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" fill="currentColor"/><path d="M12 9v4.6" stroke="#000" stroke-opacity=".78" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.25" fill="#000" fill-opacity=".78"/></svg>';
-  let wxShown = '';
+  const tri = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.2 3.3 19.3h17.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4.3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="12" cy="16.9" r="1.2" fill="currentColor"/></svg>';
+  const TVI = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="12.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8.5 21h7M9 2.8l3 2.7 3-2.7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const EXT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 14v3.5a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2H10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEV = '<svg class="wx-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  let wxShown = '', wxList = [];
   function drawWx(list) {
     const box = $('#wx'), gone = new Set(closedWx.all()), open = list.filter((w) => !gone.has(wxKey(w)));
     const sig = open.map(wxKey).join(',');
+    wxList = open;
     if (!open.length) { box.hidden = true; wxShown = ''; return; }
     if (sig === wxShown) return;   // the same warnings: leave the box be
-    const w = open[0], more = open.slice(1), now = Date.now();
+    const w = open[0], more = open.slice(1), now = Date.now(), wasOpen = box.classList.contains('open') && !box.hidden;
     box.dataset.level = w.level;
-    box.innerHTML = `<div class="wx-ic">${tri}</div>
-      <div class="wx-copy">
-        <p class="wx-k">Weather alert · Met Office</p>
-        <h2 id="wxT">${esc(LV[w.level] || '')} warning of ${esc(w.type)}</h2>
-        <p class="wx-where">${esc([w.where, w.areas].filter(Boolean).join(': '))}</p>
-        <p class="wx-when">${esc(when(w, now))}</p>
-        <p class="wx-tip">${esc(tip(w.type))} If it does, tap <b>Watch live</b> to watch online.</p>
-        ${more.length ? `<ul class="wx-more">${more.slice(0, 2).map((x) => `<li><i data-level="${esc(x.level)}"></i>${esc(LV[x.level] || '')} warning of ${esc(x.type)}${x.where ? ` · ${esc(x.where)}` : ''}</li>`).join('')}${more.length > 2 ? `<li class="wx-n">and ${more.length - 2} more</li>` : ''}</ul>` : ''}
-        <a class="wx-go" href="${esc(w.link)}" target="_blank" rel="noopener">Full warning at the Met Office<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-      <button type="button" class="wx-x" aria-label="Close the weather alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>`;
+    box.innerHTML = `<button type="button" class="wx-head" aria-expanded="${wasOpen}" aria-controls="wxBody">
+        <span class="wx-ic">${tri}</span>
+        <span class="wx-top"><span class="wx-k"><b>${esc(LV[w.level] || '')}</b> · Met Office${more.length ? ` · ${more.length} more` : ''}</span>
+          <span class="wx-t" id="wxT">${esc(LV[w.level] || '')} warning of ${esc(w.type)}</span>
+          <span class="wx-line">${esc([w.where || w.areas, when(w, now)].filter(Boolean).join(' · '))}</span></span>${CHEV}</button>
+      <button type="button" class="wx-x" aria-label="Close the weather alert">${X}</button>
+      <div class="wx-body" id="wxBody"${wasOpen ? '' : ' inert'}><div><div class="wx-in2">
+        ${w.areas && w.where ? `<p class="wx-where">${esc(w.areas)}</p>` : ''}
+        <p class="wx-tip">${esc(tip(w.type))}${/fog|heat/.test(w.type) ? '' : ' If it happens, you can still watch online: open anything that’s on now and tap <b>Watch live</b>.'}</p>
+        ${more.length ? `<ul class="wx-more">${more.slice(0, 3).map((x) => `<li><i data-level="${esc(x.level)}"></i><span>${esc(LV[x.level] || '')} warning of ${esc(x.type)}${x.where ? ` · ${esc(x.where)}` : ''} · ${esc(when(x, now))}</span></li>`).join('')}${more.length > 3 ? `<li class="wx-n">and ${more.length - 3} more</li>` : ''}</ul>` : ''}
+        <div class="wx-acts"><button type="button" class="act" id="wxNow">${TVI}<span>What’s on now</span></button><a class="act alt" href="${esc(w.link)}" target="_blank" rel="noopener">${EXT}<span>Met Office</span></a></div>
+      </div></div></div>`;
+    box.classList.toggle('open', wasOpen);
     box.setAttribute('role', 'alert');
-    box.hidden = false; box.parentElement.style.setProperty('--wxh', `${box.offsetHeight}px`); box.classList.remove('wx-out', 'wx-in'); void box.offsetWidth; box.classList.add('wx-in');   // glides in, then the two red flashes (tv.css)
-    box.querySelector('.wx-x').onclick = () => {
-      closedWx.add(open.map(wxKey)); wxShown = '';
-      if (reduce) { box.hidden = true; return; }
-      box.classList.add('wx-out'); box.addEventListener('animationend', () => { box.hidden = true; }, { once: true });
-    };
+    box.hidden = false; box.classList.remove('wx-out', 'wx-in'); void box.offsetWidth; box.classList.add('wx-in');
     wxShown = sig;
   }
+  $('#wx').addEventListener('click', (e) => {
+    const box = $('#wx');
+    if (e.target.closest('.wx-head')) {
+      const on = !box.classList.contains('open'); box.classList.toggle('open', on); buzz();
+      box.querySelector('.wx-head').setAttribute('aria-expanded', on); box.querySelector('.wx-body').inert = !on;
+    } else if (e.target.closest('#wxNow')) {
+      if (view !== 'now') setView('now');
+      $('.guide').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    } else if (e.target.closest('.wx-x')) {
+      closedWx.add(wxList.map(wxKey)); wxShown = ''; buzz();
+      if (reduce) { box.hidden = true; return; }
+      box.classList.add('wx-out'); box.addEventListener('animationend', () => { box.hidden = true; }, { once: true });
+    }
+  });
   const checkWx = () => fetch('/api/warnings').then((r) => (r.ok ? r.json() : null)).then((d) => { if (Array.isArray(d?.warnings)) drawWx(d.warnings.filter((w) => !w.to || w.to > Date.now())); }).catch(() => {});
   checkWx(); setInterval(() => { if (!document.hidden) checkWx(); }, 15 * 60e3);
+
+  // ---------- what's new in Tenner TV 4: shown once (not over a shared link, which opens its programme instead; then next
+  // time), a short sheet like iOS's "What's New", with feedback welcome. The feedback form is also behind every
+  // "Send feedback" (the sidebar, the foot of the page). It goes to Tenner's inbox through the Contact form's service. ----------
+  const HELLO = 'tv-welcome', VER = '4', hello = $('#hello'), hlIn = $('#hlIn'), deepLink = !!(askQ || askP);
+  const ico = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const BUBBLE = ico('<path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16h-6l-4.5 3.8V16H7a2.5 2.5 0 0 1-2.5-2.5z"/>');
+  const NEWS = [
+    ['#0a84ff', ico('<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 8.5h17"/><circle cx="6.3" cy="6.5" r=".4" fill="currentColor"/><circle cx="8.3" cy="6.5" r=".4" fill="currentColor"/>'), 'A cleaner look', 'Flat and calm, like a Mac app, and it now follows your device’s Light or Dark Mode.'],
+    ['#bf5af2', ico('<path d="M12 3.5 3.5 8 12 12.5 20.5 8z"/><path d="M3.5 12 12 16.5 20.5 12M3.5 16 12 20.5 20.5 16"/>'), 'Artwork with depth', 'Pictures drift gently at their own pace as you scroll and swipe.'],
+    ['#ff9f0a', ico('<path d="M7.5 17.5h9.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 6.8 9.6a4 4 0 0 0 .7 7.9z"/>'), 'Clearer weather alerts', 'Met Office warnings sit in one tidy notification. Tap it for what it means for your picture.'],
+    ['#ff375f', BUBBLE, 'Tell us what you think', 'It’s a big update, and your feedback shapes what comes next.'],
+  ];
+  const ARROW = ico('<path d="M5 12h13M13 6.5 18.5 12 13 17.5"/>'), TICK = ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
+  function openHello(mode = 'new') {
+    closeAll();
+    const u = acct.token() ? acct.user() : null;
+    if (mode === 'new') hlIn.innerHTML = `<button type="button" class="sh-x" id="hlX" aria-label="Close">${X}</button><div class="hl-in">
+        <img class="hl-logo" src="logo.svg" alt="" width="64" height="64"><h2 id="hlT">Welcome to the new Tenner TV</h2><p class="hl-ver">Version 4.0</p>
+        <ul class="hl-list">${NEWS.map(([c, i, t, d]) => `<li><span class="hl-ic" style="--c:${c}">${i}</span><span><b>${t}</b><small>${d}</small></span></li>`).join('')}</ul>
+        <div class="hl-acts"><button type="button" class="act" id="hlGo">${ARROW}<span>Continue</span></button><button type="button" class="act alt" id="hlFb">${BUBBLE}<span>Send feedback</span></button></div></div>`;
+    else if (mode === 'fb') hlIn.innerHTML = `<button type="button" class="sh-x" id="hlX" aria-label="Close">${X}</button><form class="hl-in" id="hlForm" novalidate>
+        <h2 id="hlT">What do you think?</h2><p class="hl-ask">Tell us about the new Tenner TV: what you like, what you’d change, or anything that isn’t working.</p>
+        <p class="hl-q" id="hlVq">The new look</p>
+        <div class="bgrp" role="radiogroup" aria-labelledby="hlVq">${['Love it', 'It’s OK', 'Not for me'].map((v) => `<label><input type="radio" name="v" value="${v}">${v}</label>`).join('')}</div>
+        <label class="hl-f"><span>Anything else? (optional)</span><textarea id="hlMsg" maxlength="3000" placeholder="What would make it better?"></textarea></label>
+        <label class="hl-f"><span>Your email, so we can reply</span><input type="email" id="hlEm" autocomplete="email" inputmode="email" value="${esc(u?.email || '')}" placeholder="you@example.com"></label>
+        <input type="text" id="hlWeb" tabindex="-1" autocomplete="off" aria-hidden="true" hidden>
+        <p class="hl-err" id="hlErr" role="alert"></p>
+        <div class="hl-acts two"><button type="button" class="act alt" id="hlBack">${X}<span>Cancel</span></button><button type="submit" class="act" id="hlSend">${BUBBLE}<span>Send</span></button></div></form>`;
+    else hlIn.innerHTML = `<div class="hl-in"><span class="hl-ic" style="--c:#30d158;width:64px;height:64px;margin:0 auto 14px">${TICK}</span><h2 id="hlT">Thank you</h2>
+        <p class="hl-ask">We read every message. If you asked something, we’ll reply by email.</p><div class="hl-acts"><button type="button" class="act" id="hlGo">${TICK}<span>Done</span></button></div></div>`;
+    hlIn.scrollTop = 0;
+    if (!hello.open) hello.showModal();
+    (mode === 'fb' ? $('#hlForm input[name="v"]') : $('#hlX') || $('#hlGo'))?.focus({ preventScroll: true });
+  }
+  async function sendFb(e) {
+    e.preventDefault();
+    const v = $('#hlForm input[name="v"]:checked')?.value || '', t = $('#hlMsg').value.trim(), em = $('#hlEm').value.trim(), err = $('#hlErr'), b = $('#hlSend');
+    if (!v && t.length < 2) { err.textContent = 'Choose how you feel about it, or write a few words.'; return; }
+    if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(em)) { err.textContent = 'Add your email, so we can reply.'; $('#hlEm').focus(); return; }
+    err.textContent = ''; b.disabled = true; b.querySelector('span').textContent = 'Sending…';
+    const u = acct.token() ? acct.user() : null;
+    const msg = [`Tenner TV ${VER}.0 feedback`, v ? `The new look: ${v}` : '', t, '', `(${innerWidth}×${innerHeight}, ${matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light'} Mode)`].filter((l, i) => l || i === 3).join('\n');
+    try {
+      const r = await fetch(`${API}/contact`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ topic: 'Feedback', name: u?.name || '', email: em, msg, website: $('#hlWeb').value }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'Couldn’t send right now. Please try again in a little while.');
+      openHello('thanks'); buzz(12);
+    } catch (x) { err.textContent = x.message === 'Failed to fetch' ? 'You seem to be offline. Please try again when you’re connected.' : x.message; b.disabled = false; b.querySelector('span').textContent = 'Send'; }
+  }
+  hello.addEventListener('click', (e) => {
+    if (e.target === hello || e.target.closest('#hlX, #hlGo, #hlBack')) hello.close();
+    else if (e.target.closest('#hlFb')) openHello('fb');
+  });
+  hello.addEventListener('submit', (e) => { if (e.target.id === 'hlForm') sendFb(e); });
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-fb]')) openHello('fb'); });
+  if (store.get(HELLO, '') !== VER && !deepLink) setTimeout(() => { if (!document.querySelector('dialog[open]')) { store.set(HELLO, VER); openHello('new'); } }, 1400);
 
   // kept on the device: opens instantly, and works with a weak signal or none (sw.js)
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
