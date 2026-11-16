@@ -51,6 +51,7 @@
     share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.8 7.6 12 3.4l4.2 4.2M6.5 11H6a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 18 11h-.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     sparkle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.5 4.6 2.9 7 7.5 7.5-4.6.5-7 2.9-7.5 7.5-.5-4.6-2.9-7-7.5-7.5 4.6-.5 7-2.9 7.5-7.5zM19 15.5c.2 1.9 1.1 2.8 3 3-1.9.2-2.8 1.1-3 3-.2-1.9-1.1-2.8-3-3 1.9-.2 2.8-1.1 3-3z" fill="currentColor"/></svg>',
     film: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M10 9.2v5.6a.6.6 0 0 0 .9.5l4.5-2.8a.6.6 0 0 0 0-1l-4.5-2.8a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>',
+    infoc: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.9" r="1.15" fill="currentColor"/></svg>',
     install: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.8 10.4 12 14.6l4.2-4.2M5 15.5v2A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
 
@@ -251,10 +252,14 @@
     c.innerHTML = `${xmasCount()}
       <p class="bx-eye bx-eye-x">${I.sparkle}<span>Christmas on Tenner</span></p>
       <h2 class="bx-h-t">${here ? 'Merry Christmas from Tenner' : 'Christmas is nearly here'}</h2>
+      ${xmasLine()}
       <p class="bx-h-ov bx-h-ov-x">${esc(xmasSay())}</p>
       ${xmasHow() ? `<p class="bx-h-how">${esc(xmasHow())}</p>` : ''}
       <div class="bx-h-acts">${xmasActs()}</div>`;
+    placeDots();
   }
+  // phones: the countdown as one quiet line under the headline, as on Tenner TV's top
+  const xmasLine = () => { const c = xmasDays(); return `<p class="bx-h-sub">${c ? `${c.d} ${c.d === 1 ? 'day' : 'days'} to go · Calendar doors from 1 December` : 'Happy holidays'}</p>`; };
   // the countdown keeps time while the slide's up (it used to stay at the minute the page opened)
   setInterval(() => {
     if (document.hidden || !heroList[state.hero]?.it.xmas) return;
@@ -345,11 +350,11 @@
   // trending lists, so it keeps changing by itself), a fresh mix each visit (tn.featured), kept to the kind and services
   // you've picked; should that leave too few, the chart's most popular with artwork stand in. The first one moves
   // (Tenner's own cut), so one with stills leads; Christmas comes second.
-  let heroList = [], heroTimer = 0;
+  let heroList = [], heroTimer = 0, heroDots = null;
   function drawHero() {
     const day = (state.feat?.items || []).filter((it) => kinds().includes(it.type) && pickedAny(it.on)).map((it) => ({ it: { ...it } }));
     const picks = popular(), withArt = picks.filter((p) => p.it.backdrop);
-    heroList = window.tn.featured.pick(day.length >= 3 ? day : (withArt.length >= 3 ? withArt : picks).slice(0, 20), (p) => keyOf(p.it) || p.it.title, 10);
+    heroList = window.tn.featured.pick(day.length >= 3 ? day : (withArt.length >= 3 ? withArt : picks).slice(0, 20), (p) => keyOf(p.it) || p.it.title, PHONE.matches ? 6 : 10);
     const lead = heroList.findIndex((p) => p.it.bds?.length);
     if (lead > 0) heroList.unshift(...heroList.splice(lead, 1));
     if (heroList[0]?.it.bds?.length) heroList[0].it.cut = true;
@@ -363,6 +368,7 @@
         <div class="bx-h-strip" id="bxStrip" role="tablist" aria-label="Featured titles">${heroList.map((p, i) => `<button type="button" role="tab" data-hero="${i}" aria-selected="${i === state.hero}" aria-label="${esc(p.it.title)}" tabindex="${i === state.hero ? 0 : -1}">
         <span class="bx-h-thumb">${poster(p.it)}</span><span class="bx-h-bar" aria-hidden="true"></span></button>`).join('')}</div>
         <button type="button" class="bx-r bx-h-arr" data-harr="1" aria-label="See more featured titles" hidden>${I.right}</button></div>`;
+    heroDots = box.querySelector('.bx-h-next');
     $('#bxStrip').addEventListener('scroll', stripArrows, { passive: true });
     showHero(state.hero, true);
     requestAnimationFrame(stripArrows);
@@ -403,16 +409,24 @@
     ].filter(Boolean);
     const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
     const genres = (x.g || []).slice(0, 3);
-    c.innerHTML = `<dl class="bx-score">${cells.map(([v, l]) => `<div><dt>${v}</dt><dd>${esc(l)}</dd></div>`).join('')}</dl>
+    const sub = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', genres[0], it.year].filter(Boolean);
+    c.innerHTML = `${on ? `<p class="bx-h-badge">${svcIcon(on, 'bx-h-badge-i')}<span>${esc(on.label)}</span></p>` : ''}<dl class="bx-score">${cells.map(([v, l]) => `<div><dt>${v}</dt><dd>${esc(l)}</dd></div>`).join('')}</dl>
       <p class="bx-eye">${I.flame}<span>Trending ${esc(where())} today</span></p>
       ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}
       <h2 class="bx-h-t">${x.lg ? `<img class="bx-h-logo" src="${esc(LOGO + x.lg)}" alt="${esc(it.title)}">` : esc(it.title)}</h2>
+      <p class="bx-h-sub">${sub.map(esc).join(' · ')}</p>
       <p class="bx-h-meta">${svcIcon(on)}<span>${meta.map(esc).join(' · ')}</span>${x.c ? `<b class="bx-cert">${esc(x.c)}</b>` : ''}</p>
       ${it.overview ? `<p class="bx-h-ov">${esc(it.overview)}</p>` : ''}
-      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a>${it.cut && x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
+      <div class="bx-h-acts"><a class="btn btn-tinted bx-cta" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.play}Where to watch</a><a class="btn btn-tinted bx-cta bx-h-more" href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}>${I.infoc}More info</a>${it.cut && x.tr ? `<button type="button" class="bx-r bx-r-l bx-trl" data-htr aria-label="Watch the official trailer" title="Trailer">${I.film}</button>` : ''}${saveBtn(info, ' bx-r-l')}</div>`;
     const lg = c.querySelector('.bx-h-logo'); if (lg) lg.onerror = () => { lg.replaceWith(document.createTextNode(it.title)); };
-    markSaved();
+    markSaved(); placeDots();
   }
+  // phones: the dots sit beside the button (Tenner TV's top); bigger screens keep the strip of posters in the corner
+  function placeDots() {
+    const n = heroDots, acts = $('#bxCopy .bx-h-acts'); if (!n) return;
+    if (PHONE.matches && acts) { if (n.parentNode !== acts) acts.append(n); } else if (n.parentNode !== $('#bxHero')) $('#bxHero').append(n);
+  }
+  PHONE.addEventListener('change', placeDots);
   // the artwork's colours: a soft glow behind the page, and under the sidebar's frost
   function ambient(src) {
     const glow = $('#bxAmb'), ext = $('#bdExt');

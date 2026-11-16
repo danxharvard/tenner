@@ -889,16 +889,31 @@ export async function buildFeatured(data, ids, prev) {
   return { v: FEATURED_V, day: ukDay(), from, generatedAt: new Date().toISOString(), items };
 }
 
-// ---------- Home's spotlight: a big splash halfway down the page for one title Tenner wants to show off ----------
-// Each entry here becomes data/spotlight.json: the title's details from TMDB and its best wordless backdrop (the most
-// liked one with no language, so the artwork has no words on it). Rebuilt once a day; the live copy carries on for a
-// week if TMDB has a bad moment, and Home simply leaves the splash out if there's nothing.
-const SPOTLIGHT_V = 1, SPOTLIGHT_HOURS = 24;
-const SPOTLIGHT = [{ type: 'tv', id: 84773, on: ['prime'], eye: 'Only on Prime Video' }];   // The Lord of the Rings: The Rings of Power
-export async function buildSpotlight(prev) {
-  const same = prev?.v === SPOTLIGHT_V && prev.items?.length && SPOTLIGHT.every((s, i) => prev.items[i]?.id === s.id);
-  if (same && hoursOld(prev) < SPOTLIGHT_HOURS) { console.log('Spotlight: keeping the one from', prev.generatedAt); return prev; }
-  const items = (await pool(SPOTLIGHT.map((s) => async () => {
+// ---------- Home's spotlight: a big splash halfway down the page, a new title every day by itself ----------
+// Picked each morning from the featured trending pool (so it's always something people are watching now): a title on
+// just one service comes first ("Only on Prime Video"), never yesterday's, then the day's turn through the rest. It gets
+// its best wordless backdrop (the most liked one with no language, so the artwork has no words on it). SPOTLIGHT_PIN can
+// hold titles to show instead for a while (empty: fully automatic). The live copy carries on for a week if TMDB has a
+// bad moment, and Home simply leaves the splash out if there's nothing.
+const SPOTLIGHT_V = 2, SPOTLIGHT_HOURS = 24;
+const SPOTLIGHT_PIN = [];   // e.g. [{ type: 'tv', id: 84773, on: ['prime'], eye: 'Only on Prime Video' }]
+let spotKeys = [];
+const spk = (it) => `${it.type === 'movie' ? 'm' : 't'}${it.id}`;
+export function pickSpotlight(pool, prev, day = ukDay()) {
+  const last = new Set((prev?.items || []).map((it) => `${it.type}${it.id}`));
+  const fresh = (pool || []).filter((it) => it.backdrop && it.on?.length && !last.has(`${it.type}${it.id}`));
+  const only = fresh.filter((it) => it.on.length === 1), list = only.length ? only : fresh;
+  if (!list.length) return null;
+  const n = [...day].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7);   // the day's turn, the same all day
+  const it = list[n % Math.min(list.length, 8)];
+  const label = SERVICES.find((x) => x.key === it.on[0])?.label;
+  return { type: it.type, id: it.id, on: it.on, eye: it.on.length === 1 && label ? `Only on ${label}` : 'Trending this week' };
+}
+export async function buildSpotlight(prev, featured) {
+  if (prev?.v === SPOTLIGHT_V && prev.day === ukDay() && prev.items?.length) { spotKeys = prev.items.map(spk); console.log('Spotlight: keeping today\'s', prev.items[0].title); return prev; }
+  const picks = SPOTLIGHT_PIN.length ? SPOTLIGHT_PIN : [pickSpotlight(featured?.items, prev)].filter(Boolean);
+  if (!picks.length) throw new Error('nothing in the trending pool to spotlight');
+  const items = (await pool(picks.map((s) => async () => {
     try {
       const [r, im] = await Promise.all([tmdb(`/${s.type}/${s.id}`, { language: 'en-GB' }), tmdb(`/${s.type}/${s.id}/images`, { include_image_language: 'null' }).catch(() => ({}))]);
       const bd = (im.backdrops || []).filter((x) => x.file_path && !x.iso_639_1 && x.width >= 1280 && x.aspect_ratio > 1.6)
@@ -908,10 +923,11 @@ export async function buildSpotlight(prev) {
     } catch (err) { warn('Spotlight', `${s.type} ${s.id}: ${err.message}`); return null; }
   }), 2)).filter(Boolean);
   if (!items.length) throw new Error('no spotlight titles came back');
+  spotKeys = items.map(spk);
   console.log(`Spotlight: ${items.map((it) => it.title).join(', ')}`);
-  return { v: SPOTLIGHT_V, generatedAt: new Date().toISOString(), items };
+  return { v: SPOTLIGHT_V, day: ukDay(), generatedAt: new Date().toISOString(), items };
 }
-export const spotlightKeys = () => SPOTLIGHT.map((s) => `${s.type === 'movie' ? 'm' : 't'}${s.id}`);
+export const spotlightKeys = () => spotKeys.filter(Boolean);
 
 // ---------- A page for each title, for link previews ----------
 // t/m123/index.html for every title Tenner has details for: its name, artwork and where it streams in the tags that
@@ -1137,10 +1153,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (featured) await write('featured.json', featured);
     }
 
-    // 4b. Home's spotlight (once a day; the live copy carries on for a week if it fails)
+    // 4b. Home's spotlight: a new title from the trending pool each day (the live copy carries on for a week if it fails)
     {
       const prev = await liveCopy('spotlight.json');
-      try { await write('spotlight.json', await buildSpotlight(prev)); }
+      try { await write('spotlight.json', await buildSpotlight(prev, featured)); }
       catch (err) {
         const keep = prev?.items?.length && hoursOld(prev) < 168;
         warn('Spotlight', `not rebuilt (${err.message})${keep ? ', keeping the live one' : ''}`);

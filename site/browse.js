@@ -539,6 +539,9 @@
     }
     const words = () => {
       $('#spotT').textContent = x.n;
+      // phones: the service as a small badge above the title (as on Home and Tenner TV)
+      const k0 = x.s[0], bdg = $('#spotBadge');
+      bdg.hidden = !k0; bdg.innerHTML = k0 ? `${logos[k0] ? `<img src="${esc(logos[k0])}" alt="">` : ''}<span>${esc(labels[k0] || '')}</span>` : '';
       const g = x.g.map((id) => cat.genres[id]).find(Boolean);
       $('#spotM').innerHTML = [x.t === 'tv' ? 'Show' : 'Film', g, (x.d || '').slice(0, 4), x.r ? `★ ${x.r.toFixed(1)}` : ''].filter(Boolean).map(esc).join(' · ')
         + (x.s.length ? `<span class="on">${x.s.slice(0, 3).map((k) => logos[k] ? `<img src="${esc(logos[k])}" alt="${esc(labels[k])}" data-tip="${esc(labels[k])}">` : '').join('')}</span>` : '');
@@ -559,6 +562,11 @@
       b.classList.toggle('done', i < spot.at); b.classList.remove('run'); if (i === spot.at) { void b.offsetWidth; b.classList.add('run'); }
     });
   }
+  // phones: the dots sit beside the button; bigger screens keep them at the side with the arrows
+  const PH = matchMedia('(max-width: 719px)'), navHome = document.createComment('spot-nav');
+  $('#spotNav').before(navHome);
+  const placeNav = () => { if (PH.matches) $('.spot-acts').append($('#spotNav')); else navHome.after($('#spotNav')); };
+  placeNav(); PH.addEventListener('change', placeNav);
   $('#spotDots').addEventListener('animationend', (e) => {
     if (e.animationName !== 'spotFill') return;
     if (document.hidden || window.tnSheet?.isOpen() || sheet.open) { const b = e.target.closest('button'); b.classList.remove('run'); void b.offsetWidth; b.classList.add('run'); return; }

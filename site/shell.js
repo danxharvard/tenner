@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.111.0';
+  const version = '2.112.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -607,7 +607,7 @@
       if (!open && panel.contains(document.activeElement)) btn.focus({ preventScroll: true });
     };
     // a tap on the page around it sends it back down (not one in a sheet or popup opened from it)
-    document.addEventListener('pointerdown', (e) => { if (tf.classList.contains('open') && !e.target.closest?.('#tf, dialog, .tb-dock, .top-row')) toggle(false); });
+    document.addEventListener('pointerdown', (e) => { if (tf.classList.contains('open') && !e.target.closest?.('#tf, dialog, .top-row')) toggle(false); });
     btn.addEventListener('click', () => toggle(!tf.classList.contains('open')));
     tf.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tf.classList.contains('open')) { e.stopPropagation(); toggle(false); } });
   }
@@ -901,12 +901,12 @@
     const place = () => {
       if (drawerQ.matches) {
         movers.forEach((el) => drBody.append(el)); rightBox.append(search);
-        if (dock) { document.body.append(dock); dock.classList.add('tb-dock'); dispatchEvent(new Event('resize')); }
+        if (dock) { drBody.append(dock); dispatchEvent(new Event('resize')); }   // the pages: rows in the menu, as in the computer's sidebar
       } else {
         if (drawer.open) drawer.close();
         movers.forEach((el, i) => marks[i].after(el));
         search.remove();
-        if (dock) { dockHome.after(dock); dock.classList.remove('tb-dock'); dispatchEvent(new Event('resize')); }
+        if (dock) { dockHome.after(dock); dispatchEvent(new Event('resize')); }
       }
     };
     place(); drawerQ.addEventListener('change', place);
@@ -1789,44 +1789,6 @@
   }
   tabs.forEach((t) => t.addEventListener('click', () => open(t.dataset.tab)));
   arrows($('#tabs'), () => tabs, (n) => open(n.dataset.tab));   // the visible tabs only (About is hidden in the sidebar)
-  // phones: hold the lens and slide it along the tab bar, as on iOS. The tab under your finger is magnified, a small buzz
-  // marks each one you cross, and letting go opens it; a plain tap works as before
-  {
-    const bar = $('#tabs'); let sc = null, eatClick = 0;
-    const shown = () => tabs.filter((t) => t.offsetWidth);
-    const under = (cx) => shown().reduce((b, t) => { const r = t.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - cx); return d < b.d ? { t, d } : b; }, { t: null, d: Infinity }).t;
-    const mark = (t) => tabs.forEach((n) => n.classList.toggle('lens-under', n === t));
-    bar?.addEventListener('pointerdown', (e) => {
-      if (!bar.closest('.tb-dock') || e.button || !e.target.closest('[role=tab]')) return;
-      sc = { id: e.pointerId, x0: e.clientX, on: false, at: null, last: null };
-    });
-    bar?.addEventListener('pointermove', (e) => {
-      if (!sc || e.pointerId !== sc.id) return;
-      if (!sc.on) {
-        if (Math.abs(e.clientX - sc.x0) < 10) return;
-        sc.on = true; bar.setPointerCapture(e.pointerId); bar.classList.add('scrub'); ind.classList.add('held');
-      }
-      const list = shown(), w = list[0].offsetWidth, br = bar.getBoundingClientRect();
-      const nx = Math.min(list.at(-1).offsetLeft, Math.max(list[0].offsetLeft, e.clientX - br.left - w / 2));
-      ind.getAnimations?.().forEach((a) => a.cancel());
-      if (sc.last !== null && nx !== sc.last) lens(ind, nx - sc.last);
-      ind.style.width = w + 'px'; ind.style.transform = `translateX(${nx}px)`; from.set(ind, nx); sc.last = nx;
-      const t = under(e.clientX);
-      if (t !== sc.at) { if (sc.at) haptic(5); sc.at = t; mark(t); }
-    });
-    const end = (e) => {
-      if (!sc || e.pointerId !== sc.id) return;
-      const was = sc; sc = null;
-      if (!was.on) return;
-      bar.classList.remove('scrub'); ind.classList.remove('held'); mark(null);
-      const t = e.type === 'pointerup' ? under(e.clientX) : null, n = t?.dataset.tab;
-      eatClick = performance.now() + 400;   // the click that follows a slide isn't a tap
-      if (n && n !== cur) { open(n); if (cur !== n && n !== 'top10' && n !== 'search') { select(n); return; } }
-      placeInd(true);
-    };
-    bar?.addEventListener('pointerup', end); bar?.addEventListener('pointercancel', end);
-    bar?.addEventListener('click', (e) => { if (performance.now() < eatClick) { eatClick = 0; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
-  }
   addEventListener('resize', () => placeInd(false));
   document.fonts?.ready.then(() => placeInd(false));
   placeInd(false); placed = true;

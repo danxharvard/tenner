@@ -585,3 +585,49 @@ main.bwrap { position: relative; isolation: isolate; }
 
 /* phones: the glow stays inside the screen (anything past its sides makes iPhone Safari zoom the page out) */
 @media (max-width: 719px) { .s-amb { left: 0; right: 0; } }
+
+/* phones (and a narrow window): more compact, the big gaps between the sections taken in */
+@container page (width < 700px) {
+  .spot { padding-bottom: 6px; }
+  .spot-nav { margin-top: 10px; }
+  .coll { margin-top: 8px; }
+  .moods { margin-top: 18px; }
+  .moods-h { margin-bottom: 8px; }
+  .moods-row { padding-bottom: 8px; }
+  .results { margin-top: 14px; }
+  .r-bar { margin-bottom: 12px; }
+}
+
+/* ---------- phones: Browse's top as Home's and Tenner TV's. The artwork runs edge to edge and up under the see-through
+   bar; over its foot, the service's badge, a big title, one quiet line, one More info button and the dots beside it. ---------- */
+.spot-badge, .spot-go .go-i { display: none; }
+@media (max-width: 719px) {
+  .spot.has-feat .spot-feat { margin-top: clamp(170px, 52vw, 280px); }
+  .spot-bg { top: calc(-70px - env(safe-area-inset-top, 0px)); -webkit-mask-image: linear-gradient(180deg, #000 52%, rgba(0, 0, 0, .55) 76%, transparent 96%); mask-image: linear-gradient(180deg, #000 52%, rgba(0, 0, 0, .55) 76%, transparent 96%); }
+  .spot-wash { background: linear-gradient(rgba(0, 0, 0, .42), rgba(0, 0, 0, .1) 110px, transparent 170px); }
+  :root:not([data-theme="light"]) .spot-wash { background: linear-gradient(rgba(0, 0, 0, .42), rgba(0, 0, 0, .1) 110px, transparent 170px, transparent 45%, rgba(0, 0, 0, .35)); }
+  .spot.has-feat .spot-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* the title on the bar says Browse */
+  .spot.has-feat .spot-h + .b-rail { margin-top: 0; }
+  .spot-badge:not([hidden]) { display: inline-flex; align-items: center; gap: 7px; width: fit-content; margin: 0 0 8px; padding: 4px 10px 4px 4px; border-radius: var(--r);
+    font: 600 13px/1 var(--font); color: var(--label); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  .spot-badge:not(:has(img)) { padding-left: 10px; }
+  .spot-badge img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
+  .spot-eye, .spot-o, .spot-add, .spot-m .on { display: none !important; }
+  .spot-t button { font-size: clamp(32px, 10.4vw, 42px); line-height: 1.02; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  .spot-m { margin-top: 8px; font: 600 15px/1.3 var(--font); color: var(--label); opacity: .86; }
+  .spot-acts { flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; }
+  .spot-go { flex: none; }
+  .spot-go .go-w, .spot-go > svg:first-child { display: none; }
+  .spot-go .go-i { display: inline; }
+  .spot-go svg.go-i { display: block; }
+  .spot-acts .spot-nav { position: static; margin: 0; }
+  .spot-dots button { width: 10px; } .spot-dots button[aria-selected="true"] { width: 26px; }
+  .spot-dots i { top: 8px; height: 6px; border-radius: 3px; }
+}
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) { .spot-badge:not([hidden]) { background: var(--bg); } }
+/* phones: the bar's round buttons a touch see-through over the artwork, as on Home */
+@media (max-width: 719px) {
+  body.browse .tb-round { color: #fff; background: rgba(30, 30, 34, .36); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
+  :root.scrolled body.browse .tb-round { background: var(--bt-round); box-shadow: none; }
+}
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) { body.browse .tb-round { background: var(--bt-round); } }
