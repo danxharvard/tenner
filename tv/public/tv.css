@@ -849,3 +849,24 @@ button.li-row:active { background: rgba(255, 255, 255, .12); }
 }
 @media (prefers-reduced-transparency: reduce) { .pv { background: #1c1c1e; -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media (forced-colors: active) { .pv::before { display: none; } }
+
+/* ---------- an award-winning channel (GB News): a gold ring on its badge and a small trophy on its row, and on its page a
+   box of the awards it has won, as plain text (nothing to tap). The gold never moves. ---------- */
+.ch-won .ch-badge { outline: 1.5px solid rgba(255, 214, 10, .85); outline-offset: 2px; }
+.ch .ch-aw { flex: none; display: inline-grid; place-items: center; }
+.ch .ch-aw svg { width: 15px; height: 15px; opacity: 1; color: #ffd60a; }
+@media (max-width: 760px) {
+  .ch .ch-aw { position: absolute; right: 2px; bottom: 7px; width: 17px; height: 17px; border-radius: 50%; background: #1c1c1e; box-shadow: 0 0 0 1px rgba(255, 214, 10, .6); }
+  .ch .ch-aw svg { position: static; width: 11px; height: 11px; }
+}
+.aw-box { margin: 14px 22px 4px; padding: 14px 16px 6px; border-radius: 9px; background: rgba(255, 214, 10, .07); box-shadow: inset 0 0 0 .5px rgba(255, 214, 10, .35); }
+.aw-hd { display: flex; align-items: center; gap: 12px; }
+.aw-hd b { display: block; color: var(--label); font: 600 16px/1.25 var(--font); letter-spacing: -.02em; }
+.aw-hd small { display: block; margin-top: 2px; color: var(--label2); font-size: 13px; }
+.aw-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: #ffd60a; background: rgba(255, 214, 10, .14); }
+.aw-ic svg { width: 20px; height: 20px; }
+.aw-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.aw-list li { display: flex; flex-direction: column; gap: 1px; padding: 9px 0; border-top: .5px solid var(--sep); font-size: 15px; line-height: 1.3; }
+.aw-list b { font-weight: 600; color: var(--label); }
+.aw-list span { color: var(--label2); font-size: 14px; }
+@media (max-width: 760px) { .aw-box { margin: 12px 18px 4px; } }

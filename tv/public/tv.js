@@ -94,6 +94,18 @@
     ITV4: ['ITVX', 'https://www.itv.com/watch?channel=itv4'], ITVBe: ['ITVX', 'https://www.itv.com/watch?channel=itvbe'],
     'Channel 4': ['Channel 4', 'https://www.channel4.com/now/C4'], E4: ['Channel 4', 'https://www.channel4.com/now/E4'], More4: ['Channel 4', 'https://www.channel4.com/now/M4'], Film4: ['Channel 4', 'https://www.channel4.com/now/F4'],
   };
+  // awards a channel has won, shown as plain text on its row and its page (no link). Each was checked against more than one
+  // report; the TRIC Awards are voted for by the public. Add a year only once it has been reported by more than the channel.
+  const AWARDS = {
+    'GB News': { line: 'Award-winning news channel', from: 'TRIC Awards, voted for by the public', wins: [
+      ['Best News Programme', 'GB News Breakfast', '2023, 2024, 2025 and 2026'],
+      ['Best News Presenter', 'Nigel Farage', '2023 and 2024'],
+      ['Best News Presenter', 'Charlie Peters', '2025']] },
+  };
+  const TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10V9a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5.5H4.6a2.6 2.6 0 0 0 2.9 4M17 5.5h2.4a2.6 2.6 0 0 1-2.9 4M12 14v4.2M8.3 20.5h7.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  const awardMark = (n) => (AWARDS[n] ? `<span class="ch-aw" title="${esc(AWARDS[n].line)}">${TROPHY}<span class="vh">, ${esc(AWARDS[n].line.toLowerCase())}</span></span>` : '');
+  const awardBox = (n) => { const a = AWARDS[n]; return a ? `<section class="aw-box" aria-label="Awards"><div class="aw-hd"><span class="aw-ic">${TROPHY}</span><span><b>${esc(a.line)}</b><small>${esc(a.from)}</small></span></div>
+    <ul class="aw-list">${a.wins.map(([cat, who, yrs]) => `<li><b>${esc(cat)}</b><span>${esc(who)} · ${esc(yrs)}</span></li>`).join('')}</ul></section>` : ''; };
   const isLive = (x, now = Date.now()) => x.at <= now && now < x.end;
   const liveBtn = (x) => (LIVE[x.ch] && isLive(x) ? `<a class="live-btn" href="${esc(LIVE[x.ch][1])}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Watch live on ${esc(LIVE[x.ch][0])}</a>` : '');
 
@@ -238,7 +250,7 @@
     const now = Date.now(), m = px(), loaded = [...state.loaded];
     remIds = new Set(rem.all().map((r) => r.id));
     $('#epg').innerHTML = `<div class="empty" hidden><h3>None of these channels today</h3><p>Try another category, or All channels.</p></div><div class="rows">${chans.map((c) => `<div class="crow">
-      <button type="button" class="ch" data-ch="${esc(c.name)}">${badge(c.name)}<span class="ch-name">${esc(c.name)}</span><span class="ch-star"></span></button>
+      <button type="button" class="ch${AWARDS[c.name] ? ' ch-won' : ''}" data-ch="${esc(c.name)}">${badge(c.name)}<span class="ch-name">${esc(c.name)}</span>${awardMark(c.name)}<span class="ch-star"></span></button>
       <div class="strip" data-strip="${esc(c.name)}" role="group" aria-label="${esc(`${c.name}, through the week`)}">${loaded.map(([d, day], i) => dayBlocks(c.name, d, day, i > 0, now, m)).join('')}</div></div>`).join('')}</div>`;
     near.clear(); io.disconnect();
     arrange(true, true);
@@ -843,7 +855,7 @@
     $('#chIn').innerHTML = `<div class="sh-grab" aria-hidden="true"></div><header class="sh-hd chs-hd">${badge(n)}<span><h2 id="chT">${esc(n)}</h2><small>The week ahead</small></span><button type="button" class="sh-x" id="chX" aria-label="Close">${X}</button></header>
       <div class="sh-acts chs-acts"><button type="button" class="act${pin ? ' on' : ''}" id="chPin" aria-pressed="${pin}">${star(pin)}<span>${pin ? 'Pinned to the top' : 'Pin to the top'}</span></button>
         ${live ? `<a class="live-btn" href="${esc(live[1])}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Watch live on ${esc(live[0])}</a>` : ''}</div>
-      <div id="chDays"></div>`;
+      ${awardBox(n)}<div id="chDays"></div>`;
     drawChannel();
     chSheet.showModal(); $('#chX').focus({ preventScroll: true });
     wholeWeek(chMore);
