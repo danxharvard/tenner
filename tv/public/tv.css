@@ -1,12 +1,12 @@
-/* Tenner TV: Tenner's look (Apple's system colours and type, glass only for the controls, everything blended, never
-   cut off), always dark, like tenner.stream's standard Night theme. */
+/* Tenner TV: Tenner's look (Apple's system colours and type, everything blended, never cut off). The file builds up in
+   layers by version; Tenner TV 4 (at the end) makes it flat, like a Mac app, in Light or Dark Mode as the device is set. */
 :root {
   color-scheme: dark;
   --bg: #000000; --bg2: #1c1c1e; --label: #ffffff; --label2: rgba(235, 235, 245, .62); --label3: rgba(235, 235, 245, .3); --sep: rgba(84, 84, 88, .6);
   --fill: rgba(118, 118, 128, .24); --fill-strong: rgba(118, 118, 128, .36); --accent: #0a84ff;
   --gl-fill: rgba(255, 255, 255, .13); --gl-hover: rgba(255, 255, 255, .2); --gl-rim: rgba(255, 255, 255, .2);
   --sheet-bg: rgba(30, 30, 32, .74);
-  --wp-base: #050508; --wp-1: rgba(255, 55, 95, .17); --wp-2: rgba(191, 90, 242, .16); --wp-3: rgba(10, 132, 255, .17); --wp-4: rgba(48, 209, 190, .07); --wp-grain: .07;
+  --wp-base: #000000;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --ease-spring: cubic-bezier(.3, 1.25, .4, 1); --ease-out: cubic-bezier(.2, .8, .2, 1);
@@ -16,17 +16,6 @@
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; min-height: 100svh; overflow-x: clip; background: var(--wp-base); color: var(--label); font: 400 17px/1.4 var(--font); letter-spacing: -.016em;
   -webkit-font-smoothing: antialiased; }
-/* Tenner TV's wallpaper: still, fixed to the screen (it never moves or changes), soft blooms of Tenner's pink, purple
-   and blue with a touch of teal, on near-black (dark) or pearl (light), and a fine grain so the gradients never band */
-body::before, body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-body::before { background:
-  radial-gradient(60% 50% at 8% 4%, var(--wp-1), transparent 70%),
-  radial-gradient(55% 55% at 92% 18%, var(--wp-2), transparent 70%),
-  radial-gradient(60% 55% at 78% 92%, var(--wp-3), transparent 72%),
-  radial-gradient(50% 45% at 6% 82%, var(--wp-4), transparent 70%),
-  var(--wp-base); }
-body::after { opacity: var(--wp-grain); mix-blend-mode: overlay; background-size: 200px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font: inherit; color: inherit; }
@@ -35,8 +24,7 @@ button { font: inherit; color: inherit; }
 .ph-br { display: none; }
 @media (max-width: 760px) { .ph-br { display: inline; } }
 @keyframes wordIn { from { opacity: 0; transform: translateY(.18em) scale(.96); filter: blur(4px); } }
-.grad { font-style: normal; background: linear-gradient(100deg, #ff375f 0%, #bf5af2 55%, #0a84ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
-  -webkit-box-decoration-break: clone; box-decoration-break: clone; padding-bottom: .06em; }
+.grad { font-style: normal; color: var(--accent); }
 
 /* ---------- the bar ---------- */
 .bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: var(--max); margin: 0 auto;
@@ -357,51 +345,7 @@ html:has(.sheet[open]) { overflow: hidden; }
 .fd-go svg { width: 13px; height: 13px; }
 @media (max-width: 420px) { .fd-go { font-size: 0; } .fd-go svg { width: 15px; height: 15px; color: var(--label3); } }
 
-/* ---------- the weather alert: a notification in the top right of the page (beside the headline on wide screens,
-   above it on narrower ones), glass with a hairline, the warning's colour on its icon. It glides in on a spring, then
-   flashes red twice; it closes with its ×. With Reduce Motion it just appears, its red rim steady. ---------- */
 .hero { position: relative; }
-.wx { --lv: #ffd60a; position: relative; z-index: 5; display: grid; grid-template-columns: 34px minmax(0, 1fr) 30px; gap: 12px; width: min(100%, 400px); margin: 0 0 18px auto;
-  padding: 14px 8px 14px 14px; border-radius: 22px; background: var(--gl-fill); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8);
-  box-shadow: inset 0 0 0 1px var(--gl-rim), 0 18px 40px -18px rgba(0, 0, 0, .45); font-size: 14px; line-height: 1.38; -webkit-font-smoothing: antialiased; overflow: hidden; }
-.wx[hidden] { display: none; }
-.wx[data-level="amber"] { --lv: #ff9f0a; } .wx[data-level="red"] { --lv: #ff453a; }
-.wx::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
-  background: radial-gradient(120% 140% at 0% 0%, rgba(255, 59, 48, .55), rgba(255, 59, 48, .28)); box-shadow: inset 0 0 0 1.5px #ff3b30; }
-.wx-in { animation: wxIn .6s var(--ease-spring) both; }
-.wx-in::after { animation: wxFlash 1.25s ease-in-out .5s both; }
-.wx-out { animation: wxOut .26s cubic-bezier(.4, 0, 1, 1) forwards; }
-@keyframes wxIn { from { opacity: 0; transform: translateY(-14px) scale(.94); filter: blur(4px); } }
-@keyframes wxFlash { 0%, 50%, 100% { opacity: 0; } 22%, 72% { opacity: 1; } }
-@keyframes wxOut { to { opacity: 0; transform: translateY(-8px) scale(.96); } }
-.wx-ic { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--lv) 20%, transparent); }
-.wx-ic svg { width: 22px; height: 22px; color: var(--lv); }
-.wx-copy { min-width: 0; }
-.wx-copy p { margin: 0; }
-.wx-k { color: var(--label2); font: 500 12px/1.2 var(--font); letter-spacing: -.005em; }
-.wx h2 { margin: 3px 0 2px; font: 600 16px/1.25 var(--font); letter-spacing: -.02em; }
-.wx-where { color: color-mix(in srgb, var(--label) 82%, transparent); overflow-wrap: anywhere; }
-.wx-when { margin-top: 2px !important; color: var(--label); font-weight: 500; }
-.wx-tip { margin-top: 8px !important; color: var(--label2); }
-.wx-tip b { font-weight: 600; color: var(--label); }
-.wx-more { margin: 8px 0 0; padding: 8px 0 0; list-style: none; border-top: .5px solid var(--sep); color: var(--label2); font-size: 13px; }
-.wx-more li { display: flex; align-items: baseline; gap: 7px; padding: 1px 0; }
-.wx-more i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #ffd60a; }
-.wx-more i[data-level="amber"] { background: #ff9f0a; } .wx-more i[data-level="red"] { background: #ff453a; }
-.wx-n { padding-left: 15px !important; }
-.wx-go { display: inline-block; padding: 9px 0 4px; font: 500 14px/1.25 var(--font); }
-.wx-go svg { width: 13px; height: 13px; margin-left: 2px; vertical-align: -1px; }
-.wx-x { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -8px 0 -14px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--label2); cursor: pointer;
-  -webkit-tap-highlight-color: transparent; }
-.wx-x svg { width: 28px; height: 28px; padding: 7px; border-radius: 50%; background: var(--fill); transition: background-color .2s ease, transform .3s var(--ease-spring); }
-.wx-x:hover svg { background: var(--fill-strong); color: var(--label); }
-.wx-x:active svg { transform: scale(.88); transition-duration: .1s; }
-/* wide screens: in the space beside the headline, the guide moved down below it if it's tall (--wxh, from tv.js) */
-@media (min-width: 1400px) { .wx { position: absolute; top: 44px; right: 0; width: 380px; margin: 0; }
-  .hero:has(> .wx:not([hidden])) { min-height: calc(var(--wxh, 0px) + 60px); } }
-@media (max-width: 760px) { .wx { width: 100%; margin-bottom: 14px; grid-template-columns: 30px minmax(0, 1fr) 30px; gap: 10px; padding-left: 12px; } .wx-ic { width: 30px; height: 30px; border-radius: 9px; } .wx-ic svg { width: 19px; height: 19px; } }
-@media (prefers-reduced-transparency: reduce) { .wx { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--bg2); } }
-@media (prefers-reduced-motion: reduce) { .wx::after { opacity: 0 !important; } .wx { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #ff3b30 70%, transparent), 0 18px 40px -18px rgba(0, 0, 0, .45); } }
 
 /* =====================================================================================================================
    Tenner TV 3: Liquid Glass. The controls float above the content in one bar of glass (a blurred, brightened fill, a
@@ -713,7 +657,7 @@ button.li-row:active { background: rgba(255, 255, 255, .12); }
 .act, .live-btn { border-radius: 12px; }
 .pv .live-btn { border-radius: 10px; }
 .sh-x { border-radius: 10px; }
-.li-x svg, .bn-x svg, .wx-x svg { border-radius: 8px; }
+.li-x svg, .bn-x svg { border-radius: 8px; }
 .toast { border-radius: 16px; }
 .toast-act, .bn-act { border-radius: 9px; }
 .banner { border-radius: 18px; }
@@ -830,23 +774,274 @@ button.li-row:active { background: rgba(255, 255, 255, .12); }
 @media (max-width: 760px) { .corner { height: 620px; } }
 .corner-art img { object-position: 60% top; }
 
-/* ============================================================ tenner.stream's Contact page touches. The preview is a frosted
-   card lit along its top edge in the programme's colour (its genre, from tone() in tv.js), with a soft glow of it beneath;
-   the colour glides from one programme to the next as you move around the guide. On now's tiles take their programme's
-   colour as you hover. */
-@property --tone { syntax: "<color>"; inherits: true; initial-value: #0a84ff; }
-.pv { --tone: #0a84ff; position: relative; padding: 12px; margin-bottom: 18px; border-radius: 22px;
-  background: rgba(22, 22, 26, .5); -webkit-backdrop-filter: blur(40px) saturate(1.6); backdrop-filter: blur(40px) saturate(1.6);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 90px -42px color-mix(in srgb, var(--tone) 65%, transparent);
-  transition: --tone .8s ease; }
-.pv::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 1px; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--tone), transparent); }
-.pv .pv-art { border-radius: 12px; }
-@media (max-width: 760px) { .pv { padding: 10px; border-radius: 18px; } .pv .pv-art { border-radius: 10px; } }
-@media (hover: hover) {
-  .tile[style*="--c"]:hover { background: color-mix(in srgb, var(--c) 14%, var(--tile-hi));
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 42%, transparent), 0 20px 40px -18px color-mix(in srgb, var(--c) 65%, transparent); }
+/* the preview: a frosted card (Tenner TV 4, below) */
+.pv { position: relative; margin-bottom: 18px; }
+@media (max-width: 760px) { .pv { padding: 10px; } }
+
+/* =====================================================================================================================
+   Tenner TV 4: flat, like a Mac app. One plain page colour (no wallpaper, glows or grain), Light or Dark Mode as the device
+   is set, one 9px corner, one frost for every bar, box and sheet (the page colour at 80% over a 40px blur, a fine rim),
+   Tenner's buttons (solid deep navy with white words and an icon; grey for second choices; dark grey circles for an icon
+   alone), no drop shadows except under a sheet, and artwork that drifts at its own pace as you scroll (parallax).
+   ===================================================================================================================== */
+:root {
+  color-scheme: light dark;
+  --r: 9px;
+  --bg: #ffffff; --bg2: #f2f2f7; --label: #000000; --label2: rgba(60, 60, 67, .64); --label3: rgba(60, 60, 67, .38); --sep: rgba(60, 60, 67, .2);
+  --fill: rgba(120, 120, 128, .12); --fill-strong: rgba(120, 120, 128, .22); --accent: #007aff;
+  --fr-bg: color-mix(in srgb, var(--bg) 80%, transparent); --fr-in: color-mix(in srgb, var(--label) 6%, transparent);
+  --fr-in-hi: color-mix(in srgb, var(--label) 11%, transparent);
+  --fr-blur: blur(40px) saturate(1.6); --fr-rim: color-mix(in srgb, var(--label) 14%, transparent);
+  --bt-fill: rgba(11, 30, 60, .84); --bt-hover: rgba(19, 42, 82, .9); --bt-round: rgba(34, 34, 38, .8); --bt-round-hover: rgba(46, 46, 51, .86);
+  --bt2: var(--fill); --bt2-hover: var(--fill-strong);
+  --logo-tile: #1c1c1e;   /* the channels' logos are made for dark, so their tile stays dark by day too, as Apple TV's do */
+  --live: color-mix(in srgb, var(--accent) 14%, transparent);
+  --wp-base: var(--bg);
+  --pop-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 14'%3E%3Cpath d='M1 5l3.5-3.5L8 5M1 9l3.5 3.5L8 9' fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #000000; --bg2: #1c1c1e; --label: #ffffff; --label2: rgba(235, 235, 245, .62); --label3: rgba(235, 235, 245, .32); --sep: rgba(84, 84, 88, .6);
+    --fill: rgba(118, 118, 128, .24); --fill-strong: rgba(118, 118, 128, .36); --accent: #0a84ff; --logo-tile: var(--fr-in); --live: color-mix(in srgb, var(--accent) 18%, transparent); }
+}
+body { background: var(--bg); }
+.hero h1, .hero .eye, .hero .lede { text-shadow: none; }
+
+/* ---------- frost: the bar at the top, the toolbar, the preview, sheets, toasts, the weather notification ---------- */
+.bar::before { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); -webkit-mask-image: none; mask-image: none; inset: 0 calc(50% - 50vw); }
+.tools { padding: 5px; margin: 4px 0 14px; border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.pv { padding: 12px; border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.pv .pv-art, .pv-art { border-radius: var(--r); box-shadow: none; }
+.pv-logo { border-radius: var(--r); background: var(--logo-tile); box-shadow: none; }
+.sheet { border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 30px 70px rgba(0, 0, 0, .28); }
+.sheet::backdrop { background: rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.sh-hd { background: linear-gradient(var(--fr-bg) 60%, transparent); }
+.sh-grab { background: var(--label3); box-shadow: none; }
+.toast, .banner { border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), 0 18px 40px rgba(0, 0, 0, .18); }
+@media (max-width: 760px) { .sheet { border-radius: var(--r) var(--r) 0 0; } }
+
+/* ---------- the sidebar: a light frost (milky by day, smoky by night), plain monochrome icons, regular weight ---------- */
+@media (min-width: 1000px) {
+  :root { --side-bg: var(--fr-bg); }
+  .side { background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); }
+  .side-row { border-radius: var(--r); font-weight: 400; }
+  .side-row svg { color: var(--label2); }
+  .side-row[aria-current] { font-weight: 500; background: var(--fill); }
+  .side-row[aria-current] svg { color: var(--accent); }
+  .side-acct { border-radius: var(--r); }
+}
+.side-fb { padding: 3px 0; border: 0; background: none; cursor: pointer; color: var(--label2); font: 400 12px/1.3 var(--font); letter-spacing: -.01em; }
+.side-fb:hover { color: var(--label); }
+
+/* ---------- controls inside the toolbar: plain, with a faint tint on hover; what's chosen keeps Tenner's rainbow line ---------- */
+.seg button, .days button, .pop, .ic-btn, .tools .find-btn { border-radius: var(--r); }
+.pop:hover, .ic-btn:hover, .tools .find-btn:hover { background: var(--fill); color: var(--label); }
+.pop:hover svg { color: var(--label2); }
+.chev { background: var(--pop-chev) center / contain no-repeat; opacity: 1; }
+.tools .find-btn { background: var(--fr-in); }
+.tools .find-btn kbd { border-radius: 5px; box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.days button:active, .seg button:active, .pop:active, .ic-btn:active, .tools .find-btn:active { transform: scale(.96); filter: none; }
+.count { box-shadow: none; }
+@media (max-width: 760px) { .tools .find-btn { background: none; } }
+
+/* ---------- the guide: flat tiles in a faint tint, on now in a flat tint of blue with a solid line for how far it's got ---------- */
+.blk, .blk.live { border-radius: var(--r); box-shadow: none; }
+.blk { background: var(--fr-in); }
+@media (hover: hover) { .blk:hover { background: var(--fr-in-hi); } .blk.live:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); } }
+.blk:active { transform: scale(.97); filter: none; }
+.blk.live { background: var(--live); }
+.blk.live::after { height: 2px; border-radius: 0; background: var(--accent); box-shadow: none; }
+.daymark { border-radius: var(--r); color: #fff; background: var(--accent); box-shadow: none; }
+.ch-badge, .tile-ch .ch-badge, .chs-hd .ch-badge, .li-row .ch-badge, .fd-row .ch-badge { border-radius: var(--r); background: var(--logo-tile); box-shadow: none; }
+.ch-mono { background: hsl(var(--h) 45% 42%); }
+.badge-new { border-radius: var(--r); }
+.blk .new, .sh-body .new, .sh-body h2 .new, .fd-t .new, .tile .new, .li-row .new { background: #ff375f; }
+.fd-live, .li-row .now { border-radius: var(--r); }
+.sh-tags li { border-radius: var(--r); background: var(--fr-in); }
+.skel i { border-radius: var(--r); }
+
+/* ---------- On now and the shelves: flat cards ---------- */
+.tile, .tiles .tile { border-radius: var(--r); background: var(--fr-in); box-shadow: none; }
+@media (hover: hover) { .tile:hover { background: var(--fr-in-hi); box-shadow: none; transform: translateY(-2px); } }
+.tile-bar i, .sh-prog i { background: var(--accent); }
+.tile-bar, .sh-prog { background: var(--fill); }
+.tile:not(.live) .tile-bar i { background: var(--label3); }
+.pick-art, .tile-art .pst, .pick-art .pst, .sh-poster .pst, .fd-pst { border-radius: var(--r); box-shadow: none; }
+@media (hover: hover) { .pick:hover .pick-art { transform: translateY(-2px); box-shadow: none; } }
+.chip { border-radius: var(--r); background: rgba(20, 20, 24, .55); }
+.chip-bell { border-radius: 50%; }
+
+/* ---------- buttons: Tenner's own. Solid deep navy, white words beside an icon, 9px corner; the second choice beside a
+   main one in iOS's quiet grey; an icon alone in a dark grey circle ---------- */
+.act, .live-btn, .bar-link, .toast-act, .bn-act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 0 15px 0 13px;
+  border: 0; border-radius: var(--r); cursor: pointer; color: #fff; font: 500 14.5px/1 var(--font); -webkit-font-smoothing: antialiased; text-decoration: none !important; white-space: nowrap;
+  background: var(--bt-fill); box-shadow: none; -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); transition: background-color .2s ease, transform .3s var(--ease-spring); }
+@media (hover: hover) { .act:hover, .live-btn:hover, .bar-link:hover, .toast-act:hover, .bn-act:hover { background: var(--bt-hover); filter: none; } }
+.act:active, .live-btn:active, .bar-link:active, .toast-act:active, .bn-act:active { transform: scale(.96); filter: none; }
+.act svg, .live-btn svg, .bar-link svg { width: 18px; height: 18px; flex: none; color: #fff; }
+.act.primary { background: var(--bt-fill); box-shadow: none; font-weight: 500; }
+.act.on { color: #fff; background: var(--bt-fill); }
+.act.on svg { color: #ffd60a; }
+.act.alt { color: var(--label); background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg); }
+.act.alt svg { color: var(--label); }
+@media (hover: hover) { .act.alt:hover { background: linear-gradient(var(--bt2-hover), var(--bt2-hover)) var(--fr-bg); } }
+.act.red { color: #ff3b30; } .act.red svg { color: #ff3b30; }
+@media (prefers-color-scheme: dark) { .act.red, .act.red svg { color: #ff453a; } }
+.live-btn i { flex: none; box-shadow: none; animation: none; }
+.pv .live-btn { min-height: 34px; height: 34px; font-size: 14px; border-radius: var(--r); }
+.sh-acts .live-btn { height: auto; }
+.bar-link { min-height: 36px; height: 36px; padding: 0 10px 0 14px; font-size: 15px; }
+.bar-link svg { width: 14px; height: 14px; }
+.toast-act, .bn-act { min-height: 34px; height: 34px; padding: 0 13px; font-size: 13.5px; }
+.sh-x, .sh-art .sh-x, .wx-x, .li-x, .bn-x { color: #fff; }
+.sh-x, .sh-x:hover, .sh-art .sh-x { border-radius: 50%; background: var(--bt-round); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: none; }
+@media (hover: hover) { .sh-x:hover, .sh-art .sh-x:hover { background: var(--bt-round-hover); } }
+.li-x svg, .bn-x svg, .wx-x svg { border-radius: 50% !important; background: var(--bt-round) !important; color: #fff; }
+.ic-btn { color: var(--label); }
+.fd-x { height: 40px; padding: 0 14px; border-radius: var(--r); color: var(--label); font: 500 15px/1 var(--font); background: var(--bt2); }
+@media (hover: hover) { .fd-x:hover { background: var(--bt2-hover); } }
+#fq { border-radius: var(--r); background: var(--fr-in); }
+.fd-row, .li-row, .side-acct { border-radius: var(--r); }
+/* phones: the programme sheet's actions as a row of equal buttons, the icon over the word */
+@media (max-width: 760px) {
+  #shIn .sh-acts .act { border-radius: var(--r); background: var(--bt-fill); }
+  #shIn .sh-acts .act.alt { background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg); }
+}
+/* icon tiles in lists and banners: one flat colour each */
+.tile-ic, .bn-ic { border-radius: var(--r); }
+.bn-ic { background: #ff9f0a; }
+.av { background: hsl(var(--h, 210) 55% 50%); }
+.av:is(img) { background: var(--fill); }
+
+/* ---------- the corner's artwork melts into the page colour, by day or night ---------- */
+.corner-art::after { background: linear-gradient(to left, transparent 50%, color-mix(in srgb, var(--bg) 35%, transparent)); }
+.corner-cap { text-shadow: 0 1px 12px rgba(0, 0, 0, .6); color: #fff; }
+@media (prefers-color-scheme: light) {
+  .corner-art img.on { opacity: .8; }
+  .corner-cap { color: var(--label); text-shadow: 0 0 14px rgba(255, 255, 255, .9); }
+  .corner-cap small { color: var(--label2); }
+}
+@media (max-width: 760px) and (prefers-color-scheme: light) { .corner-art img.on { opacity: .45; } }
+
+/* ---------- parallax: as the page scrolls, the corner's artwork drifts down at under half the speed (so it lingers),
+   the headline rises a little faster and fades, the shelves' pictures slide inside their frames as a shelf is swiped,
+   a sheet's artwork scrolls slower than its words, and each section settles into place as it arrives. All of it runs
+   off the main thread (scroll-driven CSS animations), only where the browser has them, and never with Reduce Motion. ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .corner-art { animation: plxCorner linear both; animation-timeline: scroll(root); animation-range: 0 900px; }
+    @keyframes plxCorner { to { transform: translate3d(0, 380px, 0); } }
+    .hero .eye, .hero h1, .hero .lede { animation: plxHead linear both; animation-timeline: scroll(root); animation-range: 0 520px; }
+    @keyframes plxHead { to { transform: translate3d(0, -48px, 0); opacity: .15; } }
+    .pick-art > img:only-child { scale: 1.14; animation: plxSide linear both; animation-timeline: view(inline); }
+    @keyframes plxSide { from { translate: -6% 0; } to { translate: 6% 0; } }
+    .sh-art > img, .sh-art > .bed { animation: plxSheet linear both; animation-timeline: scroll(nearest); animation-range: 0 420px; }
+    @keyframes plxSheet { to { transform: translate3d(0, 150px, 0) scale(1.04); } }
+    .sec { animation: plxIn linear both; animation-timeline: view(); animation-range: entry 0% entry 45%; }
+    @keyframes plxIn { from { opacity: .2; transform: translate3d(0, 36px, 0); } }
+  }
+}
+
+/* ---------- the weather notification: like a notification on a Mac. Compact (the warning, where and when) with the
+   level on a small coloured tile; tap it for the rest (what it means for your picture, any other warnings, the Met
+   Office's page). Frost and a fine rim like every other box; it glides in once and stays still (no flashing). ---------- */
+.wx { --lv: #ffd60a; position: relative; z-index: 5; display: block; width: min(100%, 400px); margin: 0 0 18px auto; padding: 0; font-size: 14px; line-height: 1.38; -webkit-font-smoothing: antialiased; border-radius: var(--r); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim); overflow: hidden; }
+.wx[hidden] { display: none; }
+.wx-in { animation: wxIn .55s var(--ease-spring) both; }
+.wx-out { animation: wxOut .26s cubic-bezier(.4, 0, 1, 1) forwards; }
+@keyframes wxIn { from { opacity: 0; transform: translateY(-12px) scale(.97); } }
+@keyframes wxOut { to { opacity: 0; transform: translateY(-8px) scale(.97); } }
+.wx-head { display: grid; grid-template-columns: 34px minmax(0, 1fr) 16px; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 52px 12px 12px; border: 0;
+  background: none; color: var(--label); text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: var(--r); }
+@media (hover: hover) { .wx-head:hover { background: var(--fr-in); } }
+.wx-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.wx-ic { width: 34px; height: 34px; border-radius: var(--r); background: var(--lv); }
+.wx-ic svg { width: 21px; height: 21px; color: #1c1c1e; }
+.wx-top { display: grid; gap: 2px; min-width: 0; }
+.wx-k { color: var(--label2); font: 500 12px/1.2 var(--font); }
+.wx-k b { font-weight: 600; color: var(--lv-ink, var(--label)); }
+.wx-t { display: block; font: 600 15px/1.25 var(--font); letter-spacing: -.016em; }
+.wx-line { color: var(--label2); font: 400 13px/1.3 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wx-chev { width: 16px; height: 16px; color: var(--label3); transition: transform .35s var(--ease-spring); }
+.wx-head[aria-expanded="true"] .wx-chev { transform: rotate(90deg); }
+.wx-head[aria-expanded="true"] .wx-line { white-space: normal; }
+.wx-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s var(--ease-out); }
+.wx-body > div { min-height: 0; overflow: hidden; }
+.wx.open .wx-body { grid-template-rows: 1fr; }
+.wx-in2 { padding: 0 14px 14px 58px; font-size: 14px; line-height: 1.4; }
+.wx-in2 p { margin: 0; }
+.wx-tip { margin: 0 !important; color: var(--label); }
+.wx-more { margin: 10px 0 0; padding: 10px 0 0; list-style: none; border-top: .5px solid var(--sep) !important; color: var(--label2); font-size: 13px; }
+.wx-more li { display: flex; align-items: baseline; gap: 7px; padding: 1px 0; }
+.wx-more i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #ffd60a; }
+.wx-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.wx-acts .act { min-height: 36px; padding: 0 13px 0 11px; font-size: 14px; }
+.wx-acts .act svg { width: 16px; height: 16px; }
+.wx-x { position: absolute; top: 15px; right: 10px; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.wx-x:active svg { transform: scale(.9); }
+.wx-x svg { width: 26px; height: 26px; padding: 7px; }
+.wx[data-level="amber"] { --lv: #ff9f0a; } .wx[data-level="red"] { --lv: #ff453a; }
+.wx[data-level="red"] .wx-ic svg { color: #fff; }
+.wx-more i[data-level="amber"] { background: #ff9f0a; } .wx-more i[data-level="red"] { background: #ff453a; }
+/* computers: in the top right, beside the headline (above the corner's caption, which sits lower) */
+@media (min-width: 1340px) { .hero { display: flow-root; } .hero > .wx { float: right; width: 380px; margin: 0 0 12px 32px; } }
+@media (max-width: 760px) { .wx { width: 100%; } .wx-in2 { padding-left: 14px; } }
+
+/* ---------- what's new in Tenner TV 4, shown once: an iOS "What's New" sheet, with a short form for feedback ---------- */
+.hello { width: min(460px, calc(100vw - 24px)); }
+.hl-in { padding: 34px 28px 24px; }
+.hl-in[hidden] { display: none; }
+.hl-logo { display: block; width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 22.5%; }
+.hello h2 { margin: 0; text-align: center; font: 700 30px/1.1 var(--font-display); letter-spacing: -.03em; text-wrap: balance; }
+.hl-ver { margin: 6px 0 0; text-align: center; color: var(--label2); font: 500 14px/1.2 var(--font); }
+.hl-list { display: grid; gap: 18px; margin: 26px 0 0; padding: 0; list-style: none; }
+.hl-list li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; align-items: start; }
+.hl-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r); color: #fff; background: var(--c, #0a84ff); }
+.hl-ic svg { width: 22px; height: 22px; }
+.hl-list b { display: block; font: 600 16px/1.25 var(--font); letter-spacing: -.016em; }
+.hl-list small { display: block; margin-top: 2px; color: var(--label2); font-size: 14px; line-height: 1.4; }
+.hl-acts { display: grid; gap: 8px; margin-top: 28px; }
+.hl-acts .act { width: 100%; min-height: 46px; font-size: 16px; }
+.hl-ask { margin: 10px 0 0; text-align: center; color: var(--label2); font-size: 15px; line-height: 1.45; }
+.hl-q { margin: 22px 0 8px; font: 600 15px/1.2 var(--font); }
+/* the verdict: three choices joined in one bar (Tenner's button group) */
+.bgrp { display: flex; border-radius: var(--r); overflow: hidden; box-shadow: inset 0 0 0 1px var(--fr-rim); background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg); }
+.bgrp label { position: relative; flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; cursor: pointer; color: var(--label);
+  font: 500 14px/1.1 var(--font); text-align: center; transition: background-color .2s ease, color .2s ease; }
+.bgrp label + label::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--fr-rim); }
+.bgrp input { position: absolute; opacity: 0; pointer-events: none; }
+.bgrp label:has(input:checked) { color: #fff; background: var(--bt-fill); }
+.bgrp label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (hover: hover) { .bgrp label:not(:has(input:checked)):hover { background: var(--bt2-hover); } }
+.hl-f { display: block; margin-top: 12px; }
+.hl-f span { display: block; margin: 0 0 6px; color: var(--label2); font: 500 13px/1.2 var(--font); }
+.hl-f textarea, .hl-f input { display: block; width: 100%; padding: 11px 12px; border: 0; border-radius: var(--r); outline: none; resize: vertical; color: var(--label); font: 400 16px/1.35 var(--font);
+  background: var(--fr-in); box-shadow: inset 0 0 0 1px var(--fr-rim); -webkit-appearance: none; appearance: none; }
+.hl-f textarea { min-height: 96px; }
+.hl-f :is(textarea, input):focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.hl-err { min-height: 20px; margin: 10px 0 0; color: #ff3b30; font-size: 14px; }
+.hl-in .hl-acts.two { grid-template-columns: 1fr 1fr; margin-top: 8px; }
+.hl-in .act[disabled] { opacity: .55; cursor: default; }
+.hello .sh-x { position: absolute; top: 14px; right: 14px; z-index: 4; display: grid; place-items: center; padding: 8px; }
+@media (max-width: 760px) { .hello { width: 100vw; max-width: 100vw; } .hl-in { padding: 34px 22px calc(env(safe-area-inset-bottom, 0px) + 22px); } }
+.foot .side-fb { padding: 0; font-size: 13px; color: var(--accent); }
+
+/* ---------- the device's settings, for everything above ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .tools, .pv, .sheet, .toast, .banner, .wx, .side, .bar::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--bg2); }
+  .act, .live-btn, .bar-link, .toast-act, .bn-act { -webkit-backdrop-filter: none; backdrop-filter: none; background: #0b1e3c; }
+  .act.alt { background: var(--bg2); }
+}
+@media (forced-colors: active) { .act, .live-btn, .bar-link { border: 1px solid ButtonText; } }
+/* clipped rather than hidden, so the parallax above follows the shelf's (or sheet's) own scrolling, not the frame's */
+.pick-art, .sh-poster { overflow: clip; }
+.wx-where { margin: 0 0 8px !important; color: var(--label2); }
+.wx-n { padding-left: 15px !important; }
+.hl-in .hl-ic svg { width: 60%; height: 60%; }
+/* phones: the preview's Watch live wraps rather than running out of its box */
+@media (max-width: 760px) { .pv .live-btn { max-width: 100%; height: auto; min-height: 34px; padding: 7px 12px 7px 11px; white-space: normal; line-height: 1.2; text-align: left; } }
 @media (prefers-reduced-transparency: reduce) { .pv { background: #1c1c1e; -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media (forced-colors: active) { .pv::before { display: none; } }
 
