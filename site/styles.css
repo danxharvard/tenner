@@ -1935,44 +1935,58 @@ button.ps-face:active { scale: .96; }
 }
 @media (min-width: 601px) and (hover: none) { .t10-arrows { display: none; } }
 
-/* See Top 10s: the frosted strip at the foot of every page; tap it and the Top 10s slide open beneath it (the popup's
-   own columns, at their full height), the page gliding up so the strip rises up the screen */
-.tf { container: t10 / inline-size; max-width: var(--max); margin: 8px var(--gutter-r) 24px var(--gutter); color: var(--label); border-radius: var(--r);
-  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1.5px var(--fr-rim); }
-@media (min-width: 1000px) { .tf { margin: 8px max(24px, var(--gutter-r)) 24px max(24px, calc(var(--page-left) + var(--gutter))); } }
-.tf-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 14px 18px; }
-.tf-side { min-width: 0; color: var(--label2); font: 400 13px/1.3 var(--font); }
+/* See Top 10s: a frosted bar fixed along the whole foot of the screen (over the sidebar's foot too). Tap it and the Top 10s
+   slide up from the bottom beneath it, carrying the bar up the screen (the popup's own columns, scrolling inside); tap
+   again, Escape or a tap on the page and it slides back down. On phones it sits under the tab bar, which steps aside while
+   it's open. */
+:root { --tf-h: calc(64px + env(safe-area-inset-bottom, 0px)); }
+body { padding-bottom: var(--tf-h); }
+.tf { container: t10 / inline-size; position: fixed; z-index: 55; left: 0; right: 0; bottom: 0; color: var(--label); border-radius: var(--r) var(--r) 0 0;
+  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 1.5px 0 var(--fr-rim), 0 -10px 30px -18px rgba(0, 0, 0, .35); }
+.tf.open { box-shadow: inset 0 1.5px 0 var(--fr-rim), 0 -24px 60px -20px rgba(0, 0, 0, .55); }
+.tf-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: 64px; padding: 0 max(24px, env(safe-area-inset-right, 0px)) 0 max(24px, env(safe-area-inset-left, 0px)); }
+.tf-side { min-width: 0; color: var(--label2); font: 400 13px/1.3 var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tf-r { text-align: right; }
 .tf-btn.btn { height: 44px; padding: 0 16px 0 14px; gap: 8px; }
 .tf-btn svg { width: 18px; height: 18px; }
 .tf-btn .tf-chev { width: 14px; height: 14px; margin-left: 2px; opacity: .8; transition: transform .55s var(--ease-spring); }
 .tf.open .tf-chev { transform: rotate(180deg); }
-.tf-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .9s cubic-bezier(.5, 0, .15, 1); }
+.tf-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .75s cubic-bezier(.32, .72, 0, 1); }
 .tf.open .tf-panel { grid-template-rows: 1fr; }
-.tf-in { min-height: 0; overflow: hidden; }
-.tf-hd { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 18px; padding: 16px 0; border-top: .5px solid var(--sep); }
-.tf .t10-row { padding: 0 18px; scroll-padding-inline: 18px; }
+.tf-in { min-height: 0; max-height: calc(100dvh - 64px - 72px); overflow: hidden auto; overscroll-behavior: contain; scrollbar-width: none; padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 28px), transparent); mask-image: linear-gradient(#000 calc(100% - 28px), transparent); }
+.tf-in::-webkit-scrollbar { display: none; }
+.tf-hd { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 24px; padding: 14px 0 16px; border-top: .5px solid var(--sep); }
+.tf .t10-row { padding: 0 24px; scroll-padding-inline: 24px; }
+@media (min-width: 1000px) { .top-row { padding-bottom: calc(var(--tf-h) + 16px); } }   /* the sidebar's foot stays clear of the bar */
 .tf .t10-col { overflow: visible; -webkit-mask-image: none; mask-image: none; }
-.tf .t10-ft { display: flex; align-items: center; gap: 16px; padding: 14px 18px 18px; }
-/* the slide: the panel opens, then its pieces rise into place one after another (and sink away as it folds) */
-.tf :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .3s ease, transform .3s ease; }
-.tf:not(.open) :is(.tf-hd, .t10-col, .t10-ft) { opacity: 0; transform: translateY(28px) scale(.97); }
-.tf.open :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .45s ease var(--d, .15s), transform .8s var(--ease-spring) var(--d, .15s); }
-.tf.open .t10-col:nth-child(1) { --d: .25s; } .tf.open .t10-col:nth-child(2) { --d: .33s; } .tf.open .t10-col:nth-child(3) { --d: .41s; }
-.tf.open .t10-col:nth-child(n+4) { --d: .49s; } .tf.open .t10-ft { --d: .55s; }
+.tf .t10-ft { display: flex; align-items: center; gap: 16px; padding: 14px 24px 28px; }
+/* the slide: the panel rises, then its pieces settle into place one after another (and sink away as it goes down) */
+.tf :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .25s ease, transform .3s ease; }
+.tf:not(.open) :is(.tf-hd, .t10-col, .t10-ft) { opacity: 0; transform: translateY(40px) scale(.97); }
+.tf.open :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .45s ease var(--d, .1s), transform .8s var(--ease-spring) var(--d, .1s); }
+.tf.open .t10-col:nth-child(1) { --d: .16s; } .tf.open .t10-col:nth-child(2) { --d: .23s; } .tf.open .t10-col:nth-child(3) { --d: .3s; }
+.tf.open .t10-col:nth-child(n+4) { --d: .37s; } .tf.open .t10-ft { --d: .42s; }
 :root.still .tf-panel, :root.still .tf :is(.tf-hd, .t10-col, .t10-ft), :root.still .tf-chev { transition: none; }
-@media (max-width: 600px) {
-  .tf-bar { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 16px 16px 14px; }
-  .tf-side { order: 2; }
-  .tf-r { display: none; }
-  .tf-hd { flex-direction: column; gap: 12px; margin: 0 16px; }
+@media (prefers-reduced-transparency: reduce) { .tf { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (max-width: 719px) {
+  :root { --tf-h: calc(54px + env(safe-area-inset-bottom, 0px)); }
+  body { padding-bottom: calc(84px + var(--tf-h)); }
+  .tb-dock { bottom: calc(var(--tf-h) + 6px); }
+  .tf-up .tb-dock { opacity: 0; transform: translateY(24px); pointer-events: none; }
+  .tf-bar { grid-template-columns: 1fr; justify-items: center; height: 54px; padding: 0 16px; }
+  .tf-side { display: none; }
+  .tf-btn.btn { height: 40px; }
+  .tf-in { max-height: calc(100dvh - 54px - 64px); }
+  .tf-hd { flex-direction: column; gap: 12px; margin: 0 16px; padding-top: 12px; }
   .tf .t10-row { padding: 0 16px; scroll-padding-inline: 16px; }
-  .tf .t10-ft { padding: 12px 16px 16px; }
+  .tf .t10-ft { padding: 12px 16px 24px; }
 }
 
 /* ============================================================ 7. small things that float: toast, tips, labels, loading */
 /* the toast: a frosted card that springs up from the bottom and fades away, rather than blinking on and off */
-.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 40; transform: translateX(-50%);
+.toast { position: fixed; left: 50%; bottom: calc(24px + var(--tf-h, 0px)); z-index: 40; transform: translateX(-50%);
   width: max-content; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--r); text-align: center;
   color: var(--label); font: 500 15px/1.2 var(--font); -webkit-font-smoothing: antialiased;
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), var(--shadow); }
@@ -2032,7 +2046,7 @@ button.ps-face:active { scale: .96; }
 .pv-ok:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (min-width: 1000px) { .pv-note { left: auto; right: max(24px, env(safe-area-inset-right, 0px)); bottom: 24px; width: min(420px, calc(100vw - 48px)); transform: translateY(16px) scale(.98); } .pv-note.in { transform: none; } }
 :root.still .pv-note { transition: opacity .2s ease; }
-@media (max-width: 719px) { .toast, .pv-note { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 719px) { .toast, .pv-note { bottom: calc(84px + var(--tf-h, 0px)); } }
 
 /* loading: poster-shaped placeholders with a soft shimmer, the Apple TV way, instead of a line of text */
 .sk-say { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }

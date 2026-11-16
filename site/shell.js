@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.110.0';
+  const version = '2.110.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -569,9 +569,9 @@
     glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);   // the thumb under the choice, now it can be measured
     planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
   }
-  // ---------- See Top 10s: a frosted strip at the foot of every page (like a site map that folds away). Tap it and it
-  // slides open, the page gliding up with it so the strip rises up the screen, and every service's Top 10 appears in the
-  // popup's own columns, rising in one after another; tap again (or Escape) and it folds away. Loads only when opened. ----------
+  // ---------- See Top 10s: a frosted bar fixed along the foot of every page (like a site map tucked away). Tap it and the
+  // Top 10s slide up from the bottom beneath it, carrying the bar up the screen, every service's chart in the popup's own
+  // columns rising in one after another; tap again, Escape or a tap on the page and it slides back down. Loads only when opened. ----------
   function topFoot() {
     const main = document.getElementById('main');
     if (!main || document.getElementById('tf')) return;
@@ -585,32 +585,16 @@
         <div class="t10-ft">${t10Foot()}</div></div></div></footer>`);
     const tf = document.getElementById('tf'), btn = document.getElementById('tfBtn'), panel = document.getElementById('tfPanel');
     t10Wire(tf);
-    let loaded = false, follow = 0;
-    // as it opens, the page keeps the panel's foot on screen, so the strip rises with it (never above the top bar)
-    const rise = () => {
-      cancelAnimationFrame(follow);
-      const gap = () => {
-        const r = tf.getBoundingClientRect(), top = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0, foot = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
-        return Math.min(r.bottom + 16 - (innerHeight - foot), r.top - top - 8);
-      };
-      if (reduce()) { requestAnimationFrame(() => { const d = gap(); if (d > 0) scrollTo(0, scrollY + d); }); return; }
-      let stop = false; const quit = () => (stop = true), t0 = performance.now();
-      const off = () => { removeEventListener('wheel', quit); removeEventListener('touchstart', quit); };
-      addEventListener('wheel', quit, { passive: true }); addEventListener('touchstart', quit, { passive: true });   // your own scroll takes over
-      const step = (now) => {
-        if (stop || !tf.classList.contains('open')) { off(); return; }
-        const d = gap(); if (d > .5) scrollTo(0, scrollY + d);
-        if (now - t0 < 1100) follow = requestAnimationFrame(step); else off();
-      };
-      follow = requestAnimationFrame(step);
-    };
+    let loaded = false;
     const toggle = (open) => {
-      tf.classList.toggle('open', open); btn.setAttribute('aria-expanded', open); panel.inert = !open; haptic(open ? 8 : 6);
+      if (open === tf.classList.contains('open')) return;
+      tf.classList.toggle('open', open); root.classList.toggle('tf-up', open); btn.setAttribute('aria-expanded', open); panel.inert = !open; haptic(open ? 8 : 6);
       if (!open) { if (panel.contains(document.activeElement)) btn.focus({ preventScroll: true }); return; }
-      if (!loaded) { loaded = true; planFile('trending').then((d) => { t10Draw(tf, d); if (tf.classList.contains('open') && reduce()) rise(); }); }   // the real columns are taller than the placeholders
+      if (!loaded) { loaded = true; planFile('trending').then((d) => t10Draw(tf, d)); }
       glide(tf.querySelector('.t10-seg .seg-thumb'), tf.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);
-      rise();
     };
+    // a tap on the page around it sends it back down (not one in a sheet or popup opened from it)
+    document.addEventListener('pointerdown', (e) => { if (tf.classList.contains('open') && !e.target.closest?.('#tf, dialog, .tb-dock, .top-row')) toggle(false); });
     btn.addEventListener('click', () => toggle(!tf.classList.contains('open')));
     tf.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tf.classList.contains('open')) { e.stopPropagation(); toggle(false); } });
   }
