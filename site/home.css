@@ -204,6 +204,25 @@ body.home { overflow-x: clip; }
 .bx-lp-copy .bx-star { flex: none; font-size: 13.5px; font-weight: 500; }
 .bx-lp small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--label2); }
 
+/* New this week: a frosted column a day (the shared frost and corner), each with the side column's list */
+.nwk { position: relative; grid-auto-columns: min(300px, 80vw); gap: 12px; align-items: start; }
+@media (min-width: 1000px) { .nwk { grid-auto-columns: clamp(250px, calc((100% - 36px) / 3.4), 300px); align-items: stretch; } }
+.nwk-day { display: flex; flex-direction: column; padding: 14px 14px 8px; border-radius: var(--r); background: var(--fr-bg);
+  -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+.nwk-eye { margin: 0; font: 600 11.5px/1.3 var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--label2); }
+.nwk-day.today .nwk-eye { color: var(--accent); }
+.nwk-h { margin: 2px 0 6px; font: 700 19px/1.2 var(--font); letter-spacing: -.02em; }
+.nwk .bx-ups { margin: 0 -6px; }
+.nwk .bx-ups a, .nwk-row { display: flex; align-items: center; gap: 12px; padding: 9px 6px; }
+.nwk .bx-ups a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.nwk .bx-up-copy b { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.nwk .bx-up-copy small { display: flex; align-items: center; gap: 6px; }
+.nwk-svc { display: inline-flex; align-items: center; gap: 5px; min-width: 0; padding: 2px 7px 2px 3px; border-radius: var(--r); background: var(--fr-in);
+  color: var(--label); font: 500 12px/16px var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nwk-svc img { flex: none; width: 16px; height: 16px; border-radius: var(--r-app); object-fit: cover; }
+.nwk-day:not(.open) .nwk-x { display: none; }
+.nwk-more { align-self: flex-start; min-height: 44px; margin-top: auto; padding: 0 2px; }
+
 /* top rated at a glance: the home page's list (.cl in styles.css), with its heading matched to the rows above */
 .bx-clist .row-hd { margin: 30px 0 8px; }
 .bx-clist .row-h { font: 700 22px/1.2 var(--font); letter-spacing: -.02em; }
