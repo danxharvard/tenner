@@ -462,3 +462,63 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 @keyframes xmFall { 0% { opacity: 0; transform: translate(0, -4px); } 15% { opacity: 1; } 50% { transform: translate(2.5px, 30px); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-1px, 60px); } }
 @keyframes xmGlow { from { opacity: .15; transform: scale(.8); } to { opacity: .5; transform: scale(1.25); } }
 .bx-sec-hd h2:has(.xm-deer) { margin-bottom: 6px; }   /* the reindeer clear of the line beneath on phones */
+
+/* ---------- phones: the top as on Tenner TV. The featured title's artwork runs edge to edge and up under the bar (which
+   floats over it, see-through), melting into the page below; over its foot, the service's badge, a big title, one quiet
+   line, one More info button and the dots. The cut, the Christmas slide and swiping all work as before. ---------- */
+.bx-h-badge, .bx-h-sub, .bx-h-more { display: none; }
+@media (max-width: 719px) {
+  body.home { --hart: min(128vw, 600px); }
+  #bxHero { margin: calc(-60px - env(safe-area-inset-top, 0px)) calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter)); height: auto; min-height: 0; aspect-ratio: auto;
+    border-radius: 0; background: none; box-shadow: none !important; color: var(--label); overflow: visible; -webkit-mask-image: none; mask-image: none; }
+  #bxHero.sk { height: var(--hart); background: none; }
+  #bxHero .bx-h-art { inset: 0 0 auto; height: var(--hart); overflow: hidden;
+    -webkit-mask-image: linear-gradient(#000 52%, rgba(0, 0, 0, .55) 74%, transparent); mask-image: linear-gradient(#000 52%, rgba(0, 0, 0, .55) 74%, transparent); }
+  /* a soft shade at the very top for the clock and the bar's buttons, and a little at the foot under the words (night only) */
+  #bxHero .bx-h-art::after { background: linear-gradient(rgba(0, 0, 0, .42), rgba(0, 0, 0, .12) 110px, transparent 170px); }
+  :root:not([data-theme="light"]) #bxHero .bx-h-art::after { background: linear-gradient(rgba(0, 0, 0, .42), rgba(0, 0, 0, .12) 110px, transparent 170px, transparent 50%, rgba(0, 0, 0, .35)); }
+  #bxHero .bx-h-copy { position: relative; inset: auto; z-index: 1; justify-content: flex-start; gap: 8px; max-width: none;
+    padding: calc(var(--hart) - 168px) var(--gutter-r) 14px var(--gutter); }
+  #bxHero .bx-score, #bxHero .bx-eye:not(.bx-eye-x), #bxHero .bx-pills, #bxHero .bx-h-meta, #bxHero .bx-h-ov, #bxHero .bx-h-how,
+  #bxHero .bx-h-acts > :not(.bx-h-more, .bx-h-next, [data-adv], [data-xmas]) { display: none !important; }
+  /* the service: its icon and name on a small frosted tile (Tenner TV shows the channel there) */
+  #bxHero .bx-h-badge { display: inline-flex; align-items: center; gap: 7px; margin: 0; padding: 4px 10px 4px 4px; border-radius: var(--r); font: 600 13px/1 var(--font);
+    color: var(--label); background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  #bxHero .bx-h-badge-i { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
+  #bxHero .bx-eye-x { background: var(--fr-bg); color: var(--label); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  #bxHero .bx-h-t { margin: 0; font-size: clamp(32px, 10.4vw, 42px); line-height: 1.02; text-shadow: none;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; padding-bottom: .04em; }
+  #bxHero .bx-h-logo { max-width: min(300px, 76vw); max-height: 96px; filter: none; }
+  :root:not([data-theme="light"]) #bxHero .bx-h-logo { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, .4)); }
+  #bxHero .bx-h-sub { display: block; margin: 0; font: 600 15px/1.3 var(--font); color: var(--label); opacity: .86; }
+  /* one button and the dots beside it */
+  #bxHero .bx-h-acts { flex-wrap: wrap; gap: 10px 18px; margin-top: 8px; }
+  #bxHero .bx-h-more { display: inline-flex; }
+  /* Christmas: Share as a round icon beside Open calendar, so the dots still fit on the line */
+  #bxHero [data-adv] ~ [data-xmas="share"] { width: 44px; padding: 0; justify-content: center; font-size: 0; border-radius: 50%; }
+  #bxHero [data-adv] ~ [data-xmas="share"] svg { margin: 0; }
+  :root[data-theme="light"] #bxHero [data-adv] ~ [data-xmas="share"] { background: var(--fr-bg); box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  #bxHero .bx-h-acts .bx-h-next { position: static; translate: none; display: flex; align-items: center; }
+  #bxHero .bx-h-strip button { padding: 12px 3px; }
+  #bxHero .bx-h-bar { width: 7px; height: 7px; background: color-mix(in srgb, var(--label) 30%, transparent); }
+  #bxHero .bx-h-strip [aria-selected="true"] .bx-h-bar { width: 22px; background: var(--label); }
+  #bxHero .bx-h-strip button:focus-visible .bx-h-bar { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* the picture moves a little less here: the top edge never leaves the screen */
+  :root:not(.still) #bxHero .bx-h-l.in img { animation-name: bxDriftPh; }
+  @keyframes bxDriftPh { from { transform: scale(1.06); transform-origin: center top; } to { transform: scale(1); transform-origin: center top; } }
+  /* the bar floats over the artwork: no band behind it, its round buttons a touch see-through over the blur, and Tenner's
+     name beside the logo on the left */
+  body.home .top-row { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; }
+  body.home .top-brand { grid-area: 1 / 2; justify-self: start; display: flex; align-items: center; gap: 9px; }
+  body.home .top-brand .brand-name { display: block; font: 700 21px/1 var(--font); letter-spacing: -.02em; color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .35); }
+  :root.scrolled body.home .top-brand .brand-name { color: var(--label); text-shadow: none; }
+  :root.title-in body.home .top-brand .brand-name { opacity: 0; }
+  body.home .tb-round { color: #fff; background: rgba(30, 30, 34, .36); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
+  :root.scrolled body.home .tb-round { background: var(--bt-round); box-shadow: none; }
+}
+@media (max-width: 719px) and (prefers-reduced-transparency: reduce) {
+  body.home .tb-round { background: var(--bt-round); }
+  #bxHero .bx-h-badge, #bxHero .bx-eye-x { background: var(--bg); }
+}
+@media (max-width: 359px) { body.home .top-brand .brand-name { display: none; } }
