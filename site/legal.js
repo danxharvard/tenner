@@ -172,7 +172,7 @@
       shown = key;
       dispatchEvent(new Event('tn:route'));
     };
-    if (!how.instant && shown && key !== shown && document.startViewTransition && !still()) document.startViewTransition(draw).ready.catch(() => {});
+    if (!how.instant && shown && key !== shown) window.tn.morph(draw);
     else draw();
   };
   addEventListener('hashchange', () => route());

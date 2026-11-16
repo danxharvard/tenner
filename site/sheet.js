@@ -330,11 +330,9 @@
     if (!mine.length || !people.length || !t.api) return;
     const r = await fetch(`${t.api}/seen/${info.k}?p=${people.map((p) => p.id).join(',')}&w=${mine.join(',')}`).then((x) => (x.ok ? x.json() : null)).catch(() => null);
     if (current !== info || !r?.people) return;
-    let any = false;
     for (const a of sec.querySelectorAll('.sh-faces a[data-p]')) {
       const hit = r.people[a.dataset.p]?.[0]; if (!hit || a.querySelector('.sh-was')) continue;
       a.insertAdjacentHTML('beforeend', `<small class="sh-was" title="${esc(`${hit.title}${hit.role ? ` (${hit.role})` : ''}`)}">You saw them in ${esc(hit.title)}</small>`);
-      any = true;
     }
   }
   // ---------- the lower half: episodes, trailers and extras, the film series, More Like This, reviews, Information ----------

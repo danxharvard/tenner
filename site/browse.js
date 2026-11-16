@@ -382,7 +382,7 @@
     const draw = () => { shown = hit ? 1 : 0; $('#grid').innerHTML = ''; more(); empty(); };
     webSearch();
     if (typing) reveal.run(draw);
-    else if (user && !quiet && document.startViewTransition && !reduce()) document.startViewTransition(draw).ready.catch(() => {}); else draw();
+    else if (user && !quiet) window.tn.morph(draw); else draw();
     if (!q) spotlight();
     if (!q && !charting) moods(); else $('#moods').hidden = true;
   }

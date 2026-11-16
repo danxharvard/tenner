@@ -19,7 +19,7 @@
     // Your Tenner on the account page, which alerts to send and when to stay quiet (the Worker reads these from the account)
     spoil: false, seenoff: true, hideni: true, notewl: true, stats: true, alarr: true, alep: true, alleave: true, altv: true, alprice: true, quiet: 'off' };
   const prefs = {
-    get() { try { const { still, ...p } = JSON.parse(localStorage.getItem(PREFS) || '{}'); return { ...DEF, ...p }; } catch { return { ...DEF }; } },   // still: the old Reduce motion setting, gone
+    get() { try { const p = JSON.parse(localStorage.getItem(PREFS) || '{}'); delete p.still; return { ...DEF, ...p }; } catch { return { ...DEF }; } },   // still: the old Reduce motion setting, gone
     set(k, v) { const p = prefs.get(); p[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(p)); } catch {} meta.edit((m) => { m.pfat = Date.now(); }); apply(); dispatchEvent(new Event('tn:prefs')); },
   };
   // ---------- one-time feature tips you've seen: { id: when }, on this device (and in your account, if you sign in) ----------
@@ -34,6 +34,13 @@
   const apply = () => { const p = prefs.get(); root.classList.toggle('still', !p.anim || osStill.matches); root.classList.toggle('no-moves', !p.moves); root.classList.toggle('no-ratings', !p.ratings); };
   apply(); osStill.addEventListener?.('change', apply);   // the device's Reduce Motion, switched while Tenner is open
   const reduce = () => root.classList.contains('still');   // read live: Settings, another tab or a sync can switch Animations on or off at any moment
+  // a change that crossfades where the browser can (View Transitions), at once with Animations off; a transition cut short
+  // by a newer one (or by leaving the page) is fine, so none of its promises is left to fail unheard
+  const morph = (fn) => {
+    if (!document.startViewTransition || reduce()) { fn(); return; }
+    const v = document.startViewTransition(fn);
+    for (const p of [v.ready, v.finished, v.updateCallbackDone]) p.catch(() => {});
+  };
   // every tap answers (styles.css, "polish and motion"): a ring of light from a button, the new choice gliding into a
   // pop-up button, and a small buzz from a switch where the device has one. Restarting a class replays its animation.
   const replay = (el, c) => { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); };
@@ -128,7 +135,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.100.0';
+  const version = '2.101.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -326,7 +333,7 @@
         for (const r of rows) r.querySelector('.mine-d').textContent = r.querySelector('input').checked ? '' : 'Add';
         drawGo(dlg);
       };
-      const move = () => (!reduce() && document.startViewTransition ? document.startViewTransition(place).ready.catch(() => {}) : place());
+      const move = () => morph(place);
       dlg.addEventListener('change', (e) => {
         if (e.target.id === 'mineAll') { const v = e.target.checked; dlg.querySelectorAll('.mine-list input').forEach((i) => { i.checked = v; }); }
         haptic(6); move();
@@ -824,15 +831,12 @@
       });
       leftBox.append(back);
     }
-    // the right-hand slot: the page's own Share if it has one, otherwise the Filters menu if the page has filters
-    const share = $('#shareChart');
+    // the right-hand slot: the Filters menu if the page has filters, then Search
     const filters = [...document.querySelectorAll('[data-filter]')];
     // Search: a round button on the right
     const search = Object.assign(document.createElement('a'), { className: 'tb-round tb-search', href: 'browse.html#search',
       innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>' });
     search.setAttribute('aria-label', 'Search');
-    const right = share, rightHome = share ? document.createComment('share') : null;
-    if (rightHome) share.before(rightHome);
     document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer" id="drawer" aria-labelledby="drH">
       <div class="dr-head"><h2 class="dr-title" id="drH">Tenner</h2>
         <button type="button" class="tb-round dr-x" id="drX" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
@@ -846,12 +850,12 @@
     if (dock) dock.before(dockHome);
     const place = () => {
       if (drawerQ.matches) {
-        movers.forEach((el) => drBody.append(el)); if (right) rightBox.prepend(right); rightBox.append(search);
+        movers.forEach((el) => drBody.append(el)); rightBox.append(search);
         if (dock) { document.body.append(dock); dock.classList.add('tb-dock'); dispatchEvent(new Event('resize')); }
       } else {
         if (drawer.open) drawer.close();
         movers.forEach((el, i) => marks[i].after(el));
-        if (rightHome) rightHome.after(share); search.remove();
+        search.remove();
         if (dock) { dockHome.after(dock); dock.classList.remove('tb-dock'); dispatchEvent(new Event('resize')); }
       }
     };
@@ -897,7 +901,7 @@
     // ---------- phones: the Filters menu, the left menu's twin, sliding in from the right. Any control on the page marked
     // data-filter="Its heading" moves in here on phones (and back on bigger screens), listeners and all, so a new filter
     // only needs the attribute. Done (or a tap outside) puts it away. ----------
-    if (filters.length && !share) {
+    if (filters.length) {
       const FILT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
       rightBox.insertAdjacentHTML('afterbegin', `<button type="button" class="tb-round tb-filt" id="filtBtn" aria-label="Filters" aria-haspopup="dialog" aria-controls="filters" aria-expanded="false">${FILT}</button>`);
       document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer drawer-r" id="filters" aria-labelledby="flH">
@@ -1150,7 +1154,7 @@
           try { const out = await account.call('POST', '/auth/google', { credential }); if (out.token) await account.signedIn(out.token, out.user); else onLinked?.(); }
           catch (err) { onError?.(err); }
         } });
-        const th = document.documentElement.dataset.theme, dark = th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = document.documentElement.dataset.theme === 'dark';
         into.innerHTML = ''; onShown?.();
         window.google.accounts.id.renderButton(into, { type: 'standard', theme: dark ? 'filled_black' : 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', width: Math.min(360, into.clientWidth || into.parentElement.clientWidth || 300) });
       }).catch(() => {});
@@ -1339,7 +1343,7 @@
       const status = off ? ['off', 'Offline', 'Changes sync when you’re back online'] : ['on', 'Synced', syncedAt ? `Updated ${ago(syncedAt)}` : 'On all your devices'];
       const since = u.created ? new Date(u.created).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
       const n = (v, l, i) => `<div class="me-n" style="--i:${i}"><b>${v.toLocaleString('en-GB')}</b><small>${l}</small></div>`;
-      const wl = saved.all().length, watched = seen.list().length, going = Object.keys(progress.all()).length, loved = stars.all().length, svc = mine.get().length || 6;
+      const wl = saved.all().length, watched = seen.list().length, going = Object.keys(progress.all()).length, loved = stars.all().length;
       const row = (href, ic, t, sub, i) => `<a class="me-row-l" href="${href}" style="--i:${i}"><i>${ic}</i><span><b>${t}</b><small>${sub}</small></span>${ME_I.chev}</a>`;
       $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
         <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
@@ -1419,7 +1423,7 @@
     const drawMe = () => {
       const u = account.user(), box = $('#bxMe');
       box.hidden = false; box.classList.toggle('me-guest', !u); hd?.classList.add('me-on'); placeMe(); document.documentElement.classList.toggle('signed-in', !!u);   // (not 'me-in': that's the sign-in fields' class, which then styled the whole page)
-      const c = $('#bxMeCard'), wide = matchMedia('(min-width: 720px)').matches;
+      const c = $('#bxMeCard');
       const DN = '<svg class="me-dn" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       if (!menu().hidden) fillMenu();   // signing in (or out) inside the dropdown: it turns into the other view where it is
       if (!u) {   // signed out: the same pill, inviting you to make an account or sign in, right in its dropdown
@@ -1659,7 +1663,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, top10s, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, glide, arrows, segment, reduce, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, openMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.
@@ -1786,11 +1790,11 @@
 
   // ---------- Theme: Auto, Day or Night (Night by default) ----------
   const modeBtns = document.querySelectorAll('.th-list button');
-  const mode = () => root.getAttribute('data-theme') || 'auto';
+  const mode = () => (root.hasAttribute('data-auto') ? 'auto' : root.getAttribute('data-theme') || 'dark');
   function showTheme() {
     const m = mode();
     modeBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
-    const dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    const dark = root.getAttribute('data-theme') === 'dark';
     $('#thIc').innerHTML = $(`.th-list [data-mode="${dark ? 'dark' : 'light'}"] i`).innerHTML; // the round button: a moon by night, a sun by day
     const meTh = $('#bxMeTh');   // ...and the same in the account pill, which flips between Day and Night
     if (meTh) { meTh.innerHTML = $('#thIc').innerHTML; meTh.setAttribute('aria-label', dark ? 'Switch to Day' : 'Switch to Night'); meTh.title = meTh.getAttribute('aria-label'); }
@@ -1981,9 +1985,6 @@
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
     }
   }
-
-  // the crossfade between pages: one cut short (a tap or Escape mid-way) is fine, not an error
-  for (const ev of ['pageswap', 'pagereveal']) addEventListener(ev, (e) => { e.viewTransition?.ready.catch(() => {}); e.viewTransition?.finished.catch(() => {}); });
 
   // ---------- install as an app: the offline cache (sw.js) ----------
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

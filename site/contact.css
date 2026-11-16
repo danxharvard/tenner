@@ -24,7 +24,6 @@
 .cx-aura i:nth-child(2) { width: 46vmax; height: 46vmax; left: 8vw; top: 30vh; opacity: .12; background: radial-gradient(closest-side, #bf5af2, transparent); }
 .cx-aura i:nth-child(3) { width: 54vmax; height: 54vmax; right: 0; bottom: -34vmax; opacity: .14; }
 :root[data-theme="dark"] .cx-aura i { opacity: .34; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme]) .cx-aura i { opacity: .34; } }
 :root:not(.still) .cx-aura i { animation: cxDrift 22s ease-in-out infinite alternate; }
 :root:not(.still) .cx-aura i:nth-child(2) { animation-duration: 28s; animation-direction: alternate-reverse; }
 @keyframes cxDrift { to { transform: translate(-6vmax, 5vmax) scale(1.12); } }

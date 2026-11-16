@@ -449,14 +449,11 @@ body.browse { overflow-x: clip; }
 }
 :root.still .spot-art img, :root.still .spot-ext img { transition: opacity .3s ease; scale: 1; }
 
-/* with the hero's artwork under it, the sidebar's glass thins a little so the colours come through (computers) */
+/* with the hero's artwork under it, the sidebar loses its edge so the colours run on underneath (computers) */
 @media (min-width: 1000px) {
-  :root:has(.spot.has-feat) { --side-bg: rgba(242, 242, 247, .62); }
-  :root[data-theme="dark"]:has(.spot.has-feat) { --side-bg: rgba(28, 28, 30, .58); }
   :root:has(.spot.has-feat) .top-row { border-right-color: transparent; }
   .spot { margin-top: 0; }
 }
-@media (min-width: 1000px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]):has(.spot.has-feat) { --side-bg: rgba(28, 28, 30, .58); } }
 
 /* depth as you scroll (Animations on, never with Reduce Motion): the hero's picture slowly zooms, pinned to its top, while
    its words lift away; each genre tile's posters fan out as it arrives. Scroll-driven, so off the main thread. */
@@ -549,7 +546,6 @@ main.bwrap { position: relative; isolation: isolate; }
 .amb-l img, .amb-l span { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(70px) saturate(1.6); opacity: .55; }
 .amb-l span { filter: blur(40px); opacity: .5; }
 :root[data-theme="light"] .amb-l img, :root[data-theme="light"] .amb-l span { opacity: .35; }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .amb-l img, :root:not([data-theme="dark"]) .amb-l span { opacity: .35; } }
 @media (prefers-reduced-transparency: reduce) { .s-amb { display: none; } }
 
 .th { display: grid; grid-template-columns: 180px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 28px; align-content: center; margin: 0 0 30px; padding: 20px; border-radius: var(--r);
