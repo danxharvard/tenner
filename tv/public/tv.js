@@ -182,7 +182,7 @@
   const CATS = [['all', 'All channels', /./], ['mine', 'My channels', null],
     ['main', 'Main five', /^(BBC One|BBC Two|ITV1|Channel 4|Channel 5)$/],
     ['sky', 'Sky', /^Sky /],
-    ['ent', 'Entertainment', /^(ITV2|E4|Sky Mix|U&Dave|Really|5Star|BBC Three|Challenge|4seven|Sky Max|Sky Showcase|Sky Comedy|Dave|W|U&W)$/],
+    ['ent', 'Entertainment', /^(ITV2|E4|Sky Mix|U&Dave|Really|5Star|BBC Three|Challenge|4seven|Sky Max|Sky Comedy|Dave|W|U&W)$/],
     ['drama', 'Drama & crime', /^(U&Drama|ITV3|ITV4|5USA|Alibi|U&Alibi|Sky Atlantic|Sky Witness|Sky Crime|True Crime)$/],
     ['fact', 'Factual', /^(Quest|Quest Red|DMAX|Blaze|U&Yesterday|Sky Arts|Sky Documentaries|Sky Nature|More4|BBC Four|PBS America)$/],
     ['film', 'Films', /^(Film4|Talking Pictures TV|GREAT! movies|5Action|Sky Cinema.*)$/],

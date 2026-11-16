@@ -25,11 +25,6 @@
   "logo": "/logos/channel-5.webp"
  },
  {
-  "name": "Sky Showcase",
-  "match": "^sky ?showcase",
-  "logo": "/logos/sky-showcase.webp"
- },
- {
   "name": "Sky Max",
   "sky": "4061",
   "match": "^sky ?max",
