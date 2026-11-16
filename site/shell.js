@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.110.2';
+  const version = '2.110.3';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -576,9 +576,8 @@
     const main = document.getElementById('main');
     if (!main || document.getElementById('tf')) return;
     main.insertAdjacentHTML('afterend', `<footer class="tf" id="tf">
-      <div class="tf-bar"><span class="tf-side">© ${new Date().getFullYear()} Tenner</span>
-        <button type="button" class="btn btn-tinted tf-btn" id="tfBtn" aria-expanded="false" aria-controls="tfPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>See Top 10s</span><svg class="tf-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <span class="tf-side tf-r">Every service’s chart, updated hourly</span></div>
+      <div class="tf-bar"><span class="tf-side" aria-live="polite"><span class="tf-c">© ${new Date().getFullYear()} Tenner</span><span class="tf-ago" aria-hidden="true"></span></span>
+        <button type="button" class="btn btn-tinted tf-btn" id="tfBtn" aria-expanded="false" aria-controls="tfPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>See Top 10s</span><svg class="tf-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
       <div class="tf-panel" id="tfPanel" role="region" aria-label="Top 10s" inert><div class="tf-in">
         <header class="tf-hd"><div class="t10-logos" aria-label="Jump to a service"></div>${t10Seg()}</header>
         <div class="t10-row" aria-busy="true">${T10_SK}</div>
@@ -587,14 +586,23 @@
     t10Wire(tf);
     // the charts are drawn while the page is idle (or as soon as a finger or pointer heads for the button), so a tap only
     // has to slide them up: nothing is built or laid out while it moves
-    let loaded = false;
-    const ready = () => { if (loaded) return; loaded = true; planFile('trending').then((d) => t10Draw(tf, d)); };
+    // down, the bar's left says © Tenner; up, how long ago the charts were rebuilt (kept current while it's open)
+    let loaded = false, at = NaN, tick = 0;
+    const ago = tf.querySelector('.tf-ago');
+    const agoText = () => {
+      const m = Math.floor((Date.now() - at) / 60000);
+      ago.textContent = isNaN(m) ? 'Updated every hour' : m < 1 ? 'Last updated just now' : m < 60 ? `Last updated ${m} min${m === 1 ? '' : 's'} ago`
+        : `Last updated ${Math.floor(m / 60)} hour${m < 120 ? '' : 's'} ago`;
+    };
+    const ready = () => { if (loaded) return; loaded = true; planFile('trending').then((d) => { at = new Date(d?.generatedAt).getTime(); agoText(); t10Draw(tf, d); }); };
     (window.requestIdleCallback || ((f) => setTimeout(f, 1500)))(ready, { timeout: 4000 });
     btn.addEventListener('pointerenter', ready, { once: true }); btn.addEventListener('focus', ready, { once: true });
     tf.addEventListener('transitionend', (e) => { if (e.target === tf) tf.classList.remove('moving'); });
     const toggle = (open) => {
       if (open === tf.classList.contains('open')) return;
       ready(); if (!reduce()) tf.classList.add('moving');
+      agoText(); clearInterval(tick); if (open) tick = setInterval(agoText, 30000);
+      tf.querySelector('.tf-c').toggleAttribute('aria-hidden', open); ago.toggleAttribute('aria-hidden', !open);
       tf.classList.toggle('open', open); root.classList.toggle('tf-up', open); btn.setAttribute('aria-expanded', open); panel.inert = !open; haptic(open ? 8 : 6);
       if (!open && panel.contains(document.activeElement)) btn.focus({ preventScroll: true });
     };
