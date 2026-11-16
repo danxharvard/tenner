@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.109.0';
+  const version = '2.110.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -449,7 +449,7 @@
     prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
-  const t10 = { kind: null, info: [] };
+  const t10 = { kind: null };
   const t10Kind = () => {
     if (t10.kind) return t10.kind;
     let k = null; try { k = sessionStorage.getItem('tenner-tt-kind') || localStorage.getItem('tenner-kind'); } catch {}
@@ -462,18 +462,18 @@
   const t10Move = (mv) => (mv === 'new' ? '<span class="t10-mv new">New</span>'
     : +mv > 0 ? `<span class="t10-mv up" aria-label="up ${+mv}">${T10_IC.up}${+mv}</span>`
     : +mv < 0 ? `<span class="t10-mv down" aria-label="down ${-mv}">${T10_IC.down}${-mv}</span>` : '');
-  function t10Col(s, k, mineSet, all) {
+  function t10Col(s, k, mineSet, all, info, pre) {
     const l = (s[k] || []).slice(0, 10); if (!l.length) return '';
     const word = k === 'movie' ? 'film' : 'show';
-    const reg = (it, i) => { const n = t10.info.length; t10.info.push({ k: t10Key(it, k), type: k, eye: `No. ${i + 1} ${word} on ${s.label}`, title: it.title, year: it.year || null,
+    const reg = (it, i) => { const n = info.length; info.push({ k: t10Key(it, k), type: k, eye: `No. ${i + 1} ${word} on ${s.label}`, title: it.title, year: it.year || null,
       rating: it.rating, poster: it.poster, backdrop: it.backdrop, overview: it.overview, netflix: /netflix\.com\/title\//.test(it.url || '') ? it.url : null,
       tmdb: t10Key(it, k) ? `https://www.themoviedb.org/${k}/${it.id}` : null,
       services: (it.on || [s.key]).map((x) => all.find((y) => y.key === x)).filter(Boolean).map((y) => ({ label: y.label, logo: y.logo })) }); return n; };
     const href = (it) => esc(it.url || (t10Key(it, k) ? `https://www.themoviedb.org/${k}/${it.id}` : './'));
     const sub = (it) => [k === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
     const one = l[0], yours = mineSet.has(s.key);
-    return `<section class="t10-col" id="t10-${esc(s.key)}" aria-labelledby="t10h-${esc(s.key)}">
-      <header class="t10-ch"><span class="t10-logo">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><h3 id="t10h-${esc(s.key)}">${esc(s.label)}</h3>${yours ? '<span class="t10-pill">Yours</span>' : ''}</header>
+    return `<section class="t10-col" data-svc="${esc(s.key)}" aria-labelledby="${pre}h-${esc(s.key)}">
+      <header class="t10-ch"><span class="t10-logo">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><h3 id="${pre}h-${esc(s.key)}">${esc(s.label)}</h3>${yours ? '<span class="t10-pill">Yours</span>' : ''}</header>
       <a class="t10-one" href="${href(one)}" target="_blank" rel="noopener" data-t10="${reg(one, 0)}">
         <span class="t10-one-bg" aria-hidden="true">${one.backdrop ? `<img src="${esc(one.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy" decoding="async">` : one.poster ? `<img class="blur" src="${esc(one.poster)}" alt="" loading="lazy">` : t10Ph(one.title)}</span>
         <span class="t10-one-n" aria-hidden="true">1</span>
@@ -484,49 +484,73 @@
         <span class="t10-n">${j + 2}</span>${it.poster ? `<img src="${esc(t10Small(it.poster))}" alt="" loading="lazy" decoding="async">` : t10Ph(it.title)}
         <span class="cl-t"><b>${esc(it.title)}</b><small>${esc(sub(it))}</small></span>${t10Move(it.mv)}</a></li>`).join('')}</ol></section>`;
   }
-  function t10Draw(dlg, d) {
-    const row = dlg.querySelector('#t10Row'), k = t10Kind();
-    dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
+  // the popup and the Top 10s along the foot of every page share their drawing: `box` holds a .t10-row, .t10-logos,
+  // .t10-when and the Shows / Films switch, and keeps its own titles (box.t10info) for the sheet
+  function t10Draw(box, d) {
+    const row = box.querySelector('.t10-row'), k = t10Kind();
+    box.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
     const all = (d?.services || []).filter((s) => !s.shop && !s.store);
     const mineSet = new Set(mine.get()), list = [...all].sort((a, b) => (mineSet.has(b.key) - mineSet.has(a.key)));   // yours first, then the charts' own order
-    t10.info = [];
-    const cols = list.map((s) => t10Col(s, k, mineSet, all)).filter(Boolean);
+    const info = box.t10info = [];
+    const cols = list.map((s) => t10Col(s, k, mineSet, all, info, box.id)).filter(Boolean);
     const shown = list.filter((s) => (s[k] || []).length);
-    dlg.querySelector('#t10Logos').innerHTML = shown.map((s, i) => `<button type="button" data-jump="${esc(s.key)}" aria-label="${esc(s.label)}" title="${esc(s.label)}"${i ? '' : ' aria-current="true"'}>${s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<span>${esc(s.label[0])}</span>`}</button>`).join('');
+    box.querySelector('.t10-logos').innerHTML = shown.map((s, i) => `<button type="button" data-jump="${esc(s.key)}" aria-label="${esc(s.label)}" title="${esc(s.label)}"${i ? '' : ' aria-current="true"'}>${s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<span>${esc(s.label[0])}</span>`}</button>`).join('');
     row.innerHTML = cols.length ? cols.join('') : `<p class="t10-none">${d ? 'The charts are on their way. They’ll be here after the next hourly update.' : 'The charts didn’t load. Check your connection and try again.'}</p>`;
     row.scrollLeft = 0; row.querySelectorAll('.t10-col').forEach((c) => (c.scrollTop = 0));
     const at = new Date(d?.generatedAt), when = isNaN(at) ? '' : at.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    dlg.querySelector('#t10When').textContent = when ? `Updated every hour, last at ${when}.` : 'Updated every hour.';
-    row.setAttribute('aria-busy', 'false'); t10Ends(dlg);
+    box.querySelector('.t10-when').textContent = when ? `Updated every hour, last at ${when}.` : 'Updated every hour.';
+    row.setAttribute('aria-busy', 'false'); t10Ends(box);
   }
   // the arrows, the faded edges and which logo is lit follow the row as it scrolls
-  function t10Ends(dlg) {
-    const row = dlg.querySelector('#t10Row'), max = row.scrollWidth - row.clientWidth - 2;
-    const [p, n] = dlg.querySelectorAll('[data-t10go]');
+  function t10Ends(box) {
+    const row = box.querySelector('.t10-row'), max = row.scrollWidth - row.clientWidth - 2;
+    const [p, n] = box.querySelectorAll('[data-t10go]');
     p.disabled = row.scrollLeft <= 2; n.disabled = row.scrollLeft >= max; p.hidden = n.hidden = max <= 0;
     row.classList.toggle('at-start', row.scrollLeft <= 2); row.classList.toggle('at-end', row.scrollLeft >= max);
     const cols = [...row.querySelectorAll('.t10-col')], x = row.getBoundingClientRect().left;
     const first = cols.reduce((b, c) => { const d = Math.abs(c.getBoundingClientRect().left - x - 16); return d < b.d ? { c, d } : b; }, { c: null, d: Infinity }).c;
-    dlg.querySelectorAll('#t10Logos button').forEach((b) => b.toggleAttribute('aria-current', !!first && `t10-${b.dataset.jump}` === first.id));
+    box.querySelectorAll('.t10-logos button').forEach((b) => b.toggleAttribute('aria-current', !!first && b.dataset.jump === first.dataset.svc));
   }
+  // what both share: Shows / Films, the logos (each jumps to its column), the arrows, and a title opening its sheet
+  function t10Wire(box) {
+    const row = box.querySelector('.t10-row'), seg = box.querySelector('.t10-seg');
+    const pick = (b) => {
+      if (!b || b.getAttribute('aria-checked') === 'true') return;
+      t10.kind = b.dataset.kind; try { sessionStorage.setItem('tenner-tt-kind', t10.kind); } catch {}
+      haptic(6); planFile('trending').then((d) => t10Draw(box, d));
+    };
+    seg.addEventListener('click', (e) => pick(e.target.closest('button[data-kind]')));
+    segment(seg, pick); arrows(seg, () => [...seg.querySelectorAll('button')], pick);
+    box.addEventListener('click', (e) => {
+      const j = e.target.closest('[data-jump]');
+      if (j) { const c = row.querySelector(`.t10-col[data-svc="${CSS.escape(j.dataset.jump)}"]`); if (c) row.scrollTo({ left: c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).scrollPaddingLeft || 0), behavior: reduce() ? 'auto' : 'smooth' }); return; }
+      const g = e.target.closest('[data-t10go]');
+      if (g) { const c = row.querySelector('.t10-col'), step = c ? c.offsetWidth + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+        row.scrollBy({ left: +g.dataset.t10go * step * Math.max(1, Math.floor((row.clientWidth + 2) / step)), behavior: reduce() ? 'auto' : 'smooth' }); return; }
+      const a = e.target.closest('[data-t10]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;   // modified clicks open TMDB as usual
+      e.preventDefault(); const info = box.t10info?.[+a.dataset.t10]; if (!info) return;
+      if (window.tnSheet) window.tnSheet.open(info); else if (info.k) location.href = `./?t=${info.k}`;
+    });
+    row.addEventListener('scroll', () => t10Ends(box), { passive: true });
+    new ResizeObserver(() => t10Ends(box)).observe(row);
+  }
+  const T10_SK = Array.from({ length: 4 }, () => '<section class="t10-col t10-sk" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></section>').join('');
+  const t10Seg = () => `<div class="segmented t10-seg" role="radiogroup" aria-label="Shows or films"><span class="seg-thumb" aria-hidden="true"></span>${Object.entries(T10_KIND).map(([k, l]) => `<button type="button" role="radio" data-kind="${k}" aria-checked="${k === t10Kind()}">${l}</button>`).join('')}</div>`;
+  const t10Foot = () => `<p><span class="t10-when"></span> <span class="t10-fine">Built from what’s trending on TMDB and where it streams in the UK, so a chart may look a little different from the service’s own.</span> <a href="charts.html#top10" data-page>How the charts moved this week</a></p>
+          <span class="t10-arrows"><button type="button" class="t10-ar" data-t10go="-1" aria-label="Previous services">${T10_IC.prev}</button><button type="button" class="t10-ar" data-t10go="1" aria-label="Next services">${T10_IC.next}</button></span>`;
   function top10s() {
     let dlg = document.getElementById('t10');
     if (!dlg) {
       document.body.insertAdjacentHTML('beforeend', `<dialog class="t10" id="t10" aria-labelledby="t10H" closedby="any">
         <header class="t10-hd">
-          <div class="t10-logos" id="t10Logos" aria-label="Jump to a service"></div>
+          <div class="t10-logos" aria-label="Jump to a service"></div>
           <h2 id="t10H">The <em class="grad">Top 10s</em></h2>
-          <div class="t10-acts">
-            <div class="segmented t10-seg" role="radiogroup" aria-label="Shows or films"><span class="seg-thumb" aria-hidden="true"></span>${Object.entries(T10_KIND).map(([k, l]) => `<button type="button" role="radio" data-kind="${k}" aria-checked="false">${l}</button>`).join('')}</div>
-            <button type="button" class="t10-x" id="t10X" aria-label="Close">${T10_IC.x}</button></div>
+          <div class="t10-acts">${t10Seg()}<button type="button" class="t10-x" id="t10X" aria-label="Close">${T10_IC.x}</button></div>
         </header>
-        <div class="t10-row" id="t10Row" aria-busy="true"></div>
-        <footer class="t10-ft">
-          <p><span id="t10When"></span> <span class="t10-fine">Built from what’s trending on TMDB and where it streams in the UK, so a chart may look a little different from the service’s own.</span> <a href="charts.html#top10" data-page>How the charts moved this week</a></p>
-          <span class="t10-arrows"><button type="button" class="t10-ar" data-t10go="-1" aria-label="Previous services">${T10_IC.prev}</button><button type="button" class="t10-ar" data-t10go="1" aria-label="Next services">${T10_IC.next}</button></span>
-        </footer></dialog>`);
+        <div class="t10-row" aria-busy="true"></div>
+        <footer class="t10-ft">${t10Foot()}</footer></dialog>`);
       dlg = document.getElementById('t10');
-      const row = dlg.querySelector('#t10Row'), seg = dlg.querySelector('.t10-seg');
       const shut = () => {
         if (!dlg.open || dlg.classList.contains('out')) return;
         if (reduce()) { dlg.close(); return; }
@@ -534,36 +558,63 @@
       };
       dlg.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
       dlg.querySelector('#t10X').addEventListener('click', shut);
-      const pick = (b) => {
-        if (!b || b.getAttribute('aria-checked') === 'true') return;
-        t10.kind = b.dataset.kind; try { sessionStorage.setItem('tenner-tt-kind', t10.kind); } catch {}
-        haptic(6); planFile('trending').then((d) => t10Draw(dlg, d));
-      };
-      seg.addEventListener('click', (e) => pick(e.target.closest('button[data-kind]')));
-      segment(seg, pick); arrows(seg, () => [...seg.querySelectorAll('button')], pick);
-      dlg.addEventListener('click', (e) => {
-        if (e.target === dlg) { shut(); return; }   // a tap on the dimmed page around the card
-        const j = e.target.closest('[data-jump]');
-        if (j) { const c = dlg.querySelector(`#t10-${CSS.escape(j.dataset.jump)}`); if (c) row.scrollTo({ left: c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).scrollPaddingLeft || 0), behavior: reduce() ? 'auto' : 'smooth' }); return; }
-        const g = e.target.closest('[data-t10go]');
-        if (g) { const c = row.querySelector('.t10-col'), step = c ? c.offsetWidth + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
-          row.scrollBy({ left: +g.dataset.t10go * step * Math.max(1, Math.floor((row.clientWidth + 2) / step)), behavior: reduce() ? 'auto' : 'smooth' }); return; }
-        const a = e.target.closest('[data-t10]');
-        if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;   // modified clicks open TMDB as usual
-        e.preventDefault(); const info = t10.info[+a.dataset.t10]; if (!info) return;
-        if (window.tnSheet) window.tnSheet.open(info); else if (info.k) location.href = `./?t=${info.k}`;
-      });
-      row.addEventListener('scroll', () => t10Ends(dlg), { passive: true });
-      new ResizeObserver(() => t10Ends(dlg)).observe(row);
+      dlg.addEventListener('click', (e) => { if (e.target === dlg) shut(); });   // a tap on the dimmed page around the card
+      t10Wire(dlg);
     }
     if (dlg.open) return;
-    const row = dlg.querySelector('#t10Row');
-    if (!row.children.length) row.innerHTML = Array.from({ length: 4 }, () => '<section class="t10-col t10-sk" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></section>').join('');
+    const row = dlg.querySelector('.t10-row');
+    if (!row.children.length) row.innerHTML = T10_SK;
     const k = t10Kind(); dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
     dlg.showModal(); haptic(8); dlg.querySelector('#t10X').focus({ preventScroll: true });
     glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);   // the thumb under the choice, now it can be measured
     planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
   }
+  // ---------- See Top 10s: a frosted strip at the foot of every page (like a site map that folds away). Tap it and it
+  // slides open, the page gliding up with it so the strip rises up the screen, and every service's Top 10 appears in the
+  // popup's own columns, rising in one after another; tap again (or Escape) and it folds away. Loads only when opened. ----------
+  function topFoot() {
+    const main = document.getElementById('main');
+    if (!main || document.getElementById('tf')) return;
+    main.insertAdjacentHTML('afterend', `<footer class="tf" id="tf">
+      <div class="tf-bar"><span class="tf-side">© ${new Date().getFullYear()} Tenner</span>
+        <button type="button" class="btn btn-tinted tf-btn" id="tfBtn" aria-expanded="false" aria-controls="tfPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>See Top 10s</span><svg class="tf-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="tf-side tf-r">Every service’s chart, updated hourly</span></div>
+      <div class="tf-panel" id="tfPanel" role="region" aria-label="Top 10s" inert><div class="tf-in">
+        <header class="tf-hd"><div class="t10-logos" aria-label="Jump to a service"></div>${t10Seg()}</header>
+        <div class="t10-row" aria-busy="true">${T10_SK}</div>
+        <div class="t10-ft">${t10Foot()}</div></div></div></footer>`);
+    const tf = document.getElementById('tf'), btn = document.getElementById('tfBtn'), panel = document.getElementById('tfPanel');
+    t10Wire(tf);
+    let loaded = false, follow = 0;
+    // as it opens, the page keeps the panel's foot on screen, so the strip rises with it (never above the top bar)
+    const rise = () => {
+      cancelAnimationFrame(follow);
+      const gap = () => {
+        const r = tf.getBoundingClientRect(), top = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0, foot = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
+        return Math.min(r.bottom + 16 - (innerHeight - foot), r.top - top - 8);
+      };
+      if (reduce()) { requestAnimationFrame(() => { const d = gap(); if (d > 0) scrollTo(0, scrollY + d); }); return; }
+      let stop = false; const quit = () => (stop = true), t0 = performance.now();
+      const off = () => { removeEventListener('wheel', quit); removeEventListener('touchstart', quit); };
+      addEventListener('wheel', quit, { passive: true }); addEventListener('touchstart', quit, { passive: true });   // your own scroll takes over
+      const step = (now) => {
+        if (stop || !tf.classList.contains('open')) { off(); return; }
+        const d = gap(); if (d > .5) scrollTo(0, scrollY + d);
+        if (now - t0 < 1100) follow = requestAnimationFrame(step); else off();
+      };
+      follow = requestAnimationFrame(step);
+    };
+    const toggle = (open) => {
+      tf.classList.toggle('open', open); btn.setAttribute('aria-expanded', open); panel.inert = !open; haptic(open ? 8 : 6);
+      if (!open) { if (panel.contains(document.activeElement)) btn.focus({ preventScroll: true }); return; }
+      if (!loaded) { loaded = true; planFile('trending').then((d) => { t10Draw(tf, d); if (tf.classList.contains('open') && reduce()) rise(); }); }   // the real columns are taller than the placeholders
+      glide(tf.querySelector('.t10-seg .seg-thumb'), tf.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);
+      rise();
+    };
+    btn.addEventListener('click', () => toggle(!tf.classList.contains('open')));
+    tf.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tf.classList.contains('open')) { e.stopPropagation(); toggle(false); } });
+  }
+  topFoot();
   // every link to the Top 10s page opens the popup instead (data-page keeps one going to the page: the week on the charts)
   document.addEventListener('click', (e) => {
     const a = e.target.closest?.('a[href$="charts.html#top10"]:not([data-page])');

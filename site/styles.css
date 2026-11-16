@@ -1831,10 +1831,10 @@ button.ps-face:active { scale: .96; }
 .t10-logos button:active { transform: scale(.9); }
 .t10-logos button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .t10-acts { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-.t10 .segmented { background: var(--fr-in); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-.t10 .seg-thumb { background: var(--bt-round); box-shadow: none; }
-.t10 .segmented button[aria-checked="true"] { color: #fff; }
-.t10 .segmented button { min-width: 78px; }
+:is(.t10, .tf) .segmented { background: var(--fr-in); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:is(.t10, .tf) .seg-thumb { background: var(--bt-round); box-shadow: none; }
+:is(.t10, .tf) .segmented button[aria-checked="true"] { color: #fff; }
+:is(.t10, .tf) .segmented button { min-width: 78px; }
 .t10-x, .t10-ar { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
   background: var(--bt-round); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .14); -webkit-tap-highlight-color: transparent;
   transition: background-color .2s ease, transform .35s var(--ease-spring), opacity .2s ease; }
@@ -1885,16 +1885,16 @@ button.ps-face:active { scale: .96; }
 .t10-go svg { width: 17px; height: 17px; flex: none; }
 .t10-also { margin: 0 2px 6px; color: var(--label2); font: 400 13px/1.3 var(--font); }
 /* Nos. 2 to 10: the house list, one column */
-.t10 .t10-l { display: block; margin: 0 -6px; }
-.t10 .t10-l li { border-top: .5px solid var(--sep); border-radius: var(--r); }
-.t10 .t10-l li:first-child { border-top: 0; }
-@media (hover: hover) { .t10 .t10-l li:has(a:hover) + li { border-top-color: transparent; } .t10 .t10-l li:hover { background: var(--fr-in); -webkit-backdrop-filter: none; backdrop-filter: none; } }
-.t10 .t10-l a { gap: 10px; padding: 7px 6px; border-radius: var(--r); -webkit-tap-highlight-color: transparent; }
-.t10 .t10-l a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.t10 .t10-l img, .t10 .t10-l .t10-ph { width: 32px; height: 48px; flex: none; display: block; object-fit: cover; border-radius: 6px; box-shadow: 0 0 0 .5px var(--sep); }
+:is(.t10, .tf) .t10-l { display: block; margin: 0 -6px; }
+:is(.t10, .tf) .t10-l li { border-top: .5px solid var(--sep); border-radius: var(--r); }
+:is(.t10, .tf) .t10-l li:first-child { border-top: 0; }
+@media (hover: hover) { :is(.t10, .tf) .t10-l li:has(a:hover) + li { border-top-color: transparent; } :is(.t10, .tf) .t10-l li:hover { background: var(--fr-in); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+:is(.t10, .tf) .t10-l a { gap: 10px; padding: 7px 6px; border-radius: var(--r); -webkit-tap-highlight-color: transparent; }
+:is(.t10, .tf) .t10-l a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+:is(.t10, .tf) .t10-l img, :is(.t10, .tf) .t10-l .t10-ph { width: 32px; height: 48px; flex: none; display: block; object-fit: cover; border-radius: 6px; box-shadow: 0 0 0 .5px var(--sep); }
 .t10-n { flex: none; width: 18px; text-align: center; font: 600 15px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
-.t10 .cl-t b { font-size: 14.5px; }
-.t10 .cl-t small { font-size: 12.5px; }
+:is(.t10, .tf) .cl-t b { font-size: 14.5px; }
+:is(.t10, .tf) .cl-t small { font-size: 12.5px; }
 .t10-mv { flex: none; display: inline-flex; align-items: center; gap: 1px; font: 600 12px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
 .t10-mv svg { width: 13px; height: 13px; }
 .t10-mv.up { color: #30d158; }
@@ -1934,6 +1934,41 @@ button.ps-face:active { scale: .96; }
   .t10-fine, .t10-arrows { display: none; }
 }
 @media (min-width: 601px) and (hover: none) { .t10-arrows { display: none; } }
+
+/* See Top 10s: the frosted strip at the foot of every page; tap it and the Top 10s slide open beneath it (the popup's
+   own columns, at their full height), the page gliding up so the strip rises up the screen */
+.tf { container: t10 / inline-size; max-width: var(--max); margin: 8px var(--gutter-r) 24px var(--gutter); color: var(--label); border-radius: var(--r);
+  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1.5px var(--fr-rim); }
+@media (min-width: 1000px) { .tf { margin: 8px max(24px, var(--gutter-r)) 24px max(24px, calc(var(--page-left) + var(--gutter))); } }
+.tf-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 14px 18px; }
+.tf-side { min-width: 0; color: var(--label2); font: 400 13px/1.3 var(--font); }
+.tf-r { text-align: right; }
+.tf-btn.btn { height: 44px; padding: 0 16px 0 14px; gap: 8px; }
+.tf-btn svg { width: 18px; height: 18px; }
+.tf-btn .tf-chev { width: 14px; height: 14px; margin-left: 2px; opacity: .8; transition: transform .55s var(--ease-spring); }
+.tf.open .tf-chev { transform: rotate(180deg); }
+.tf-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .9s cubic-bezier(.5, 0, .15, 1); }
+.tf.open .tf-panel { grid-template-rows: 1fr; }
+.tf-in { min-height: 0; overflow: hidden; }
+.tf-hd { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 18px; padding: 16px 0; border-top: .5px solid var(--sep); }
+.tf .t10-row { padding: 0 18px; scroll-padding-inline: 18px; }
+.tf .t10-col { overflow: visible; -webkit-mask-image: none; mask-image: none; }
+.tf .t10-ft { display: flex; align-items: center; gap: 16px; padding: 14px 18px 18px; }
+/* the slide: the panel opens, then its pieces rise into place one after another (and sink away as it folds) */
+.tf :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .3s ease, transform .3s ease; }
+.tf:not(.open) :is(.tf-hd, .t10-col, .t10-ft) { opacity: 0; transform: translateY(28px) scale(.97); }
+.tf.open :is(.tf-hd, .t10-col, .t10-ft) { transition: opacity .45s ease var(--d, .15s), transform .8s var(--ease-spring) var(--d, .15s); }
+.tf.open .t10-col:nth-child(1) { --d: .25s; } .tf.open .t10-col:nth-child(2) { --d: .33s; } .tf.open .t10-col:nth-child(3) { --d: .41s; }
+.tf.open .t10-col:nth-child(n+4) { --d: .49s; } .tf.open .t10-ft { --d: .55s; }
+:root.still .tf-panel, :root.still .tf :is(.tf-hd, .t10-col, .t10-ft), :root.still .tf-chev { transition: none; }
+@media (max-width: 600px) {
+  .tf-bar { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 16px 16px 14px; }
+  .tf-side { order: 2; }
+  .tf-r { display: none; }
+  .tf-hd { flex-direction: column; gap: 12px; margin: 0 16px; }
+  .tf .t10-row { padding: 0 16px; scroll-padding-inline: 16px; }
+  .tf .t10-ft { padding: 12px 16px 16px; }
+}
 
 /* ============================================================ 7. small things that float: toast, tips, labels, loading */
 /* the toast: a frosted card that springs up from the bottom and fades away, rather than blinking on and off */
