@@ -98,6 +98,9 @@ export function skyIds(channels, services) {
 export async function skyGuide(channels, now = Date.now(), fetchJSON = async (u) => (await get(u, 3, SKY_HEAD)).json()) {
   const services = (await fetchJSON(`${SKY}/services/${SKY_REGION}`).catch(() => null))?.services;
   const ids = skyIds(channels, services), names = Object.keys(ids), out = Object.fromEntries(names.map((n) => [n, []]));
+  // a Sky channel that can't be found is named in the build's log, with the Sky channels on offer, so its `match` can be fixed
+  const lost = channels.filter((c) => (c.sky || c.match) && !ids[c.name]).map((c) => c.name);
+  if (lost.length) console.log(`::warning title=Tenner TV's Sky channels::not found on Sky's guide: ${lost.join(', ')}. Sky's channels: ${(services || []).map((x) => `${x.sid} ${x.t}`).filter((x) => /sky/i.test(x)).join('; ')}`);
   if (!names.length) return out;
   const bySid = new Map(names.map((n) => [ids[n], n])), sids = [...bySid.keys()], seen = new Set();
   let ok = 0;
@@ -155,7 +158,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     for (const [d, v] of Object.entries(days)) await write(`${d}.json`, v);
     await write('meta.json', { generatedAt: new Date().toISOString(), source: 'freeview', days: Object.keys(days) });
     await write('onair.json', onAir(days));
-    const skyN = Object.values(days)[1]?.channels.filter((c) => skyNames.has(c.name)).length || 0;
+    const skyIn = new Set(Object.values(days)[1]?.channels.map((c) => c.name)), skyN = [...skyNames].filter((n) => skyIn.has(n)).length;
+    if (skyN < skyNames.size) console.log(`Sky channels with no listings: ${[...skyNames].filter((n) => !skyIn.has(n)).join(', ')}`);
     console.log(`Tenner TV: ${Object.keys(days).length} days, ${channels.length} channels (${skyN} of ${skyNames.size} Sky ones), ${Object.values(days).reduce((n, d) => n + d.channels.reduce((m, c) => m + c.items.length, 0), 0)} programmes`);
   } catch (err) {
     // carry the live listings over rather than going blank (the Worker falls back to TVmaze for anything missing)
