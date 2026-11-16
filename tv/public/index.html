@@ -17,13 +17,14 @@
   <meta property="og:description" content="Every UK channel, now and next, and the whole evening.">
   <meta property="og:image" content="https://tenner.stream/og.jpg">
   <link rel="preconnect" href="https://images.metadata.sky.com">
-  <link rel="stylesheet" href="tv.css?v=4.0.0">
+  <link rel="stylesheet" href="tv.css?v=4.1.0">
   <!-- the listings start downloading now, alongside the page's own files (not after them) -->
   <script>(() => { const t = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(Date.now()), q = new URLSearchParams(location.search).get('d'), d = /^\d{4}-\d\d-\d\d$/.test(q || '') && q >= t ? q : t;
     const day = fetch('/api/day?d=' + d), meta = fetch('/data/meta.json').then((r) => (r.ok ? r.json() : null)).catch(() => null); day.catch(() => {});
     window.tvEarly = { d, day, meta }; })();</script>
 </head>
 <body>
+  <div class="glow" aria-hidden="true"></div>
   <!-- computers: Tenner's sidebar (as on tenner.stream), with the TV guide chosen; phones keep the bar below -->
   <aside class="side" aria-label="Tenner">
     <a class="side-brand" href="https://tenner.stream/"><img src="logo.svg" alt="" width="34" height="34"><span>Tenner</span></a>
@@ -44,7 +45,7 @@
       <button type="button" class="side-acct" id="acctSide" aria-haspopup="dialog"></button>
       <button type="button" class="side-fb" data-fb>Send feedback</button>
       <a href="https://tenner.stream/legal.html#terms">Terms of Service</a><a href="https://tenner.stream/legal.html#privacy">Privacy Policy</a><a href="https://tenner.stream/legal.html#cookies">Cookies</a><a href="https://tenner.stream/contact.html">Contact</a>
-      <span class="side-ver">Tenner TV 4.0.0</span>
+      <span class="side-ver">Tenner TV 4.1.0</span>
     </div>
   </aside>
   <header class="bar">
@@ -55,16 +56,17 @@
 
   <main id="main">
     <section class="hero">
-      <!-- in the corner: a popular programme on the guide, its artwork melting into the page (tap for what it's about) -->
+      <!-- the top: a popular programme on the guide, its artwork melting into the page, its title, one button and the dots (tap for what it's about) -->
       <button type="button" class="corner" id="corner" hidden><span class="corner-art"><img alt="" decoding="async"><img alt="" decoding="async"></span><span class="corner-cap" id="cornerCap"></span></button>
-      <!-- the Met Office's weather warnings, when there are any (bad weather can knock out a dish or an aerial's signal):
-           a compact notification that opens for the details -->
-      <aside class="wx" id="wx" aria-labelledby="wxT" hidden></aside>
       <p class="eye" id="eye">&nbsp;</p>
       <h1 id="h1">What’s on <br class="ph-br"><em class="grad">tonight</em>.</h1>
       <p class="lede">The main Freeview channels and Sky’s favourites, all week. Swipe a channel through its week, and tap anything to see what it’s about.</p>
-      <nav class="days" id="days" aria-label="Choose a day"></nav>
     </section>
+
+    <!-- the Met Office's weather warnings, when there are any (bad weather can knock out a dish or an aerial's signal):
+         a compact notification that opens for the details -->
+    <aside class="wx" id="wx" aria-labelledby="wxT" hidden></aside>
+    <nav class="days" id="days" aria-label="Choose a day"></nav>
 
     <section class="guide" aria-labelledby="gH">
       <h2 class="vh" id="gH">TV guide</h2>
@@ -149,6 +151,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
   <div class="banner" id="banner" role="alert" popover="manual"></div>
 
-  <script src="tv.js?v=4.0.0" defer></script>
+  <script src="tv.js?v=4.1.0" defer></script>
 </body>
 </html>
