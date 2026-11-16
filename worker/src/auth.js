@@ -6,7 +6,8 @@
 //   POST /auth/passkey/finish     { id, credential } → { token, user }
 //   POST /auth/login/start        → options for the browser (any passkey for this site)
 //   POST /auth/login/finish       { id, credential } → { token, user }
-//   POST /auth/google             { credential } → { token, user } (links Google if you're signed in already)
+//   POST /auth/google             { credential, replace? } → { token, user } (links Google if you're signed in already;
+//                                 409 { other } if it has its own account, which replace: true deletes first)
 //   POST /auth/password/signup    { email, name, key } → { token, user }; /login { email, key }; /forgot { email } (emails a
 //                                 reset link); /reset { token, key } → { token, user }. The key is what the browser
 //                                 stretched from the password (PBKDF2, 310,000 rounds); only a salted hash of it is kept
@@ -310,7 +311,17 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
       const g = await verifyGoogle(body.credential, env), me = await sessionUser(req, env);
       const owner = await env.DB.prepare('SELECT * FROM users WHERE google_sub = ?').bind(g.sub).first();
       if (me) {   // linking Google to the account you're signed in to
-        if (owner && owner.id !== me.id) return fail('That Google account is already linked to another Tenner account', 409);
+        if (owner && owner.id !== me.id) {
+          // that Google account still has a Tenner account of its own (made by signing in with Google, say). Whoever holds
+          // the Google sign-in owns that account too, so after they confirm (replace) it's deleted, then Google is linked here;
+          // until then it stays exactly as it is
+          if (!body.replace) {
+            const d = await env.DB.prepare('SELECT data FROM userdata WHERE user_id = ?').bind(owner.id).first().catch(() => null);
+            let titles = 0; try { titles = (JSON.parse(d?.data || '{}').watchlist || []).length; } catch {}
+            return json({ error: 'That Google account is already linked to another Tenner account', other: { name: owner.name, created: owner.created, titles } }, 409, cors);
+          }
+          await eraseUser(env, ctx, owner.id);
+        }
         await env.DB.prepare('UPDATE users SET google_sub = ?, email = ?, picture = COALESCE(picture, ?) WHERE id = ?').bind(g.sub, g.email || null, g.picture || null, me.id).run();
         return ok({ ok: true });
       }
@@ -513,18 +524,7 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
     if (p === '/me' && m === 'DELETE') {
       // Google has to be unlinked first (the owner's rule), so no account is deleted with Google still connected to it
       if (me.google_sub) return fail('Unlink Google from your account first, then you can delete it', 409);
-      await photosTable(env);
-      // the profile photo stops being served at once (this data centre's copy; it isn't in the database any more either)
-      const pic = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(me.id).first();
-      if (pic) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${pic.id}`)));
-      const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(me.id).all()).results;
-      // every device signed in to it is remembered as deleted (only the sessions' hashes, nothing about you), so the
-      // others clear their copy of the account when they next check in, and nothing of it can sync into a new account
-      await goneTable(env).then(() => env.DB.batch([env.DB.prepare('DELETE FROM gone WHERE at < ?').bind(now() - SESSION_IDLE),
-        env.DB.prepare('INSERT OR IGNORE INTO gone (token, at) SELECT token, ? FROM sessions WHERE user_id = ?').bind(now(), me.id)])).catch(() => {});
-      await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
-        .map((q) => env.DB.prepare(q).bind(me.id)));
-      if (env.PUSH) for (const s of subs) { const v = await env.PUSH.get(s.sub_key, 'json'); if (v) { delete v.user; await env.PUSH.put(s.sub_key, JSON.stringify(v)); } }
+      await eraseUser(env, ctx, me.id);
       return ok({ ok: true });
     }
     return fail('Not found', 404);
@@ -534,6 +534,21 @@ export async function authRoute(req, env, ctx, url, json, cors, origin) {
 }
 // ---------- profile photos: kept in D1 beside the account (small: the page sends a square of at most 512px) ----------
 const PHOTO_MAX = 150000;   // bytes, once decoded
+// deleting an account: everything kept with it goes at once, and its email, Google link and name are free for anyone to use again
+async function eraseUser(env, ctx, id) {
+  await photosTable(env);
+  // the profile photo stops being served at once (this data centre's copy; it isn't in the database any more either)
+  const pic = await env.DB.prepare('SELECT id FROM photos WHERE user_id = ?').bind(id).first();
+  if (pic) ctx.waitUntil(caches.default.delete(new Request(`https://tenner-cache/photo/${pic.id}`)));
+  const subs = (await env.DB.prepare('SELECT sub_key FROM pushsubs WHERE user_id = ?').bind(id).all()).results;
+  // every device signed in to it is remembered as deleted (only the sessions' hashes, nothing about you), so the
+  // others clear their copy of the account when they next check in, and nothing of it can sync into a new account
+  await goneTable(env).then(() => env.DB.batch([env.DB.prepare('DELETE FROM gone WHERE at < ?').bind(now() - SESSION_IDLE),
+    env.DB.prepare('INSERT OR IGNORE INTO gone (token, at) SELECT token, ? FROM sessions WHERE user_id = ?').bind(now(), id)])).catch(() => {});
+  await env.DB.batch(['DELETE FROM passkeys WHERE user_id = ?', 'DELETE FROM passwords WHERE user_id = ?', 'DELETE FROM resets WHERE user_id = ?', 'DELETE FROM verified WHERE user_id = ?', 'DELETE FROM verifies WHERE user_id = ?', 'DELETE FROM sessions WHERE user_id = ?', 'DELETE FROM userdata WHERE user_id = ?', 'DELETE FROM pushsubs WHERE user_id = ?', 'DELETE FROM photos WHERE user_id = ?', 'DELETE FROM users WHERE id = ?']
+    .map((q) => env.DB.prepare(q).bind(id)));
+  if (env.PUSH) for (const s of subs) { const v = await env.PUSH.get(s.sub_key, 'json'); if (v) { delete v.user; await env.PUSH.put(s.sub_key, JSON.stringify(v)); } }
+}
 // deleted accounts' sessions (hashes only), made here too the first time it's needed, like photos below
 let goneReady = null;
 const goneTable = (env) => (goneReady ||= env.DB.prepare('CREATE TABLE IF NOT EXISTS gone (token TEXT PRIMARY KEY, at INTEGER NOT NULL)').run()
