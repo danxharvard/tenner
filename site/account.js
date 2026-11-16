@@ -60,7 +60,7 @@
       + `<form class="set-row ac-pwform" id="acPwForm" hidden><input type="email" id="acSetEmail" autocomplete="username" placeholder="Email" aria-label="Email" required value="${esc(me.password || '')}"><input type="password" id="acSetPw" autocomplete="new-password" minlength="8" placeholder="New password" aria-label="New password" required><button class="btn btn-tinted">Save</button></form>`
       + `<button type="button" class="set-row set-link" id="acAddPk"><span class="set-l">Add a passkey<small>For another device, or a password manager</small></span><span class="set-chev" aria-hidden="true"></span></button>`
       + (!u.google ? '<div class="set-row ac-glink"><span class="set-l">Link Google</span><div id="acGLink"></div></div>' : '');
-    if (!u.google) account.google($('#acGLink'), { onError: (err) => say('#acNote', friendly(err), true), onLinked: () => { say('#acNote', 'Google linked'); load(); } });
+    if (!u.google) account.google($('#acGLink'), { onError: (err, replace) => (replace ? askReplace(err.data.other, replace) : say('#acNote', friendly(err), true)), onLinked: () => { say('#acNote', 'Google linked'); load(); } });
     eyes($('#acWays'));
     $('#acDevices').innerHTML = me.sessions.map((x) => `<div class="set-row"><span class="set-l"><span>${esc(x.label)}${x.here ? ' <em class="ac-here">This device</em>' : ''}</span><small>Signed in ${esc(when(x.created).toLowerCase())}${x.here ? '' : ` · seen ${esc(when(x.seen).toLowerCase())}`}</small></span>${x.here || !x.id ? '' : `<button type="button" class="ac-x" data-ses="${+x.id}" aria-label="Sign out ${esc(x.label)}">Remove</button>`}</div>`).join('')
       + (me.sessions.length > 1 ? '<button type="button" class="set-row set-link" id="acOthers"><span class="set-l">Sign out everywhere else</span></button>' : '');
@@ -235,6 +235,23 @@
       else { await account.call('DELETE', '/me/google'); await load(); gDlg.close(); say('#acNote', 'Google unlinked'); askDelete(); }
     } catch (err) { if (err.name !== 'NotAllowedError') { gDlg.close(); say('#acNote', friendly(err), true); } }
     finally { gGo.disabled = false; }
+  });
+  // linking a Google account that already has its own Tenner account: say whose, and offer to delete that one and link
+  // Google here instead (only ever after this yes; keeping both is the default, and a tap outside keeps both)
+  const grDlg = $('#acGRDlg'), grGo = $('#acGRGo');
+  let grDo = null;
+  function askReplace(o, replace) {
+    const n = +o.titles || 0;
+    $('#acGRP').textContent = `It’s linked to ${o.name ? `“${o.name}”` : 'another account'}, made ${when(o.created).replace(/^(Today|Yesterday)$/, (w) => w.toLowerCase())}${n ? `, with ${n} title${n === 1 ? '' : 's'} on its Watchlist` : ''}. Delete that account and link Google to this one instead? This can’t be undone.`;
+    grDo = replace; grDlg.showModal();
+  }
+  grDlg.addEventListener('click', async (e) => {
+    if (e.target === grDlg || e.target.closest('#acGRNo')) { grDlg.close(); return; }
+    if (!e.target.closest('#acGRGo') || grGo.disabled) return;
+    grGo.disabled = true;
+    try { await grDo(); grDlg.close(); say('#acNote', 'Google linked'); load(); }
+    catch (err) { grDlg.close(); say('#acNote', friendly(err), true); }
+    finally { grGo.disabled = false; }
   });
   // the last word: are you sure? No (or a tap outside) heads back to Tenner; Yes deletes it
   const del2Dlg = $('#acDel2Dlg');

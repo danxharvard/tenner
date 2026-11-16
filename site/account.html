@@ -44,9 +44,9 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.104.0">
-  <link rel="stylesheet" href="settings.css?v=2.104.0">
-  <link rel="stylesheet" href="account.css?v=2.104.0">
+  <link rel="stylesheet" href="styles.css?v=2.105.0">
+  <link rel="stylesheet" href="settings.css?v=2.105.0">
+  <link rel="stylesheet" href="account.css?v=2.105.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -89,7 +89,7 @@
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <div class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.104.0</span>
+      <span class="side-ver">Tenner 2.105.0</span>
     </div>
   </div>
 
@@ -184,6 +184,14 @@
         <p class="ac-del-alt" hidden>Or add a password from Ways to sign in.</p>
         <div class="ac-del-acts"><button type="button" class="btn ac-del-keep ac-g-go" id="acGGo" autofocus><svg class="ac-g-un" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2M4 4l16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><svg class="ac-g-pk" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="8" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M11.6 12H20.5M17.5 12v3M20.5 12v2.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span>Unlink Google</span></button><button type="button" class="btn btn-2nd ac-del-no" id="acGNo">Not now</button></div>
       </form></dialog>
+    <!-- Link Google, when that Google account has a Tenner account of its own: keep both, or delete that one and link it here -->
+    <dialog class="mine-dlg ac-del-dlg" id="acGRDlg" aria-labelledby="acGRH" aria-describedby="acGRP">
+      <form method="dialog">
+        <span class="ac-del-ic ac-del-link" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        <h2 id="acGRH">Google is linked elsewhere</h2>
+        <p id="acGRP"></p>
+        <div class="ac-del-acts"><button type="button" class="btn ac-del-keep" id="acGRNo" autofocus>Keep both</button><button type="button" class="btn btn-2nd ac-del-go ac-g-go" id="acGRGo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M9.5 6.5V4.5h5v2M6 6.5l1 13a1.6 1.6 0 0 0 1.6 1.5h6.8a1.6 1.6 0 0 0 1.6-1.5l1-13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Delete it and link here</span></button></div>
+      </form></dialog>
     <!-- then one last, plain warning: No (the default) takes them back to Tenner, Yes deletes it -->
     <dialog class="mine-dlg ac-del-dlg" id="acDel2Dlg" aria-labelledby="acDel2H" aria-describedby="acDel2P">
       <form method="dialog">
@@ -207,7 +215,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.104.0" defer></script>
-  <script src="account.js?v=2.104.0" defer></script>
+  <script src="shell.js?v=2.105.0" defer></script>
+  <script src="account.js?v=2.105.0" defer></script>
 </body>
 </html>

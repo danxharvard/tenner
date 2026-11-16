@@ -135,7 +135,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.104.0';
+  const version = '2.105.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1151,8 +1151,9 @@
       gReady.then(() => {
         if (!window.google?.accounts?.id || !into.isConnected) return;   // blocked by a content blocker, say, or the form has moved on
         window.google.accounts.id.initialize({ client_id: GOOGLE_ID, ux_mode: 'popup', callback: async ({ credential }) => {
-          try { const out = await account.call('POST', '/auth/google', { credential }); if (out.token) await account.signedIn(out.token, out.user); else onLinked?.(); }
-          catch (err) { onError?.(err); }
+          const go = async (replace) => { const out = await account.call('POST', '/auth/google', { credential, ...(replace ? { replace: true } : {}) }); if (out.token) await account.signedIn(out.token, out.user); else onLinked?.(); };
+          // linking a Google account that has a Tenner account of its own: onError gets a way to delete that one and link it here (once confirmed)
+          try { await go(false); } catch (err) { onError?.(err, err.data?.other ? () => go(true) : null); }
         } });
         const dark = document.documentElement.dataset.theme === 'dark';
         into.innerHTML = ''; onShown?.();
