@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.110.1';
+  const version = '2.110.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -585,13 +585,18 @@
         <div class="t10-ft">${t10Foot()}</div></div></div></footer>`);
     const tf = document.getElementById('tf'), btn = document.getElementById('tfBtn'), panel = document.getElementById('tfPanel');
     t10Wire(tf);
+    // the charts are drawn while the page is idle (or as soon as a finger or pointer heads for the button), so a tap only
+    // has to slide them up: nothing is built or laid out while it moves
     let loaded = false;
+    const ready = () => { if (loaded) return; loaded = true; planFile('trending').then((d) => t10Draw(tf, d)); };
+    (window.requestIdleCallback || ((f) => setTimeout(f, 1500)))(ready, { timeout: 4000 });
+    btn.addEventListener('pointerenter', ready, { once: true }); btn.addEventListener('focus', ready, { once: true });
+    tf.addEventListener('transitionend', (e) => { if (e.target === tf) tf.classList.remove('moving'); });
     const toggle = (open) => {
       if (open === tf.classList.contains('open')) return;
+      ready(); if (!reduce()) tf.classList.add('moving');
       tf.classList.toggle('open', open); root.classList.toggle('tf-up', open); btn.setAttribute('aria-expanded', open); panel.inert = !open; haptic(open ? 8 : 6);
-      if (!open) { if (panel.contains(document.activeElement)) btn.focus({ preventScroll: true }); return; }
-      if (!loaded) { loaded = true; planFile('trending').then((d) => t10Draw(tf, d)); }
-      glide(tf.querySelector('.t10-seg .seg-thumb'), tf.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);
+      if (!open && panel.contains(document.activeElement)) btn.focus({ preventScroll: true });
     };
     // a tap on the page around it sends it back down (not one in a sheet or popup opened from it)
     document.addEventListener('pointerdown', (e) => { if (tf.classList.contains('open') && !e.target.closest?.('#tf, dialog, .tb-dock, .top-row')) toggle(false); });
