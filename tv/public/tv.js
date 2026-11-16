@@ -523,6 +523,8 @@
     showCorner();
     if (!reduce && l.length > 1) cornerT = setInterval(() => { if (!document.hidden) { cornerI = (cornerI + 1) % cornerL.length; showCorner(); } }, 9000);
   }
+  const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>';
+  const INFO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.9" r="1.15" fill="currentColor"/></svg>';
   function showCorner() {
     const { x, c, next } = cornerL[cornerI], b = $('#corner'), [a1, a2] = b.querySelectorAll('img');
     const back = a1.classList.contains('on') ? a2 : a1, front = back === a1 ? a2 : a1;
@@ -530,7 +532,11 @@
     b.setAttribute('aria-label', `${x.t}, ${c} at ${hm(x.at)}. Tap for what it’s about`);
     back.onload = () => { back.classList.add('on'); front.classList.remove('on'); $('#cornerCap').classList.add('in'); };
     $('#cornerCap').classList.remove('in');
-    $('#cornerCap').innerHTML = `<small>${esc(isLive(x) ? `On now · ${c}` : `${hm(x.at)} · ${c}`)}</small><b>${esc(x.t)}</b>`;
+    // the channel's badge above a big title, then what it is (a new episode?) and when, one button and the dots, like a TV's home screen
+    const day = state.day || today, when = isLive(x) ? 'On now' : `${day === today ? 'Tonight' : dayName(day, { weekday: 'long' })} ${hm(x.at)}`;
+    $('#cornerCap').innerHTML = `<span class="corner-badge">${logo(c) ? `<img src="${esc(logo(c))}" alt="${esc(c)}">` : esc(c)}</span><b${x.t.length > 20 ? ' class="long"' : ''}>${esc(x.t)}</b>
+      <small>${esc([x.isNew ? (x.n === 1 ? 'New series' : 'New episode') : '', when].filter(Boolean).join(' · '))}</small>
+      <span class="corner-go"><span class="act">${isLive(x) ? PLAY : INFO}<span>${isLive(x) ? 'Watch' : 'More info'}</span></span>${cornerL.length > 1 ? `<span class="corner-dots" aria-hidden="true">${cornerL.map((_, i) => `<i${i === cornerI ? ' class="on"' : ''}></i>`).join('')}</span>` : ''}</span>`;
     back.src = x.wide;
   }
   // a card: wide artwork with the time on a frosted chip, the title and a grey line (the same in every shelf)
