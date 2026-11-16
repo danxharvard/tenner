@@ -88,38 +88,55 @@ function draw() {
   shown = new Map(); view.innerHTML = `<div class="wrap">${pageNew()}</div>`; newBanners((state.fresh?.items || []).filter((x) => x.date <= todayIso())); document.title = 'New This Week · Tenner'; nwMount(); openFromUrl();
 }
 
-// ---------- phones: New This Week's arrivals as wide banners, swiped one at a time, neighbours peeking in at the sides ----------
-const phone = matchMedia('(max-width: 560px)');
+// ---------- phones: New This Week's top, as on Home, Browse and Tenner TV. One new arrival at a time: its artwork edge
+// to edge and up under the see-through bar, melting into the page; over its foot the service's badge, a big title, one
+// line (what it is and when), More info and the dots. Swipe or tap a dot for the next. The six are this week's arrivals
+// (originals first, nearest today next), so it changes by itself as the week's list is rebuilt each day. ----------
+const phone = matchMedia('(max-width: 719px)');
 phone.addEventListener('change', () => state.trending && render());
 const mBan = $('#mBan');
-const hideBanners = () => { mBan.hidden = true; mBan.innerHTML = ''; };
-// New This Week on phones: the new arrivals as banners too. Watchmode gives a poster but no wide artwork, so each is laid
-// out like Rakuten's own: the words on the left, the poster crisp on the right, its colours blurred behind
+const hideBanners = () => { mBan.hidden = true; mBan.innerHTML = ''; document.documentElement.classList.remove('nh-on'); };
+const INFO_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.9" r="1.15" fill="currentColor"/></svg>';
+const nh = { list: [], at: 0 };
+const nhKey = (x) => (x.id ? `${x.type === 'movie' ? 'm' : 't'}${x.id}` : null);
+const nhArt = (x) => { const bd = det(nhKey(x))?.bd; return bd ? `https://image.tmdb.org/t/p/w1280${bd}` : x.poster; };
 function newBanners(items) {
-  if (!phone.matches) { mBan.hidden = true; mBan.innerHTML = ''; return; }
+  if (!phone.matches) { hideBanners(); return; }
   const today = todayIso();
-  const list = items.filter((x) => x.poster).sort((a, b) => (b.original - a.original) || Math.abs(Date.parse(a.date) - Date.parse(today)) - Math.abs(Date.parse(b.date) - Date.parse(today))).slice(0, 6);
-  if (!list.length) { mBan.hidden = true; mBan.innerHTML = ''; return; }
-  mountBanners(list.map((x, i) => {
-    const s = svc(x.service), when = x.date === today ? 'Today' : fmtDate(new Date(x.date + 'T12:00:00'), { weekday: 'short', day: 'numeric', month: 'short' });
-    const badge = `New on ${s?.label || 'streaming'} · ${when}`, what = x.type === 'movie' ? 'Film' : x.season ? `Season ${x.season}` : 'Series';
-    const attrs = x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener" ${reg(infoFor(x, x.type, badge, s ? [s] : []))}` : 'href="#new"';
-    return `<a class="mb-card mb-pc" ${attrs} aria-label="${esc(`${badge}: ${x.title}`)}">
-      <img class="mb-glow" src="${esc(x.poster)}" alt="" ${i ? 'loading="lazy"' : ''}><img class="mb-poster" src="${esc(x.poster)}" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">
-      <span class="mb-copy"><span class="mb-badge">${esc(badge)}</span><b class="mb-title">${esc(x.title)}</b><span class="mb-meta">${esc([what, x.original && s ? `${s.label} original` : ''].filter(Boolean).join(' · '))}</span></span></a>`;
-  }));
+  const list = items.filter((x) => x.poster || det(nhKey(x))?.bd).sort((a, b) => (b.original - a.original) || Math.abs(Date.parse(a.date) - Date.parse(today)) - Math.abs(Date.parse(b.date) - Date.parse(today))).slice(0, 6);
+  if (!list.length) { hideBanners(); return; }
+  nh.list = list; nh.at = Math.min(nh.at, list.length - 1);
+  mBan.innerHTML = `<div class="nh-art" aria-hidden="true">${list.map((x, i) => `<img src="${esc(nhArt(x))}" alt="" decoding="async" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}>`).join('')}</div>
+    <div class="nh-copy" id="nhCopy" aria-live="polite"></div>`;
+  mBan.hidden = false; document.documentElement.classList.add('nh-on');
+  nhShow(nh.at);
+  // the wide artwork comes with the titles' details: swap it in once they're here
+  if (!state.titles && window.tnSheet?.details) window.tnSheet.details().then((d) => {
+    if (!d || state.titles) return; state.titles = d;
+    mBan.querySelectorAll('.nh-art img').forEach((img, i) => { const u = nh.list[i] && nhArt(nh.list[i]); if (u && img.getAttribute('src') !== u) img.src = u; });
+  });
 }
-function mountBanners(cards) {
-  mBan.innerHTML = `<div class="mb-track" id="mbTrack">${cards.join('')}</div>
-    <div class="mb-dots" aria-hidden="true">${cards.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>`;
-  mBan.hidden = false;
-  const track = $('#mbTrack'), dots = [...mBan.querySelectorAll('.mb-dots i')];
-  let raf = 0;
-  track.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
-    const c = track.firstElementChild; if (!c) return;
-    const i = Math.round(track.scrollLeft / (c.offsetWidth + 10)); dots.forEach((d, k) => d.classList.toggle('on', k === i));
-  }); }, { passive: true });
+function nhShow(i) {
+  const list = nh.list; if (!list.length) return;
+  nh.at = (i + list.length) % list.length; const x = list[nh.at], today = todayIso();
+  mBan.querySelectorAll('.nh-art img').forEach((img, k) => img.classList.toggle('on', k === nh.at));
+  const s = svc(x.service), when = x.date === today ? 'Today' : fmtDate(new Date(x.date + 'T12:00:00'), { weekday: 'short', day: 'numeric', month: 'short' });
+  const what = x.type === 'movie' ? 'Film' : x.season > 1 ? `Season ${x.season}` : x.season === 1 ? 'New series' : 'Series';
+  const info = infoFor(x, x.type, `New on ${s?.label || 'streaming'} · ${when}`, s ? [s] : []);
+  $('#nhCopy').innerHTML = `${s ? `<p class="nh-badge">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : ''}<span>${esc(x.original ? `${s.label} original` : s.label)}</span></p>` : ''}
+    <h2 class="nh-t">${esc(x.title)}</h2>
+    <p class="nh-sub">${esc([what, when].join(' · '))}</p>
+    <div class="nh-acts"><a class="btn btn-tinted nh-more" href="${esc(x.url || '#new')}" target="_blank" rel="noopener" ${reg(info)}>${INFO_I}More info</a>
+      ${list.length > 1 ? `<span class="nh-dots" role="tablist" aria-label="New this week">${list.map((y, k) => `<button type="button" role="tab" data-nh="${k}" aria-selected="${k === nh.at}" aria-label="${esc(y.title)}" tabindex="${k === nh.at ? 0 : -1}"><i></i></button>`).join('')}</span>` : ''}</div>`;
 }
+// swipe to the next (or back), tap a dot
+let nhX = null;
+mBan.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') nhX = [e.clientX, e.clientY]; }, { passive: true });
+mBan.addEventListener('pointerup', (e) => {
+  if (!nhX || nh.list.length < 2) return; const dx = e.clientX - nhX[0], dy = e.clientY - nhX[1]; nhX = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { window.tn?.haptic?.(); nhShow(nh.at + (dx < 0 ? 1 : -1)); }
+});
+mBan.addEventListener('click', (e) => { const d = e.target.closest('[data-nh]'); if (d) nhShow(+d.dataset.nh); });
 mBan.addEventListener('click', (e) => {
   const a = e.target.closest('[data-sheet]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
   e.preventDefault(); window.tnSheet?.open(shown.get(a.dataset.sheet));
@@ -146,7 +163,7 @@ view.addEventListener('click', (e) => {
   e.preventDefault(); window.tnSheet?.open(shown.get(a.dataset.sheet));
 });
 // on computers, resting the pointer on a poster opens it up into a hover card (sheet.js)
-window.tnSheet?.hover?.('a[data-sheet]:not(.mb-card)', (a) => shown.get(a.dataset.sheet));   // every title, bar the phone banners
+window.tnSheet?.hover?.('a[data-sheet]:not(.nh-more)', (a) => shown.get(a.dataset.sheet));   // every title, bar the phone banners
 // a shared link (?t=m123) opens that title's sheet once the chart has loaded
 function openFromUrl() {
   const k = new URL(location.href).searchParams.get('t'); if (!k || window.tnSheet?.isOpen()) return;

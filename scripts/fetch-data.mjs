@@ -492,6 +492,9 @@ function linkStats(titles) {
 // once a day, a slice per run, reusing the live copy in between. Providers are stored once in a shared table.
 const TITLE_V = 1;
 const hoursAgo = (t) => (Date.now() - t) / 3600e3;
+// a title's best wordless wide picture (no language, so no words on it), else its usual backdrop; the file name only
+const wideArt = (d) => (d.images?.backdrops || []).filter((x) => x.file_path && !x.iso_639_1 && x.width >= 1280 && x.aspect_ratio > 1.6)
+  .sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count)[0]?.file_path || d.backdrop_path || undefined;
 export async function buildTitles(chartKeys, catalogueKeys, prev) {
   const old = prev?.v === TITLE_V ? prev : null;
   const providers = { ...(old?.providers || {}) }, items = {};
@@ -531,6 +534,7 @@ export async function buildTitles(chartKeys, catalogueKeys, prev) {
       g: (d.genres || []).map((g) => g.name).slice(0, 3), tl: d.tagline || undefined,
       im: d.imdb_id || d.external_ids?.imdb_id || undefined,   // its IMDb ID, for finding its links on Wikidata
       f: ids(gb.flatrate), fr: ids([...(gb.free || []), ...(gb.ads || [])]), re: ids(gb.rent), bu: ids(gb.buy), tr: trailer, lg: logo,
+      bd: chartKeys.has(k) ? wideArt(d) : undefined,   // charted, featured and new titles: wordless wide artwork, for the phone tops
     }).filter(([, v]) => v !== undefined && !(Array.isArray(v) && !v.length)));
   }
   // everything else we still want and already had carries over untouched
