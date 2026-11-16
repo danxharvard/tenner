@@ -668,7 +668,26 @@
   // marks them each build, from TMDB's "christmas" keyword), kept to the kind, service and genre you've picked
   function xmasTop() { return XMAS ? catalogue().filter((x) => x.xm).sort((a, b) => b.p - a.p).slice(0, 10).map(fromCat) : []; }
   function XM() { const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
-    return `Top Christmas ${{ both: 'films and shows', tv: 'shows', movie: 'films' }[state.kind]}${g ? ` in ${esc(g)}` : ''}`; }
+    return `Top Christmas ${{ both: 'films and shows', tv: 'shows', movie: 'films' }[state.kind]}${g ? ` in ${esc(g)}` : ''}${XM_DEER}`; }
+  // beside its heading: a reindeer in the snow, flakes falling on it and its nose aglow (still with Animations off or Reduce Motion)
+  const XM_DEER = `<svg class="xm-deer" viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="xmSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a3a"/><stop offset="1" stop-color="#2a3f78"/></linearGradient>
+        <clipPath id="xmTile"><rect width="64" height="64" rx="15"/></clipPath></defs>
+      <g clip-path="url(#xmTile)"><rect width="64" height="64" fill="url(#xmSky)"/>
+      <circle cx="52" cy="11" r="5" fill="#fff6d6" opacity=".9"/>
+      <g transform="translate(32 37) scale(.82) translate(-32 -34)">
+      <g fill="none" stroke="#7a4a26" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M24 22 18 12l-6-2M18 12l-1-7M21 17l-7 1"/><path d="M40 22l6-10 6-2M46 12l1-7M43 17l7 1"/></g>
+      <g class="xm-snow"><circle cx="12" cy="9.6" r="2.3"/><circle cx="17" cy="4.6" r="2.1"/><circle cx="52" cy="9.6" r="2.3"/><circle cx="47" cy="4.6" r="2.1"/></g>
+      <ellipse cx="20" cy="27" rx="6" ry="3.4" transform="rotate(-28 20 27)" fill="#8a552d"/><ellipse cx="44" cy="27" rx="6" ry="3.4" transform="rotate(28 44 27)" fill="#8a552d"/>
+      <path d="M22 44c0 10 4 20 10 20s10-10 10-20z" fill="#8a552d"/>
+      <ellipse cx="32" cy="34" rx="12.5" ry="14" fill="#a8693a"/>
+      <path class="xm-snow" d="M22.5 25.5c2.5-5.5 16.5-5.5 19 0-3-1.6-6-2.2-9.5-2.2s-6.5.6-9.5 2.2z"/>
+      <ellipse cx="32" cy="42.5" rx="9" ry="7" fill="#e2b48a"/>
+      <circle cx="26.5" cy="33" r="2.4" fill="#1d1d1f"/><circle cx="37.5" cy="33" r="2.4" fill="#1d1d1f"/><circle cx="27.3" cy="32.2" r=".8" fill="#fff"/><circle cx="38.3" cy="32.2" r=".8" fill="#fff"/>
+      <circle class="xm-glow" cx="32" cy="39.5" r="6.5" fill="#ff375f" opacity=".35"/><circle cx="32" cy="39.5" r="3.6" fill="#ff375f"/><circle cx="30.9" cy="38.4" r="1.1" fill="#fff" opacity=".8"/></g>
+      <path class="xm-snow" d="M-2 66c1-9 10-12 18-11 5-3 9-3 13-1 6-3 13-3 19 0 7-1 15 2 18 12z"/>
+      <g class="xm-flakes"><circle cx="8" cy="0" r="1.5"/><circle cx="19" cy="0" r="1.1"/><circle cx="31" cy="0" r="1.6"/><circle cx="42" cy="0" r="1.2"/><circle cx="54" cy="0" r="1.5"/><circle cx="60" cy="0" r="1"/><circle cx="4" cy="0" r="1"/></g></g></svg>`;
   const XM_EYE = (it) => `Top Christmas ${it.type === 'movie' ? 'film' : 'show'}${all() ? '' : ` ${where()}`}`;
   const XM_ALL = () => `browse.html#${esc(String(new URLSearchParams({ c: 'xmas', k: state.kind, ...(all() ? {} : { s: state.picks.join(',') }) })))}`;
   function xmasList() { const l = xmasTop(); return l.length ? clList('bxXm', XM(), l, (i) => XM_EYE(l[i]), XM_ALL()) : ''; }
