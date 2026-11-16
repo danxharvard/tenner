@@ -157,7 +157,8 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   read the live JS for a value (the watchdog takes the version from the homepage's `shell.js?v=`).
 - **On every push**: the site (`update.yml`), the search/accounts Worker (`api.yml`) and Tenner TV (`tv.yml`) deploy themselves.
   Tenner TV runs `node tv/test.mjs` first; a failing test stops the deploy, so what's live keeps working.
-- **Tenner TV** (`tv/`, tv.tenner.stream): listings from the open Freeview EPG feed, built every 3 hours by
+- **Tenner TV** (`tv/`, tv.tenner.stream): listings from the open Freeview EPG feed, plus the most popular Sky channels
+  from Sky's own public guide (`awk.epgsky.com`; channels in `tv/channels.json` with `sky` / `match`, live Sky copy kept if it's down), built every 3 hours by
   `scripts/fetch-tv.mjs` into compact day files (only the fields a programme has; Sky pictures as just their id), TVmaze
   only for a day the feed doesn't cover, and the last good copy served if a source is down. Its own logos in `tv/public/logos`
   (sized for where they're shown). A service worker (`tv/public/sw.js`) keeps the page on the device: it opens instantly

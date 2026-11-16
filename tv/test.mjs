@@ -68,6 +68,19 @@ const sky = build(xml.replace('https://images.example/x/cover', 'https://images.
 assert.equal(sky.sky, '2fe55478-24f6-48ef-a5fe-458345bbb469', "Sky's pictures are kept as their id");
 assert.ok(!('wide' in sky) && !('show' in sky) && !Object.values(sky).includes(null), 'no empty or repeated fields');
 assert.equal(p.wide, 'https://images.example/x/cover', 'other pictures keep their address');
+// Sky's own channels: each found on Sky's guide by name (HD first), else by the id it was added with
+const { skyIds, skyGuide } = await import(new URL('../scripts/fetch-tv.mjs', import.meta.url));
+const SKYCH = [{ name: 'Sky Atlantic', sky: '4053', match: '^sky ?atlantic' }, { name: 'Sky Max', sky: '4061', match: '^sky ?max' }, { name: 'Sky Showcase', match: '^sky ?showcase' }, { name: 'BBC One', id: 'x' }];
+assert.deepEqual(skyIds(SKYCH, [{ sid: 1412, t: 'Sky Atlantic' }, { sid: 4053, t: 'Sky Atlantic HD' }, { sid: 9, t: 'Sky Atlantic+1' }, { sid: 7, t: 'SkyShowcase HD' }]),
+  { 'Sky Atlantic': '4053', 'Sky Max': '4061', 'Sky Showcase': '7' }, 'Sky channels are matched by name, HD first, with their ids as a fallback');
+const st = Date.parse('2026-10-24T20:00:00Z') / 1000;
+const guide = await skyGuide(SKYCH, Date.parse('2026-10-24T12:00:00Z'), async (u) => (u.includes('/services/') ? { services: [{ sid: 4053, t: 'Sky Atlantic HD' }] }
+  : { schedule: [{ sid: '4053', events: [{ eid: 'a', st, d: 3600, t: 'The Gilded Age', sy: 'Bertha plans a ball. (S3, ep 2) [AD,S]', seasonnumber: 3, episodenumber: 2, programmeuuid: '2eccd44c-1180-402a-a259-c91306b02603', new: true }] }] }));
+assert.equal(guide['Sky Atlantic'].length, 1, "Sky's schedule is read once, though it's asked for every day");
+const sb = build('<tv></tv>', SKYCH, Date.parse('2026-10-24T12:00:00Z'), guide)['2026-10-24'].channels[0];
+assert.deepEqual([sb.name, sb.items[0].t, sb.items[0].s, sb.items[0].n, sb.items[0].rt, sb.items[0].sum, sb.items[0].sky, sb.items[0].isNew],
+  ['Sky Atlantic', 'The Gilded Age', 3, 2, 60, 'Bertha plans a ball.', '2eccd44c-1180-402a-a259-c91306b02603', true], "Sky's programmes become the same listings as Freeview's");
+await assert.rejects(skyGuide(SKYCH, Date.now(), async () => { throw new Error('down'); }), /didn't answer/, "Sky's guide being down is noticed, so the live Sky channels are kept");
 // On TV this week: titles folded, later showings only, a show never taken for a film
 const { onAir } = await import(new URL('../scripts/fetch-tv.mjs', import.meta.url));
 const air = onAir(built, Date.parse('2026-10-24T12:00:00Z')).titles;

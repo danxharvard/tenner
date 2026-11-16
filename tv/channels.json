@@ -25,6 +25,23 @@
   "logo": "/logos/channel-5.webp"
  },
  {
+  "name": "Sky Showcase",
+  "match": "^sky ?showcase",
+  "logo": "/logos/sky-showcase.webp"
+ },
+ {
+  "name": "Sky Max",
+  "sky": "4061",
+  "match": "^sky ?max",
+  "logo": "/logos/sky-max.webp"
+ },
+ {
+  "name": "Sky Atlantic",
+  "sky": "4053",
+  "match": "^sky ?atlantic",
+  "logo": "/logos/sky-atlantic.webp"
+ },
+ {
   "name": "ITV2",
   "id": "ITV2.uk",
   "logo": "/logos/itv-2.webp"
@@ -148,6 +165,65 @@
   "name": "4seven",
   "id": "4seven.uk",
   "logo": "/logos/4-seven.webp"
+ },
+ {
+  "name": "Sky Witness",
+  "sky": "4066",
+  "match": "^sky ?witness",
+  "logo": "/logos/sky-witness.webp"
+ },
+ {
+  "name": "Sky Comedy",
+  "sky": "1143",
+  "logo": "/logos/sky-comedy.webp"
+ },
+ {
+  "name": "Sky Crime",
+  "sky": "1212",
+  "match": "^sky ?crime",
+  "logo": "/logos/sky-crime.webp"
+ },
+ {
+  "name": "Sky Documentaries",
+  "sky": "1136",
+  "match": "^sky ?doc",
+  "logo": "/logos/sky-documentaries.webp"
+ },
+ {
+  "name": "Sky Nature",
+  "sky": "1165",
+  "match": "^sky ?nature",
+  "logo": "/logos/sky-nature.webp"
+ },
+ {
+  "name": "Sky Cinema Premiere",
+  "sky": "4021",
+  "match": "^sky ?(cinema ?)?prem",
+  "logo": "/logos/sky-cinema-premiere.webp"
+ },
+ {
+  "name": "Sky Sports Main Event",
+  "sky": "4002",
+  "match": "^skysp(orts)? ?main ?ev",
+  "logo": "/logos/sky-sports-main-event.webp"
+ },
+ {
+  "name": "Sky Sports Premier League",
+  "sky": "4010",
+  "match": "^skysp(orts)? ?(pl|premier)",
+  "logo": "/logos/sky-sports-premier-league.webp"
+ },
+ {
+  "name": "Sky Sports F1",
+  "sky": "3835",
+  "match": "^skysp(orts)? ?f1 ",
+  "logo": "/logos/sky-sports-f1.webp"
+ },
+ {
+  "name": "Sky Sports News",
+  "sky": "4049",
+  "match": "^skysp(orts)? ?news",
+  "logo": "/logos/sky-sports-news.webp"
  },
  {
   "name": "CBBC",

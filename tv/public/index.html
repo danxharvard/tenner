@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>What’s on UK TV tonight · Tenner TV</title>
-  <meta name="description" content="What’s on UK TV tonight and all week: the main Freeview channels, beautifully laid out.">
+  <meta name="description" content="What’s on UK TV tonight and all week: the main Freeview channels and Sky’s favourites, beautifully laid out.">
   <meta name="theme-color" content="#050508">
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -16,7 +16,7 @@
   <meta property="og:description" content="Every UK channel, now and next, and the whole evening.">
   <meta property="og:image" content="https://tenner.stream/og.jpg">
   <link rel="preconnect" href="https://images.metadata.sky.com">
-  <link rel="stylesheet" href="tv.css?v=3.3.4">
+  <link rel="stylesheet" href="tv.css?v=3.4.0">
   <!-- the listings start downloading now, alongside the page's own files (not after them) -->
   <script>(() => { const t = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(Date.now()), q = new URLSearchParams(location.search).get('d'), d = /^\d{4}-\d\d-\d\d$/.test(q || '') && q >= t ? q : t;
     const day = fetch('/api/day?d=' + d), meta = fetch('/data/meta.json').then((r) => (r.ok ? r.json() : null)).catch(() => null); day.catch(() => {});
@@ -42,7 +42,7 @@
     <div class="side-links">
       <button type="button" class="side-acct" id="acctSide" aria-haspopup="dialog"></button>
       <a href="https://tenner.stream/legal.html#terms">Terms of Service</a><a href="https://tenner.stream/legal.html#privacy">Privacy Policy</a><a href="https://tenner.stream/legal.html#cookies">Cookies</a><a href="https://tenner.stream/contact.html">Contact</a>
-      <span class="side-ver">Tenner TV 3.3.0</span>
+      <span class="side-ver">Tenner TV 3.4.0</span>
     </div>
   </aside>
   <header class="bar">
@@ -59,7 +59,7 @@
       <aside class="wx" id="wx" aria-labelledby="wxT" hidden></aside>
       <p class="eye" id="eye">&nbsp;</p>
       <h1 id="h1">What’s on <br class="ph-br"><em class="grad">tonight</em>.</h1>
-      <p class="lede">The main Freeview channels, all week. Swipe a channel through its week, and tap anything to see what it’s about.</p>
+      <p class="lede">The main Freeview channels and Sky’s favourites, all week. Swipe a channel through its week, and tap anything to see what it’s about.</p>
       <nav class="days" id="days" aria-label="Choose a day"></nav>
     </section>
 
@@ -105,7 +105,7 @@
       <ul class="picks" id="picks"></ul>
     </section>
     <section class="sec" id="filmsSec" aria-labelledby="filmsH" hidden>
-      <div class="sec-hd"><h2 id="filmsH">Films this week</h2><p>Every film on Freeview in the week ahead</p></div>
+      <div class="sec-hd"><h2 id="filmsH">Films this week</h2><p>Every film on Freeview and Sky in the week ahead</p></div>
       <ul class="picks" id="films"></ul>
     </section>
     <section class="sec" id="seriesSec" aria-labelledby="seriesH" hidden>
@@ -115,7 +115,7 @@
   </main>
 
   <footer class="foot">
-    <p>Listings from the open <a href="https://github.com/dp247/Freeview-EPG" rel="noopener">Freeview EPG</a> project, with <a href="https://www.tvmaze.com/" rel="noopener">TVmaze</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener license">CC BY-SA 4.0</a>) filling any gaps. Channel logos are their owners’ trademarks. Times are UK time.</p>
+    <p>Listings from the open <a href="https://github.com/dp247/Freeview-EPG" rel="noopener">Freeview EPG</a> project and Sky’s own TV guide, with <a href="https://www.tvmaze.com/" rel="noopener">TVmaze</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener license">CC BY-SA 4.0</a>) filling any gaps. Channel logos are their owners’ trademarks. Times are UK time.</p>
     <p>Part of <a href="https://tenner.stream/">Tenner</a>, the UK’s streaming top 10, every hour.</p>
   </footer>
 
@@ -144,6 +144,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
   <div class="banner" id="banner" role="alert" popover="manual"></div>
 
-  <script src="tv.js?v=3.3.4" defer></script>
+  <script src="tv.js?v=3.4.0" defer></script>
 </body>
 </html>

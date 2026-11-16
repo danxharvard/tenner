@@ -1,4 +1,4 @@
-// Tenner TV: the week on the main Freeview channels, as a TV guide. A preview of whatever you point at; then every
+// Tenner TV: the week on the main Freeview channels and Sky's most popular ones, as a TV guide. A preview of whatever you point at; then every
 // channel as its own strip of programmes, sized by length, that runs on through the week (each scrolls on its own, as
 // Pluto TV's do); then the evening's picks. Any programme opens a sheet with what it's about. Listings: /api/day (the
 // Freeview files built every three hours, TVmaze only for a day they don't cover).
@@ -181,10 +181,12 @@
   // ---------- which channels: a category, or your own (pinned channels always come first) ----------
   const CATS = [['all', 'All channels', /./], ['mine', 'My channels', null],
     ['main', 'Main five', /^(BBC One|BBC Two|ITV1|Channel 4|Channel 5)$/],
-    ['ent', 'Entertainment', /^(ITV2|E4|Sky Mix|U&Dave|Really|5Star|BBC Three|Challenge|4seven|Sky Max|Dave|W|U&W)$/],
-    ['drama', 'Drama & crime', /^(U&Drama|ITV3|ITV4|5USA|Alibi|U&Alibi|Sky Atlantic|True Crime)$/],
-    ['fact', 'Factual', /^(Quest|Quest Red|DMAX|Blaze|U&Yesterday|Sky Arts|More4|BBC Four|PBS America)$/],
+    ['sky', 'Sky', /^Sky /],
+    ['ent', 'Entertainment', /^(ITV2|E4|Sky Mix|U&Dave|Really|5Star|BBC Three|Challenge|4seven|Sky Max|Sky Showcase|Sky Comedy|Dave|W|U&W)$/],
+    ['drama', 'Drama & crime', /^(U&Drama|ITV3|ITV4|5USA|Alibi|U&Alibi|Sky Atlantic|Sky Witness|Sky Crime|True Crime)$/],
+    ['fact', 'Factual', /^(Quest|Quest Red|DMAX|Blaze|U&Yesterday|Sky Arts|Sky Documentaries|Sky Nature|More4|BBC Four|PBS America)$/],
     ['film', 'Films', /^(Film4|Talking Pictures TV|GREAT! movies|5Action|Sky Cinema.*)$/],
+    ['sport', 'Sport', /^Sky Sports/],
     ['kids', 'Kids', /^(CBBC|CBeebies|CITV|POP|Tiny Pop)$/],
     ['news', 'News', /^(BBC News|Sky News|GB News|BBC Parliament)$/]];
   // pinned channels (kept on the device, and in your Tenner account if you're signed in: see "accounts" below)
@@ -485,11 +487,13 @@
   document.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse') over(e); });
   document.addEventListener('focusin', over);
 
-  // ---------- the evening's picks: the best on the main channels (never news, weather or the like), one per show ----------
+  // ---------- the evening's picks: the best on the main free channels (never news, weather or the like), one per show ----------
+  // (Sky's subscription channels have their own place in the guide, so the picks stay ones everyone can watch)
+  const PAY = /^Sky (?!Arts$|Mix$|News$)/;
   function drawPicks(d = state.day) {
     const data = state.loaded.get(d); if (!data) return;
     const seen = new Set(), list = [];
-    for (const c of data.channels.slice(0, 10)) c.items.forEach((x, j) => {
+    for (const c of data.channels.filter((c) => !PAY.test(c.name)).slice(0, 10)) c.items.forEach((x, j) => {
       const h = hour(x.at); if (h < 19 || h > 22.5) return;
       const g = (x.g || []).join(' ') + ' ' + (x.type || '');
       const score = (x.r || 6.2) + (x.wide ? 1.4 : x.poster ? .8 : 0) + (x.sum ? .3 : 0) + (x.isNew ? .8 : 0) + (x.rt >= 45 ? .5 : 0) + (/Scripted|Documentary|Drama|Comedy/.test(g) ? .6 : 0)

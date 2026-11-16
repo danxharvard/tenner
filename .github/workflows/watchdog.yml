@@ -70,6 +70,9 @@ jobs:
             [ "$code" = 200 ] || echo "tv.yml|Tenner TV's page answered $code"
             tv=$(curl -s -m 40 https://tenner-tv.danseacroft.workers.dev/api/day | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s),c=d.channels||[],x=c[0]?.items?.[0];console.log(c.length>=25&&x&&x.t&&x.at>0?"ok":"only "+c.length+" channels"+(d.error?" ("+d.error+")":""))}catch{console.log("unreadable")}})')
             [ "$tv" = ok ] || echo "tv.yml|Tenner TV's listings: $tv"
+            # Sky's channels (from Sky's own guide, not the Freeview feed): most of them should have today's listings
+            sky=$(curl -s -m 40 "https://tenner-tv.danseacroft.workers.dev/data/$(TZ=Europe/London date +%F).json?v=$(date +%s)" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const n=(JSON.parse(s).channels||[]).filter(c=>/^Sky (?!Arts$|Mix$|News$)/.test(c.name)&&c.items?.length).length;console.log(n>=8?"ok":"only "+n+" Sky channels")}catch{console.log("unreadable")}})')
+            [ "$sky" = ok ] || echo "tv.yml|Tenner TV's Sky channels: $sky"
             # the weather alert: the Met Office's warnings must keep coming through (an empty list is fine: no bad weather)
             wx=$(curl -s -m 40 https://tenner-tv.danseacroft.workers.dev/api/warnings | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const d=JSON.parse(s);console.log(Array.isArray(d.warnings)&&!d.error?"ok":(d.error||"no list"))}catch{console.log("unreadable")}})')
             [ "$wx" = ok ] || echo "tv.yml|Tenner TV's weather warnings: $wx"
