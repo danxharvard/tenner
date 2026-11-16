@@ -384,6 +384,10 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
 .bx-hd-btn { position: relative; flex: none; height: 36px; padding: 0 12px; gap: 6px; font-size: 15px; -webkit-font-smoothing: antialiased; text-shadow: none; }
 .bx-hd-btn svg { width: 15px; height: 15px; }
 .bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
+/* the Top 10's service picker: a pop-up button with the chart icon, as wide as its words (up to about two thirds of the box) */
+.bx-tt-dd { flex: 0 1 auto; max-width: 62%; padding: 0 11px 0 12px; gap: 7px; }
+.bx-tt-dd > svg { flex: none; width: 15px; height: 15px; color: #fff; }
+.bx-tt-none { margin: 6px 0 4px; }
 
 /* phones: no margin down the sides (the owner's pick). The featured artwork runs from edge to edge as in the Apple TV app,
    and the rows of posters start and end right at the screen's edges; the headings keep their inset. */

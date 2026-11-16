@@ -744,31 +744,41 @@
     if (e.key === 'ArrowRight') { e.preventDefault(); decide(true); $('#bxSide [data-dc="yes"]')?.focus(); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); decide(false); $('#bxSide [data-dc="no"]')?.focus(); }
   });
-  // the Top 10 itself, numbered and compact: always the combined chart for the whole UK, whatever services are picked above
-  // (those shape the left-hand column only; By service has each service's own). With both, the shows then the films:
+  // the Top 10 itself, numbered and compact: the combined chart for the whole UK, whatever services are picked above
+  // (those shape the left-hand column only), or one service's own, picked from the dropdown in its heading and swapped
+  // in place. With both, the shows then the films:
   // all ten for shows or films; with both, the first five of each, and See more opens the box out to show six to ten
   let ttOpen = false;
+  const TT_SVC = 'tenner-home-tt';
+  let ttSvc = ''; try { ttSvc = sessionStorage.getItem(TT_SVC) || ''; } catch {}
+  const ttList = () => services().filter((s) => (s.tv || []).length || (s.movie || []).length);
+  const ttName = (s) => (s.key === 'free' ? 'Free to watch' : s.label);
   function topTen() {
-    const s = state.data.overall; if (!s) return '';
+    if (!state.data.overall) return '';
+    const one = ttSvc ? ttList().find((x) => x.key === ttSvc) : null; if (!one) ttSvc = '';
+    const s = one || state.data.overall, place = one ? `on ${ttName(one)}` : 'in the UK';
     const ks = kinds();
     const part = (k) => {
       const l = (s[k] || []).slice(0, 10); if (!l.length) return '';
       const word = k === 'movie' ? 'film' : 'show';
       return `${ks.length > 1 ? `<h3 class="bx-tt-sub">${k === 'movie' ? 'Films' : 'Shows'}</h3>` : ''}<ol class="bx-ups bx-tt">${l.map((it0, i) => {
-        const it = { ...it0, type: it0.type || k, on: it0.on || (s.key ? [s.key] : undefined) }, info = infoFor(it, `No. ${i + 1} ${word} in the UK`);
+        const it = { ...it0, type: it0.type || k, on: it0.on || (s.key ? [s.key] : undefined) }, info = infoFor(it, `No. ${i + 1} ${word} ${place}`);
         const sub = [it.type === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
         return `<li${i >= 5 && ks.length > 1 ? ' class="bx-tt-x"' : ''}><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-tt-n">${i + 1}</span><span class="bx-up-art">${poster(it)}</span>
           <span class="bx-up-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a></li>`;
       }).join('')}</ol>`;
     };
-    const body = ks.map(part).join(''); if (!body) return '';
+    const body = ks.map(part).join(''); if (!body && !one) return '';
     const more = ks.length > 1 && ks.some((k) => (s[k] || []).length > 5);
     const words = { both: 'Top 10', tv: 'Top 10 shows', movie: 'Top 10 films' }[state.kind];
+    // the dropdown: every service with a chart of its own, swapping this box's list in place (a native menu, no popup)
+    const pick = `<label class="dd dd-kind bx-tt-dd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="dd-l">${esc(one ? ttName(one) : 'All services')}</span><span class="dd-chev" aria-hidden="true"></span>
+      <select id="bxTtSvc" aria-label="Which service’s Top 10"><option value="">All services</option>${ttList().map((x) => `<option value="${esc(x.key)}"${x.key === ttSvc ? ' selected' : ''}>${esc(ttName(x))}</option>`).join('')}</select></label>`;
     // behind the heading: a scene from the chart's leading films (shows when it's shows only), in grey, melting into the box;
     // a different one each hour, and with Animations on they take turns
     const scenes = [...ks].sort((a, b) => (b === 'movie') - (a === 'movie')).flatMap((k) => (s[k] || []).slice(0, 10)).filter((it) => it.backdrop).slice(0, 4);
     const bg = scenes.length ? `<div class="bx-tt-bg" aria-hidden="true">${scenes.map((it, i) => { const on = i === Math.floor(Date.now() / 36e5) % scenes.length; return `<img${on ? ' class="on"' : ''} src="${esc(it.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="${on ? 'eager' : 'lazy'}" decoding="async">`; }).join('')}</div>` : '';
-    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words} in the UK</h2>${BY_SERVICE}</header>${body}
+    return `<section class="bx-panel panel bx-tt-box${ttOpen ? ' open' : ''}${bg ? ' has-bg' : ''}" aria-labelledby="bxTt">${bg}<header class="bx-panel-hd"><h2 id="bxTt">${words}<span class="bx-h"> ${esc(place)}</span></h2>${pick}</header>${body || `<p class="bx-panel-say bx-tt-none">No ${state.kind === 'movie' ? 'films' : 'shows'} in ${esc(ttName(one))}’s Top 10 right now.</p>`}
       ${more ? `<button type="button" class="bx-more bx-tt-more" data-tt aria-expanded="${ttOpen}">${ttOpen ? 'Show less' : 'See more'}</button>` : ''}</section>`;
   }
   document.addEventListener('click', (e) => {
@@ -776,6 +786,17 @@
     ttOpen = !ttOpen; const box = b.closest('.bx-tt-box');
     box.classList.toggle('open', ttOpen); b.setAttribute('aria-expanded', ttOpen); b.textContent = ttOpen ? 'Show less' : 'See more';
     if (!ttOpen && box.getBoundingClientRect().top < 0) box.scrollIntoView({ block: 'start', behavior: still() ? 'auto' : 'smooth' });
+  });
+  // a service picked from the Top 10's dropdown: just that box swaps to its chart, there and then
+  $('#bxSide').addEventListener('change', (e) => {
+    if (e.target.id !== 'bxTtSvc') return;
+    ttSvc = e.target.value; try { sessionStorage.setItem(TT_SVC, ttSvc); } catch {}
+    window.tn.haptic?.();
+    morph(() => {
+      const box = $('#bxSide .bx-tt-box'), html = topTen(); if (!box || !html) return;
+      box.outerHTML = html; markSaved();
+      $('#bxTtSvc')?.focus({ preventScroll: true });
+    });
   });
   // the scenes behind the Top 10 and Top rated move on to the next film every so often (with Animations on and the page in view)
   setInterval(() => {
