@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Tenner concepts</title>
+<link rel="icon" href="../favicon.svg">
+<style>
+  :root { color-scheme: light dark; --bg: #f5f5f7; --card: #fff; --ink: #1d1d1f; --mute: #6e6e73; --rim: rgb(0 0 0 / .08); --r: 9px;
+    font: 400 17px/1.47 -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --ink: #f5f5f7; --mute: #98989d; --rim: rgb(255 255 255 / .1); } }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); padding: clamp(24px, 6vw, 80px) max(16px, 4vw); }
+  main { max-width: 1100px; margin: 0 auto; }
+  h1 { font: 700 clamp(36px, 6vw, 64px)/1.05 -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, sans-serif; letter-spacing: -.03em; }
+  .lede { color: var(--mute); margin: 12px 0 36px; max-width: 60ch; font-size: 19px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+  a.c { display: flex; flex-direction: column; color: inherit; text-decoration: none; background: var(--card); border-radius: var(--r); overflow: hidden; box-shadow: inset 0 0 0 1px var(--rim); transition: transform .4s cubic-bezier(.3, 1.25, .4, 1); }
+  a.c:hover { transform: translateY(-4px); }
+  .sw { height: 170px; display: grid; place-items: end start; padding: 18px; color: #fff; }
+  .sw b { font-size: 34px; line-height: 1; }
+  .m { background: radial-gradient(80% 90% at 20% 10%, #0aa6c9, transparent 60%), radial-gradient(70% 80% at 90% 90%, #bf5af2, transparent 60%), #07070a; }
+  .m b { font: italic 400 44px/1 'Iowan Old Style', Georgia, serif; }
+  .b { background: linear-gradient(160deg, #f6f6f1 0 55%, #ff375f 55%); color: #111; }
+  .b b { font: 900 46px/.85 'Helvetica Neue', Arial, sans-serif; letter-spacing: -.05em; }
+  .a { background: radial-gradient(60% 80% at 25% 20%, #64d2ff, transparent 65%), radial-gradient(60% 70% at 85% 30%, #bf5af2, transparent 65%), #e8eefc; color: #0b1e3c; }
+  .t { padding: 18px 18px 22px; display: grid; gap: 6px; }
+  .t h2 { font-size: 21px; letter-spacing: -.02em; }
+  .t p { color: var(--mute); font-size: 15px; }
+  .t span { font-size: 13px; font-weight: 600; color: #0a84ff; margin-top: 6px; }
+  .note { color: var(--mute); font-size: 14px; margin-top: 32px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Three new looks for Tenner</h1>
+  <p class="lede">Same Tenner underneath: Home, Browse, the Top 10s, title sheets, search, settings and account. Three very different ways of showing it. Each works on phone and computer, by day and by night.</p>
+  <div class="grid">
+    <a class="c" href="marquee/"><div class="sw m"><b>Marquee</b></div><div class="t"><h2>Cinematic</h2><p>Artwork first, like a cinema foyer. Full-bleed hero carousel, giant serif headlines, a floating dock on every screen and a ⌘K search palette.</p><span>Open Marquee →</span></div></a>
+    <a class="c" href="broadsheet/"><div class="sw b"><b>Broad&shy;sheet</b></div><div class="t"><h2>Editorial</h2><p>Tenner as a daily paper. A front page, charts set in columns of type, figures in mono, articles that slide in from the side. Square, bold and fast.</p><span>Open Broadsheet →</span></div></a>
+    <a class="c" href="aura/"><div class="sw a"><b>Aura</b></div><div class="t"><h2>Spatial glass</h2><p>Keeps every house rule (9px corners, one frost, navy buttons). A bento Home, a cover-flow Top 10 and a page lit by the artwork in front of you.</p><span>Open Aura →</span></div></a>
+  </div>
+  <p class="note">Design concepts only. Settings and the Watchlist are kept on this device; signing in is switched off.</p>
+</main>
+</body>
+</html>
