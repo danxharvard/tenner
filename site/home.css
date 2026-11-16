@@ -522,3 +522,19 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   #bxHero .bx-h-badge, #bxHero .bx-eye-x { background: var(--bg); }
 }
 @media (max-width: 359px) { body.home .top-brand .brand-name { display: none; } }
+
+/* ---------- the spotlight on phones: it melts into the page above and below, and as you scroll past, the picture drifts
+   more slowly than the page (parallax) while the words rise into place. Scroll-driven, so it runs off the main thread;
+   only with Settings → Animations on and never with Reduce Motion. ---------- */
+@media (max-width: 719px) {
+  .bx-spot { margin-top: 10px; -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 84%, transparent); mask-image: linear-gradient(transparent, #000 24%, #000 84%, transparent); }
+  .bx-spot .bx-h-art::after { background: linear-gradient(to top, rgba(0, 0, 0, .85), rgba(0, 0, 0, .45) 40%, transparent 66%); }
+}
+@supports (animation-timeline: view()) {
+  @media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
+    :root:not(.still) .bx-spot .bx-h-l img { scale: 1.2; animation: spotDrift linear both; animation-timeline: view(); animation-range: cover; will-change: transform; }
+    @keyframes spotDrift { from { transform: translate3d(0, -9%, 0); } to { transform: translate3d(0, 9%, 0); } }
+    :root:not(.still) .bx-spot .bx-h-copy { animation: spotRise linear both; animation-timeline: view(); animation-range: entry 20% cover 50%; }
+    @keyframes spotRise { from { opacity: 0; transform: translate3d(0, 36px, 0); } to { opacity: 1; transform: none; } }
+  }
+}
