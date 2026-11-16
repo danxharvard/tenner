@@ -238,10 +238,16 @@
   })();
 
   document.getElementById('setClear').addEventListener('click', () => {
-    if (!confirm('Clear your Watchlist, progress, My services and settings on this device? This can’t be undone.')) return;
-    try { ['tenner-watchlist', 'tenner-progress', 'tenner-services', 'tenner-settings', 'tenner-kind'].forEach((k) => localStorage.removeItem(k)); } catch {}
+    const inn = !!window.tn.account.user();
+    if (!confirm(`Clear your Watchlist, progress, My services and settings ${inn ? 'on all your devices' : 'on this device'}? This can’t be undone.`)) return;
+    // through the stores, not straight out of storage, so each clear is dated and an account's next sync takes it
+    // rather than bringing everything back
+    saved.set([]); mine.set([]);
+    Object.keys(progress.all()).forEach((k) => progress.set(k, null));
+    prefs.reset();
+    try { localStorage.removeItem('tenner-kind'); } catch {}
     try { ['tenner-home-svc', 'tenner-home-kind', 'tenner-tt-kind', 'tenner-discover-kind'].forEach((k) => sessionStorage.removeItem(k)); } catch {}   // this visit's picks too
-    saved.set([]); mine.set([]); show(); say('Cleared');
+    show(); say('Cleared');
   });
   // ---------- Not interested (signed in): the hidden titles, each one tap from coming back ----------
   const hidDlg = document.getElementById('hidDlg'), hidList = document.getElementById('hidList');

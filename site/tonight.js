@@ -77,6 +77,7 @@
         else if (f === 'back') { tonight.dir = -1; tonight.step = Math.max(0, tonight.step - 1); }
         else if (f === 'go') { tonight.dir = -1; tonight.step = +v; }
         else {   // an answer: it lights up with a tick for a moment, then on to the next question
+          if (tonight[f] !== v) tonight.seen.clear();   // new answers, a fresh set of picks (not "That's all" from the old ones)
           tonight[f] = v; tonight.dir = 1; window.tn?.haptic?.(8);
           o.classList.add('on'); o.setAttribute('aria-pressed', 'true');
           busy = true;

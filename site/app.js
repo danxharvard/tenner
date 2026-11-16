@@ -42,7 +42,6 @@ async function load() {
 }
 
 const services = () => state.trending.services;
-window.tnTonight?.use({ cat: () => state.cat, services: () => state.trending?.services, titles: () => state.titles });   // tonight.js borrows what's loaded
 const svc = (k) => services().find((s) => s.key === k);
 
 // Fetch the latest data and, if it's new, redraw in place (with the usual crossfade), keeping your scroll position.

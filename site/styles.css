@@ -1228,7 +1228,7 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
   :root:not(.still) #view .wrap :is(.wk-hd, .wk > .nr, .nw-stats, .race-box, .nrow) { animation: pxRise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
   @media (max-width: 560px) { :root:not(.still) .mb-card > img:not(.mb-poster):not(.mb-glow):not(.soft) { scale: 1.16; animation: pxSwipe linear both; animation-timeline: view(inline); } }
   @media (prefers-reduced-motion: no-preference) {
-    :root:not(.still) :is(.set-page .set-sec, .policy-box, .section-label) { animation: pxSettle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+    :root:not(.still) .set-page .set-sec { animation: pxSettle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
   }
 }
 @supports (animation-timeline: scroll()) {
@@ -2069,8 +2069,6 @@ button.ps-face:active { scale: .96; }
 :root:not(.still) :is(.btn, .hc-r, .cal-add, .set-pill, .pv-ok, .ft-ok):active > svg { transform: scale(.88); transition-duration: .12s; }
 :root:not(.still) .tn-opt .tn-chev { transition: transform .4s var(--ease-snap); }
 @media (hover: hover) { :root:not(.still) .tn-opt:hover .tn-chev { transform: translateX(3px); } }
-:root:not(.still) .tn-back svg { transition: transform .4s var(--ease-snap); }
-@media (hover: hover) { :root:not(.still) .tn-back:hover svg { transform: translateX(-3px); } }
 /* pop-up buttons: the chevron squeezes as the menu opens, and the new choice glides in */
 :root:not(.still) .dd-chev { transition: transform .4s var(--ease-snap), opacity .2s ease; }
 :root:not(.still) .dd:active .dd-chev { transform: scaleY(.7); }
