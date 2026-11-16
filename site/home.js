@@ -18,7 +18,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const LOGO = 'https://image.tmdb.org/t/p/w500';
   const KINDS = { both: 'Shows and films', tv: 'Shows', movie: 'Films' };
-  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, spot: null, titles: null };
+  const state = { kind: 'both', picks: [], genre: null, hero: 0, data: null, cat: null, week: null, feat: null, spot: null, fresh: null, titles: null };
   // the services you've picked in the rail (none means all of them): this visit's choice, or else My services, as with Show.
   // Changing My services (in Settings, or on another device) starts the rail from them again.
   const PICKS = 'tenner-home-svc';
@@ -57,12 +57,12 @@
   // ---------- data ----------
   const get = (n, bust) => fetch(`data/${n}.json${bust ? `?v=${Date.now()}` : ''}`, bust ? { cache: 'no-store' } : {}).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   async function load(bust) {
-    const [data, cat, week, feat, spot] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust), get('spotlight', bust)]);
+    const [data, cat, week, feat, spot, fresh] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust), get('spotlight', bust), get('new', bust)]);
     if (!data) { if (!state.data) $('#bxRows').innerHTML = '<p class="bx-empty">The charts didn’t load. Check your connection and try again.</p>'; return; }
     // the quarter-hour check: nothing new this hour, so nothing moves (the featured titles carry on where they were)
     const same = (a, b) => !a || a.generatedAt === b?.generatedAt;
-    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week) && same(feat, state.feat) && same(spot, state.spot)) return;
-    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week, feat: feat || state.feat, spot: spot || state.spot });
+    if (bust && state.data && same(data, state.data) && same(cat, state.cat) && same(week, state.week) && same(feat, state.feat) && same(spot, state.spot) && same(fresh, state.fresh)) return;
+    Object.assign(state, { data, cat: cat || state.cat, week: week || state.week, feat: feat || state.feat, spot: spot || state.spot, fresh: fresh || state.fresh });
     state.picks = state.picks.filter((k) => services().some((s) => s.key === k));
     if (state.picks.length >= services().length) state.picks = [];
     draw(); refreshFy();
@@ -477,13 +477,13 @@
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
       'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
-    return top.join('') + forYouRow() + best.join('') + spotSlot() + fresh;
+    return top.join('') + newWeek() + forYouRow() + best.join('') + spotSlot() + fresh;
   }
   function drawRows() {
     if (PHONE.matches) {
       $('#bxRows').innerHTML = phoneRows() || '<p class="bx-empty">Nothing matches. Try another genre.</p>';
       for (const r of main.querySelectorAll('.bx-row')) edges(r);
-      drawSpot(); return;
+      nwkStart(); drawSpot(); return;
     }
     const cat = catalogue(), g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const words = { both: 'shows and films', tv: 'shows', movie: 'films' }[state.kind];
@@ -497,12 +497,73 @@
         <span class="bx-lp-copy"><b>${esc(it.title)}</b>${rating(it.rating)}</span><small>${esc(new Date(it.date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: it.year === today.slice(0, 4) ? undefined : 'numeric' }))}</small></a></li>`;
     });
     $('#bxRows').innerHTML = forYouRow() + row('bxTop', `Most popular${g ? ` in ${esc(g)}` : ''}`, `The ${words} everyone’s looking at${all() ? '' : ` ${where()}`}`, top, 'bx-row-p', 'browse.html')
+      + newWeek()
       + row('bxNew', `Latest releases${g ? ` in ${esc(g)}` : ''}`, 'The newest arrivals, most recent first', fresh, 'bx-row-p', 'charts.html#new')
       + kinds().map(topList).join('') + spotSlot() + newList()
       || '<p class="bx-empty">Nothing matches. Try another service or genre.</p>';
     for (const r of main.querySelectorAll('.bx-row')) edges(r);
-    drawSpot();
+    nwkStart(); drawSpot();
   }
+  // ---------- New this week: a frosted column a day, from last week's arrivals to the week ahead ----------
+  // From data/new.json (the services' release calendar, rebuilt daily): each day's titles in the side column's list, with
+  // Film or the season and the service. Kept to the kind, services and genre you've picked. It opens on today (or the
+  // next day with something new), with the days gone by a swipe back. Five a day, and Show more opens a busier day out.
+  const NWK_MAX = 5;
+  const isoAdd = (d, n) => new Date(Date.parse(d + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+  let nwkCat = { of: null, by: new Map() }, nwkOpen = new Set();
+  function newWeek() {
+    const f = state.fresh; if (!f?.items?.length || f.disabled || f.error) return '';
+    const today = new Date().toLocaleDateString('en-CA'), from = isoAdd(today, -6), to = isoAdd(today, 7);
+    if (nwkCat.of !== state.cat) nwkCat = { of: state.cat, by: new Map((state.cat?.items || []).map((x) => [`${x.t[0]}${x.i}`, x])) };
+    const ks = kinds(), hid = window.tn.hidden.keys(), seen = new Set(), by = new Map();
+    for (const x of f.items) {
+      if (!x.date || x.date < from || x.date > to || !ks.includes(x.type) || !svcOf(x.service) || !picked(x.service)) continue;
+      const k = x.id ? `${x.type[0]}${x.id}` : null, id = `${x.date}|${x.service}|${k || x.title}|${x.season || 0}`;
+      if (seen.has(id) || (k && hid.has(k))) continue;
+      if (state.genre != null && !(nwkCat.by.get(k)?.g || []).includes(+state.genre)) continue;   // (a title Browse doesn't know has no genres, so it's left out)
+      seen.add(id); by.set(x.date, [...(by.get(x.date) || []), x]);
+    }
+    if (!by.size) return '';
+    const day = (d) => {
+      const dt = new Date(d + 'T12:00:00'), l = by.get(d).sort((a, b) => (b.original - a.original) || (nwkCat.by.get(`${b.type[0]}${b.id}`)?.p || 0) - (nwkCat.by.get(`${a.type[0]}${a.id}`)?.p || 0));
+      const rel = d === today ? 'Today' : d === isoAdd(today, -1) ? 'Yesterday' : d === isoAdd(today, 1) ? 'Tomorrow' : '';
+      const name = rel || dt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+      const open = nwkOpen.has(d) || l.length <= NWK_MAX + 1;   // never "1 more": it's shown instead
+      return `<li class="nwk-day${d === today ? ' today' : ''}${d < today ? ' past' : ''}${open ? ' open' : ''}" data-nwk="${d}" aria-labelledby="nwk-${d}">
+        <p class="nwk-eye">${esc(dt.toLocaleDateString('en-GB', { weekday: rel ? 'long' : undefined, day: 'numeric', month: 'long' }))}</p>
+        <h3 class="nwk-h" id="nwk-${d}">${esc(name)}</h3>
+        <ol class="bx-ups nwk-l">${l.map((x, i) => {
+          const s = svcOf(x.service), it = { ...x, on: [x.service] }, what = x.type === 'movie' ? 'Film' : x.season ? `Season ${x.season}` : 'Series';
+          const art = `<span class="bx-up-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : ph(x.title)}</span>`;
+          const copy = `<span class="bx-up-copy"><b>${esc(x.title)}</b><small><span>${esc(what)}</span><span class="nwk-svc">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : ''}${esc(s.key === 'free' ? 'Free' : s.label)}</span></small></span>`;
+          const inner = x.id ? `<a href="${esc(x.url || tmdbUrl(x.type, x.id))}" target="_blank" rel="noopener" ${reg(infoFor(it, `New on ${s.label}`))}>${art}${copy}</a>` : `<span class="nwk-row">${art}${copy}</span>`;
+          return `<li${i >= NWK_MAX ? ' class="nwk-x"' : ''}>${inner}</li>`;
+        }).join('')}</ol>
+        ${open ? '' : `<button type="button" class="bx-more nwk-more" data-nwk-more aria-expanded="false">${l.length - NWK_MAX} more</button>`}</li>`;
+    };
+    const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
+    const sub = `Arriving day by day${all() ? '' : ` ${where()}`}`;
+    return `<section class="bx-sec nwk-sec" aria-labelledby="bxNwk">
+      <header class="bx-sec-hd"><div><h2 id="bxNwk">New this week${g ? ` in ${esc(g)}` : ''}</h2><p>${esc(sub)}</p></div>
+        <span class="bx-sec-acts"><a class="bx-more" href="charts.html#new">All new</a><button type="button" class="bx-r bx-r-s" data-scroll="-1" aria-label="Earlier days">${I.left}</button><button type="button" class="bx-r bx-r-s" data-scroll="1" aria-label="Later days">${I.right}</button></span></header>
+      <ul class="bx-row nwk">${[...by.keys()].sort().map(day).join('')}</ul></section>`;
+  }
+  // the row opens on today, or the next day with something new (the last day, should everything be behind us)
+  function nwkStart() {
+    const r = $('#bxRows .nwk'); if (!r) return;
+    const today = new Date().toLocaleDateString('en-CA'), cols = [...r.children];
+    let i = cols.findIndex((c) => c.dataset.nwk >= today); if (i < 0) i = cols.length - 1;
+    if (!PHONE.matches && i > 0 && cols[i - 1].dataset.nwk === isoAdd(today, -1)) i--;   // computers: yesterday as well, beside it
+    const pad = parseFloat(getComputedStyle(r).scrollPaddingLeft) || 0;
+    r.scrollLeft += cols[i].getBoundingClientRect().left - r.getBoundingClientRect().left - pad;
+    r.dispatchEvent(new Event('scroll'));
+  }
+  main.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-nwk-more]'); if (!b) return;
+    const col = b.closest('.nwk-day'); nwkOpen.add(col.dataset.nwk);
+    morph(() => { col.classList.add('open'); b.remove(); });
+    if (!e.detail) col.querySelector('.nwk-x a')?.focus({ preventScroll: true });   // from the keyboard: on to the first of the rest
+  });
   // ---------- the spotlight: a second big splash halfway down, between Top rated and New shows proving popular ----------
   // One title Tenner wants to show off (data/spotlight.json, rebuilt daily from TMDB): its wordless artwork melting into
   // the page like the featured title's, with its logo, genres, a line about it and the same buttons. Left out when the
