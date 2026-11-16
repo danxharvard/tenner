@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.106.0';
+  const version = '2.106.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1591,7 +1591,7 @@
   addEventListener('pageshow', (e) => { if (e.persisted) { ldOn.clear(); ldSync(); } });   // Back to a page kept in memory
   ldQ.addEventListener('change', ldSync);
 
-  // how far a title climbed: a green badge (a round arrow, the places, and "up" beneath), as on Apple's Stocks
+  // how far a title climbed: a badge drawn like the buttons (navy, a white up arrow beside the places)
   const climb = (n) => `<span class="climb"><span class="sh-vh">, up ${+n || 0} ${+n === 1 ? 'place' : 'places'}</span><span class="climb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 12.6V4M4.4 7.4 8 3.8l3.6 3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="climb-n" aria-hidden="true"><b>${+n || 0}</b><small>${+n === 1 ? 'place' : 'places'}</small></span></span>`;
   // A small buzz, where the device has one. iPhones have no vibrate(), but Safari (iOS 18 and later) gives its own tap of
   // haptic feedback whenever its native switch flips, so on an iPhone a hidden switch is flipped instead. It sits in the

@@ -25,7 +25,7 @@
   --bg: #ffffff; --bg2: #f2f2f7; --card: #ffffff;
   --fill: rgba(120, 120, 128, .12); --fill-strong: rgba(120, 120, 128, .2); --pill: rgba(118, 118, 128, .14);
   --label: #000000; --label2: rgba(60, 60, 67, .62); --label3: rgba(60, 60, 67, .36); --sep: rgba(60, 60, 67, .2);
-  --accent: #007aff; --green: #28a745; --gold: #c27c00; --climb: #1f9d45;
+  --accent: #007aff; --green: #28a745; --gold: #c27c00;
   --shadow: 0 10px 30px rgba(0, 0, 0, .14), 0 2px 6px rgba(0, 0, 0, .08);
   --cover-shadow: 0 0 0 .5px rgba(0, 0, 0, .1), 0 6px 18px -8px rgba(0, 0, 0, .3);
   /* the wash of colour behind every page */
@@ -70,7 +70,7 @@
   --bg: #000000; --bg2: #1c1c1e; --card: #1c1c1e;
   --fill: rgba(118, 118, 128, .24); --fill-strong: rgba(118, 118, 128, .36); --pill: rgba(118, 118, 128, .28);
   --label: #ffffff; --label2: rgba(235, 235, 245, .62); --label3: rgba(235, 235, 245, .3); --sep: rgba(84, 84, 88, .6);
-  --accent: #0a84ff; --green: #30d158; --gold: #ffb340; --climb: #30d158;
+  --accent: #0a84ff; --green: #30d158; --gold: #ffb340;
   --shadow: 0 10px 30px rgba(0, 0, 0, .6);
   --cover-shadow: 0 0 0 .5px rgba(255, 255, 255, .12), 0 6px 18px -8px rgba(0, 0, 0, .55);
   --amb1: rgba(10, 132, 255, .24); --amb2: rgba(255, 55, 95, .1); --amb3: rgba(191, 90, 242, .16);
@@ -247,16 +247,16 @@ button, .btn, .dd, .mb-badge, .tn-opt, .coll-b, .segmented button { -webkit-font
 .fin { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: var(--r); background: var(--fr-bg); box-shadow: inset 0 0 0 .5px var(--fr-rim);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 11px; font-weight: 600; line-height: 16px; letter-spacing: .01em; color: var(--label); vertical-align: 1px; white-space: nowrap; }
 
-/* ---------- climbing: how far a title moved up (Climbing this week, Biggest Climbers), tn.climb. A green badge as on
-   Apple's Stocks, drawn once and still (nothing on the charts shines or moves). ---------- */
-.climb { display: inline-flex; align-items: center; gap: 7px; flex: none; margin-left: auto; padding: 5px 9px 5px 5px; border-radius: var(--r);
-  color: var(--climb); background: color-mix(in srgb, var(--climb) 13%, transparent); box-shadow: inset 0 0 0 .5px color-mix(in srgb, var(--climb) 34%, transparent); }
-.climb-ic { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #fff;
-  background: linear-gradient(180deg, #4be37a, #24b24b); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px color-mix(in srgb, #30d158 45%, transparent); }
+/* ---------- climbing: how far a title moved up (Climbing this week, Biggest Climbers), tn.climb. Drawn like Tenner's
+   buttons: the deep navy fill over the frost, a 9px corner, a white arrow beside white words. Still, never shining. ---------- */
+.climb { display: inline-flex; align-items: center; gap: 4px; flex: none; margin-left: auto; height: 30px; padding: 0 10px 0 8px; border-radius: var(--r);
+  color: #fff; background: var(--bt-fill); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  font: 500 14px/1 var(--font); letter-spacing: -.012em; white-space: nowrap; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.climb-ic { display: grid; place-items: center; width: 14px; height: 14px; }
 .climb-ic svg { width: 14px; height: 14px; }
-.climb-n { display: grid; justify-items: start; min-width: 36px; line-height: 1; }
-.climb-n b { font: 650 16px/1 var(--font); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-.climb-n small { margin-top: 2px; font: 500 9.5px/1 var(--font); letter-spacing: .02em; opacity: .8; }
+.climb-n { display: inline-flex; align-items: baseline; gap: 3px; }
+.climb-n b { font: 500 15px/1 var(--font); font-variant-numeric: tabular-nums; }
+.climb-n small { font: 500 12.5px/1 var(--font); color: rgba(255, 255, 255, .78); }
 
 /* ---------- avatars: your picture, or your initials on your colour ---------- */
 .av { display: inline-grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; color: #fff; font: 700 15px/1 var(--font);
