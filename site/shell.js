@@ -1073,7 +1073,7 @@
       if (reduce()) { drawer.close(); return; }
       drawer.classList.add('out'); setTimeout(() => { drawer.classList.remove('out'); drawer.close(); }, 280);
     };
-    // every row of the menu gets its own colour icon (drawn with the Kubai Icons skill, in site/icons/menu/), in place of the
+    // every row of the menu gets its own marble icon (drawn with the Kubai Icons skill, in site/icons/menu/), in place of the
     // sidebar's plain one; on bigger screens they stay hidden and the sidebar keeps its own
     [['[data-tab="home"]', 'home'], ['[data-tab="new"]', 'new'], ['[data-tab="browse"]', 'browse'], ['[data-tab="watchlist"]', 'watchlist'],
       ['.side-about:not(.side-settings)', 'about'], ['#thBtn', 'theme'], ['.side-about.side-settings', 'settings'],

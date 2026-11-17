@@ -1,7 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><linearGradient id="tn-privacy-loS-i52" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#65B2FF"></stop><stop offset="1" stop-color="#49A3FF"></stop></linearGradient><linearGradient id="tn-privacy-upS-i52" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B6DBFF"></stop><stop offset="1" stop-color="#8AC4FF"></stop></linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><filter id="tn-privacy-marble-b" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="17" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".6" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><filter id="tn-privacy-marble-f" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="57" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".86" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><linearGradient id="tn-privacy-loS-i52" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDA5BE"></stop><stop offset="1" stop-color="#EA94B2"></stop></linearGradient><linearGradient id="tn-privacy-upS-i52" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7D5E0"></stop><stop offset="1" stop-color="#F2BACE"></stop></linearGradient>
   <filter id="tn-privacy-sh-i52" x="-40%" y="-40%" width="180%" height="190%" color-interpolation-filters="sRGB">
     <feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur><feOffset dy="2" result="o"></feOffset>
-    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.345 0 0 0 0 0.675 0 0 0 0 1 0 0 0 0.21 0"></feColorMatrix>
+    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.925 0 0 0 0 0.62 0 0 0 0 0.725 0 0 0 0.21 0"></feColorMatrix>
     <feMerge><feMergeNode></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
   </filter>
   <filter id="tn-privacy-hi-i52" x="-10%" y="-10%" width="120%" height="130%" color-interpolation-filters="sRGB">
@@ -12,8 +38,8 @@
     <feBlend in2="SourceGraphic" mode="overlay"></feBlend>
   </filter><mask id="tn-privacy-ol-i52-0" maskUnits="userSpaceOnUse" x="-40" y="-40" width="111" height="109"><rect x="-40" y="-40" width="111" height="109" fill="#fff"></rect><path fill="#000" fill-rule="nonzero" d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z"></path></mask></defs><g transform="translate(15.5 12.6) scale(1) translate(-15.5 -12.6)">
         <clipPath id="tn-privacy-half-i52"><rect x="15.5" y="-2" width="16" height="30"></rect></clipPath>
-        <g filter="url(#tn-privacy-sh-i52)"><g filter="url(#tn-privacy-hi-i52)"><path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" fill="url(#tn-privacy-loS-i52)"></path></g></g>
-        <g clip-path="url(#tn-privacy-half-i52)"><g filter="url(#tn-privacy-hi-i52)"><path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" fill="url(#tn-privacy-upS-i52)"></path></g></g>
-        <path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" mask="url(#tn-privacy-ol-i52-0)" stroke="#0A84FF" fill="none" stroke-width="2"></path>
-        <path d="M11.4 12.2L14.4 15.2L19.8 9.6" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="#0858CA"></path>
+        <g filter="url(#tn-privacy-sh-i52)"><g filter="url(#tn-privacy-hi-i52)"><path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" fill="url(#tn-privacy-loS-i52)" filter="url(#tn-privacy-marble-b)"></path></g></g>
+        <g clip-path="url(#tn-privacy-half-i52)"><g filter="url(#tn-privacy-hi-i52)"><path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" fill="url(#tn-privacy-upS-i52)" filter="url(#tn-privacy-marble-f)"></path></g></g>
+        <path d="M15.5 1.4L24.2 4.8V11.4C24.2 17.2 20.6 21.6 15.5 23.8C10.4 21.6 6.8 17.2 6.8 11.4V4.8Z" mask="url(#tn-privacy-ol-i52-0)" stroke="#BC5176" fill="none" stroke-width="2"></path>
+        <path d="M11.4 12.2L14.4 15.2L19.8 9.6" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="#95365D"></path>
       </g></svg>

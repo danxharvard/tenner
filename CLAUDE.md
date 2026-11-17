@@ -180,8 +180,9 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   turns) or exported as static SVG, with a headless self-check. Its own licence is source-available, not open source: keep
   the copy exact and unmodified (never edit its files or copy its `PROMPT.md` / `SKILL.md` into the site); icons drawn with
   it are ours, and shipping its engine needs the copyright line kept at the top of each copied file. Its rules are written in
-  Chinese. The phone menu's icons were drawn with it (owner's request, 17 Nov 2026): static SVGs in `site/icons/menu/`, one
-  Apple system colour each, New's calendar showing today's date (shell.js). Elsewhere icons stay plain and monochrome (the
+  Chinese. The phone menu's icons were drawn with it (owner's request, 17 Nov 2026): static SVGs in `site/icons/menu/`, in white and
+  pink marble (the owner's pick: a rose clear palette, then an SVG turbulence filter for the veins, paler on front
+  pieces), New's calendar showing today's date (shell.js). Elsewhere icons stay plain and monochrome (the
   computer's sidebar included); any hover motion only runs with Animations on, never under Reduce Motion, and never on
   the chart numbers. Its `check.mjs` and `export.mjs` hang in the cloud container (headless Chrome never settles); render
   a scratch copy with Playwright instead.

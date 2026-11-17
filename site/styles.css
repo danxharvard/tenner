@@ -694,7 +694,7 @@ a.side-ver[aria-current] { color: var(--label); }
   .fl-done { width: 100%; height: 48px; margin-top: 18px; color: #fff; font-size: 16px; }
   .fl-done svg { width: 18px; height: 18px; }
   /* ---------- the menu, laid out like iOS Settings: the title, Search, your account card, then grouped rows (the pages;
-     About, Theme and Settings; the small print), each with its own colour icon (drawn with the Kubai Icons skill), and the
+     About, Theme and Settings; the small print), each with its own white and pink marble icon (drawn with the Kubai Icons skill), and the
      version at the foot. The pages are where you go, so they have no chevrons (as in iPad's sidebar); the rest open a
      page of their own and keep one. Hairlines only between the rows of a group, starting at the words. ---------- */
   #drawer { --row: 48px; --ind: 56px; background: var(--fr-bg) !important; }   /* the one frost, no coloured glow */
@@ -733,7 +733,7 @@ a.side-ver[aria-current] { color: var(--label); }
   .drawer .side-settings, .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
   /* the hairline between two rows of a group, from the words to the edge */
   .drawer :is(.tabs button + button, .th-wrap, .side-settings, .side-link + .side-link)::before { content: ""; position: absolute; z-index: 1; top: 0; right: 0; left: var(--ind); height: .5px; background: var(--sep); }
-  /* the icons: each row's own little object in a colour of its own (drawn with the Kubai Icons skill), in place of the
+  /* the icons: each row's own little object in white and pink marble (drawn with the Kubai Icons skill), in place of the
      sidebar's plain symbols */
   .drawer :is(.tabs button, .side-about, .top-act .tb-btn) svg { display: none !important; }
   .drawer .dr-ic { display: block; flex: none; width: 38px; height: 38px; margin: -4px -3px; pointer-events: none; -webkit-user-drag: none; }

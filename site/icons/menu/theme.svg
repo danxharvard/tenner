@@ -1,7 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><linearGradient id="tn-theme-loS-i54" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A98EF"></stop><stop offset="1" stop-color="#8785EC"></stop></linearGradient><linearGradient id="tn-theme-upS-i54" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFCFF8"></stop><stop offset="1" stop-color="#B2B1F3"></stop></linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><filter id="tn-theme-marble-b" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="5" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".6" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><filter id="tn-theme-marble-f" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="45" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".86" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><linearGradient id="tn-theme-loS-i54" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDA5BE"></stop><stop offset="1" stop-color="#EA94B2"></stop></linearGradient><linearGradient id="tn-theme-upS-i54" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7D5E0"></stop><stop offset="1" stop-color="#F2BACE"></stop></linearGradient>
   <filter id="tn-theme-sh-i54" x="-40%" y="-40%" width="180%" height="190%" color-interpolation-filters="sRGB">
     <feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur><feOffset dy="2" result="o"></feOffset>
-    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.569 0 0 0 0 0.569 0 0 0 0 0.933 0 0 0 0.21 0"></feColorMatrix>
+    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.925 0 0 0 0 0.62 0 0 0 0 0.725 0 0 0 0.21 0"></feColorMatrix>
     <feMerge><feMergeNode></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
   </filter>
   <filter id="tn-theme-hi-i54" x="-10%" y="-10%" width="120%" height="130%" color-interpolation-filters="sRGB">
@@ -11,7 +37,7 @@
     <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0"></feColorMatrix>
     <feBlend in2="SourceGraphic" mode="overlay"></feBlend>
   </filter><mask id="tn-theme-ol-i54-0" maskUnits="userSpaceOnUse" x="-40" y="-40" width="111" height="109"><rect x="-40" y="-40" width="111" height="109" fill="#fff"></rect><path fill="#000" fill-rule="nonzero" d="M4 12.5A11.5 11.5 0 1 0 27 12.5A11.5 11.5 0 1 0 4 12.5Z"></path></mask><mask id="tn-theme-ol-i54-1" maskUnits="userSpaceOnUse" x="-40" y="-40" width="111" height="109"><rect x="-40" y="-40" width="111" height="109" fill="#fff"></rect><path fill="#000" fill-rule="nonzero" d="M6 12.5Q4 12.5 4.173 14.49A11.5 11.5 0 0 0 15.5 24L15.5 24A11.5 11.5 0 0 0 26.827 14.49Q27 12.5 25 12.5Z"></path></mask></defs>
-      <g filter="url(#tn-theme-sh-i54)"><g filter="url(#tn-theme-hi-i54)"><path d="M4 12.5A11.5 11.5 0 1 0 27 12.5A11.5 11.5 0 1 0 4 12.5Z" fill="url(#tn-theme-loS-i54)"></path></g></g>
-      <path d="M4 12.5A11.5 11.5 0 1 0 27 12.5A11.5 11.5 0 1 0 4 12.5Z" mask="url(#tn-theme-ol-i54-0)" stroke="#5E5CE6" fill="none" stroke-width="2"></path>
-      <g filter="url(#tn-theme-hi-i54)"><g transform="rotate(-90 15.5 12.5)"><path d="M6 12.5Q4 12.5 4.173 14.49A11.5 11.5 0 0 0 15.5 24L15.5 24A11.5 11.5 0 0 0 26.827 14.49Q27 12.5 25 12.5Z" fill="url(#tn-theme-upS-i54)"></path></g></g>
-      <g transform="rotate(-90 15.5 12.5)"><path d="M6 12.5Q4 12.5 4.173 14.49A11.5 11.5 0 0 0 15.5 24L15.5 24A11.5 11.5 0 0 0 26.827 14.49Q27 12.5 25 12.5Z" mask="url(#tn-theme-ol-i54-1)" stroke="#5E5CE6" fill="none" stroke-width="2"></path></g></svg>
+      <g filter="url(#tn-theme-sh-i54)"><g filter="url(#tn-theme-hi-i54)"><path d="M4 12.5A11.5 11.5 0 1 0 27 12.5A11.5 11.5 0 1 0 4 12.5Z" fill="url(#tn-theme-loS-i54)" filter="url(#tn-theme-marble-b)"></path></g></g>
+      <path d="M4 12.5A11.5 11.5 0 1 0 27 12.5A11.5 11.5 0 1 0 4 12.5Z" mask="url(#tn-theme-ol-i54-0)" stroke="#BC5176" fill="none" stroke-width="2"></path>
+      <g filter="url(#tn-theme-hi-i54)"><g transform="rotate(-90 15.5 12.5)"><path d="M6 12.5Q4 12.5 4.173 14.49A11.5 11.5 0 0 0 15.5 24L15.5 24A11.5 11.5 0 0 0 26.827 14.49Q27 12.5 25 12.5Z" fill="url(#tn-theme-upS-i54)" filter="url(#tn-theme-marble-f)"></path></g></g>
+      <g transform="rotate(-90 15.5 12.5)"><path d="M6 12.5Q4 12.5 4.173 14.49A11.5 11.5 0 0 0 15.5 24L15.5 24A11.5 11.5 0 0 0 26.827 14.49Q27 12.5 25 12.5Z" mask="url(#tn-theme-ol-i54-1)" stroke="#BC5176" fill="none" stroke-width="2"></path></g></svg>

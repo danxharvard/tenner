@@ -1,7 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><linearGradient id="tn-home-loS-i10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#65B2FF"></stop><stop offset="1" stop-color="#49A3FF"></stop></linearGradient><linearGradient id="tn-home-upS-i10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B6DBFF"></stop><stop offset="1" stop-color="#8AC4FF"></stop></linearGradient><linearGradient id="tn-home-pure-i10-2F6FE0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0858CA"></stop><stop offset="1" stop-color="#0858CA"></stop></linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 -5.5 36 36" width="64" height="64" fill="none"><defs><filter id="tn-home-marble-b" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="3" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".6" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><filter id="tn-home-marble-f" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.05 0.12" numOctaves="5" seed="43" result="n"/>
+<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="r"/>
+<feComponentTransfer in="r" result="v"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .45 1 .45 .1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#FFFFFF" flood-opacity=".86" result="w"/>
+<feComposite in="w" in2="SourceGraphic" operator="atop" result="base"/>
+<feFlood flood-color="#E0457A" flood-opacity=".75" result="p"/>
+<feComposite in="p" in2="v" operator="in" result="veins"/>
+<feComposite in="veins" in2="base" operator="atop" result="m1"/>
+<feComponentTransfer in="r" result="v2"><feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 .15 .5 .15 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 .4 .1 0 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+<feFlood flood-color="#F07FA3" flood-opacity=".35" result="p2"/>
+<feComposite in="p2" in2="v2" operator="in" result="veins2"/>
+<feComposite in="veins2" in2="m1" operator="atop"/>
+</filter><linearGradient id="tn-home-loS-i10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDA5BE"></stop><stop offset="1" stop-color="#EA94B2"></stop></linearGradient><linearGradient id="tn-home-upS-i10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7D5E0"></stop><stop offset="1" stop-color="#F2BACE"></stop></linearGradient><linearGradient id="tn-home-pure-i10-2F6FE0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E1C7D2"></stop><stop offset="1" stop-color="#95365D"></stop></linearGradient>
   <filter id="tn-home-sh-i10" x="-40%" y="-40%" width="180%" height="190%" color-interpolation-filters="sRGB">
     <feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur><feOffset dy="2" result="o"></feOffset>
-    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.345 0 0 0 0 0.675 0 0 0 0 1 0 0 0 0.21 0"></feColorMatrix>
+    <feColorMatrix in="o" type="matrix" values="0 0 0 0 0.925 0 0 0 0 0.62 0 0 0 0 0.725 0 0 0 0.21 0"></feColorMatrix>
     <feMerge><feMergeNode></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
   </filter>
   <filter id="tn-home-hi-i10" x="-10%" y="-10%" width="120%" height="130%" color-interpolation-filters="sRGB">
@@ -11,9 +37,9 @@
     <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0"></feColorMatrix>
     <feBlend in2="SourceGraphic" mode="overlay"></feBlend>
   </filter><mask id="tn-home-ol-i10-0" maskUnits="userSpaceOnUse" x="-40" y="-40" width="111" height="109"><rect x="-40" y="-40" width="111" height="109" fill="#fff"></rect><path fill="#000" fill-rule="nonzero" d="M7.4 12.8Q7.4 10.6 9.6 10.6L21.4 10.6Q23.6 10.6 23.6 12.8L23.6 20.8Q23.6 23 21.4 23L9.6 23Q7.4 23 7.4 20.8Z"></path></mask><mask id="tn-home-ol-i10-1" maskUnits="userSpaceOnUse" x="-40" y="-40" width="111" height="109"><rect x="-40" y="-40" width="111" height="109" fill="#fff"></rect><path fill="#000" fill-rule="nonzero" d="M5 12.6Q3.6 12.6 4.663 11.689L13.83 3.832Q15.5 2.4 17.17 3.832L26.337 11.689Q27.4 12.6 26 12.6Z"></path></mask></defs>
-      <g filter="url(#tn-home-sh-i10)"><g filter="url(#tn-home-hi-i10)"><path d="M7.4 12.8Q7.4 10.6 9.6 10.6L21.4 10.6Q23.6 10.6 23.6 12.8L23.6 20.8Q23.6 23 21.4 23L9.6 23Q7.4 23 7.4 20.8Z" fill="url(#tn-home-loS-i10)"></path></g></g>
-      <path d="M7.4 12.8Q7.4 10.6 9.6 10.6L21.4 10.6Q23.6 10.6 23.6 12.8L23.6 20.8Q23.6 23 21.4 23L9.6 23Q7.4 23 7.4 20.8Z" mask="url(#tn-home-ol-i10-0)" stroke="#0A84FF" fill="none" stroke-width="2"></path>
-      <path d="M13.2 16.8Q13.2 15.6 14.4 15.6L16.6 15.6Q17.8 15.6 17.8 16.8L17.8 23Q17.8 23 17.8 23L13.2 23Q13.2 23 13.2 23Z" fill="url(#tn-home-pure-i10-2F6FE0)"></path>
+      <g filter="url(#tn-home-sh-i10)"><g filter="url(#tn-home-hi-i10)"><path d="M7.4 12.8Q7.4 10.6 9.6 10.6L21.4 10.6Q23.6 10.6 23.6 12.8L23.6 20.8Q23.6 23 21.4 23L9.6 23Q7.4 23 7.4 20.8Z" fill="url(#tn-home-loS-i10)" filter="url(#tn-home-marble-b)"></path></g></g>
+      <path d="M7.4 12.8Q7.4 10.6 9.6 10.6L21.4 10.6Q23.6 10.6 23.6 12.8L23.6 20.8Q23.6 23 21.4 23L9.6 23Q7.4 23 7.4 20.8Z" mask="url(#tn-home-ol-i10-0)" stroke="#BC5176" fill="none" stroke-width="2"></path>
+      <path d="M13.2 16.8Q13.2 15.6 14.4 15.6L16.6 15.6Q17.8 15.6 17.8 16.8L17.8 23Q17.8 23 17.8 23L13.2 23Q13.2 23 13.2 23Z" fill="url(#tn-home-pure-i10-2F6FE0)" filter="url(#tn-home-marble-f)"></path>
       <g transform="translate(13.2 0) scale(1 1) translate(-13.2 0)"><path d="M13.2 16.8Q13.2 15.6 14.4 15.6L16.6 15.6Q17.8 15.6 17.8 16.8L17.8 23Q17.8 23 17.8 23L13.2 23Q13.2 23 13.2 23Z" fill="#fff"></path></g>
-      <g filter="url(#tn-home-hi-i10)"><path d="M5 12.6Q3.6 12.6 4.663 11.689L13.83 3.832Q15.5 2.4 17.17 3.832L26.337 11.689Q27.4 12.6 26 12.6Z" fill="url(#tn-home-upS-i10)"></path></g>
-      <path d="M5 12.6Q3.6 12.6 4.663 11.689L13.83 3.832Q15.5 2.4 17.17 3.832L26.337 11.689Q27.4 12.6 26 12.6Z" mask="url(#tn-home-ol-i10-1)" stroke="#0A84FF" fill="none" stroke-width="2"></path></svg>
+      <g filter="url(#tn-home-hi-i10)"><path d="M5 12.6Q3.6 12.6 4.663 11.689L13.83 3.832Q15.5 2.4 17.17 3.832L26.337 11.689Q27.4 12.6 26 12.6Z" fill="url(#tn-home-upS-i10)" filter="url(#tn-home-marble-f)"></path></g>
+      <path d="M5 12.6Q3.6 12.6 4.663 11.689L13.83 3.832Q15.5 2.4 17.17 3.832L26.337 11.689Q27.4 12.6 26 12.6Z" mask="url(#tn-home-ol-i10-1)" stroke="#BC5176" fill="none" stroke-width="2"></path></svg>
