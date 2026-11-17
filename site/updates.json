@@ -1,1 +1,12 @@
-[]
+[
+ {
+  "version": "2.123.0",
+  "date": "2026-11-17",
+  "title": "Seasonal favourites on Home",
+  "changes": [
+   "Home's seasonal row and Browse's seasonal collection change by themselves: from two weeks before Christmas, Halloween, New Year, Valentine's, Easter and the summer holidays they show that season's favourites",
+   "Between seasons they show the all-time favourites, the titles viewers around the world love most"
+  ],
+  "notes": ""
+ }
+]
