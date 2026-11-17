@@ -121,6 +121,14 @@
       "computedHash": "edaec540d02abdad48727b7d769574d0ee42e79304826c899a7aba90ef0197c1",
       "installMode": "copy"
     },
+    "macos-design": {
+      "source": "ceorkm/macos-design-skill",
+      "commit": "8f528a2364f996cd42f02a10b1b27198a74ca2a3",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "4f40918ca9996e31faf5cf9f679405db00dcb8eddb313a7c990a32d536e026da",
+      "installMode": "copy"
+    },
     "make-interfaces-feel-better": {
       "source": "jakubkrehel/make-interfaces-feel-better",
       "commit": "1a2aa9695487dc6d2a59af28e34db9b1490ab181",
