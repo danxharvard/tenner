@@ -1872,7 +1872,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, arrows, segment, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, t10Page, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, arrows, segment, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, t10Page, season, signIn: (o, inline) => tnSignIn(o, inline) };
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.
@@ -2155,6 +2155,29 @@
       (document.querySelector('main.bwrap') || document.body).append(xl); hang();
       let raf = 0; addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; hang(); }); });
     }
+  }
+
+  // ---------- the season (the same dates as scripts/fetch-data.mjs's SEASONS): from two weeks before each one, the
+  // homepage's seasonal row and Browse's seasonal collection show its favourites (titles the catalogue marks xm, from
+  // the season's TMDB keyword); out of season they show the all-time favourites instead. UK dates. ----------
+  const SEASONS = [
+    { key: 'newyear', from: [12, 27], to: [1, 2], name: 'New Year', sub: 'Ring in the new year, most popular first' },
+    { key: 'valentines', from: [1, 31], to: [2, 15], name: 'Valentine’s', sub: 'Romantic favourites, most popular first' },
+    { key: 'easter', easter: [-14, 1], name: 'Easter', sub: 'Easter favourites, most popular first' },
+    { key: 'summer', from: [7, 18], to: [8, 31], name: 'Summer holiday', sub: 'Sunny favourites for the holidays, most popular first' },
+    { key: 'halloween', from: [10, 17], to: [11, 1], name: 'Halloween', sub: 'Spooky favourites, most popular first' },
+    { key: 'christmas', from: [11, 2], to: [12, 26], name: 'Christmas', sub: 'Festive favourites, most popular first' },
+  ];
+  const easterDay = (y) => { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+    h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
+    return Date.UTC(y, Math.floor(n / 31) - 1, (n % 31) + 1); };
+  function season(at = new Date()) {
+    const [y, mo, da] = at.toLocaleDateString('en-CA', { timeZone: 'Europe/London' }).split('-').map(Number), md = mo * 100 + da, t = Date.UTC(y, mo - 1, da);
+    return SEASONS.find((x) => {
+      if (x.easter) { const e = easterDay(y); return t >= e + x.easter[0] * 864e5 && t <= e + x.easter[1] * 864e5; }
+      const a = x.from[0] * 100 + x.from[1], b = x.to[0] * 100 + x.to[1];
+      return a <= b ? md >= a && md <= b : md >= a || md <= b;
+    }) || null;
   }
 
   // ---------- headings, the About page's way: heavy display type, the last word in the pink gradient (.grad). Done here

@@ -683,15 +683,35 @@ export async function buildPrices(films, prev) {
 // The most popular ~100 shows and ~100 films on each service, merged into one
 // compact list the Browse page filters and sorts in the browser. Short keys keep the file small:
 // i id, t 'tv'|'movie', n title, d first date, r rating (when 20+ votes), v votes, p popularity, img poster path,
-// g genre ids, s services it was found on, xm 1 when it's a Christmas title (in the Christmas season only, see below).
+// g genre ids, s services it was found on, xm 1 when it's one of the season's titles (in a season only, see below).
 const PAGES = 5;
-// Christmas: from late October to Boxing Day the catalogue also takes in the most popular Christmas films and shows on
-// each service (TMDB's "christmas" keyword), so Home's Top Christmas list and Browse's Christmas collection fill themselves.
-export const xmasSeason = (d = new Date()) => (d.getUTCMonth() === 9 && d.getUTCDate() >= 25) || d.getUTCMonth() === 10 || (d.getUTCMonth() === 11 && d.getUTCDate() <= 26);
-const XMAS_PAGES = 2;
-async function xmasKeyword() {
-  const res = await tmdb('/search/keyword', { query: 'christmas' });
-  return (res.results || []).find((k) => k.name.toLowerCase() === 'christmas')?.id || null;
+// The seasons: from two weeks before each one (the same dates as site/shell.js's SEASONS, UK time) the catalogue also takes
+// in the most popular titles on each service with that season's TMDB keyword, marks them xm and names the season
+// (cat.season), so Home's seasonal row and Browse's seasonal collection fill and change themselves. Out of season there's
+// nothing to mark, and the page shows the all-time favourites instead.
+const SEASONS = [
+  { key: 'newyear', kw: "new year's eve", from: [12, 27], to: [1, 2] },
+  { key: 'valentines', kw: "valentine's day", from: [1, 31], to: [2, 15] },
+  { key: 'easter', kw: 'easter', easter: [-14, 1] },
+  { key: 'summer', kw: 'summer vacation', from: [7, 18], to: [8, 31] },
+  { key: 'halloween', kw: 'halloween', from: [10, 17], to: [11, 1] },
+  { key: 'christmas', kw: 'christmas', from: [11, 2], to: [12, 26] },
+];
+const easterDay = (y) => { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+  h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
+  return Date.UTC(y, Math.floor(n / 31) - 1, (n % 31) + 1); };
+export function seasonNow(at = new Date()) {
+  const [y, mo, da] = at.toLocaleDateString('en-CA', { timeZone: 'Europe/London' }).split('-').map(Number), md = mo * 100 + da, t = Date.UTC(y, mo - 1, da);
+  return SEASONS.find((x) => {
+    if (x.easter) { const e = easterDay(y); return t >= e + x.easter[0] * 864e5 && t <= e + x.easter[1] * 864e5; }
+    const a = x.from[0] * 100 + x.from[1], b = x.to[0] * 100 + x.to[1];
+    return a <= b ? md >= a && md <= b : md >= a || md <= b;
+  }) || null;
+}
+const SEASON_PAGES = 2;
+async function seasonKeyword(word) {
+  const res = await tmdb('/search/keyword', { query: word });
+  return (res.results || []).find((k) => k.name.toLowerCase() === word)?.id || null;
 }
 async function pool(tasks, limit = 8) {
   const out = []; let next = 0;
@@ -706,18 +726,18 @@ export async function buildCatalogue(ids) {
     for (const type of ['tv', 'movie']) for (let page = 1; page <= PAGES; page++)
       jobs.push(async () => ({ type, key: s.key, res: await tmdb(`/discover/${type}`, { ...base, page, with_watch_providers: providerIds.join('|'), with_watch_monetization_types: 'flatrate|free|ads' }) }));
   }
-  // the Christmas titles (a missing keyword or a failed page never stops the catalogue)
-  let kw = null;
-  if (xmasSeason()) try { kw = await xmasKeyword(); if (!kw) warn('Christmas', 'TMDB has no "christmas" keyword'); } catch (err) { warn('Christmas', `keyword lookup failed (${err.message})`); }
+  // the season's titles (a missing keyword or a failed page never stops the catalogue)
+  let kw = null; const sea = seasonNow();
+  if (sea) try { kw = await seasonKeyword(sea.kw); if (!kw) warn('Season', `TMDB has no "${sea.kw}" keyword`); } catch (err) { warn('Season', `keyword lookup failed (${err.message})`); }
   if (kw) for (const s of SERVICES) {
     const providerIds = [...(ids[s.key] || [])]; if (!providerIds.length) continue;
-    for (const type of ['tv', 'movie']) for (let page = 1; page <= XMAS_PAGES; page++)
-      jobs.push(async () => ({ type, key: s.key, xmas: true, res: await tmdb(`/discover/${type}`, { ...base, page, with_keywords: String(kw), with_watch_providers: providerIds.join('|'), with_watch_monetization_types: 'flatrate|free|ads' }).catch(() => ({ results: [] })) }));
+    for (const type of ['tv', 'movie']) for (let page = 1; page <= SEASON_PAGES; page++)
+      jobs.push(async () => ({ type, key: s.key, sea: true, res: await tmdb(`/discover/${type}`, { ...base, page, with_keywords: String(kw), with_watch_providers: providerIds.join('|'), with_watch_monetization_types: 'flatrate|free|ads' }).catch(() => ({ results: [] })) }));
   }
   const [results, gm, gt] = await Promise.all([pool(jobs), tmdb('/genre/movie/list', { language: 'en-GB' }), tmdb('/genre/tv/list', { language: 'en-GB' })]);
 
   const byId = new Map(), more = {};
-  for (const { type, key, res, xmas } of results) for (const r of res.results || []) {
+  for (const { type, key, res, sea: inSeason } of results) for (const r of res.results || []) {
     if (!r.poster_path) continue;
     const id = `${type[0]}${r.id}`;
     let it = byId.get(id);
@@ -730,12 +750,12 @@ export async function buildCatalogue(ids) {
       byId.set(id, it);
     }
     if (!it.s.includes(key)) it.s.push(key);
-    if (xmas) it.xm = 1;
+    if (inSeason) it.xm = 1;
   }
-  if (kw) console.log(`Christmas: ${[...byId.values()].filter((x) => x.xm).length} titles`);
+  if (kw) console.log(`Season (${sea.key}): ${[...byId.values()].filter((x) => x.xm).length} titles`);
   const genres = {};
   for (const g of [...gm.genres, ...gt.genres]) genres[g.id] = g.name;
-  const cat = { generatedAt: new Date().toISOString(), region: REGION, img: `${IMG}/w342`, genres, items: [...byId.values()] };
+  const cat = { generatedAt: new Date().toISOString(), region: REGION, ...(sea ? { season: sea.key } : {}), img: `${IMG}/w342`, genres, items: [...byId.values()] };
   return { cat, more: { generatedAt: cat.generatedAt, img: `${IMG}/w780`, items: more } };
 }
 // a description cut to its first sentences, about 320 characters at most, ending cleanly
@@ -1096,7 +1116,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     // a service the live catalogue has nothing from (one just added, like Free to watch) is filled in straight away
     const covers = (c) => data.services.filter((s) => s.providerIds?.length).every((s) => c.items.some((x) => x.s?.includes(s.key)));
     const keepCat = liveCat?.items?.length >= 100 && !liveCat.sample && liveMore && hoursOld(liveCat) < 6 && covers(liveCat)
-      && (!xmasSeason() || liveCat.items.some((x) => x.xm));   // Christmas titles from the season's first run
+      && (liveCat.season || null) === (seasonNow()?.key || null);   // a new season (or its end) rebuilds it straight away
     try {
       if (!built) throw new Error('the chart was not rebuilt this hour');
       if (keepCat) {

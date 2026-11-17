@@ -14,6 +14,8 @@
 
   // Collections: a filter plus the sort that suits it. New this week and Leaving soon come from data/new.json (the services'
   // own arrivals and departures), in order of the day; titles there that the catalogue doesn't have are added just for them.
+  const SEA = window.tn.season(); let seaMemo = null;
+  const seaOn = () => { if (seaMemo?.c !== cat) seaMemo = { c: cat, on: !!SEA && cat?.season === SEA.key && !!cat?.items.some((x) => x.xm) }; return seaMemo.on; };
   const COLLECTIONS = [
     { key: 'popular', label: 'Popular', sort: 'pop', test: (x) => x.s.length },
     { key: 'top10', label: 'Top 10', chart: true },   // the UK's chart, in its own order: no sort, no filters, every service
@@ -23,9 +25,11 @@
     { key: 'gems', label: 'Hidden gems', sort: 'rating', test: (x) => x.s.length && x.r >= 7.2 && x.v >= 30 && x.v < 600 },
     { key: 'acclaimed', label: 'Acclaimed', sort: 'rating', test: (x) => x.s.length && x.r >= 8 && x.v >= 1500 },
     { key: 'leaving', label: 'Leaving soon', extra: true, order: (a, b) => a._gone.localeCompare(b._gone) || b.p - a.p, test: (x) => x._gone },
-    // 1 November to Boxing Day: the services' most popular Christmas films and shows (marked in the catalogue's build)
-    { key: 'xmas', label: 'Christmas', sort: 'pop', season: true, test: (x) => x.s.length && x.xm },
-  ].filter((c) => !c.season || (() => { const d = new Date(); return d.getMonth() === 10 || (d.getMonth() === 11 && d.getDate() <= 26); })());
+    // the season's favourites from two weeks before it (tn.season in shell.js; the catalogue's build marks them xm), the
+    // services' most popular first; out of season, the all-time favourites, the most loved by viewers first
+    { key: 'season', label: SEA ? SEA.name : 'All-time favourites', orderName: () => (seaOn() ? 'Most popular' : 'Most loved'), order: (a, b) => (seaOn() ? b.p - a.p : b.v - a.v),
+      test: (x) => x.s.length && (seaOn() ? x.xm : x.r >= 7 && x.v >= 1000) },
+  ];
   // each collection's icon (drawn in a 24-point box, a plain outline like the sidebar's)
   const COLL_IC = {
     popular: '<path d="M12 21a6.5 6.5 0 0 0 6.5-6.5c0-4.2-3.1-6.6-4.6-10.6-2.2 1.6-3.3 3.8-3.2 6.1-1.1-.5-1.8-1.5-2.1-2.6-1.6 1.7-3.1 4-3.1 7.1A6.5 6.5 0 0 0 12 21z"/>',
@@ -36,7 +40,7 @@
     gems: '<path d="M7 4.5h10L21 9.5 12 20 3 9.5z"/><path d="M3 9.5h18M9.6 4.5 8 9.5l4 10.5 4-10.5-1.6-5"/>',
     acclaimed: '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.3 7.2 20.5 12 18l4.8 2.5-1.4-7.2"/>',
     leaving: '<path d="M6.5 3.5h11M6.5 20.5h11M8 3.5v2.6c0 2.6 4 3.5 4 5.9s-4 3.3-4 5.9v2.6M16 3.5v2.6c0 2.6-4 3.5-4 5.9s4 3.3 4 5.9v2.6"/>',
-    xmas: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.6 4.6 12 6.4l2.4-1.8M9.6 19.4 12 17.6l2.4 1.8M3.9 11.3l2.9.7-.9 2.9M20.1 12.7l-2.9-.7.9-2.9M5.9 9.1l.9 2.9-2.9.7M18.1 14.9l-.9-2.9 2.9-.7"/>',
+    season: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.6 4.6 12 6.4l2.4-1.8M9.6 19.4 12 17.6l2.4 1.8M3.9 11.3l2.9.7-.9 2.9M20.1 12.7l-2.9-.7.9-2.9M5.9 9.1l.9 2.9-2.9.7M18.1 14.9l-.9-2.9 2.9-.7"/>',
   };
   // The line under the chosen collection (or search scope): one line that slides across to the new choice,
   // moved only by transform (translate and scale), so it stays smooth while the page is busy. Snaps when Animations is off.
@@ -80,7 +84,8 @@
   // ---------- URL <-> state ----------
   function readHash() {
     const q = new URLSearchParams(location.hash.slice(1));
-    state.c = COLLECTIONS.some((c) => c.key === q.get('c')) ? q.get('c') : 'popular';
+    const c0 = q.get('c') === 'xmas' ? 'season' : q.get('c');   // older links to the Christmas collection
+    state.c = COLLECTIONS.some((c) => c.key === c0) ? c0 : 'popular';
     state.k = ['tv', 'movie', 'both'].includes(q.get('k')) ? q.get('k') : KIND0;
     // no services in the address: your own (My services), if you've chosen them; "all" means every service
     const mine = window.tn.mine.get().filter((k) => labels[k]);
@@ -374,7 +379,7 @@
     $('#kindSel').value = state.k; $('#kindL').textContent = { tv: 'Shows', movie: 'Films', both: 'Shows and films' }[state.k];
     document.querySelectorAll('#where input').forEach((i) => { i.checked = !state.s.length || state.s.includes(i.dataset.s); });
     const sk = q && !state.sort ? '' : sortKey();   // searching: best match first unless you pick a sort
-    const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : charting ? 'Chart order' : 'By day'; o0.hidden = !q && !collection().order && !charting;
+    const o0 = $('#sortSel').options[0]; o0.textContent = q ? 'Best match' : charting ? 'Chart order' : collection().orderName?.() || 'By day'; o0.hidden = !q && !collection().order && !charting;
     $('#sortSel').value = sk; $('#sortL').textContent = sk ? SORTS.find((s) => s.key === sk).label : o0.textContent;
     const gs = [...genreSet()].filter((g) => cat.genres[g]).sort((a, b) => cat.genres[a].localeCompare(cat.genres[b]));
     $('#genres').innerHTML = gs.map((g) => `<button type="button" class="g-b" data-g="${g}" aria-pressed="${state.g.includes(g)}">${esc(cat.genres[g])}</button>`).join('');

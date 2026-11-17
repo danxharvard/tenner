@@ -476,7 +476,7 @@
   // a poster card: the artwork, its score in a chip, the title and a second line, and a Watchlist button
   const card = (it, info, sub) => `<li class="bx-pc"><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-pc-art">${poster(it)}</span>${rating(it.rating).replace('bx-star', 'bx-star bx-chip')}
         <span class="bx-pc-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a>${saveBtn(info, ' bx-pc-add')}</li>`;
-  // phones (below the Top 10s, which lead the page): Christmas, We think you'll like, what's trending in the UK (rebuilt
+  // phones (below the Top 10s, which lead the page): the season's favourites (or the all-time ones), We think you'll like, what's trending in the UK (rebuilt
   // every hour with the charts), then the top rated, each a row of cards to swipe through (one of each for shows and films)
   function phoneRows() {
     const word = (k) => (k === 'movie' ? 'films' : 'shows');
@@ -489,7 +489,7 @@
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
     const ns = newShows(), fresh = ns.length ? row('bxNs', NS(), 'The most popular shows that started lately', ns.map((it) => card(it, infoFor(it, 'New show proving popular'), it.year)),
       'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
-    const xm = xmasTop(), xmas = xm.length ? row('bxXm', XM(), 'Festive favourites, most popular first', xm.map((it) => card(it, infoFor(it, XM_EYE(it)), it.year)),
+    const xm = seaTop(), xmas = xm.items.length ? row('bxXm', XM(xm.on), XM_SUB(xm.on), xm.items.map((it) => card(it, infoFor(it, XM_EYE(it, xm.on)), it.year)),
       'bx-row-p', XM_ALL()) : '';
     return xmas + forYouRow() + top.join('') + newWeek() + best.join('') + spotSlot() + fresh;
   }
@@ -677,11 +677,20 @@
     const q = new URLSearchParams({ c: 'new', k: 'tv', sort: 'pop', ...(all() ? {} : { s: state.picks.join(',') }) });
     return clList('bxNs', NS(), l, () => `New show proving popular${all() ? '' : ` ${where()}`}`, `browse.html#${esc(String(q))}`);
   }
-  // Top Christmas films and shows (1 November to Boxing Day): the services' most popular Christmas titles (the catalogue
-  // marks them each build, from TMDB's "christmas" keyword), kept to the kind, service and genre you've picked
-  function xmasTop() { return XMAS ? catalogue().filter((x) => x.xm).sort((a, b) => b.p - a.p).slice(0, 10).map(fromCat) : []; }
-  function XM() { const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
-    return `Top Christmas ${{ both: 'films and shows', tv: 'shows', movie: 'films' }[state.kind]}${g ? ` in ${esc(g)}` : ''}${XM_DEER}`; }
+  // The seasonal row: from two weeks before a season (tn.season in shell.js: Christmas, Halloween, New Year, Valentine's,
+  // Easter, the summer holidays) the services' most popular titles for it (the catalogue marks them each build, from the
+  // season's TMDB keyword); out of season, the all-time favourites (the most loved by viewers worldwide, any genre).
+  // Kept to the kind, service and genre you've picked; it changes over by itself as the dates come round.
+  const SEA = window.tn.season();
+  function seaTop() {
+    const cat = catalogue(), on = !!SEA && state.cat?.season === SEA.key && cat.some((x) => x.xm);
+    const l = on ? cat.filter((x) => x.xm).sort((a, b) => b.p - a.p) : cat.filter((x) => x.r >= 7 && x.v >= 1000).sort((a, b) => b.v - a.v);
+    return { on, items: l.slice(0, 10).map(fromCat) };
+  }
+  function XM(on) { const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
+    return on ? `Top ${SEA.name} ${{ both: 'films and shows', tv: 'shows', movie: 'films' }[state.kind]}${g ? ` in ${esc(g)}` : ''}${SEA.key === 'christmas' ? XM_DEER : ''}`
+      : `All-time favourites${g ? ` in ${esc(g)}` : ''}`; }
+  const XM_SUB = (on) => (on ? SEA.sub : 'Loved by viewers around the world');
   // beside its heading: a reindeer in the snow, flakes falling on it and its nose aglow (still with Animations off or Reduce Motion)
   const XM_DEER = `<svg class="xm-deer" viewBox="0 0 64 64" aria-hidden="true">
       <defs><linearGradient id="xmSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a3a"/><stop offset="1" stop-color="#2a3f78"/></linearGradient>
@@ -701,9 +710,9 @@
       <circle class="xm-glow" cx="32" cy="39.5" r="6.5" fill="#ff375f" opacity=".35"/><circle cx="32" cy="39.5" r="3.6" fill="#ff375f"/><circle cx="30.9" cy="38.4" r="1.1" fill="#fff" opacity=".8"/></g>
       <path class="xm-snow" d="M-2 66c1-9 10-12 18-11 5-3 9-3 13-1 6-3 13-3 19 0 7-1 15 2 18 12z"/>
       <g class="xm-flakes"><circle cx="8" cy="0" r="1.5"/><circle cx="19" cy="0" r="1.1"/><circle cx="31" cy="0" r="1.6"/><circle cx="42" cy="0" r="1.2"/><circle cx="54" cy="0" r="1.5"/><circle cx="60" cy="0" r="1"/><circle cx="4" cy="0" r="1"/></g></g></svg>`;
-  const XM_EYE = (it) => `Top Christmas ${it.type === 'movie' ? 'film' : 'show'}${all() ? '' : ` ${where()}`}`;
-  const XM_ALL = () => `browse.html#${esc(String(new URLSearchParams({ c: 'xmas', k: state.kind, ...(all() ? {} : { s: state.picks.join(',') }) })))}`;
-  function xmasList() { const l = xmasTop(); return l.length ? clList('bxXm', XM(), l, (i) => XM_EYE(l[i]), XM_ALL()) : ''; }
+  const XM_EYE = (it, on) => (on ? `Top ${SEA.name} ${it.type === 'movie' ? 'film' : 'show'}${all() ? '' : ` ${where()}`}` : 'All-time favourite');
+  const XM_ALL = () => `browse.html#${esc(String(new URLSearchParams({ c: 'season', k: state.kind, ...(all() ? {} : { s: state.picks.join(',') }) })))}`;
+  function xmasList() { const l = seaTop(); return l.items.length ? clList('bxXm', XM(l.on), l.items, (i) => XM_EYE(l.items[i], l.on), XM_ALL()) : ''; }
   function topList(k) {
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const l = topRated(k);
