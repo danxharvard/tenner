@@ -2239,3 +2239,10 @@ body { padding-bottom: var(--tf-h); }
   .ht10 .t10-ft { padding: 14px 16px 12px; }
   .ht10 .t10-ft p { font-size: 12px; }
 }
+
+/* ---------- every heading the About page's way (the owner's choice): heavy display type, white (the text colour by day)
+   with its last word in the pink gradient, added by shell.js. Sizes stay each heading's own. ---------- */
+:root :is(.row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2) {
+  font-family: var(--font-display); font-weight: 800; letter-spacing: -.03em; -webkit-font-smoothing: antialiased; }
+:root :is(.bx-sec-hd h2, .row-h) { font-size: 24px; line-height: 1.12; }
+

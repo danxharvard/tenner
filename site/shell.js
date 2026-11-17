@@ -2157,6 +2157,23 @@
     }
   }
 
+  // ---------- headings, the About page's way: heavy display type, the last word in the pink gradient (.grad). Done here
+  // once for every page, and again whenever a page draws new headings, so no page has to remember it ----------
+  const HEADS = '.row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2';
+  function gradHead(h) {
+    if (h.querySelector('.grad')) return;
+    const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue.trim() && !n.parentElement.closest('.sr, .bx-h, [aria-hidden="true"], small, .chev') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+    let last = null; while (w.nextNode()) last = w.currentNode;
+    if (!last) return;
+    const m = last.nodeValue.match(/^([\s\S]*?)(\S+)(\s*)$/); if (!m) return;
+    const em = document.createElement('em'); em.className = 'grad'; em.textContent = m[2];
+    last.replaceWith(...[m[1], em, m[3]].filter((x) => x !== ''));
+  }
+  const gradAll = () => document.querySelectorAll(HEADS).forEach(gradHead);
+  let gradQ = 0;
+  new MutationObserver(() => { if (!gradQ) gradQ = requestAnimationFrame(() => { gradQ = 0; gradAll(); }); }).observe(document.body, { childList: true, subtree: true });
+  gradAll();
+
   // ---------- install as an app: the offline cache (sw.js) ----------
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 })();
