@@ -127,6 +127,28 @@ icon and white words, never pills or capsules (ignore their "actions are pills")
 Tenner's shape lock; the shared frost on boxes, bars and sheets is Tenner's chosen material, not "glassmorphism slop";
 and don't generate stock illustrations: the shows' artwork is the imagery.
 
+### Impeccable, Taste Skill, Emil Kowalski's and Vercel's skills (`.claude/skills/`, also a second opinion, never the boss)
+- **Impeccable** (`impeccable`, Apache-2.0, pbakaus/impeccable 4.9.2, plus its helper agents in `.claude/agents/`):
+  design commands such as `/impeccable critique`, `audit`, `polish`, `typeset`, `animate`, `harden` and `distill`. Its
+  engine downloads itself on first use. Its edit-by-edit hooks are deliberately not installed (they'd run after every
+  edit in every session); run `/impeccable audit` or `critique` by hand on a page instead.
+- **Taste Skill** (`design-taste-frontend`, MIT, Leonxlnx/taste-skill, installed with `npx skills add`, pinned in
+  `skills-lock.json`): an anti-slop bar for pages, copy and motion. It's written for company landing pages, so take its
+  checks on clarity, copy and craft, not its look: no stock photos, shaders, 3D scenes or its components on Tenner.
+- **Emil Kowalski's skills** (emilkowalski/skills, installed with `npx skills add`, pinned in `skills-lock.json`): motion and
+  polish craft, e.g. `apple-design`, `animate`, `choreograph`, `gestures`, `mobile-native`, `review-animations`,
+  `remove-animations`, `animation-performance`, `break-ui` and `emil-design-eng`. Use their plain CSS / View Transitions
+  advice; Tenner has no React, so skip their library picks (Motion, Sonner, Vaul) and the Expo and Swift skills. Motion
+  still only runs when Settings → Animations is on and never under Reduce Motion, and the chart numbers never shine.
+- **Vercel's agent skills** (vercel-labs/agent-skills): `web-design-guidelines` (a UI and accessibility review against
+  Vercel's Web Interface Guidelines) and `writing-guidelines` are the useful ones here; the React, React Native and
+  composition skills only apply if Tenner ever uses React. Their deploy and cost skills were left out on purpose:
+  Tenner is served by Cloudflare and is never deployed to Vercel. Writing stays plain British English as above.
+- **The same rule applies: this file wins.** Ignore any default they suggest for corners, buttons, glass, fonts,
+  colour or layout that differs from Tenner's house style above (one 9px `--r` corner, solid deep tinted buttons with an
+  icon and white words, the shared frost, Apple system colours, `--font`). If a detector flags `backdrop-filter`,
+  glass or the shared frost as slop, it's a false alarm here.
+
 ## How we work
 - Merge and push without asking. Always `git pull --rebase` first (the site is also edited from another device).
 - Bump the version with every update: patch for fixes, minor for features, with sed over `site/*.html site/shell.js site/sw.js`.
