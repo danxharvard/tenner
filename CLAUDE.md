@@ -115,7 +115,7 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
 - **The phone's homepage opens on the Top 10s** (`#bxT10`, `tn.t10Page` in shell.js): the popup's logos, Shows / Films and
   service columns laid onto the page, swiped the same way (refreshed quietly with each quarter-hour check); then Christmas,
   We think you'll like and Trending shows / films (plain rows: no ranks, no Top 10 wording, no By service). The featured
-  slides and the See Top 10s bar are for bigger screens only. The Watchlist has no splash: it starts at its headline.
+  slides, the See Top 10s bar and the menu's Top 10s link are for bigger screens only. The Watchlist has no splash: it starts at its headline.
 - **Headings look like the About page's** (the owner's choice, 17 Nov 2026): heavy display type (800, `--font-display`), the
   text colour with the last word in the pink `.grad` gradient. shell.js adds the gradient word to every heading in its `HEADS`
   list by itself (also ones drawn later); add a new heading class to `HEADS` and the matching rule at the foot of styles.css.

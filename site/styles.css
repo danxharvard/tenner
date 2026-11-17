@@ -2246,3 +2246,5 @@ body { padding-bottom: var(--tf-h); }
   font-family: var(--font-display); font-weight: 800; letter-spacing: -.03em; -webkit-font-smoothing: antialiased; }
 :root :is(.bx-sec-hd h2, .row-h) { font-size: 24px; line-height: 1.12; }
 
+/* phones: the Top 10s already open the homepage, so the menu leaves out their link */
+@media (max-width: 719px) { :is(.tabs, .drawer .tabs) button[data-tab="top10"] { display: none; } }
