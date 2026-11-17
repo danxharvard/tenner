@@ -8,3 +8,4 @@ site/t/
 .impeccable/
 .impeccable.md
 .taste-skill/
+__pycache__/

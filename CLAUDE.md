@@ -127,7 +127,7 @@ icon and white words, never pills or capsules (ignore their "actions are pills")
 Tenner's shape lock; the shared frost on boxes, bars and sheets is Tenner's chosen material, not "glassmorphism slop";
 and don't generate stock illustrations: the shows' artwork is the imagery.
 
-### Impeccable, Taste Skill, Emil Kowalski's, Vercel's and Jakub Krehel's skills (`.claude/skills/`, also a second opinion, never the boss)
+### Impeccable, Taste Skill, Emil Kowalski's, Vercel's, Jakub Krehel's and UI UX Pro Max skills (`.claude/skills/`, also a second opinion, never the boss)
 - **Impeccable** (`impeccable`, Apache-2.0, pbakaus/impeccable 4.9.2, plus its helper agents in `.claude/agents/`):
   design commands such as `/impeccable critique`, `audit`, `polish`, `typeset`, `animate`, `harden` and `distill`. Its
   engine downloads itself on first use. Its edit-by-edit hooks are deliberately not installed (they'd run after every
@@ -147,6 +147,9 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
 - **Make interfaces feel better** (`make-interfaces-feel-better`, jakubkrehel): a checklist of small polish details
   (optical alignment, tabular numbers, font smoothing, image outlines, shadows, icon states, motion restraint). Its
   concentric-radius rule (inner corner = outer minus padding) doesn't apply: Tenner keeps one 9px `--r` corner.
+- **UI UX Pro Max** (`ui-ux-pro-max`, uipro-cli 2.2.3, `uipro init --ai claude`): a searchable library of styles,
+  palettes, font pairings and UX rules (`python3 .claude/skills/ui-ux-pro-max/scripts/search.py`). Use its UX and
+  accessibility rules; ignore the styles, palettes and fonts it suggests, since Tenner's look is already set.
 - **The same rule applies: this file wins.** Ignore any default they suggest for corners, buttons, glass, fonts,
   colour or layout that differs from Tenner's house style above (one 9px `--r` corner, solid deep tinted buttons with an
   icon and white words, the shared frost, Apple system colours, `--font`). If a detector flags `backdrop-filter`,
