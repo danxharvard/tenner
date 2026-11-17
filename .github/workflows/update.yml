@@ -39,7 +39,6 @@ jobs:
 
       - uses: actions/checkout@v5
         if: steps.gate.outputs.go == 'yes'
-        with:
 
       - uses: actions/setup-node@v5
         if: steps.gate.outputs.go == 'yes'
