@@ -726,13 +726,14 @@
       const r = await fetch(`${window.tn.api}/search?q=${encodeURIComponent(q)}${web.page ? `&page=${web.page + 1}` : ''}`, { signal: web.ctl.signal });
       const d = r.ok ? await r.json() : null; if (web.q !== q) return;
       web.page = d?.page || web.page + 1; web.pages = d?.pages || web.page;
+      if (d && web.page === 1) web.fixed = d.fixed || '';   // a spelling slip: what the search service looked for instead
       const have = new Set([...list.map((x) => `${x.t[0]}${x.i}`), ...web.items.keys()]);
       const res = (d?.results || []).filter((x) => !have.has(x.k) && (state.sc === 'all' || x.type === state.sc));
       for (const x of res) web.items.set(x.k, { ...x, poster: x.poster ? d.img + x.poster : null, backdrop: x.backdrop ? d.bd + x.backdrop : null });
       $('#webGrid').insertAdjacentHTML('beforeend', res.map((x, i) => webCard(web.items.get(x.k), i)).join(''));
       $('#web').classList.toggle('solo', !list.length);   // nothing in the catalogue: these are the results
       const n = web.items.size;
-      $('#webNote').textContent = !d ? 'Couldn’t search everything right now.' : n ? `${n.toLocaleString('en-GB')}${web.page < web.pages ? '+' : ''}${list.length ? '' : ' · not on Tenner’s services right now'}` : list.length ? '' : `Nothing found for “${q}”. Try another spelling.`;
+      $('#webNote').textContent = !d ? 'Couldn’t search everything right now.' : n ? `${web.fixed ? `Showing results for “${web.fixed}” · ` : ''}${n.toLocaleString('en-GB')}${web.page < web.pages ? '+' : ''}${list.length ? '' : ' · not on Tenner’s services right now'}` : list.length ? '' : `Nothing found for “${q}”. Try another spelling.`;
       if (!list.length && !n) { web.on = false; $('#web').hidden = true; empty(); }
     } catch (e) { if (e.name !== 'AbortError') $('#webNote').textContent = 'Couldn’t search everything right now.'; }
     finally { web.busy = false; }
