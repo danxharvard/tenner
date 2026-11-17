@@ -127,7 +127,7 @@ icon and white words, never pills or capsules (ignore their "actions are pills")
 Tenner's shape lock; the shared frost on boxes, bars and sheets is Tenner's chosen material, not "glassmorphism slop";
 and don't generate stock illustrations: the shows' artwork is the imagery.
 
-### Impeccable, Taste Skill, Emil Kowalski's, Vercel's, Jakub Krehel's, UI UX Pro Max and macOS design skills (`.claude/skills/`, also a second opinion, never the boss)
+### Impeccable, Taste Skill, Emil Kowalski's, Vercel's, Jakub Krehel's, UI UX Pro Max, macOS design and Apple HIG skills (`.claude/skills/`, also a second opinion, never the boss)
 - **Impeccable** (`impeccable`, Apache-2.0, pbakaus/impeccable 4.9.2, plus its helper agents in `.claude/agents/`):
   design commands such as `/impeccable critique`, `audit`, `polish`, `typeset`, `animate`, `harden` and `distill`. Its
   engine downloads itself on first use. Its edit-by-edit hooks are deliberately not installed (they'd run after every
@@ -155,6 +155,10 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   the computer view; its sizes don't apply: Tenner keeps one 9px `--r` corner (not its 4, 8, 10 or 20px), its own
   buttons (no pills), the shared frost and `--font`, and nothing gets a coloured glow. Traffic lights are for desktop
   apps, not a website, so skip that part.
+- **Apple HIG reviewer** (`apple-hig`, dickwu/apple-design-skill at `91e1566`, renamed from `apple-design` so it doesn't
+  clash with Emil Kowalski's skill of that name): 123 pages of Apple's Human Interface Guidelines plus a review checklist.
+  The best source here for checking a page against the HIG; its "distinctive design" directions (palettes, type
+  pairings, zero-radius looks) don't apply, since Tenner's look is set.
 - **The same rule applies: this file wins.** Ignore any default they suggest for corners, buttons, glass, fonts,
   colour or layout that differs from Tenner's house style above (one 9px `--r` corner, solid deep tinted buttons with an
   icon and white words, the shared frost, Apple system colours, `--font`). If a detector flags `backdrop-filter`,
