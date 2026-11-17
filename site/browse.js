@@ -26,6 +26,37 @@
     // 1 November to Boxing Day: the services' most popular Christmas films and shows (marked in the catalogue's build)
     { key: 'xmas', label: 'Christmas', sort: 'pop', season: true, test: (x) => x.s.length && x.xm },
   ].filter((c) => !c.season || (() => { const d = new Date(); return d.getMonth() === 10 || (d.getMonth() === 11 && d.getDate() <= 26); })());
+  // each collection's icon (drawn in a 24-point box, a plain outline like the sidebar's)
+  const COLL_IC = {
+    popular: '<path d="M12 21a6.5 6.5 0 0 0 6.5-6.5c0-4.2-3.1-6.6-4.6-10.6-2.2 1.6-3.3 3.8-3.2 6.1-1.1-.5-1.8-1.5-2.1-2.6-1.6 1.7-3.1 4-3.1 7.1A6.5 6.5 0 0 0 12 21z"/>',
+    top10: '<path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5v1.2a3.6 3.6 0 0 0 3.4 3.6M16.5 6h3v1.2a3.6 3.6 0 0 1-3.4 3.6M12 14v3M8.5 20.5h7"/>',
+    week: '<path d="M10.5 3.5 12.3 8.2 17 10l-4.7 1.8-1.8 4.7-1.8-4.7L4 10l4.7-1.8z"/><path d="M17.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>',
+    new: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/>',
+    top: '<path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
+    gems: '<path d="M7 4.5h10L21 9.5 12 20 3 9.5z"/><path d="M3 9.5h18M9.6 4.5 8 9.5l4 10.5 4-10.5-1.6-5"/>',
+    acclaimed: '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.3 7.2 20.5 12 18l4.8 2.5-1.4-7.2"/>',
+    leaving: '<path d="M6.5 3.5h11M6.5 20.5h11M8 3.5v2.6c0 2.6 4 3.5 4 5.9s-4 3.3-4 5.9v2.6M16 3.5v2.6c0 2.6-4 3.5-4 5.9s4 3.3 4 5.9v2.6"/>',
+    xmas: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.6 4.6 12 6.4l2.4-1.8M9.6 19.4 12 17.6l2.4 1.8M3.9 11.3l2.9.7-.9 2.9M20.1 12.7l-2.9-.7.9-2.9M5.9 9.1l.9 2.9-2.9.7M18.1 14.9l-.9-2.9 2.9-.7"/>',
+  };
+  // The line under the chosen collection (or search scope): one line that slides across to the new choice,
+  // moved only by transform (translate and scale), so it stays smooth while the page is busy. Snaps when Animations is off.
+  function underline(track, animate = true) {
+    const ind = track?.querySelector('.coll-ind'), on = track?.querySelector('[aria-checked="true"]');
+    if (!ind || !on || !on.offsetWidth) return;
+    const pad = parseFloat(getComputedStyle(on).paddingLeft) || 0, w = on.offsetWidth - pad * 2;
+    ind.classList.toggle('go', animate && !!ind.dataset.on && !reduce());
+    ind.style.transform = `translateX(${on.offsetLeft + pad}px) scaleX(${w / 100})`;
+    ind.dataset.on = '1';
+  }
+
+  // A tap on a collection or scope: the line sets off at once, and the list (the heavy part) is drawn a frame later, so the
+  // slide is already running on its own (off the main thread) while the titles change beneath.
+  function soon(track, b, then) {
+    track.querySelectorAll('[aria-checked]').forEach((x) => x.setAttribute('aria-checked', x === b));
+    underline(track);
+    requestAnimationFrame(() => setTimeout(then));
+  }
+
   // Filters beyond genre and rating: age rating (UK certificates), length (minutes; episodes for shows) and release years.
   // Certificates and lengths come from the title details (data/titles.json), loaded the first time either is used.
   const AGES = [['', 'Any'], ['U', 'U'], ['PG', 'PG'], ['12', '12'], ['15', '15']];
@@ -168,11 +199,13 @@
     window.tn.tip?.({ id: 'free-to-watch', major: true, for: '#svcRail [data-svc="free"]', title: 'Free to watch',
       text: 'BBC iPlayer, ITVX, Channel 4 and 5 together, with their own Top 10. Tap it to see what you can watch without paying a penny.' });
 
-    // collections: one frosted bar of words, the chosen one lit and underlined in rainbow (it scrolls sideways when narrow)
+    // collections: a quiet row of words, each with its icon, a plain line under the chosen one (it scrolls sideways when narrow)
     $('#coll').insertAdjacentHTML('beforeend', COLLECTIONS.map((c) =>
-      `<button type="button" role="radio" class="coll-b" data-c="${c.key}" aria-checked="false">${esc(c.label)}</button>`).join(''));
+      `<button type="button" role="radio" class="coll-b" data-c="${c.key}" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true">${COLL_IC[c.key] || ''}</svg>${esc(c.label)}</button>`).join(''));
+    addEventListener('resize', () => { underline($('#coll'), false); underline($('#scopes'), false); });
+    document.fonts?.ready.then(() => underline($('#coll'), false));
     $('#coll').addEventListener('click', (e) => { const b = e.target.closest('.coll-b'); if (!b) return;
-      state.c = b.dataset.c; state.sort = null; apply(true); });
+      state.c = b.dataset.c; state.sort = null; soon($('#coll'), b, () => apply(true)); });
     arrows($('#coll'), () => [...document.querySelectorAll('.coll-b')], (b) => b.click());
 
     // Shows, Films or both, and the sort: the system's own pop-up menus
@@ -254,7 +287,7 @@
     // what to search: everything, shows, films or the cast and crew (the collections' place while you search)
     const scopes = $('#scopes');
     scopes.addEventListener('click', (e) => { const b = e.target.closest('[data-sc]'); if (!b || b.dataset.sc === state.sc) return;
-      state.sc = b.dataset.sc; window.tn.haptic?.(); web.q = ''; ppl.q = ''; apply(true, true); });
+      state.sc = b.dataset.sc; window.tn.haptic?.(); web.q = ''; ppl.q = ''; soon(scopes, b, () => apply(true, true)); });
     arrows(scopes, () => [...scopes.querySelectorAll('.coll-b')], (b) => b.click());
     qi.addEventListener('input', () => { state.q = qi.value; if (!state.q.trim()) state.sc = 'all'; apply(true, true); if (scrollY > 300) $('#cmdMark').scrollIntoView({ block: 'start' }); });
     qi.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qi.value) { e.preventDefault(); state.q = ''; apply(true); } if (e.key === 'Enter') qi.blur(); });
@@ -334,6 +367,7 @@
 
     // controls reflect state
     document.querySelectorAll('.coll-b').forEach((b) => b.setAttribute('aria-checked', b.dataset.c === state.c));
+    underline($('#coll'));
     { const tr = $('#coll'), on = tr.querySelector('[aria-checked="true"]');   // phones: the chosen one slides into view
       if (on && tr.scrollWidth > tr.clientWidth + 1) tr.scrollTo({ left: Math.max(0, on.offsetLeft - tr.clientWidth / 2 + on.offsetWidth / 2), behavior: reduce() ? 'auto' : 'smooth' }); }
     document.querySelectorAll('#svcRail [data-svc]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.svc === 'all' ? !state.s.length : state.s.includes(b.dataset.svc)));
@@ -368,6 +402,7 @@
     document.body.classList.toggle('searching', !!q);
     $('#scopes').hidden = !q; if (!q) state.sc = 'all';
     $('#scopes').querySelectorAll('[data-sc]').forEach((b) => b.setAttribute('aria-checked', b.dataset.sc === state.sc));
+    underline($('#scopes'), !!$('#scopes .coll-ind').dataset.on);
     document.body.classList.toggle('sc-people', !!q && state.sc === 'people');
 
     document.body.classList.toggle('mixed', !!q || state.k === 'both');   // show/film labels on the tiles when both are listed

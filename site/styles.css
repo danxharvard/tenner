@@ -2148,13 +2148,13 @@ body { padding-bottom: var(--tf-h); }
 @media (pointer: coarse) and (max-width: 380px) { .bx-score dd { font-size: 11px; } }
 /* depth: on computers the frosted boxes catch a little light along their top edge and cast a soft shadow */
 @media (min-width: 720px) {
-  .panel, .coll { box-shadow: inset 0 0 0 1px var(--fr-rim), inset 0 1px 0 rgba(255, 255, 255, .06), 0 22px 44px -30px rgba(0, 0, 0, .5); }
+  .panel { box-shadow: inset 0 0 0 1px var(--fr-rim), inset 0 1px 0 rgba(255, 255, 255, .06), 0 22px 44px -30px rgba(0, 0, 0, .5); }
 }
 /* phones: edge to edge. Every feature box runs the full width bar a slim margin, with no outline round it: a soft filled
    frost marks the box instead, as on iPhone. */
 @media (max-width: 719px) {
   :root { --ph-box: color-mix(in srgb, var(--label) 7%, color-mix(in srgb, var(--bg) 55%, transparent)); }
-  :root .panel, :root .coll { background: var(--ph-box); box-shadow: none; }
+  :root .panel { background: var(--ph-box); box-shadow: none; }
   :root .view-sw, :root .segmented, :root .seg-thumb { box-shadow: none; }
   :root .bx-hero, :root .bx-dc-card, :root .dc, :root .mood { box-shadow: 0 24px 48px -26px rgba(0, 0, 0, .6); }
 }
@@ -2171,7 +2171,8 @@ body { padding-bottom: var(--tf-h); }
     --label3: color-mix(in srgb, var(--label) 62%, transparent); --fill: color-mix(in srgb, var(--label) 16%, transparent);
     --fr-bg: color-mix(in srgb, var(--bg) 94%, transparent); --fr-in: color-mix(in srgb, var(--label) 13%, transparent);
     --fr-rim: color-mix(in srgb, var(--label) 42%, transparent); --ph-box: color-mix(in srgb, var(--label) 11%, var(--bg)); }
-  :root .panel, :root .coll { box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  :root .panel { box-shadow: inset 0 0 0 1px var(--fr-rim); }
+  .hs .search { outline: 1px solid var(--sep); outline-offset: -1px; }
   .nr-art, .dd, .segmented { outline: 1px solid var(--sep); outline-offset: -1px; }
   @media (max-width: 999px) { .tabs { outline: 1px solid var(--sep); outline-offset: -1px; } }
 }

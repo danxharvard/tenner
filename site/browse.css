@@ -99,47 +99,51 @@ body.browse { overflow-x: clip; }
 }
 
 
-/* ============================================================ the search bar: one frosted bar that holds on at the top */
+/* ============================================================ the search bar: a frosted search field, with Shows / Films and
+   Filters floating beside it as the house's deep buttons. The three hold on at the top as you scroll, like a Mac toolbar. */
 .cmd-mark { height: 1px; }
-.hs { position: sticky; z-index: 49; top: calc(env(safe-area-inset-top, 0px) + 14px); display: flex; align-items: center; gap: 8px;
-  height: 58px; margin-top: 6px; padding: 0 7px; border-radius: var(--r);
-  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 18px 40px -26px rgba(0, 0, 0, .55); }
-/* stepping into it: a calm ring in the accent colour, and the bar lifts a touch */
-.hs::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 2px var(--accent); opacity: 0; transition: opacity .25s ease; }
-.hs:has(input:focus)::before { opacity: .8; }
-:root:not(.still) .hs { transition: box-shadow .4s ease, translate .5s var(--ease-spring); }
-.hs:has(input:focus) { box-shadow: inset 0 0 0 1px var(--fr-rim), 0 26px 50px -26px rgba(0, 0, 0, .6); }
+.hs { position: sticky; z-index: 49; top: calc(env(safe-area-inset-top, 0px) + 14px); display: flex; align-items: center; gap: 10px;
+  height: 50px; margin-top: 6px; }
 @media (max-height: 500px) { .hs { position: relative; top: auto; } }   /* a phone on its side: too short to keep it holding on */
 
-.search { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; }
-.search input { width: 100%; height: 100%; padding: 0 40px 0 42px; border: 0; border-radius: var(--r); background: transparent; color: var(--label);
-  font: 400 18px/1 var(--font); letter-spacing: -.02em; caret-color: var(--accent); -webkit-appearance: none; appearance: none; }
+/* the field: the shared frost, its rim and a soft shadow so it floats over whatever scrolls beneath */
+.search { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; border-radius: var(--r);
+  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
+  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 14px 32px -22px rgba(0, 0, 0, .55); }
+/* stepping into it: the accent ring (the system's focus ring), drawn once and faded in */
+.search::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 2px var(--accent);
+  opacity: 0; transition: opacity .15s ease; }
+.search:has(input:focus-visible, input:focus)::after { opacity: 1; }
+.search input { width: 100%; height: 100%; padding: 0 44px 0 44px; border: 0; border-radius: var(--r); background: transparent; color: var(--label);
+  font: 400 17px/1 var(--font); letter-spacing: -.022em; caret-color: var(--accent); -webkit-appearance: none; appearance: none; }
 .search input:focus { outline: none; }
 .search input::-webkit-search-cancel-button { display: none; }
-.s-ic { position: absolute; left: 12px; width: 20px; height: 20px; color: var(--label2); pointer-events: none; }
-.s-key { position: absolute; right: 10px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; font: 600 12px/1 var(--font); color: var(--label2);
-  box-shadow: inset 0 0 0 1px var(--sep); pointer-events: none; }
+.s-ic { position: absolute; left: 15px; width: 19px; height: 19px; color: var(--label2); pointer-events: none; transition: color .15s ease; }
+.search:has(input:focus) .s-ic { color: var(--label); }
+/* the shortcut, as a Mac keycap: / to jump here */
+.s-key { position: absolute; right: 12px; display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px; font: 500 13px/1 var(--font); color: var(--label2);
+  background: var(--fr-in); box-shadow: inset 0 -1px 0 var(--fr-rim); pointer-events: none; }
 .search input:focus ~ .s-key, .search input:not(:placeholder-shown) ~ .s-key { display: none; }
 @media (hover: none) { .s-key { display: none; } }
-.s-clear { position: absolute; right: 4px; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--label3); cursor: pointer; }
-.s-clear svg { width: 19px; height: 19px; }
+.s-clear { position: absolute; right: 6px; display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--label3); cursor: pointer; }
+.s-clear svg { width: 18px; height: 18px; }
 @media (hover: hover) { .s-clear:hover { color: var(--label2); } }
 /* the hint: "Search shows and films", then what's popular now, each gliding up into place */
-.hs-hint { position: absolute; left: 42px; right: 40px; top: 50%; height: 1.4em; translate: 0 -50%; overflow: hidden; pointer-events: none;
-  font: 400 18px/1.4 var(--font); letter-spacing: -.02em; color: var(--label2); transition: opacity .2s ease; }
+.hs-hint { position: absolute; left: 44px; right: 44px; top: 50%; height: 1.4em; translate: 0 -50%; overflow: hidden; pointer-events: none;
+  font: 400 17px/1.4 var(--font); letter-spacing: -.022em; color: var(--label2); transition: opacity .15s ease; }
 .hs-hint-t { position: absolute; inset: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-:root:not(.still) .hs-hint-t.in { animation: hintIn .7s var(--ease-spring) both; }
-:root:not(.still) .hs-hint-t.out { animation: hintOut .45s ease both; }
-@keyframes hintIn { from { translate: 0 70%; opacity: 0; } }
-@keyframes hintOut { to { translate: 0 -70%; opacity: 0; } }
+:root:not(.still) .hs-hint-t.in { animation: hintIn .32s var(--ease-out) both; }
+:root:not(.still) .hs-hint-t.out { animation: hintOut .22s ease both; }
+@keyframes hintIn { from { translate: 0 60%; opacity: 0; } }
+@keyframes hintOut { to { translate: 0 -60%; opacity: 0; } }
 .search:has(input:not(:placeholder-shown)) .hs-hint { opacity: 0; }
 
-/* Shows / Films / Both (the system's own menu) and Filters: the house's deep buttons */
-.hs .dd, .hs .btn { flex: none; height: 44px; }
-.hs-kind { min-width: 0; padding: 0 14px 0 16px; gap: 9px; font: 500 16px/1 var(--font); }
-.hs-filters { position: relative; padding: 0 16px 0 13px; gap: 8px; font-size: 16px; }
-.hs-filters svg { width: 20px; height: 20px; flex: none; }
+/* Shows / Films / Both (the system's own menu) and Filters: the house's deep buttons, each with its icon, as tall as the field */
+.hs .dd, .hs .btn { flex: none; height: 50px; box-shadow: 0 14px 32px -22px rgba(0, 0, 0, .55); }
+.hs-kind { min-width: 0; padding: 0 14px 0 15px; gap: 9px; font: 500 16px/1 var(--font); }
+.dd-ic { width: 19px; height: 19px; flex: none; color: #fff; }
+.hs-filters { position: relative; padding: 0 17px 0 15px; gap: 9px; font-size: 16px; }
+.hs-filters svg { width: 19px; height: 19px; flex: none; }
 .badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--accent); color: #fff; font: 600 12px/1 var(--font); font-variant-numeric: tabular-nums; }
 /* searching: Shows / Films / Both steps aside (the scopes below do its job) */
 .searching .hs-kind { display: none; }
@@ -147,23 +151,27 @@ body.browse { overflow-x: clip; }
 /* below the bar at the top (phones and tablets) rather than under it */
 @media (max-width: 999px) { .hs { top: calc(env(safe-area-inset-top, 0px) + 64px); } }
 @container page (width < 700px) {
-  .hs { height: 54px; gap: 6px; padding: 0 5px; }
+  .hs { height: 46px; gap: 8px; }
+  .hs .dd, .hs .btn { height: 46px; }
   .search input, .hs-hint { font-size: 17px; }
-  .search input { padding-left: 38px; }
-  .s-ic { left: 10px; }
-  .hs-hint { left: 38px; }
-  .hs-kind { padding: 0 11px 0 13px; gap: 7px; font-size: 15px; }
-  .hs-filters { width: 44px; padding: 0; justify-content: center; }
+  .search input { padding-left: 40px; }
+  .s-ic { left: 12px; }
+  .hs-hint { left: 40px; right: 40px; }
+  .hs-kind { padding: 0 11px 0 12px; gap: 7px; font-size: 15px; }
+  .dd-ic { display: none; }   /* room for the words: the menu's chevrons say what it is */
+  /* only an icon: the house's dark grey circle */
+  .hs-filters { width: 46px; padding: 0; justify-content: center; border-radius: 50%; background: var(--bt-round); }
   .hs-filters .hs-fl { display: none; }
-  .hs-filters .badge { position: absolute; top: -5px; right: -5px; }
+  .hs-filters .badge { position: absolute; top: -4px; right: -4px; }
 }
+@media (hover: hover) and (max-width: 699px) { .hs-filters:hover { background: var(--bt-round-hover); } }
 
 
-/* ============================================================ collections: one frosted bar, the chosen one with the rainbow underline */
-.coll { position: relative; display: flex; width: fit-content; max-width: 100%; margin-top: 14px; padding: 4px; border-radius: var(--r);
-  transition: opacity .25s ease; }
-.coll-track { position: relative; display: flex; gap: 2px; min-width: 0; min-height: 40px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; border-radius: var(--r);
-  scroll-snap-type: x proximity; scroll-padding-inline: 4px; }
+/* ============================================================ collections: a quiet row of words with their icons over a
+   hairline, like the Apple TV app's; the chosen one in full colour with a plain line beneath, which slides across */
+.coll { position: relative; display: flex; max-width: 100%; margin-top: 12px; box-shadow: inset 0 -1px 0 var(--sep); }
+.coll-track { position: relative; display: flex; gap: 2px; flex: 1; min-width: 0; margin-inline: -12px; padding: 4px 0 6px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; }   /* reaching 12px past the field's edges, so the first word lines up with it and its hover has room */
 .coll-track::-webkit-scrollbar { display: none; }
 /* scrolls sideways when it's too wide, fading at whichever edge has more */
 @supports (animation-timeline: scroll(inline)) {
@@ -174,21 +182,26 @@ body.browse { overflow-x: clip; }
     to { -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px); mask-image: linear-gradient(90deg, transparent, #000 32px); }
   }
 }
-.coll-b { position: relative; flex: none; height: 40px; padding: 0 16px; border: 0; border-radius: var(--r); background: none; cursor: pointer; white-space: nowrap; scroll-snap-align: start;
+.coll-b { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 12px; border: 0; border-radius: var(--r); background: none;
+  cursor: pointer; white-space: nowrap; scroll-snap-align: start;
   font: 500 15px/1 var(--font); letter-spacing: -.016em; color: var(--label2); -webkit-tap-highlight-color: transparent;
-  transition: color .2s ease, background-color .2s ease; }
-.coll-b[aria-checked="true"] { color: var(--label); background: var(--fr-in); }
-@media (hover: hover) { .coll-b[aria-checked="false"]:hover { color: var(--label); background: color-mix(in srgb, var(--label) 5%, transparent); } }
-.coll-b::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: 5px; height: 2.5px; border-radius: 2px; pointer-events: none;
-  background: linear-gradient(90deg, #ff375f, #ff9f0a, #ffd60a, #30d158, #0a84ff, #bf5af2); opacity: 0; scale: .4 1; transition: opacity .3s ease, scale .45s var(--ease-spring); }
-.coll-b[aria-checked="true"]::after { opacity: 1; scale: 1 1; }
+  transition: color .15s ease, background-color .15s ease; }
+.coll-b svg { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.coll-b[aria-checked="true"] { color: var(--label); }
+@media (hover: hover) { .coll-b[aria-checked="false"]:hover { color: var(--label); background: var(--fr-in); } }
+.coll-b:active { background: var(--fr-in); }
 .coll-b:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* the line: the text colour, 100px wide, moved and sized by transform alone (browse.js), resting on the hairline */
+.coll-ind { position: absolute; left: 0; bottom: 0; width: 100px; height: 2.5px; border-radius: 2px; pointer-events: none; transform-origin: 0 50%;
+  background: var(--label); transform: scaleX(0); }
+.coll-ind:not([data-on]) { opacity: 0; }
+:root:not(.still) .coll-ind.go { transition: transform .24s cubic-bezier(.2, .8, .2, 1); }
 .searching .coll:not(.scopes) { display: none; }
-/* searching: the scopes take the collections' place, gliding in */
+/* searching: the scopes take the collections' place, fading in */
 .scopes[hidden] { display: none; }
-:root:not(.still) .scopes:not([hidden]) { animation: scopesIn .28s var(--ease-out) both; }
-@keyframes scopesIn { from { opacity: 0; translate: 0 -6px; } }
-@container page (width < 700px) { .coll { width: auto; margin-top: 10px; } .coll-b { padding: 0 14px; } .coll-b::after { left: 14px; right: 14px; } }
+:root:not(.still) .scopes:not([hidden]) { animation: scopesIn .2s var(--ease-out) both; }
+@keyframes scopesIn { from { opacity: 0; translate: 0 -4px; } }
+@container page (width < 700px) { .coll { margin-top: 8px; } .coll-track { margin-inline: -11px; } .coll-b { padding: 0 11px; gap: 6px; } }
 @media (pointer: coarse) { .coll-b { height: 44px; } }   /* a full 44pt to tap */
 
 
@@ -431,11 +444,11 @@ body.browse { overflow-x: clip; }
 
 /* ============================================================ the house's details */
 @media (hover: hover) and (pointer: fine) {
-  .coll-b, .g-b, .view-sw button { transition-duration: .1s; }
-  .g-b:active, .coll-b:active { filter: var(--press); }
+  .g-b, .view-sw button { transition-duration: .1s; }
+  .g-b:active { filter: var(--press); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .hs, .fsheet { background: var(--bg2); }
+  .search, .fsheet { background: var(--bg2); }
   .spot-ext { display: none; }
 }
 :root.still .spot-art img, :root.still .spot-ext img { transition: opacity .3s ease; scale: 1; }
@@ -581,7 +594,6 @@ main.bwrap { position: relative; isolation: isolate; }
 @container page (width < 700px) {
   .spot { padding-bottom: 6px; }
   .spot-nav { margin-top: 10px; }
-  .coll { margin-top: 8px; }
   .moods { margin-top: 18px; }
   .moods-h { margin-bottom: 8px; }
   .moods-row { padding-bottom: 8px; }

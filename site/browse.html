@@ -46,8 +46,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.120.0">
-  <link rel="stylesheet" href="browse.css?v=2.120.0">
+  <link rel="stylesheet" href="styles.css?v=2.121.0">
+  <link rel="stylesheet" href="browse.css?v=2.121.0">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -91,7 +91,7 @@
     <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="mailto:support@tenner.stream">Support</a>
       <a class="side-link" href="legal.html">Privacy and Terms</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.120.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.121.0</a>
     </nav>
   </header>
 
@@ -130,7 +130,7 @@
       </div>
     </section>
 
-    <!-- the search bar: one frosted bar that stays at the top as you scroll, its edge lit in Tenner's colours while you type -->
+    <!-- the search bar: a frosted search field with Shows / Films and Filters floating beside it, holding on at the top as you scroll -->
     <div class="cmd-mark" id="cmdMark" aria-hidden="true"></div>
     <div class="hs" id="cmd">
       <div class="search" role="search">
@@ -140,20 +140,20 @@
         <kbd class="s-key" aria-hidden="true">/</kbd>
         <button type="button" class="s-clear" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
-      <label class="dd hs-kind" id="kindDD"><span class="dd-l" id="kindL">Shows</span><span class="dd-chev" aria-hidden="true"></span>
+      <label class="dd hs-kind" id="kindDD"><svg class="dd-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8" width="13.5" height="12" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 4.5h10a3 3 0 0 1 3 3v8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="dd-l" id="kindL">Shows</span><span class="dd-chev" aria-hidden="true"></span>
         <select id="kindSel" aria-label="Shows, films or both"><option value="tv">Shows</option><option value="movie">Films</option><option value="both">Shows and films</option></select></label>
       <button type="button" class="btn btn-tinted hs-filters" id="openFilters" aria-haspopup="dialog" aria-controls="filters" aria-label="Filters" title="Filters">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="hs-fl">Filters</span><span class="badge" id="fCount" hidden></span></button>
     </div>
 
-    <!-- the collections: one frosted bar, the chosen one lit, with Tenner's rainbow underline -->
-    <nav class="coll" aria-label="Collections"><div class="coll-track" id="coll" role="radiogroup" aria-label="Collections"></div></nav>
+    <!-- the collections: a quiet row of words, each with its icon, over a hairline; a plain line slides under the chosen one -->
+    <nav class="coll" aria-label="Collections"><div class="coll-track" id="coll" role="radiogroup" aria-label="Collections"><i class="coll-ind" aria-hidden="true"></i></div></nav>
     <!-- searching: the collections make way for what to look through (Apple's scope bar): everything, shows, films or people -->
-    <nav class="coll scopes" id="scopes" aria-label="Search in" hidden><div class="coll-track" role="radiogroup" aria-label="Search in">
-      <button type="button" role="radio" class="coll-b" data-sc="all" aria-checked="true">Top results</button>
-      <button type="button" role="radio" class="coll-b" data-sc="tv" aria-checked="false">Shows</button>
-      <button type="button" role="radio" class="coll-b" data-sc="movie" aria-checked="false">Films</button>
-      <button type="button" role="radio" class="coll-b" data-sc="people" aria-checked="false">Cast and crew</button>
+    <nav class="coll scopes" id="scopes" aria-label="Search in" hidden><div class="coll-track" role="radiogroup" aria-label="Search in"><i class="coll-ind" aria-hidden="true"></i>
+      <button type="button" role="radio" class="coll-b" data-sc="all" aria-checked="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>Top results</button>
+      <button type="button" role="radio" class="coll-b" data-sc="tv" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12.5" rx="2.6"/><path d="M8 20.5h8"/></svg>Shows</button>
+      <button type="button" role="radio" class="coll-b" data-sc="movie" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.6"/><path d="M8.5 3.5v17M15.5 3.5v17M4 9.2h4.5M4 14.8h4.5M15.5 9.2H20M15.5 14.8H20"/></svg>Films</button>
+      <button type="button" role="radio" class="coll-b" data-sc="people" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.7"/><path d="M5 20.2c.9-3.7 3.7-5.9 7-5.9s6.1 2.2 7 5.9"/></svg>Cast and crew</button>
     </div></nav>
 
     <!-- what's filtering the list, each a button that takes it away -->
@@ -229,10 +229,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.120.0" defer></script>
-  <script src="links.js?v=2.120.0" defer></script>
-  <script src="sheet.js?v=2.120.0" defer></script>
-  <script src="person.js?v=2.120.0" defer></script>
-  <script src="browse.js?v=2.120.0" defer></script>
+  <script src="shell.js?v=2.121.0" defer></script>
+  <script src="links.js?v=2.121.0" defer></script>
+  <script src="sheet.js?v=2.121.0" defer></script>
+  <script src="person.js?v=2.121.0" defer></script>
+  <script src="browse.js?v=2.121.0" defer></script>
 </body>
 </html>
