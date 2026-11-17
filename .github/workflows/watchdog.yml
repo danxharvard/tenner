@@ -33,6 +33,7 @@ jobs:
             [ "$code" = 200 ] || echo "update.yml|tenner.stream answered $code"
             code=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -m 30 -A "$SAFARI" https://www.tenner.stream/browse.html)
             [ "$code" = "301 https://tenner.stream/browse.html" ] || echo "update.yml|www.tenner.stream answered $code"
+            curl -s -m 30 -A "$SAFARI" https://m.tenner.stream/browse.html | grep -q 'Tenner on a phone' || echo "update.yml|m.tenner.stream (the phone view) isn't showing its frame"
             mins=$(curl -s -m 30 "$LIVE/data/trending.json?v=$(date +%s)" | age)   # rebuilt hourly
             [ "$mins" -le 120 ] || { [ "$mins" = 99999 ] && echo "update.yml|the charts couldn't be read" || echo "update.yml|the charts are $((mins/60)) hours old"; }
             # the big featured artwork's pool (Home's slideshow, Browse's spotlight): what's trending, rebuilt every three hours
