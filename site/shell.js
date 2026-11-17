@@ -1045,7 +1045,7 @@
     const search = Object.assign(document.createElement('a'), { className: 'tb-round tb-search', href: 'browse.html#search',
       innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>' });
     search.setAttribute('aria-label', 'Search');
-    document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer" id="drawer" aria-labelledby="drH">
+    document.body.insertAdjacentHTML('beforeend', `<dialog class="drawer" id="drawer" aria-labelledby="drH" tabindex="-1">
       <div class="dr-head"><h2 class="dr-title" id="drH">Tenner</h2>
         <button type="button" class="tb-round dr-x" id="drX" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
       <div class="dr-body" id="drBody"></div></dialog>`);
@@ -1073,7 +1073,15 @@
       if (reduce()) { drawer.close(); return; }
       drawer.classList.add('out'); setTimeout(() => { drawer.classList.remove('out'); drawer.close(); }, 280);
     };
-    menuBtn.addEventListener('click', () => { drawer.showModal(); $('#drX').focus({ preventScroll: true }); });
+    // the small print gets its icons in the menu, like every other row there (hidden in the computer's sidebar)
+    const IC = { 'mailto:': '<path d="M4 6.5h16v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m4.5 7 7.5 6 7.5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+      'legal.html': '<path d="M12 3.2 5 6v5.2c0 4.3 3 7.9 7 9.6 4-1.7 7-5.3 7-9.6V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' };
+    document.querySelectorAll('.side-links a.side-link').forEach((a) => {
+      const k = Object.keys(IC).find((x) => a.getAttribute('href').startsWith(x));
+      if (k) a.insertAdjacentHTML('afterbegin', `<svg class="dr-ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`);
+    });
+    // opening puts the focus on the menu itself (no ring round the close button, and no keyboard popping up for Search)
+    menuBtn.addEventListener('click', () => { drawer.showModal(); drawer.focus({ preventScroll: true }); });
     // the round Search button: Browse's own box on Browse, the menu's search box everywhere else
     search.addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); open('search'); });
     drawer.addEventListener('close', () => { menuBtn.setAttribute('aria-expanded', 'false'); root.classList.remove('drawer-open'); drawer.classList.remove('finding'); });
@@ -1965,6 +1973,7 @@
   function showTheme() {
     const m = mode();
     modeBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.mode === m));
+    $('#thBtn').dataset.val = { auto: 'Auto', light: 'Day', dark: 'Night' }[m];   // the phone's menu shows it beside Theme, as iOS Settings does
     const dark = root.getAttribute('data-theme') === 'dark';
     $('#thIc').innerHTML = $(`.th-list [data-mode="${dark ? 'dark' : 'light'}"] i`).innerHTML; // the round button: a moon by night, a sun by day
     const meTh = $('#bxMeTh');   // ...and the same in the account pill, which flips between Day and Night
@@ -2182,7 +2191,7 @@
 
   // ---------- headings, the About page's way: heavy display type, the last word in the pink gradient (.grad). Done here
   // once for every page, and again whenever a page draws new headings, so no page has to remember it ----------
-  const HEADS = '.row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2';
+  const HEADS = '.dr-title, .row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2';
   function gradHead(h) {
     if (h.querySelector('.grad')) return;
     const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue.trim() && !n.parentElement.closest('.sr, .bx-h, [aria-hidden="true"], small, .chev') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });

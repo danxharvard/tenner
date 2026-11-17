@@ -634,7 +634,7 @@ a.side-ver[aria-current] { color: var(--label); }
 }
 
 /* ============================================================ phones (under 720px): Tenner as an extension of iOS */
-.tb-round, .drawer, .tb-left, .tb-right { display: none; }
+.tb-round, .drawer, .tb-left, .tb-right, .dr-ic { display: none; }
 @media (max-width: 719px) {
   :root { --gutter: max(12px, env(safe-area-inset-left, 0px)); --gutter-r: max(12px, env(safe-area-inset-right, 0px)); }   /* edge to edge, bar a slim margin */
   /* the navigation bar: menu (and Back) on the left, the logo in the middle, Share or Filters and Search on the right */
@@ -657,19 +657,20 @@ a.side-ver[aria-current] { color: var(--label); }
 
   /* ---------- the menu: against the left edge, full height, in the one frost; slides in and is swiped back out ---------- */
   .drawer { position: fixed; height: auto; max-width: none; margin: 0; overflow-y: auto; overscroll-behavior: contain; color: var(--label); }
-  .drawer[open] { display: flex; flex-direction: column; gap: 2px; animation: drIn .5s var(--ease-sheet) both; }   /* iOS's curve: it never overshoots and leaves a gap at the edge */
-  .drawer.out { animation: drOut .3s var(--ease-sheet) both; }
+  .drawer[open] { display: flex; flex-direction: column; gap: 2px; }
+  :root:not(.still) #drawer[open] { animation: drIn .32s var(--ease-sheet) both; }   /* iOS's curve, transform only: it never overshoots or leaves a gap at the edge */
+  :root:not(.still) #drawer.out { animation: drOut .22s var(--ease-exit) both; }
   .drawer.dragging { transition: none; }
   #drawer { inset: 0 auto 0 0; width: min(320px, calc(100vw - 56px)); height: 100%; max-height: none;
     padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px calc(env(safe-area-inset-bottom, 0px) + 24px) max(14px, env(safe-area-inset-left, 0px));
     border-radius: 0 var(--r) var(--r) 0; box-shadow: inset -1px 0 0 var(--fr-rim), 24px 0 60px rgba(0, 0, 0, .3) !important;
-    translate: var(--drag, 0px) 0; transition: translate .4s var(--ease-spring); }
+    translate: var(--drag, 0px) 0; transition: translate .28s var(--ease-sheet); }
   #drawer::before { display: none; }
   @keyframes drIn { from { transform: translateX(-100%); } }
   @keyframes drOut { to { transform: translateX(-100%); } }
   .dr-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 18px; padding: 0 2px 0 8px; }
   .drawer .dr-head { margin: 4px 0 16px 4px; padding: 0; }
-  .dr-title { margin: 0; font: 700 28px/1.1 var(--font); letter-spacing: -.02em; }
+  .dr-title { margin: 0; font-size: 30px; line-height: 1.1; }
   .dr-x { width: 36px !important; height: 36px !important; }
   .dr-x svg { width: 16px; height: 16px; }
   .dr-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
@@ -692,56 +693,74 @@ a.side-ver[aria-current] { color: var(--label); }
   .fl-row .dd { width: 100%; max-width: none; height: 44px; margin: 0; }
   .fl-done { width: 100%; height: 48px; margin-top: 18px; color: #fff; font-size: 16px; }
   .fl-done svg { width: 18px; height: 18px; }
-  /* in the menu, grouped like iOS Settings: Search, your account in a card of its own, About, Theme and Settings, the small print */
-  .drawer .side-search { order: 0; flex-wrap: wrap; margin: 0 0 18px; }
+  /* ---------- the menu, laid out like iOS Settings: the title, Search, your account card, then grouped rows (the pages;
+     About, Theme and Settings; the small print), each with its icon in a small tile of an Apple system colour, and the
+     version at the foot. The pages are where you go, so they have no chevrons (as in iPad's sidebar); the rest open a
+     page of their own and keep one. Hairlines only between the rows of a group, starting at the words. ---------- */
+  #drawer { --tile: 30px; --row: 48px; --ind: 56px; background: var(--fr-bg) !important; }   /* the one frost, no coloured glow */
+  #drawer:focus { outline: none; }
+  .drawer .side-search { order: 0; flex-wrap: wrap; margin: 0 0 16px; }
   .drawer .side-search input { height: 40px; border-radius: var(--r); font-size: 17px; padding-left: 36px; }   /* 16px and up, so iOS doesn't zoom in */
   .drawer .side-search .ss-ic { top: 11px; left: 11px; width: 18px; height: 18px; }
   .drawer .ss-res { position: static; inset: auto; flex-basis: 100%; padding: 4px 0 0; max-height: none; overflow: visible; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
   .drawer.finding .dr-body > :not(.side-search) { display: none; }   /* while you search, the results take the menu's place */
-  .drawer .side-h { display: block; margin: 20px 0 6px; padding: 0 14px; color: var(--label2); font: 600 13px/1 var(--font); letter-spacing: -.005em; }
-  .drawer .top-act { display: block; order: 4; padding: 0; border-radius: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .drawer .th-wrap { display: block; position: relative; }
-  .drawer .tb-btn::after { content: "Theme"; position: static; inset: auto; }
+  .drawer .side-h { display: none; }
   .drawer .side-links { display: contents; }
-  .drawer .side-acct { order: 2; flex: none; margin: 0 0 22px; padding: 12px 14px; min-height: 66px; border-radius: var(--r); background: var(--fr-in);
-    background-image: var(--row-chev); background-repeat: no-repeat; background-position: right 16px center; background-size: 8px 13px; }
-  .drawer .side-acct .av { width: 44px; height: 44px; font-size: 19px; }
-  .drawer .side-acct b { font-size: 17px; font-weight: 600; }
-  .drawer .side-acct small { font-size: 13px; }
-  .drawer .side-about:not(.side-settings) { order: 3; border-radius: var(--r) var(--r) 0 0; }
-  .drawer .side-settings { order: 5; border-radius: 0 0 var(--r) var(--r); }
-  .drawer .side-link { order: 6; }
-  .drawer .side-ver { order: 7; flex: none; margin: 12px 16px 0; color: var(--label2); font-size: 13px; text-decoration: none; }
-  .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
-    position: relative; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; width: 100%; height: 50px; margin: 0;
-    padding: 0 34px 0 12px; border: 0; border-radius: 0; color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; text-decoration: none;
-    -webkit-font-smoothing: antialiased; background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; }
-  .drawer .side-about:not(.side-settings) { border-radius: var(--r) var(--r) 0 0; }
-  .drawer .side-settings { border-radius: 0 0 var(--r) var(--r); }
-  .drawer .top-act .tb-btn { background-image: var(--pop-chev); background-size: 9px 14px; }
   .drawer .tb-about, .drawer .top-act .tb-about { display: none; }
-  .drawer .side-about[aria-current] { font-weight: 600; background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
-  .drawer .side-about:active, .drawer .top-act .tb-btn:active, .drawer .side-link:active { background-color: var(--fill-strong); transform: none; filter: none; }
-  .drawer .top-act .tb-btn::before, .drawer .side-settings::before { content: ""; position: absolute; top: 0; right: 0; left: 50px; height: .5px; background: var(--sep); }   /* hairlines from the words, as in iOS */
-  .drawer .side-about svg, .drawer .top-act .tb-btn svg { flex: none; width: 24px; height: 24px; padding: 0; color: var(--label); background: none; }
-  .drawer .side-link { height: 46px; padding-left: 16px; font-size: 16px; }
-  /* the pages: a group of rows at the top of the menu, like the computer's sidebar (no floating tab bar on phones) */
-  .drawer .tabbar { display: block; order: 1; margin: 0 0 22px; }
-  .drawer .tabs { display: flex; flex-direction: column; gap: 0; padding: 0; border-radius: var(--r); overflow: hidden; background: none; box-shadow: none !important;
+  /* your account: first, as in iOS Settings */
+  .drawer .side-acct { order: 1; flex: none; display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 10px 34px 10px 12px; min-height: 68px;
+    border-radius: var(--r); background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; box-shadow: none; text-decoration: none; }
+  .drawer .side-acct .av { width: 48px; height: 48px; font-size: 20px; }
+  .drawer .side-acct b { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+  .drawer .side-acct small { margin-top: 2px; color: var(--label2); font-size: 14px; }
+  /* every row: one height, one inset, the words at the same place */
+  .drawer .tabbar { display: block; order: 2; margin: 0 0 16px; }
+  .drawer .side-about:not(.side-settings) { order: 3; }
+  .drawer .top-act { display: block; order: 4; padding: 0; border-radius: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .drawer .side-settings { order: 5; margin-bottom: 16px; }
+  .drawer .side-link { order: 6; }
+  .drawer .th-wrap { display: block; position: relative; }
+  .drawer .tabs { display: flex; flex-direction: column; gap: 0; padding: 0; border-radius: var(--r); overflow: hidden; background: var(--fr-in); box-shadow: none !important;
     -webkit-backdrop-filter: none; backdrop-filter: none; isolation: auto; outline: none; }
   .drawer .tabs::before, .drawer .tabs::after, .drawer .tab-ind, .drawer .tab-me { display: none; }
-  .drawer .tabs button { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 14px; width: 100%; height: 50px; margin: 0; padding: 0 34px 0 12px;
-    border: 0; border-radius: 0; color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; -webkit-font-smoothing: antialiased;
+  .drawer .tabs button, .drawer .side-about, .drawer .top-act .tb-btn, .drawer .side-link {
+    position: relative; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; width: 100%; height: var(--row); margin: 0;
+    padding: 0 34px 0 10px; border: 0; border-radius: 0; color: var(--label); font: 400 17px/1 var(--font); letter-spacing: -.02em; text-decoration: none;
+    -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; transition: background-color .12s ease;
     background: var(--fr-in) var(--row-chev) no-repeat right 16px center / 8px 13px; }
-  .drawer .tabs button + button::before { content: ""; position: absolute; top: 0; right: 0; left: 50px; height: .5px; background: var(--sep); }
-  .drawer .tabs button svg { width: 24px; height: 24px; color: var(--label); }
-  .drawer .tabs button[aria-selected="true"] { font-weight: 600; color: var(--label); background-color: color-mix(in srgb, var(--accent) 14%, var(--fr-in)); }
-  .drawer .tabs button[aria-selected="true"] svg { color: var(--accent); }
-  .drawer .tabs button:active { transform: none; filter: none; background-color: var(--fill-strong); }
-  .drawer .side-acct + .side-link { margin-top: 22px; border-radius: var(--r) var(--r) 0 0; }
-  .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
-  .drawer .side-link + .side-link::before { content: ""; position: absolute; top: 0; right: 0; left: 16px; height: .5px; background: var(--sep); }
-  .drawer .side-link[aria-current] { font-weight: 400; color: var(--accent); }
+  .drawer .tabs button { background: none; padding-right: 12px; }   /* the pages: no chevrons */
+  .drawer .side-about:not(.side-settings), .drawer .side-acct + .side-link { border-radius: var(--r) var(--r) 0 0; }
+  .drawer .side-settings, .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
+  /* the hairline between two rows of a group, from the words to the edge */
+  .drawer :is(.tabs button + button, .th-wrap, .side-settings, .side-link + .side-link)::before { content: ""; position: absolute; z-index: 1; top: 0; right: 0; left: var(--ind); height: .5px; background: var(--sep); }
+  /* the tiles: a white symbol on a colour of its own */
+  .drawer :is(.tabs button, .side-about, .top-act .tb-btn) svg, .drawer .dr-ic { flex: none; box-sizing: border-box; width: var(--tile); height: var(--tile); padding: 5px; border-radius: 7px;
+    color: #fff; background: var(--tile-c, #8e8e93); }
+  .drawer .tabs .i-o { display: none; }
+  .drawer .tabs .i-f { display: block; }
+  .drawer .tabs .i-f path:not(.solid) { fill: none; stroke: currentColor; stroke-width: 2; }
+  .drawer [data-tab="home"] { --tile-c: #0a84ff; }
+  .drawer [data-tab="new"] { --tile-c: #ff375f; }
+  .drawer [data-tab="browse"] { --tile-c: #bf5af2; }
+  .drawer [data-tab="watchlist"] { --tile-c: #ff9f0a; }
+  .drawer .top-act .tb-btn { --tile-c: #5e5ce6; background-image: var(--pop-chev); background-size: 9px 14px; }
+  .drawer a.side-link[href^="mailto:"] { --tile-c: #30d158; }
+  .drawer a.side-link[href="legal.html"] { --tile-c: #0a84ff; }
+  .drawer .dr-ic { display: block; }
+  .drawer .top-act .tb-about { display: none; }
+  .drawer .side-settings { margin-bottom: 16px; }
+  /* Theme: its name, and what it's set to in grey on the right */
+  .drawer .tb-btn::after { content: "Theme"; position: static; inset: auto; }
+  .drawer #thBtn::before { content: attr(data-val); position: absolute; top: 0; bottom: 0; right: 34px; display: flex; align-items: center; color: var(--label2); font-weight: 400; }
+  /* where you are: the row filled a shade deeper, its name a touch heavier */
+  .drawer .tabs button[aria-selected="true"], .drawer .side-about[aria-current] { font-weight: 600; color: var(--label); background-color: color-mix(in srgb, var(--label) 9%, transparent); }
+  .drawer .side-link[aria-current] { font-weight: 600; color: var(--label); }
+  .drawer .tabs button[aria-selected="true"] svg { color: #fff; }
+  /* a tap: the row darkens at once, like iOS */
+  .drawer :is(.tabs button, .side-about, .top-act .tb-btn, .side-link, .side-acct):active { background-color: var(--fill-strong); transform: none; filter: none; transition: none; }
+  /* the version, quiet and centred at the foot */
+  .drawer .side-ver { order: 7; flex: none; display: flex; align-items: center; justify-content: center; align-self: center; min-height: 44px; margin: 8px 0 0; padding: 0 12px;
+    color: var(--label3); font-size: 13px; text-decoration: none; }
   .drawer-open, .drawer-open body { overflow: hidden; }   /* the page stays still under the open menu */
 
   /* ---------- the tab bar (the owner's photo): a bar of Liquid Glass floating above the foot of the screen. Each page an
@@ -2242,7 +2261,7 @@ body { padding-bottom: var(--tf-h); }
 
 /* ---------- every heading the About page's way (the owner's choice): heavy display type, white (the text colour by day)
    with its last word in the pink gradient, added by shell.js. Sizes stay each heading's own. ---------- */
-:root :is(.row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2) {
+:root :is(.dr-title, .row-h, .bx-sec-hd h2, .bx-panel-hd h2, #bxDc, #bxTv, #bxTn, .set-h, .large-title, .uwrap h1, .lg-hero h1, .lg-art > h2, .spot-h, .t10-hd h2) {
   font-family: var(--font-display); font-weight: 800; letter-spacing: -.03em; -webkit-font-smoothing: antialiased; }
 :root :is(.bx-sec-hd h2, .row-h) { font-size: 24px; line-height: 1.12; }
 
