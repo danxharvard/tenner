@@ -73,13 +73,9 @@
     const v = document.startViewTransition(fn);
     for (const p of [v.ready, v.finished, v.updateCallbackDone]) p.catch(() => {});
   };
-  // every tap answers (styles.css, "polish and motion"): a ring of light from a button, the new choice gliding into a
-  // pop-up button, and a small buzz from a switch where the device has one. Restarting a class replays its animation.
+  // every tap answers (styles.css, "motion"): buttons give under the finger (CSS alone), the new choice glides into a
+  // pop-up button, and a switch gives a small buzz where the device has one. Restarting a class replays its animation.
   const replay = (el, c) => { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); };
-  document.addEventListener('click', (e) => {
-    const b = e.target.closest?.('.btn, .dd, .hc-r, .cal-add, .set-pill, .pv-ok, .ft-ok, .tn-opt');
-    if (b && !root.classList.contains('still')) replay(b, 'tap-ring');
-  }, true);
   // the logo's ring spins once when it's pressed or a pointer arrives on it (styles.css; never mid-spin, never with Animations off)
   document.querySelectorAll('.lt-logo .tm').forEach((m) => {
     const spin = (e) => { if (reduce() || m.classList.contains('spin') || (e.type === 'pointerenter' && e.pointerType !== 'mouse')) return; m.classList.add('spin'); };
@@ -92,7 +88,7 @@
     if (t.matches?.('input[role="switch"]')) navigator.vibrate?.(6);
     if (t.tagName === 'SELECT' && !root.classList.contains('still')) requestAnimationFrame(() => replay(t.closest('.dd')?.querySelector('.dd-l') || t, 'dd-swap'));
   });
-  document.addEventListener('animationend', (e) => { if (e.animationName === 'tapRing' || e.animationName === 'ddSwap' || e.animationName === 'ddFlash') e.target.classList.remove('tap-ring', 'dd-swap'); });
+  document.addEventListener('animationend', (e) => { if (e.animationName === 'ddSwap' || e.animationName === 'ddFlash') e.target.classList.remove('dd-swap'); });
 
   // ---------- shared helpers ----------
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -167,7 +163,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.118.1';
+  const version = '2.119.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------

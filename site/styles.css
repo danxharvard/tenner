@@ -158,12 +158,14 @@ p { text-wrap: pretty; }
    rounded rectangles (circles when there's only an icon), an icon beside the words, white words and icons, regular weight
    with font smoothing; the same in Day and Night. ---------- */
 button, .btn, .dd, .tn-opt, .coll-b, .segmented button { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+/* a long press on a control never selects its words or pops up the link menu, as on iPhone */
+:is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .tabs button, .segmented button, .coll-b, .tn-opt) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   height: 36px; padding: 0 16px; border: 0; border-radius: var(--r);
   font: 500 15px/1 var(--font); letter-spacing: -.016em; white-space: nowrap;
   color: var(--label); background: transparent; cursor: pointer; text-decoration: none;
-  transition: background-color .18s, transform .5s var(--spring);
+  transition: background-color .18s ease, transform .4s var(--spring);
   -webkit-tap-highlight-color: transparent;
 }
 @media (hover: hover) { .btn:hover { text-decoration: none; } }
@@ -205,9 +207,9 @@ button, .btn, .dd, .tn-opt, .coll-b, .segmented button { -webkit-font-smoothing:
 .dd {
   position: relative; display: inline-flex; align-items: center; gap: 9px; min-width: 210px; height: 36px; padding: 0 14px 0 6px; border: 0; cursor: pointer;
   font: 500 15px/1 var(--font); letter-spacing: -.012em; white-space: nowrap; -webkit-tap-highlight-color: transparent;
-  transition: transform .35s var(--ease-spring), background-color .2s ease;
+  transition: transform .4s var(--spring), background-color .18s ease;
 }
-.dd:active { transform: scale(1.03); }
+.dd:active { transform: scale(.96); }
 .dd select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; appearance: none; border: 0; cursor: pointer; }
 .dd:has(select:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .dd-l { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; text-align: left; }
@@ -427,7 +429,7 @@ a.tb-btn:hover { text-decoration: none; }
 .tb-pop {
   position: fixed; inset: auto; margin: 0; border: 0; z-index: 65; box-sizing: border-box; width: min(300px, calc(100vw - 24px)); overflow-y: auto; overscroll-behavior: contain; max-height: calc(100dvh - 90px);
   border-radius: var(--r); padding: 18px 18px 12px; color: var(--label);
-  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: 0 24px 60px rgba(0, 0, 0, .22);
+  background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), 0 24px 60px rgba(0, 0, 0, .22);
   transform-origin: var(--tb-o, top right);
 }
 .tb-pop:focus { outline: 0; }
@@ -646,9 +648,9 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
   .tb-right { grid-area: 1 / 3; justify-self: end; display: flex; align-items: center; gap: 8px; pointer-events: auto; min-width: 0; }
   .tb-left > *, .tb-right > * { flex: none; }
   .tb-round { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; cursor: pointer; pointer-events: auto;
-    -webkit-tap-highlight-color: transparent; transition: transform .35s var(--ease-spring); }
+    -webkit-tap-highlight-color: transparent; transition: transform .4s var(--spring), background-color .18s ease; }
   .tb-round svg { width: 21px; height: 21px; }
-  .tb-round:active { transform: scale(1.08); }
+  .tb-round:active { transform: scale(.96); }
   .tb-round:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (hover: hover) { a.tb-round:hover { text-decoration: none; } }
   .tb-back svg { width: 22px; height: 22px; margin-left: -2px; }
@@ -783,16 +785,16 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
   .me-row.me-over:has(.bx-me:not([hidden])) { position: absolute; z-index: 49; top: 0; right: 0; left: auto; margin: 0; }
   body:has(#bxMe) .side-acct { display: none; }   /* the pill speaks for your account */
   :root.signed-in .th-wrap, :root.signed-in #thBtn { display: none; }   /* ...and the pill's own sun or moon does the Theme button's job */
-  .bx-me:not([hidden]) { position: relative; z-index: 49; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: 999px;
+  .bx-me:not([hidden]) { position: relative; z-index: 49; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 5px; border-radius: var(--r);
     background: color-mix(in srgb, var(--accent) 8%, var(--fr-bg)); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
     box-shadow: inset 0 0 0 1px var(--fr-rim), 0 12px 30px -16px rgba(0, 0, 0, .5); }
 }
 @media (min-width: 720px) and (max-width: 999px) { .me-row.me-over:has(.bx-me:not([hidden])) { top: calc(env(safe-area-inset-top, 0px) + 60px); } }   /* below the floating bar */
-.bx-me-card { display: flex; align-items: center; gap: 11px; min-width: 0; max-width: 280px; height: 46px; padding: 0 16px 0 4px; border: 0; border-radius: 999px; cursor: pointer;
+.bx-me-card { display: flex; align-items: center; gap: 11px; min-width: 0; max-width: 280px; height: 46px; padding: 0 16px 0 4px; border: 0; border-radius: var(--r); cursor: pointer;
   color: var(--label); font: inherit; text-align: left; text-decoration: none; background: none; -webkit-tap-highlight-color: transparent;
   transition: transform .35s var(--ease-spring), background-color .2s ease; }
 @media (hover: hover) { .bx-me-card:hover { text-decoration: none; background: var(--fr-in); } }
-.bx-me-card:active { transform: scale(.98); }
+.bx-me-card:active { transform: scale(.97); }
 .bx-me-card:focus-visible, .bx-me-out:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bx-me-card[aria-expanded="true"] { background: var(--fr-in); }
 .bx-me-card .av { width: 38px; height: 38px; font-size: 16px; }
@@ -810,7 +812,7 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
   transition: transform .35s var(--ease-spring), background-color .2s ease; }
 .bx-me-out svg { width: 20px; height: 20px; margin-left: 2px; }
 @media (hover: hover) { .bx-me-out:hover { background: var(--bt-round-hover); } }
-.bx-me-out:active { transform: scale(1.08); }
+.bx-me-out:active { transform: scale(.96); }
 .bx-me-th svg { width: 20px; height: 20px; margin: 0; }
 .me-th-spin svg { animation: meThSpin .55s var(--ease-spring); }
 @keyframes meThSpin { from { transform: rotate(-90deg) scale(.6); opacity: 0; } }
@@ -958,7 +960,7 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
 .cal-add { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: transform .3s var(--ease-spring), background-color .2s ease; }
 .cal-add svg { width: 20px; height: 20px; }
-.cal-add:active { transform: scale(.92); }
+.cal-add:active { transform: scale(.96); }
 .cal-add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* This Week, and each section's heading: a line of explanation always under it, any control on the right */
 .wk { margin-top: 22px; scroll-margin-top: 80px; }
@@ -1070,7 +1072,7 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
   transition: background-color .2s ease, transform .35s var(--ease-spring), opacity .25s ease; }
 .tn-rd::before { content: ""; position: absolute; inset: -4px; }   /* a 44pt target */
 .tn-rd svg { width: 18px; height: 18px; }
-.tn-rd:active { transform: scale(.92); }
+.tn-rd:active { transform: scale(.96); }
 .tn-rd.tn-off { opacity: 0; visibility: hidden; pointer-events: none; }
 @media (hover: hover) { .tn-rd:hover { background: var(--bt-round-hover); } }
 .tn-rd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -1228,13 +1230,13 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 /* ---------- one look for every sheet and alert (Help me choose, My services, a title's or a person's sheet, Browse's
    filters, Share, Sign out, Delete account, the Christmas calendar, the menus, a photo held up close): the one frost and
    corner with its fine rim, lit like the Contact card (a fine line of the accent across the middle of the top edge, glowing
-   gently down into the sheet and under it), one dimmed and blurred backdrop, and one heading. ---------- */
+   gently down into the sheet; no coloured shadow beneath), one dimmed and blurred backdrop, and one heading. ---------- */
 :is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure) {
   --tone: var(--accent, #0a84ff);
   border: 0; border-radius: var(--r); color: var(--label);
   background: radial-gradient(65% 170px at 50% 0, color-mix(in srgb, var(--tone) 15%, transparent), transparent), var(--fr-bg) !important;
   -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 100px -24px rgba(0, 0, 0, .6), 0 40px 90px -40px color-mix(in srgb, var(--tone) 50%, transparent) !important;
+  box-shadow: inset 0 0 0 1px var(--fr-rim), 0 40px 100px -24px rgba(0, 0, 0, .6) !important;
 }
 :is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure)::before { content: ""; position: absolute; z-index: 5; top: 0; left: 14%; right: 14%; height: 1px; pointer-events: none;
   background: linear-gradient(90deg, transparent, var(--tone), transparent); }
@@ -1327,7 +1329,7 @@ dialog.adv { position: fixed; }   /* the calendar keeps its night scene inside t
   75% { transform: translate(5px, -2px) rotate(260deg); border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; } }
 @keyframes outBreathe { 0%, 100% { transform: scale(.82); opacity: .75; } 50% { transform: scale(1.12); opacity: 1; } }
 @keyframes outHalo { 50% { box-shadow: 0 0 26px 0 rgba(10, 132, 255, .55), 0 0 46px -4px rgba(191, 90, 242, .5), 0 0 0 .5px rgba(255, 255, 255, .22); } }
-@keyframes outPop { from { transform: scale(.5); opacity: 0; filter: blur(6px); } }
+@keyframes outPop { from { transform: scale(.5); opacity: 0; } }
 
 /* ---------- a title's sheet (sheet.js): where to watch, in Tenner. A centred card on computers, a bottom sheet on phones
    (swipe it down to close); the Apple TV app's layout: artwork, title, details, actions, then Where to Watch. ---------- */
@@ -2094,35 +2096,27 @@ body { padding-bottom: var(--tf-h); }
 ::view-transition-new(root) { animation: vtIn .38s var(--ease-out) both; }
 @keyframes vtOut { to { opacity: 0; transform: scale(.985); } }
 @keyframes vtIn { from { opacity: 0; transform: translateY(10px); } }
-/* every tap answers: a ring of light spreads from the button (the house's light blue) and fades */
-:root:not(.still) .tap-ring { animation: tapRing .55s var(--ease-out); }
-@keyframes tapRing { from { outline: 2px solid color-mix(in srgb, var(--bt-on) 60%, transparent); outline-offset: 0; } to { outline: 2px solid transparent; outline-offset: 7px; } }
-/* icons inside buttons: a small lift on hover and a squeeze while pressed */
-:root:not(.still) :is(.btn, .hc-r, .cal-add, .set-pill, .pv-ok, .ft-ok) > svg { transition: transform .45s var(--ease-snap); }
-@media (hover: hover) { :root:not(.still) :is(.btn, .hc-r, .cal-add, .set-pill):hover > svg { transform: translateY(-1px) scale(1.1); } }
-:root:not(.still) :is(.btn, .hc-r, .cal-add, .set-pill, .pv-ok, .ft-ok):active > svg { transform: scale(.88); transition-duration: .12s; }
+/* every press answers the moment a finger lands (Apple's rule: feedback on touch-down, never on release): the control
+   gives quickly, then springs back softly when it's let go. The button and its icon move as one piece. */
+:root:not(.still) :is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .set-pill, .pv-ok, .ft-ok, .tile-c, .tn-picks a):active {
+  transition-duration: .1s; transition-timing-function: cubic-bezier(.2, 0, 0, 1); }
 :root:not(.still) .tn-opt .tn-chev { transition: transform .4s var(--ease-snap); }
 @media (hover: hover) { :root:not(.still) .tn-opt:hover .tn-chev { transform: translateX(3px); } }
 /* pop-up buttons: the chevron squeezes as the menu opens, and the new choice glides in */
 :root:not(.still) .dd-chev { transition: transform .4s var(--ease-snap), opacity .2s ease; }
 :root:not(.still) .dd:active .dd-chev { transform: scaleY(.7); }
 @media (hover: hover) { :root:not(.still) .dd:hover .dd-chev { opacity: .9; } }
-:root:not(.still) .dd-swap { animation: ddSwap .45s var(--ease-out); }
+:root:not(.still) .dd-swap { animation: ddSwap .25s var(--ease-out); }
 :root:not(.still) select.dd-swap { animation: ddFlash .5s ease; }
-@keyframes ddSwap { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } }
+@keyframes ddSwap { from { opacity: 0; transform: translateY(4px); } }
 @keyframes ddFlash { 30% { filter: brightness(1.35); } }
 /* switches: the knob springs across, and stretches while your finger is on it, as on iPhone */
 :root:not(.still) .sw { transition: background-color .3s ease; }
-:root:not(.still) .sw::after { transition: translate .45s var(--ease-snap), width .25s var(--ease-out); }
+:root:not(.still) .sw::after { transition: translate .35s var(--spring), width .2s var(--ease-out); }
 :root:not(.still) :is(.mine-row, .set-row):active .sw::after { width: 33px; }
 :root:not(.still) :is(.mine-row, .set-row):active input:checked + .sw::after { translate: 14px 0; }
 :root:not(.still) .me-keep:active .sw::after { width: 27px; }
 :root:not(.still) .me-keep:active input:checked + .sw::after { translate: 11px 0; }
-@media (prefers-reduced-motion: no-preference) {
-  :root:not(.still) .toast { transition: opacity .3s ease, translate .55s var(--spring), scale .55s var(--spring), display .3s allow-discrete; }
-  :root:not(.still) .toast[hidden] { display: none; opacity: 0; translate: 0 10px; scale: .96; }
-  @starting-style { :root:not(.still) .toast:not([hidden]) { opacity: 0; translate: 0 24px; scale: .92; } }
-}
 
 /* ============================================================ 9. the device's settings, as Apple's platforms honour them */
 /* pointer interactions, the macOS way: with a mouse or trackpad the pointer stays an arrow over controls, borderless

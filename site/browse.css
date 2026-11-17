@@ -131,8 +131,8 @@ body.browse { overflow-x: clip; }
 .hs-hint-t { position: absolute; inset: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 :root:not(.still) .hs-hint-t.in { animation: hintIn .7s var(--ease-spring) both; }
 :root:not(.still) .hs-hint-t.out { animation: hintOut .45s ease both; }
-@keyframes hintIn { from { translate: 0 70%; opacity: 0; filter: blur(4px); } }
-@keyframes hintOut { to { translate: 0 -70%; opacity: 0; filter: blur(4px); } }
+@keyframes hintIn { from { translate: 0 70%; opacity: 0; } }
+@keyframes hintOut { to { translate: 0 -70%; opacity: 0; } }
 .search:has(input:not(:placeholder-shown)) .hs-hint { opacity: 0; }
 
 /* Shows / Films / Both (the system's own menu) and Filters: the house's deep buttons */
@@ -186,10 +186,8 @@ body.browse { overflow-x: clip; }
 .searching .coll:not(.scopes) { display: none; }
 /* searching: the scopes take the collections' place, gliding in */
 .scopes[hidden] { display: none; }
-:root:not(.still) .scopes:not([hidden]) { animation: scopesIn .5s var(--ease-spring) both; }
-:root:not(.still) .scopes .coll-b { animation: scopesIn .5s var(--ease-spring) both; }
-:root:not(.still) .scopes .coll-b:nth-child(2) { animation-delay: 40ms; } :root:not(.still) .scopes .coll-b:nth-child(3) { animation-delay: 80ms; } :root:not(.still) .scopes .coll-b:nth-child(4) { animation-delay: 120ms; }
-@keyframes scopesIn { from { opacity: 0; translate: 0 -8px; filter: blur(4px); } }
+:root:not(.still) .scopes:not([hidden]) { animation: scopesIn .28s var(--ease-out) both; }
+@keyframes scopesIn { from { opacity: 0; translate: 0 -6px; } }
 @container page (width < 700px) { .coll { width: auto; margin-top: 10px; } .coll-b { padding: 0 14px; } .coll-b::after { left: 14px; right: 14px; } }
 @media (pointer: coarse) { .coll-b { height: 44px; } }   /* a full 44pt to tap */
 
@@ -224,7 +222,7 @@ body.browse { overflow-x: clip; }
   transition: translate .45s var(--ease-spring), box-shadow .3s ease; isolation: isolate; transform: translateZ(0); }
 /* each tile glows with its own top poster's colours, blurred deep behind dark glass (Apple Music's way) */
 .mood-bg { position: absolute; z-index: 0; inset: -35%; width: 170%; height: 170%; object-fit: cover; pointer-events: none;
-  filter: blur(28px) saturate(1.6) brightness(.62); transition: filter .5s ease, scale .8s var(--ease-out); }
+  filter: blur(28px) saturate(1.6) brightness(.62); transition: scale .6s var(--ease-out); }
 .mood::after { content: ""; position: absolute; z-index: 4; inset: 0; border-radius: inherit; pointer-events: none;
   background: linear-gradient(180deg, rgba(255, 255, 255, .1), transparent 38%), linear-gradient(90deg, rgba(0, 0, 0, .5) 0%, rgba(0, 0, 0, .18) 55%, transparent 75%); }
 .mood-fan { position: absolute; right: 8px; top: 16px; bottom: -22px; width: 104px; perspective: 600px; }
@@ -236,7 +234,7 @@ body.browse { overflow-x: clip; }
 .mood-l small { font-size: 13px; opacity: .85; }
 @media (hover: hover) {
   .mood:hover { translate: 0 -3px; }
-  .mood:hover .mood-bg { filter: blur(28px) saturate(1.8) brightness(.78); scale: 1.08; }
+  .mood:hover .mood-bg { scale: 1.08; }
   :root:not(.still) .mood:hover .mood-fan img { transform: rotateY(-8deg) rotateZ(calc(var(--j) * -11deg + 6deg)) translateY(-6px); }
 }
 .mood:active { scale: .98; }
@@ -514,11 +512,11 @@ body.browse { overflow-x: clip; }
 .b-people .sh-faces { margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 6px; scroll-padding-inline: var(--gutter);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent); mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent); }
 
-/* ---------- searching: new results rise out of a soft blur, one after another (browse.js's reveal) ---------- */
-@keyframes searchIn { from { opacity: 0; translate: 0 18px; scale: .94; filter: blur(8px); } }
-@keyframes faceIn { from { opacity: 0; scale: .7; filter: blur(6px); } }
-:root:not(.still) .tile.rv { animation: searchIn .6s var(--ease-out) both; animation-timeline: auto; animation-range: normal; animation-delay: calc(min(var(--d), 14) * 28ms); }
-:root:not(.still) .b-people li.rv { animation: faceIn .55s var(--ease-spring) both; animation-delay: calc(min(var(--d), 10) * 45ms); }
+/* ---------- searching: new results fade up into place together (browse.js's reveal); quick, since it runs as you type ---------- */
+@keyframes searchIn { from { opacity: 0; translate: 0 8px; } }
+@keyframes faceIn { from { opacity: 0; scale: .9; } }
+:root:not(.still) .tile.rv { animation: searchIn .28s var(--ease-out) both; animation-timeline: auto; animation-range: normal; }
+:root:not(.still) .b-people li.rv { animation: faceIn .28s var(--ease-out) both; }
 :root:not(.still) .b-people:not([hidden]) { animation: searchIn .5s var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .tile.rv, .b-people li.rv, .b-people { animation: none !important; } }
 
