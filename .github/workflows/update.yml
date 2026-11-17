@@ -53,6 +53,14 @@ jobs:
           WATCHMODE_API_KEY: ${{ secrets.WATCHMODE_API_KEY }}
           SITE_URL: ${{ env.LIVE }}
 
+      # each push's scripts and styles get an address of their own (?v=<version>&b=<commit>), so a change reaches people's
+      # browsers as soon as it's live rather than waiting for the evening's version number (the watchdog still reads the
+      # version from shell.js?v=, and the service worker keeps one copy of each file whatever the stamp)
+      - name: Stamp scripts and styles with the commit
+        if: steps.gate.outputs.go == 'yes'
+        working-directory: site
+        run: sed -i -E "s/\.(js|css)\?v=([0-9.]+)\"/.\1?v=\2\&b=${GITHUB_SHA::7}\"/g" *.html
+
       # the scripts and styles go up minified (about a third smaller once compressed, so pages draw sooner); the copies in
       # git stay readable. esbuild writes nothing if anything fails, so the readable copies go up instead and the site
       # still deploys. The service worker and the QR code library (its licence header, and only Settings loads it) are left.

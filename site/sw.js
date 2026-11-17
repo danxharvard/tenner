@@ -51,8 +51,8 @@ const trim = (c, max) => c.keys().then((keys) => Promise.all(keys.slice(0, Math.
 
 async function networkFirst(e) {
   const req = e.request, c = await caches.open(SHELL);
-  // scripts and styles carry the version (?v=1.2.3) and the hourly data a time stamp: one copy of each, whatever the stamp
-  const key = new URL(req.url); key.searchParams.delete('v'); if (key.pathname.includes('/data/')) key.search = '';
+  // scripts and styles carry the version and the commit (?v=1.2.3&b=abc1234) and the hourly data a time stamp: one copy of each, whatever the stamp
+  const key = new URL(req.url); key.searchParams.delete('v'); key.searchParams.delete('b'); if (key.pathname.includes('/data/')) key.search = '';
   const fromCache = async () => (await c.match(key.toString(), { ignoreSearch: req.mode === 'navigate' })) || (req.mode === 'navigate' ? c.match('./') : null);
   // pages always ask the server whether there's a newer copy (a quick "not changed" if not), so a new version's page
   // arrives at once, and with it that version's own scripts and styles
