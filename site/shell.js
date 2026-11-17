@@ -169,7 +169,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.119.2';
+  const version = '2.120.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the menu's "Tenner X.Y.Z" opens the Update centre (and says where you are when you're already there)
   document.querySelectorAll('a.side-ver').forEach((a) => {
@@ -177,7 +177,7 @@
     if (/\/updates(\.html)?$/.test(location.pathname)) a.setAttribute('aria-current', 'page');
   });
 
-  // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
+  // ---------- the support address: change it here and it updates everywhere (Privacy and Terms) ----------
   const contact = 'support@tenner.stream';
   document.querySelectorAll('a.contact-email').forEach((a) => { a.href = `mailto:${contact}`; a.textContent = contact; });
 
@@ -1007,8 +1007,8 @@
     topRow.insertAdjacentHTML('afterbegin', '<div class="tb-left" id="tbLeft"></div><div class="tb-right" id="tbRight"></div>');
     const leftBox = $('#tbLeft'), rightBox = $('#tbRight');
     leftBox.insertAdjacentHTML('beforeend', `<button type="button" class="tb-round tb-menu" id="menuBtn" aria-label="Menu" aria-haspopup="dialog" aria-controls="drawer" aria-expanded="false">${MENU}</button>`);
-    // pages under the menu (Settings, About, Contact…), not one of the main pages: iOS's back button, beside the menu
-    if (['settings', 'about', 'account', 'contact', 'legal', 'updates', 'list'].some(onPage)) {
+    // pages under the menu (Settings, About, Privacy and Terms…), not one of the main pages: iOS's back button, beside the menu
+    if (['settings', 'about', 'account', 'legal', 'updates', 'list'].some(onPage)) {
       const back = Object.assign(document.createElement('a'), { className: 'tb-round tb-back', href: './',
         innerHTML: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' });
       back.setAttribute('aria-label', 'Back');
@@ -2070,8 +2070,8 @@
   document.addEventListener('contextmenu', (e) => { if (e.target.closest?.('[data-tip]') && (held || hold)) e.preventDefault(); });
   addEventListener('scroll', () => tipFor && hideTip(), { passive: true, capture: true });
 
-  // the Help Centre: the menu marks it while you're in it (the Update centre is part of it)
-  if (onPage('legal') || onPage('updates')) document.querySelector('.side-link[href="legal.html"]')?.setAttribute('aria-current', 'page');
+  // Privacy and Terms: the menu marks it while you're on it
+  if (onPage('legal')) document.querySelector('.side-link[href="legal.html"]')?.setAttribute('aria-current', 'page');
 
   window.tnShell = { select };
 

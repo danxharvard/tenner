@@ -1076,8 +1076,7 @@
   checkWx(); setInterval(() => { if (!document.hidden) checkWx(); }, 15 * 60e3);
 
   // ---------- what's new in Tenner TV 4: shown once (not over a shared link, which opens its programme instead; then next
-  // time), a short sheet like iOS's "What's New", with feedback welcome. The feedback form is also behind every
-  // "Send feedback" (the sidebar, the foot of the page). It goes to Tenner's inbox through the Contact form's service. ----------
+  // time), a short sheet like iOS's "What's New", with feedback welcome by email (like every "Send feedback"). ----------
   const HELLO = 'tv-welcome', VER = '4', hello = $('#hello'), hlIn = $('#hlIn'), deepLink = !!(askQ || askP);
   const ico = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
   const BUBBLE = ico('<path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16h-6l-4.5 3.8V16H7a2.5 2.5 0 0 1-2.5-2.5z"/>');
@@ -1087,51 +1086,21 @@
     ['#ff9f0a', ico('<path d="M7.5 17.5h9.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 6.8 9.6a4 4 0 0 0 .7 7.9z"/>'), 'Clearer weather alerts', 'Met Office warnings sit in one tidy notification. Tap it for what it means for your picture.'],
     ['#ff375f', BUBBLE, 'Tell us what you think', 'It’s a big update, and your feedback shapes what comes next.'],
   ];
-  const ARROW = ico('<path d="M5 12h13M13 6.5 18.5 12 13 17.5"/>'), TICK = ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
-  function openHello(mode = 'new') {
+  const ARROW = ico('<path d="M5 12h13M13 6.5 18.5 12 13 17.5"/>');
+  function openHello() {
     closeAll();
-    const u = acct.token() ? acct.user() : null;
-    if (mode === 'new') hlIn.innerHTML = `<button type="button" class="sh-x" id="hlX" aria-label="Close">${X}</button><div class="hl-in">
+    hlIn.innerHTML = `<button type="button" class="sh-x" id="hlX" aria-label="Close">${X}</button><div class="hl-in">
         <img class="hl-logo" src="logo.svg" alt="" width="64" height="64"><h2 id="hlT">Welcome to the new Tenner TV</h2><p class="hl-ver">Version 4.0</p>
         <ul class="hl-list">${NEWS.map(([c, i, t, d]) => `<li><span class="hl-ic" style="--c:${c}">${i}</span><span><b>${t}</b><small>${d}</small></span></li>`).join('')}</ul>
-        <div class="hl-acts"><button type="button" class="act" id="hlGo">${ARROW}<span>Continue</span></button><button type="button" class="act alt" id="hlFb">${BUBBLE}<span>Send feedback</span></button></div></div>`;
-    else if (mode === 'fb') hlIn.innerHTML = `<button type="button" class="sh-x" id="hlX" aria-label="Close">${X}</button><form class="hl-in" id="hlForm" novalidate>
-        <h2 id="hlT">What do you think?</h2><p class="hl-ask">Tell us about the new Tenner TV: what you like, what you’d change, or anything that isn’t working.</p>
-        <p class="hl-q" id="hlVq">The new look</p>
-        <div class="bgrp" role="radiogroup" aria-labelledby="hlVq">${['Love it', 'It’s OK', 'Not for me'].map((v) => `<label><input type="radio" name="v" value="${v}">${v}</label>`).join('')}</div>
-        <label class="hl-f"><span>Anything else? (optional)</span><textarea id="hlMsg" maxlength="3000" placeholder="What would make it better?"></textarea></label>
-        <label class="hl-f"><span>Your email, so we can reply</span><input type="email" id="hlEm" autocomplete="email" inputmode="email" value="${esc(u?.email || '')}" placeholder="you@example.com"></label>
-        <input type="text" id="hlWeb" tabindex="-1" autocomplete="off" aria-hidden="true" hidden>
-        <p class="hl-err" id="hlErr" role="alert"></p>
-        <div class="hl-acts two"><button type="button" class="act alt" id="hlBack">${X}<span>Cancel</span></button><button type="submit" class="act" id="hlSend">${BUBBLE}<span>Send</span></button></div></form>`;
-    else hlIn.innerHTML = `<div class="hl-in"><span class="hl-ic" style="--c:#30d158;width:64px;height:64px;margin:0 auto 14px">${TICK}</span><h2 id="hlT">Thank you</h2>
-        <p class="hl-ask">We read every message. If you asked something, we’ll reply by email.</p><div class="hl-acts"><button type="button" class="act" id="hlGo">${TICK}<span>Done</span></button></div></div>`;
+        <div class="hl-acts"><button type="button" class="act" id="hlGo">${ARROW}<span>Continue</span></button><a class="act alt" href="mailto:support@tenner.stream?subject=Tenner%20TV%20feedback">${BUBBLE}<span>Send feedback</span></a></div></div>`;
     hlIn.scrollTop = 0;
     if (!hello.open) hello.showModal();
-    (mode === 'fb' ? $('#hlForm input[name="v"]') : $('#hlX') || $('#hlGo'))?.focus({ preventScroll: true });
-  }
-  async function sendFb(e) {
-    e.preventDefault();
-    const v = $('#hlForm input[name="v"]:checked')?.value || '', t = $('#hlMsg').value.trim(), em = $('#hlEm').value.trim(), err = $('#hlErr'), b = $('#hlSend');
-    if (!v && t.length < 2) { err.textContent = 'Choose how you feel about it, or write a few words.'; return; }
-    if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(em)) { err.textContent = 'Add your email, so we can reply.'; $('#hlEm').focus(); return; }
-    err.textContent = ''; b.disabled = true; b.querySelector('span').textContent = 'Sending…';
-    const u = acct.token() ? acct.user() : null;
-    const msg = [`Tenner TV ${VER}.0 feedback`, v ? `The new look: ${v}` : '', t, '', `(${innerWidth}×${innerHeight}, ${matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light'} Mode)`].filter((l, i) => l || i === 3).join('\n');
-    try {
-      const r = await fetch(`${API}/contact`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ topic: 'Feedback', name: u?.name || '', email: em, msg, website: $('#hlWeb').value }) });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || 'Couldn’t send right now. Please try again in a little while.');
-      openHello('thanks'); buzz(12);
-    } catch (x) { err.textContent = x.message === 'Failed to fetch' ? 'You seem to be offline. Please try again when you’re connected.' : x.message; b.disabled = false; b.querySelector('span').textContent = 'Send'; }
+    $('#hlX')?.focus({ preventScroll: true });
   }
   hello.addEventListener('click', (e) => {
-    if (e.target === hello || e.target.closest('#hlX, #hlGo, #hlBack')) hello.close();
-    else if (e.target.closest('#hlFb')) openHello('fb');
+    if (e.target === hello || e.target.closest('#hlX, #hlGo, a.act')) hello.close();
   });
-  hello.addEventListener('submit', (e) => { if (e.target.id === 'hlForm') sendFb(e); });
-  document.addEventListener('click', (e) => { if (e.target.closest('[data-fb]')) openHello('fb'); });
-  if (store.get(HELLO, '') !== VER && !deepLink) setTimeout(() => { if (!document.querySelector('dialog[open]')) { store.set(HELLO, VER); openHello('new'); } }, 1400);
+  if (store.get(HELLO, '') !== VER && !deepLink) setTimeout(() => { if (!document.querySelector('dialog[open]')) { store.set(HELLO, VER); openHello(); } }, 1400);
 
   // kept on the device: opens instantly, and works with a weak signal or none (sw.js)
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

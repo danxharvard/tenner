@@ -270,20 +270,11 @@ button, .btn, .dd, .tn-opt, .coll-b, .segmented button { -webkit-font-smoothing:
 .av svg { width: 20px; height: 20px; }
 span.av:not([style*="--h"]) { background: var(--fill-strong); color: var(--label2); }
 
-/* ---------- the Contact page's touches, shared. .lit: a fine line of the box's colour (--tone) along its top, fading at
-   both ends, and a soft glow beneath (a box adds var(--lit-glow) to its shadow). .tile-c: a tile that takes its own colour
-   (--c) as you hover over it, its icon lifting a little. ---------- */
+/* ---------- .lit: a fine line of the box's colour (--tone) along its top, fading at both ends, and a soft glow beneath
+   (a box adds var(--lit-glow) to its shadow). ---------- */
 .lit { position: relative; --lit-glow: 0 40px 90px -40px color-mix(in srgb, var(--tone) 60%, transparent); transition: --tone .8s ease; }
 .lit::before { content: ""; position: absolute; z-index: 1; top: 0; left: 12%; right: 12%; height: 1px; pointer-events: none;
   background: linear-gradient(90deg, transparent, var(--tone), transparent); }
-.tile-c { transition: background-color .25s ease, box-shadow .25s ease, scale .4s var(--ease-spring); }
-.tile-c :is(.set-ic, .gi) { transition: transform .45s var(--ease-spring); }
-@media (hover: hover) {
-  .tile-c:hover { background: color-mix(in srgb, var(--c) 12%, var(--fr-in)) !important;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 38%, transparent), 0 16px 36px -22px color-mix(in srgb, var(--c) 80%, transparent) !important; }
-  :root:not(.still) .tile-c:hover :is(.set-ic, .gi) { transform: scale(1.08) rotate(-4deg); }
-}
-:root:not(.still) .tile-c:active { scale: .97; }
 /* computers: frosted cards catch a soft light that follows the pointer, like glass under a lamp */
 @media (hover: hover) and (pointer: fine) {
   :root :is(.set-page .set-group, .cx-card, .ab-box) { background-image: radial-gradient(520px circle at var(--mx, 50%) var(--my, -400px), var(--lamp), transparent 62%); }
@@ -749,6 +740,7 @@ a.side-ver[aria-current] { color: var(--label); }
   .drawer .tabs button:active { transform: none; filter: none; background-color: var(--fill-strong); }
   .drawer .side-acct + .side-link { margin-top: 22px; border-radius: var(--r) var(--r) 0 0; }
   .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
+  .drawer .side-link + .side-link::before { content: ""; position: absolute; top: 0; right: 0; left: 16px; height: .5px; background: var(--sep); }
   .drawer .side-link[aria-current] { font-weight: 400; color: var(--accent); }
   .drawer-open, .drawer-open body { overflow: hidden; }   /* the page stays still under the open menu */
 
@@ -1236,7 +1228,7 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 /* ============================================================ 6. sheets and popups */
 /* ---------- one look for every sheet and alert (Help me choose, My services, a title's or a person's sheet, Browse's
    filters, Share, Sign out, Delete account, the Christmas calendar, the menus, a photo held up close): the one frost and
-   corner with its fine rim, lit like the Contact card (a fine line of the accent across the middle of the top edge, glowing
+   corner with its fine rim, lit like Settings' panel (a fine line of the accent across the middle of the top edge, glowing
    gently down into the sheet; no coloured shadow beneath), one dimmed and blurred backdrop, and one heading. ---------- */
 :is(.mine-dlg, .sheet, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom figure) {
   --tone: var(--accent, #0a84ff);
@@ -2105,7 +2097,7 @@ body { padding-bottom: var(--tf-h); }
 @keyframes vtIn { from { opacity: 0; transform: translateY(10px); } }
 /* every press answers the moment a finger lands (Apple's rule: feedback on touch-down, never on release): the control
    gives quickly, then springs back softly when it's let go. The button and its icon move as one piece. */
-:root:not(.still) :is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .set-pill, .pv-ok, .ft-ok, .tile-c, .tn-picks a):active {
+:root:not(.still) :is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .set-pill, .pv-ok, .ft-ok, .tn-picks a):active {
   transition-duration: .1s; transition-timing-function: cubic-bezier(.2, 0, 0, 1); }
 :root:not(.still) .tn-opt .tn-chev { transition: transform .4s var(--ease-snap); }
 @media (hover: hover) { :root:not(.still) .tn-opt:hover .tn-chev { transform: translateX(3px); } }

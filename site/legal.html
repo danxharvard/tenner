@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, shrink-to-fit=no">
-  <title>Help Centre · Tenner</title>
-  <meta name="description" content="Tenner’s Help Centre: answers, support, system status, the Privacy Policy, Terms of Service, copyright and credits, and a way to contact us.">
+  <title>Privacy and Terms · Tenner</title>
+  <meta name="description" content="Tenner’s Privacy Policy, Cookies, Terms of Service, copyright and credits, and how to reach support.">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -44,8 +44,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.119.2">
-  <link rel="stylesheet" href="legal.css?v=2.119.2">
+  <link rel="stylesheet" href="styles.css?v=2.120.0">
+  <link rel="stylesheet" href="legal.css?v=2.120.0">
 </head>
 <body class="legal">
   <a class="skip" href="#main">Skip to the page</a>
@@ -87,8 +87,9 @@
     </div>
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <nav class="side-links" aria-label="Site information">
-      <a class="side-link" href="legal.html">Help Centre</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.119.2</a>
+      <a class="side-link" href="mailto:support@tenner.stream">Support</a>
+      <a class="side-link" href="legal.html">Privacy and Terms</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.120.0</a>
     </nav>
   </header>
 
@@ -98,281 +99,27 @@
   </div>
 
 
-  <!-- The Help Centre: one page for help, support, status, privacy, terms, copyright and contact. Every article is written
-       here, grouped by topic, so it all reads top to bottom without JavaScript; legal.js turns it into a searchable centre
-       (home, a topic, an article) with the address's #part as the route, so legal.html#privacy, #terms and #cookies still work. -->
-  <main id="main" class="hq" tabindex="-1">
-    <div class="hq-aura" aria-hidden="true"><i></i><i></i><i></i></div>
-
-    <header class="hq-hero">
-      <p class="hq-kick"><a href="#">Tenner Help Centre</a></p>
-      <h1>How can we <em class="grad">help</em>?</h1>
-      <search class="hq-search" id="hqSearch">
-        <form role="search" id="hqForm" action="#">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="m15.6 15.6 4.6 4.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
-          <label class="vh" for="hqQ">Search the Help Centre</label>
-          <input id="hqQ" type="search" placeholder="Search help articles" autocomplete="off" spellcheck="false" enterkeyhint="search" maxlength="80">
-          <button type="button" class="hq-x" id="hqX" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
-        </form>
-      </search>
-      <p class="hq-pop" id="hqPop" hidden><span>Popular:</span></p>
+  <!-- Privacy and Terms: the Privacy Policy, Cookies, Terms of Service, copyright, credits and who runs Tenner, on one page
+       that reads top to bottom (legal.html#privacy, #terms and #cookies go straight to their part). Support is by email. -->
+  <main id="main" class="lg" tabindex="-1">
+    <header class="lg-hero">
+      <h1>Privacy and Terms</h1>
+      <p>How Tenner looks after your information, the rules for using it, and who to talk to.</p>
+      <nav class="lg-toc" aria-label="On this page"><a href="#privacy">Privacy Policy</a><a href="#cookies">Cookies</a><a href="#terms">Terms of Service</a><a href="#copyright">Copyright</a><a href="#credits">Credits</a><a href="#accessibility">Accessibility</a><a href="#legal-notice">Who runs Tenner</a></nav>
     </header>
 
-    <div class="hq-reader" id="hqReader">
-      <nav class="hq-nav" id="hqNav" aria-label="Help topics"></nav>
-      <div class="hq-lib" id="hqLib">
-        <nav class="hq-crumbs" id="hqCrumbs" aria-label="You are here" hidden></nav>
-        <!-- filled by legal.js: the home page (topics, popular articles, promises, contact), a topic's list, or search results -->
-        <div class="hq-view" id="hqView"></div>
+    <section class="lg-support" id="support" aria-labelledby="support-h">
+      <div><h2 id="support-h">Need help?</h2><p>Support is by email. Write to <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a> and a real person will reply, usually within a day.</p></div>
+      <a class="btn btn-tinted lg-cta" href="mailto:support@tenner.stream"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m3.8 7 8.2 6.2L20.2 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>Email support</a>
+    </section>
 
-        <!-- ============================================================ Getting started -->
-        <section class="hq-cat" id="c-start" data-c="#0a84ff" data-ic="spark" aria-labelledby="c-start-h">
-          <header class="hq-cat-h"><h2 id="c-start-h">Getting started</h2><p>What Tenner is, how the charts work and how to find something to watch.</p></header>
-
-          <article class="hq-art" id="what-is-tenner" data-pop data-k="about introduction overview free">
-            <h2>What is Tenner?</h2>
-            <p>Tenner shows the UK’s top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, all in one place and updated every hour.</p>
-            <p>Beyond the charts there’s <strong>New</strong> (what’s just arrived this week), <strong>Browse</strong> (everything streaming in the UK, with filters), <strong>Discover</strong> (swipe to find something new), and your <strong>Watchlist</strong>, which can tell you when something you’ve saved arrives, gets a new episode or is about to leave.</p>
-            <p>Tenner is free, has no adverts and doesn’t track you. It’s run independently, with no big company behind it, and isn’t part of any of the services it shows.</p>
-          </article>
-
-          <article class="hq-art" id="how-charts" data-pop data-k="top 10 ranking popularity algorithm netflix chart official figures">
-            <h2>How the Top 10s are worked out</h2>
-            <p>For every service except Netflix, we use popularity from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a> (The Movie Database), which reflects what people are watching, searching for, rating and adding to their lists. We keep only the titles that are streaming on that service in the UK, with availability from JustWatch, and rank what’s left.</p>
-            <p>The <strong>Netflix</strong> chart is Netflix’s own published UK Top 10, which Netflix updates once a week.</p>
-            <p>It’s a strong guide to what’s popular right now, but apart from Netflix’s it isn’t based on official viewing figures. The arrows beside each title show how far it has moved since yesterday (you can turn them off in Settings).</p>
-          </article>
-
-          <article class="hq-art" id="how-often" data-k="update hourly refresh frequency schedule">
-            <h2>How often Tenner updates</h2>
-            <ul>
-              <li><strong>The charts:</strong> every hour.</li>
-              <li><strong>Netflix’s Top 10:</strong> weekly, when Netflix publishes it.</li>
-              <li><strong>Browse:</strong> every six hours.</li>
-              <li><strong>New this week:</strong> once a day.</li>
-              <li><strong>Tenner TV’s listings:</strong> every three hours.</li>
-            </ul>
-            <p>It all runs by itself, and a watchdog checks every hour that nothing has fallen behind. You can see how fresh everything is right now on <a href="#status">System status</a>.</p>
-          </article>
-
-          <article class="hq-art" id="install" data-pop data-k="home screen app install pwa dock iphone android mac add">
-            <h2>Add Tenner to your Home Screen</h2>
-            <p>Tenner works like an app once it’s on your Home Screen or Dock: it opens full screen, starts instantly and works offline.</p>
-            <ul>
-              <li><strong>iPhone and iPad:</strong> open tenner.stream in Safari, tap the Share button, then <em>Add to Home Screen</em>.</li>
-              <li><strong>Mac:</strong> in Safari, choose File › Add to Dock.</li>
-              <li><strong>Chrome and Edge on a computer:</strong> click the install icon at the right of the address bar.</li>
-              <li><strong>Android:</strong> open the browser’s menu and choose <em>Install app</em> or <em>Add to Home screen</em>.</li>
-            </ul>
-            <p>On iPhone and iPad, this is also what lets Tenner send you <a href="#alerts-iphone">Watchlist alerts</a>.</p>
-          </article>
-
-          <article class="hq-art" id="find" data-k="search browse discover filters for you swipe find recommendations">
-            <h2>Search, Browse and Discover</h2>
-            <p><strong>Search</strong> finds any film, show or person, not just what’s in the charts. Press <kbd>/</kbd> or <kbd>⌘</kbd><kbd>K</kbd> (<kbd>Ctrl</kbd><kbd>K</kbd> on Windows) from any page to start typing.</p>
-            <p><strong>Browse</strong> is everything streaming in the UK. Filter by service, genre, year and more; your filters live in the page’s address, so you can bookmark or share them.</p>
-            <p><strong>Discover</strong> shows you one title at a time: swipe right on what you like, left on what you don’t. The more you swipe, the better <strong>For you</strong> gets at suggesting things. Your swipes stay on your device.</p>
-          </article>
-
-          <article class="hq-art" id="watchlist" data-k="save list progress episode watched up to">
-            <h2>Your Watchlist and progress</h2>
-            <p>Tap the bookmark on any title to save it to your Watchlist. For shows, you can set the season and episode you’re up to, and Tenner will show you what’s next.</p>
-            <p>Without an account, your Watchlist stays in this browser on this device. <a href="#need-account">Sign in</a> to keep it in step on all your devices, or <a href="#move-device">move it across</a> without one.</p>
-            <p>You can also share your Watchlist as a link from the Account page; anyone with the link can see it until you turn sharing off.</p>
-          </article>
-
-          <article class="hq-art" id="my-services" data-k="services subscriptions filter which services i have">
-            <h2>Choose your services</h2>
-            <p>Tell Tenner which services you pay for and Browse, Discover and the homepage’s rows can stick to what you can actually watch.</p>
-            <p>Go to <a href="settings.html">Settings</a> › Charts › <strong>My services</strong>, and switch on the ones you have. It’s saved on your device, and in your account if you sign in.</p>
-          </article>
-
-          <article class="hq-art" id="shortcuts" data-k="keyboard shortcuts keys mac computer">
-            <h2>Keyboard shortcuts</h2>
-            <dl class="hq-keys">
-              <div><dt><kbd>/</kbd> or <kbd>⌘</kbd><kbd>K</kbd></dt><dd>Search, from any page</dd></div>
-              <div><dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Move through search results</dd></div>
-              <div><dt><kbd>↵</kbd></dt><dd>Open the highlighted result</dd></div>
-              <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Move along the services’ Top 10s on the homepage</dd></div>
-              <div><dt><kbd>Esc</kbd></dt><dd>Close a title, sheet or menu, or clear the search</dd></div>
-              <div><dt><kbd>⌘</kbd><kbd>↵</kbd></dt><dd>Send your message on the Contact page</dd></div>
-            </dl>
-            <p>On Windows and Linux, use <kbd>Ctrl</kbd> wherever you see <kbd>⌘</kbd>.</p>
-          </article>
-
-          <article class="hq-art" id="tenner-tv" data-k="tenner tv freeview listings guide epg channels reminders">
-            <h2>Tenner TV</h2>
-            <p><a href="https://tv.tenner.stream" target="_blank" rel="noopener">Tenner TV</a> is Tenner’s Freeview guide: what’s on every channel today and over the coming days, updated every three hours. It opens instantly and works offline.</p>
-            <p>Sign in on Tenner TV with your Tenner account and your pinned channels and reminders are kept with it, and your Watchlist appears on its own shelf. Title pages on tenner.stream also show when something’s on Freeview this week.</p>
-          </article>
-        </section>
-
-        <!-- ============================================================ Account and sign-in -->
-        <section class="hq-cat" id="c-account" data-c="#bf5af2" data-ic="person" aria-labelledby="c-account-h">
-          <header class="hq-cat-h"><h2 id="c-account-h">Account and sign-in</h2><p>Signing in, passkeys, passwords, devices and deleting your account.</p></header>
-
-          <article class="hq-art" id="need-account" data-pop data-k="account sign up register sync">
-            <h2>Do I need an account?</h2>
-            <p>No. Everything in Tenner works without one, and your Watchlist and settings are kept on your device.</p>
-            <p>An account is free, and keeps your Watchlist, progress, services, notes and settings in step on every phone and computer you use. It’s also what the Sunday email and Tenner TV’s sign-in use. <a href="account.html">Sign in or sign up</a>.</p>
-          </article>
-
-          <article class="hq-art" id="sign-in" data-k="login log in google email password methods">
-            <h2>Ways to sign in</h2>
-            <ul>
-              <li><strong>A passkey:</strong> the quickest and safest. Your device unlocks it with Face ID, Touch ID or its screen lock. <a href="#passkeys">More about passkeys</a>.</li>
-              <li><strong>Google:</strong> sign in with your Google account.</li>
-              <li><strong>Email and password:</strong> we’ll email you a link to confirm your address when you sign up.</li>
-            </ul>
-            <p>You can link more than one to the same account on the <a href="account.html">Account page</a>. Turn off <em>Remember me</em> as you sign in on a shared computer and Tenner signs you out once you’ve closed it.</p>
-          </article>
-
-          <article class="hq-art" id="passkeys" data-k="passkey face id touch id webauthn security">
-            <h2>Passkeys</h2>
-            <p>A passkey replaces a password with your device’s own lock (Face ID, Touch ID, a fingerprint or your PIN). It can’t be guessed, reused or phished.</p>
-            <p>Only the public half of a passkey is kept by Tenner; the private half never leaves your device or password manager (such as iCloud Keychain or Google Password Manager), which also keeps it in step on your other devices.</p>
-            <p>Add one from the <a href="account.html">Account page</a> once you’re signed in.</p>
-          </article>
-
-          <article class="hq-art" id="reset-password" data-k="forgot password reset change lost">
-            <h2>Forgotten your password</h2>
-            <ol>
-              <li>Open <a href="account.html">Sign in</a> and type your email address.</li>
-              <li>Tap <strong>Forgot password?</strong></li>
-              <li>We’ll email you a link to choose a new one. Check your junk folder if it doesn’t arrive within a few minutes.</li>
-            </ol>
-            <p>If you signed up with Google or a passkey, there’s no Tenner password to reset: just sign in that way again.</p>
-          </article>
-
-          <article class="hq-art" id="devices" data-k="devices sessions signed in sign out lost phone">
-            <h2>See and sign out your devices</h2>
-            <p>The <a href="account.html">Account page</a> lists every device you’re signed in on, with when it was last used. Tap <strong>Sign out</strong> beside any of them and it stops working straight away, which is handy if you’ve lost a phone or used someone else’s computer.</p>
-          </article>
-
-          <article class="hq-art" id="move-device" data-k="transfer move qr code link without account copy">
-            <h2>Move to another device without an account</h2>
-            <p>In <a href="settings.html">Settings</a> › Your data, choose <strong>Move to another device</strong>. Scan the code with the other phone’s camera, or open the link there, and your Watchlist, where you’re up to and your services come with it.</p>
-            <p>Nothing is uploaded: everything is inside the link itself. You can also <strong>Export</strong> a file and import it on the other device.</p>
-          </article>
-
-          <article class="hq-art" id="import" data-k="import letterboxd imdb trakt netflix history csv file">
-            <h2>Import from Letterboxd, IMDb, Trakt or Netflix</h2>
-            <p>In <a href="settings.html">Settings</a> › Your data, choose <strong>Import from a file</strong> and pick your export from Letterboxd, IMDb, Trakt or your Netflix viewing history (or a Tenner export). It adds to what’s already there.</p>
-            <p>The file is read on your device. Only the names, years and IMDb numbers of its titles are sent to Tenner’s search service to find each one; the file itself is never uploaded or kept.</p>
-          </article>
-
-          <article class="hq-art" id="delete" data-pop data-k="delete remove close account erase data gdpr">
-            <h2>Delete your account</h2>
-            <p>Open the <a href="account.html">Account page</a>, scroll to the bottom and choose <strong>Delete account</strong>. If your account is linked to Google, unlink Google first (Tenner offers to do it for you). Tenner asks once to make sure, and then everything kept with your account is removed straight away: your name, sign-in methods, Watchlist, notes, settings and devices.</p>
-            <p>Your Watchlist, progress and services are cleared from this device too, and from your other devices the next time they open Tenner. Your email and Google account are free to use for a new Tenner account straight away. If you can’t sign in any more, <a href="contact.html?about=Legal">contact us</a> and we’ll delete it for you.</p>
-          </article>
-        </section>
-
-        <!-- ============================================================ Alerts and email -->
-        <section class="hq-cat" id="c-alerts" data-c="#ff375f" data-ic="bell" aria-labelledby="c-alerts-h">
-          <header class="hq-cat-h"><h2 id="c-alerts-h">Alerts and email</h2><p>Watchlist alerts, quiet hours and the Sunday email.</p></header>
-
-          <article class="hq-art" id="alerts" data-k="notifications push alerts turn on arrivals leaving new episodes">
-            <h2>Turn on Watchlist alerts</h2>
-            <p>Go to <a href="settings.html">Settings</a> › Alerts and switch on <strong>Watchlist alerts</strong>, then allow notifications when your browser asks.</p>
-            <p>Under <strong>Alert me about</strong> you can choose what you hear about: arrivals and new seasons, new episodes out today, titles leaving soon, Watchlist titles on Freeview today, and ones that got cheaper to rent or buy. <strong>Quiet hours</strong> hold arrivals until the morning.</p>
-            <p>Alerts are tied to this device. Turn them on on each device you want them on.</p>
-          </article>
-
-          <article class="hq-art" id="alerts-iphone" data-sum="Add Tenner to your Home Screen first, then switch alerts on from there." data-pop data-k="iphone ipad ios notifications alerts not working safari home screen">
-            <h2>Alerts on iPhone and iPad</h2>
-            <p>Apple only lets websites send notifications once they’ve been added to the Home Screen. So:</p>
-            <ol>
-              <li><a href="#install">Add Tenner to your Home Screen</a> from Safari.</li>
-              <li>Open Tenner from its new icon.</li>
-              <li>Go to Settings › Alerts and switch on Watchlist alerts.</li>
-            </ol>
-            <p>You’ll need iOS or iPadOS 16.4 or later.</p>
-          </article>
-
-          <article class="hq-art" id="alerts-missing" data-k="alerts not arriving notifications missing broken focus do not disturb">
-            <h2>Not getting alerts?</h2>
-            <ul>
-              <li>Check notifications are allowed for Tenner (or your browser) in your device’s settings, and that a Focus or Do Not Disturb isn’t holding them.</li>
-              <li>Check <strong>Alert me about</strong> and <strong>Quiet hours</strong> in Tenner’s Settings.</li>
-              <li>On iPhone and iPad, open Tenner from its Home Screen icon, not Safari (see <a href="#alerts-iphone">Alerts on iPhone and iPad</a>).</li>
-              <li>Try switching Watchlist alerts off and on again. This gives your device a fresh push address.</li>
-            </ul>
-            <p>Still nothing? <a href="#report-problem">Report a problem</a> and include your device details.</p>
-          </article>
-
-          <article class="hq-art" id="sunday-email" data-k="sunday email digest newsletter unsubscribe weekly">
-            <h2>The Sunday email</h2>
-            <p>A short round-up each Sunday morning of new episodes, arrivals and what’s leaving from your Watchlist. It needs an account: sign in, then switch on <strong>Sunday email</strong> in <a href="settings.html">Settings</a> › Alerts.</p>
-            <p>To stop it, use the unsubscribe link at the bottom of any email, or switch it off in Settings. Nothing else is ever sent to that address apart from account emails you ask for (like a password reset).</p>
-          </article>
-        </section>
-
-        <!-- ============================================================ Troubleshooting -->
-        <section class="hq-cat" id="c-fix" data-c="#ff9f0a" data-ic="wrench" aria-labelledby="c-fix-h">
-          <header class="hq-cat-h"><h2 id="c-fix-h">Fixing problems</h2><p>When something doesn’t look right, start here.</p></header>
-
-          <article class="hq-art" id="out-of-date" data-pop data-k="out of date old stale charts not updating wrong">
-            <h2>The charts look out of date</h2>
-            <ol>
-              <li>Check <a href="#status">System status</a> to see when the charts were last updated.</li>
-              <li>If they’re fresh there but not on your screen, pull down to refresh (or reload the page). Tenner keeps an offline copy so it opens quickly, and it fetches the latest charts as it opens.</li>
-              <li>Remember that Netflix’s chart only changes once a week, when Netflix publishes it.</li>
-            </ol>
-          </article>
-
-          <article class="hq-art" id="latest-version" data-k="version update cache clear old reload stuck service worker">
-            <h2>Get the latest version of Tenner</h2>
-            <p>Tenner updates itself: the next time you open it after an update, the new version is fetched in the background. The build number at the bottom of the menu shows which version you’re on, and the <a href="updates.html">Update centre</a> shows what’s new.</p>
-            <p>If something seems stuck, close every Tenner tab (or the Home Screen app) and open it again. As a last resort, clear the website data for tenner.stream in your browser’s settings.</p>
-            <p class="hq-warn"><strong>Before you clear website data:</strong> if you don’t have an account, this also removes your Watchlist and settings. <a href="#move-device">Export them first</a>, or sign in.</p>
-          </article>
-
-          <article class="hq-art" id="wrong-info" data-k="wrong incorrect where to watch availability missing title details poster">
-            <h2>A title’s details or where to watch are wrong</h2>
-            <p>Title details, artwork and where to watch come from TMDB and JustWatch, and what’s on each service can change without notice. A change usually reaches Tenner within a day.</p>
-            <p>If something’s still wrong, <a href="contact.html?about=Support">tell us</a> which title and what you expected to see. You can also correct details yourself on <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>, which helps everyone who uses it.</p>
-          </article>
-
-          <article class="hq-art" id="trailers" data-k="trailer video youtube not playing blocked">
-            <h2>Trailers won’t play</h2>
-            <p>Trailers come from YouTube, in its privacy-enhanced mode. Content blockers and some school or work networks block it.</p>
-            <p>Try pausing your blocker for tenner.stream, or set <strong>Play trailers</strong> to <em>On YouTube</em> in <a href="settings.html">Settings</a> › Titles to open them there instead.</p>
-          </article>
-
-          <article class="hq-art" id="report-problem" data-sum="What to tell us so we can fix it quickly, with your device details added for you." data-pop data-k="bug report problem broken error support help contact">
-            <h2>Report a problem</h2>
-            <p>The more we know, the quicker we can fix it. Tell us:</p>
-            <ul>
-              <li>what you were doing, and what happened instead;</li>
-              <li>which page or title it was on;</li>
-              <li>your device and browser. <a href="#device">Your device</a> collects these for you and can add them to your message.</li>
-            </ul>
-            <p><a class="btn btn-tinted hq-cta" href="contact.html?about=Support" data-details><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10.2 13.8M21 3l-6.9 18-3.9-7.2L3 9.9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Report a problem</a></p>
-          </article>
-        </section>
-
-        <!-- ============================================================ Privacy and safety -->
-        <section class="hq-cat" id="c-privacy" data-c="#30d158" data-ic="hand" aria-labelledby="c-privacy-h">
-          <header class="hq-cat-h"><h2 id="c-privacy-h">Privacy and safety</h2><p>What Tenner keeps, what it never does, and your rights.</p></header>
-
-          <article class="hq-art" id="privacy-glance" data-sum="No adverts, no tracking, no cookies, and accounts are optional." data-pop data-k="privacy summary tracking ads data">
-            <h2>Privacy at a glance</h2>
-            <ul class="hq-promise">
-              <li><b>No adverts</b>Tenner doesn’t show ads or work with ad networks.</li>
-              <li><b>No tracking</b>No analytics, no visitor tracking, no profiles.</li>
-              <li><b>No cookies</b>Nothing to accept, nothing following you round the web.</li>
-              <li><b>Accounts are optional</b>Without one, everything stays on your device.</li>
-            </ul>
-            <p>The details are in the <a href="#privacy">Privacy Policy</a>.</p>
-          </article>
-
-          <article class="hq-art hq-doc" id="privacy" data-upd="15 November 2026" data-k="privacy policy gdpr data personal information collect">
-            <h2>Privacy Policy</h2>
+          <article class="lg-art" id="privacy" aria-labelledby="privacy-h">
+            <h2 id="privacy-h">Privacy Policy</h2>
+            <p class="lg-meta">Updated 17 November 2026</p>
 
             <h3>1. Overview</h3>
             <p>Tenner (“we”, “us”, “our”) is a website that shows the UK’s most popular shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, updated every hour. This policy explains what information is involved when you visit the site and what choices you have.</p>
-            <p>The short version: unless you choose to create an account, we don’t collect or store any personal information about you. There’s no advertising and no tracking. Accounts are optional, and so are messages and Watchlist alerts; each is explained below.</p>
+            <p>The short version: unless you choose to create an account, we don’t collect or store any personal information about you. There’s no advertising and no tracking. Accounts are optional, and so are emails to us and Watchlist alerts; each is explained below.</p>
 
             <h3>2. Information we collect</h3>
             <p>We don’t collect personal information when you visit the site. In particular, the site does not use:</p>
@@ -382,7 +129,7 @@
               <li>cookies of any kind, including for accounts (see <a href="#cookies">Cookies</a>).</li>
             </ul>
             <p>We don’t ask for your location. The charts are for the UK as a whole.</p>
-            <p><strong>If you send us a message.</strong> The Contact page’s form sends your message, your email address, the type of enquiry you choose and your name, if you add it, to us as an email, through our search service on Cloudflare. If you choose to add your device details, those go too (the browser, system, screen size and Tenner version listed on <a href="#device">Your device</a>). It isn’t stored there: it’s passed straight on to our inbox. If you email us at <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a> instead, we receive your email address and whatever you include in your message. We use it only to read and reply to you. We don’t add you to any mailing list or share your details with anyone. Emails are kept only as long as needed to deal with your message, and you can ask us to delete them at any time. Our email provider processes messages under its own privacy policy.</p>
+            <p><strong>If you email us.</strong> When you write to <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>, we receive your email address and whatever you include in your message. We use it only to read and reply to you. We don’t add you to any mailing list or share your details with anyone. Emails are kept only as long as needed to deal with your message, and you can ask us to delete them at any time. Our email provider processes messages under its own privacy policy.</p>
             <p><strong>If you turn on Watchlist alerts.</strong> Alerts are off unless you switch them on. When you do, your browser gives Tenner a push address for this device (made by your browser’s own notification service, such as Apple’s, Google’s or Mozilla’s), and Tenner keeps it on Cloudflare together with the list of titles on your Watchlist (their TMDB numbers only), so it can tell you when one of them arrives on a service, gets a new season or episode, or is about to leave. Nothing else is kept: no name, email address or location. The list is updated when your Watchlist changes, and both are deleted when you turn alerts off, or when your browser tells us the address no longer works. Alerts are sent through your browser’s notification service and are encrypted so that only your device can read them.</p>
             <p><strong>If you turn on the Sunday email.</strong> It’s off unless you switch it on in Settings while signed in. Tenner then sends one email each Sunday to your account’s confirmed email address (the one you signed up with, or your Google account’s), using the Watchlist and services already kept with your account. Every email has an unsubscribe link, and switching it off in Settings works too. Emails are sent through Resend.</p>
             <p><strong>If you import from another app.</strong> When you import a Letterboxd, IMDb, Trakt or Netflix file, it’s read on your device. Only the names, years and IMDb numbers of the titles in it are sent to Tenner’s search service to find each one; the file itself is never uploaded or kept.</p>
@@ -394,7 +141,7 @@
               <li><strong>Where you’re signed in:</strong> the kind of device (such as “iPhone”), when you signed in and when it was last used. The sign-in itself is a random code kept on your device; we store only a scrambled copy of it;</li>
               <li><strong>Your shared list link</strong>, if you turn sharing on. Anyone with the link can see your name, picture and Watchlist until you turn it off.</li>
             </ul>
-            <p>This is kept in a database run by Cloudflare. We use it only to run your account. You can see it on the Account page, sign out of any device, and <a href="#delete">delete your account</a> there at any time, which removes everything above straight away. Accounts don’t use cookies: how this device stays signed in is explained in section 3.</p>
+            <p>This is kept in a database run by Cloudflare. We use it only to run your account. You can see it on the Account page, sign out of any device, and <a href="account.html">delete your account</a> there at any time, which removes everything above straight away. Accounts don’t use cookies: how this device stays signed in is explained in section 3.</p>
 
             <h3>3. Information stored on your device</h3>
             <p>To make the site work better, your browser keeps a few things on your own device:</p>
@@ -410,17 +157,16 @@
               <li><strong>Browse:</strong> whether you like posters or a list, and that you’ve seen the note about Browse changing.</li>
               <li><strong>Suggestions and tips:</strong> which of Tenner’s suggestion cards and feature tips you’ve closed or seen, so they stay closed, and, for the length of a visit, whether you’re seeing one.</li>
               <li><strong>Hearts:</strong> the shows and films you’ve loved, used only to suggest things you might like in For you.</li>
-              <li><strong>A message you’re writing:</strong> what you’ve typed on the Contact page, for the length of a visit, so leaving the page doesn’t lose it.</li>
               <li><strong>Your sign-in,</strong> if you have an account: the random code that keeps this device signed in, a copy of your name, picture, email address and colour so the menu can show who’s signed in straight away, and when your Watchlist, services and settings last changed, so your devices stay in step. If you turn off Remember me as you sign in, this device also keeps a note of that and of when Tenner was last open, so it can sign you out once you’ve closed it. They’re removed when you sign out (and you can choose to remove your Watchlist and the rest from the device too), or when you’re signed out from another device.</li>
               <li><strong>Passkeys,</strong> if you add one: these are kept by your device or password manager, not by Tenner.</li>
               <li><strong>The privacy note:</strong> that you’ve pressed Got it, so the note about cookies isn’t shown again.</li>
             </ul>
-            <p>Your filters and searches on Browse live only in the page’s address, so you can bookmark or share them; they aren’t saved anywhere. Searches in this Help Centre happen on your device and aren’t sent anywhere. <strong>Move to another device</strong> (in Settings) puts your Watchlist, progress and services into a link or QR code that only you see; nothing is uploaded. Apart from Watchlist alerts and your account, if you choose them (above), none of this is ever sent to us or anyone else. You can remove it at any time by clearing your browser’s data for this site.</p>
+            <p>Your filters and searches on Browse live only in the page’s address, so you can bookmark or share them; they aren’t saved anywhere. <strong>Move to another device</strong> (in Settings) puts your Watchlist, progress and services into a link or QR code that only you see; nothing is uploaded. Apart from Watchlist alerts and your account, if you choose them (above), none of this is ever sent to us or anyone else. You can remove it at any time by clearing your browser’s data for this site.</p>
 
             <h3>4. Third-party services</h3>
             <p>Like every website, Tenner relies on a few outside services. When your browser connects to them, they receive the technical details that any web request carries, such as your IP address and browser type. Each handles that information under its own privacy policy:</p>
             <ul>
-              <li><strong>Cloudflare</strong> hosts the website and its hourly charts, and runs Tenner’s search service. Cloudflare may log visitors’ IP addresses for security, to keep the service running and to turn away automated traffic. When you search all films, shows and people, or open a cast list, what you typed or opened is passed to TMDB to find the answer. The search service also passes on messages from the Contact page to our inbox, keeps the push address and Watchlist of anyone who turns on alerts, and holds accounts for anyone who makes one (see section 2). Nothing else is stored against you. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare’s Privacy Policy</a>.</li>
+              <li><strong>Cloudflare</strong> hosts the website and its hourly charts, and runs Tenner’s search service. Cloudflare may log visitors’ IP addresses for security, to keep the service running and to turn away automated traffic. When you search all films, shows and people, or open a cast list, what you typed or opened is passed to TMDB to find the answer. The search service also keeps the push address and Watchlist of anyone who turns on alerts, and holds accounts for anyone who makes one (see section 2). Nothing else is stored against you. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare’s Privacy Policy</a>.</li>
               <li><strong>GitHub</strong> runs the automated process that gathers the charts every hour. Your browser doesn’t contact GitHub while you use Tenner. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub’s Privacy Statement</a>.</li>
               <li><strong>TMDB</strong> (The Movie Database) supplies the posters, artwork and service logos, which your browser loads directly from TMDB’s image servers. See <a href="https://www.themoviedb.org/privacy-policy" target="_blank" rel="noopener">TMDB’s Privacy Policy</a>.</li>
               <li><strong>Google</strong> provides Sign in with Google. Its button loads from Google only on the Account page, and only Google’s sign-in is involved: if you use it, Google tells us your account number, name, email address and picture. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google’s Privacy Policy</a>.</li>
@@ -436,20 +182,21 @@
             <p>Tenner links to other websites, such as Netflix and TMDB, so you can watch or read more about a title. We aren’t responsible for the content or privacy practices of those sites; please check their own privacy policies.</p>
 
             <h3>7. Children</h3>
-            <p>Tenner is a general-audience site. We don’t collect personal information from visitors, including children; only people who choose to make an account, turn on alerts or contact us share anything with us (section 2). Some of the titles shown may not be suitable for younger viewers; check each service’s age ratings, and see <a href="#children">Children and age ratings</a>.</p>
+            <p>Tenner is a general-audience site. We don’t collect personal information from visitors, including children; only people who choose to make an account, turn on alerts or contact us share anything with us (section 2). Some of the titles shown may not be suitable for younger viewers; check each service’s age ratings, and switch on Hide titles rated 18 in <a href="settings.html">Settings</a> if you’d rather not see them.</p>
 
             <h3>8. Your rights</h3>
-            <p>Under UK data protection law (the UK GDPR and the Data Protection Act 2018), you have rights over any personal data we hold about you, including the right to see it, correct it, take a copy or have it deleted. This applies to your account, if you make one (you can see it, change your name and delete it on the Account page), the push address kept for Watchlist alerts, and emails you send us. Otherwise we don’t hold personal data about you. See <a href="#your-data">See, download or delete your data</a>. If you have concerns, you can also contact the <a href="https://ico.org.uk" target="_blank" rel="noopener">Information Commissioner’s Office</a>.</p>
+            <p>Under UK data protection law (the UK GDPR and the Data Protection Act 2018), you have rights over any personal data we hold about you, including the right to see it, correct it, take a copy or have it deleted. This applies to your account, if you make one (you can see it, change your name and delete it on the Account page), the push address kept for Watchlist alerts, and emails you send us. Otherwise we don’t hold personal data about you. If you have concerns, you can also contact the <a href="https://ico.org.uk" target="_blank" rel="noopener">Information Commissioner’s Office</a>.</p>
 
             <h3>9. Changes to this policy</h3>
             <p>If we change how Tenner handles information, we’ll update this policy and the date at the top before the change takes effect.</p>
 
             <h3>10. Contact</h3>
-            <p>Questions about this policy? Get in touch on the <a href="contact.html?about=Legal">Contact page</a> or email <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>.</p>
+            <p>Questions about this policy? Email us at <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>.</p>
           </article>
 
-          <article class="hq-art hq-doc" id="cookies" data-upd="15 November 2026" data-k="cookies consent banner storage local storage tracking">
-            <h2>Cookies</h2>
+          <article class="lg-art" id="cookies" aria-labelledby="cookies-h">
+            <h2 id="cookies-h">Cookies</h2>
+            <p class="lg-meta">Updated 17 November 2026</p>
             <p>Tenner doesn’t set any cookies, and doesn’t use any third-party cookies for tracking or advertising, so there’s nothing to accept or turn off. The things listed in section 3 of the <a href="#privacy">Privacy Policy</a> are kept in your browser’s own storage on this device, not in cookies.</p>
             <h3>Accounts</h3>
             <p>Accounts don’t use cookies either. When you sign in, this device is given a random code that’s kept in your browser’s storage and sent with Tenner’s own requests to its account service, so it knows it’s you; we store only a scrambled copy of it. It isn’t shared with anyone and can’t follow you to other websites. Signing out, or signing a device out from the Account page, makes it stop working straight away.</p>
@@ -462,42 +209,9 @@
             <p>Apart from your account and Watchlist alerts, if you choose them, what Tenner keeps on your device never leaves it.</p>
           </article>
 
-          <article class="hq-art" id="your-data" data-k="gdpr rights subject access request download export copy erase correct">
-            <h2>See, download or delete your data</h2>
-            <ul>
-              <li><strong>See it:</strong> everything kept with your account is shown on the <a href="account.html">Account page</a>.</li>
-              <li><strong>Take a copy:</strong> <a href="settings.html">Settings</a> › Your data › More › <strong>Export Watchlist and progress</strong> saves a file you can keep or import elsewhere.</li>
-              <li><strong>Correct it:</strong> change your name, colour and sign-in methods on the Account page.</li>
-              <li><strong>Delete it:</strong> <a href="#delete">delete your account</a>, turn alerts off (which deletes the push address), or clear this device with Settings › Your data › Clear all.</li>
-            </ul>
-            <p>For anything else, including a full copy of what we hold or deleting a message you sent us, <a href="contact.html?about=Legal">contact us</a> with the Legal topic. We’ll reply within a month, and usually much sooner.</p>
-          </article>
-
-          <article class="hq-art" id="security" data-k="security vulnerability bug bounty responsible disclosure hack report safe password">
-            <h2>Security and reporting a vulnerability</h2>
-            <p>How Tenner keeps your account safe:</p>
-            <ul>
-              <li>Passwords are scrambled on your device before they’re sent, and again by us, so we never see or keep the password itself. Passkeys are better still: nothing secret ever leaves your device.</li>
-              <li>Sign-ins are random codes; we keep only a scrambled copy, and you can sign out any device from the Account page.</li>
-              <li>Everything travels over encrypted connections, and Watchlist alerts are encrypted so only your device can read them.</li>
-              <li>The site keeps no secrets in its code; the keys it needs are kept by the services that run it.</li>
-            </ul>
-            <p><strong>Found a security problem?</strong> Please tell us privately on the <a href="contact.html?about=Legal">Contact page</a> (choose Legal) or at <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>, with the steps to reproduce it. Please don’t access other people’s data, disrupt the service or share the problem publicly until it’s fixed. We’ll reply quickly, keep you posted and thank you once it’s fixed.</p>
-          </article>
-
-          <article class="hq-art" id="children" data-k="children kids age rating 18 parental family">
-            <h2>Children and age ratings</h2>
-            <p>Tenner is a general-audience site, and the charts include whatever is popular, which can include titles for adults.</p>
-            <p>To keep them out of sight, switch on <strong>Hide titles rated 18</strong> in <a href="settings.html">Settings</a> › Titles › More. For stronger controls, use each streaming service’s own parental controls and profiles.</p>
-          </article>
-        </section>
-
-        <!-- ============================================================ Policies and legal -->
-        <section class="hq-cat" id="c-legal" data-c="#5e5ce6" data-ic="doc" aria-labelledby="c-legal-h">
-          <header class="hq-cat-h"><h2 id="c-legal-h">Policies and legal</h2><p>Terms, copyright, credits, accessibility and who we are.</p></header>
-
-          <article class="hq-art hq-doc" id="terms" data-pop data-upd="15 November 2026" data-k="terms of service conditions agreement rules use">
-            <h2>Terms of Service</h2>
+          <article class="lg-art" id="terms" aria-labelledby="terms-h">
+            <h2 id="terms-h">Terms of Service</h2>
+            <p class="lg-meta">Updated 17 November 2026</p>
             <h3>1. Acceptance of terms</h3>
             <p>By using Tenner, you agree to these terms. If you don’t agree, please don’t use the site.</p>
             <h3>2. What Tenner is</h3>
@@ -525,19 +239,19 @@
             <h3>12. Governing law</h3>
             <p>These terms are governed by the law of England and Wales, and the courts of England and Wales have jurisdiction.</p>
             <h3>13. Contact</h3>
-            <p>Questions about these terms? Get in touch on the <a href="contact.html?about=Legal">Contact page</a> or email <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>.</p>
+            <p>Questions about these terms? Email us at <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a>.</p>
           </article>
 
-          <article class="hq-art" id="copyright" data-k="copyright trademark logo brand intellectual property ownership rights reserved">
-            <h2>Copyright and trademarks</h2>
-            <p>© <span class="hq-year">2026</span> Tenner. The Tenner name, logo, design, writing and code are ours; please don’t copy them or use them in a way that suggests you’re Tenner or that we endorse you.</p>
+          <article class="lg-art" id="copyright" aria-labelledby="copyright-h">
+            <h2 id="copyright-h">Copyright and trademarks</h2>
+            <p>© <span class="lg-year">2026</span> Tenner. The Tenner name, logo, design, writing and code are ours; please don’t copy them or use them in a way that suggests you’re Tenner or that we endorse you.</p>
             <p>Posters, artwork, trailers and title information belong to their studios, distributors and creators, and reach Tenner through TMDB and YouTube. Netflix, Disney+, Prime Video, HBO Max, Paramount+, Apple TV, Sky, Freeview and the other names and logos shown are trademarks of their owners. They’re used only to show where titles are available, and don’t mean those companies endorse Tenner.</p>
             <p>Think something on Tenner uses your work without permission? See <a href="#takedown">Report copyright infringement</a>.</p>
           </article>
 
-          <article class="hq-art" id="takedown" data-k="copyright infringement takedown remove dmca complaint rights holder">
-            <h2>Report copyright infringement</h2>
-            <p>If you own the rights to something shown on Tenner and want it removed, <a href="contact.html?about=Legal">contact us</a> (choose Legal) or email <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a> with:</p>
+          <article class="lg-art" id="takedown" aria-labelledby="takedown-h">
+            <h2 id="takedown-h">Report copyright infringement</h2>
+            <p>If you own the rights to something shown on Tenner and want it removed, email <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a> with:</p>
             <ol>
               <li>the work you own, and a link to where it appears on Tenner;</li>
               <li>your name, and the company you act for, if any;</li>
@@ -546,9 +260,9 @@
             <p>We’ll look at it promptly and remove anything that shouldn’t be here. As most artwork comes through TMDB, we may also point you to them so it’s fixed at the source.</p>
           </article>
 
-          <article class="hq-art" id="credits" data-k="credits attribution data sources licences open source fonts tmdb justwatch watchmode tvmaze wikidata inter">
-            <h2>Credits and data sources</h2>
-            <p class="hq-tmdb"><b>TMDB</b>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+          <article class="lg-art" id="credits" aria-labelledby="credits-h">
+            <h2 id="credits-h">Credits and data sources</h2>
+            <p class="lg-tmdb"><b>TMDB</b>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
             <h3>Where the information comes from</h3>
             <ul>
               <li><a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>: popularity, title details, cast, posters, artwork and service logos.</li>
@@ -567,8 +281,8 @@
             </ul>
           </article>
 
-          <article class="hq-art" id="accessibility" data-k="accessibility a11y voiceover screen reader reduce motion contrast larger text keyboard">
-            <h2>Accessibility</h2>
+          <article class="lg-art" id="accessibility" aria-labelledby="accessibility-h">
+            <h2 id="accessibility-h">Accessibility</h2>
             <p>We want Tenner to work well for everyone. It follows your device’s settings:</p>
             <ul>
               <li><strong>Dark Mode or light</strong>, or your own choice of Day, Night or Auto in the Theme menu;</li>
@@ -576,97 +290,25 @@
               <li><strong>Reduce Transparency:</strong> frosted glass becomes solid;</li>
               <li><strong>Larger text</strong> and zoom, without anything running off the page;</li>
               <li><strong>VoiceOver and other screen readers:</strong> every button and icon has a label, and there’s a link to skip straight to the page;</li>
-              <li><strong>Keyboard:</strong> everything can be reached with Tab, and there are <a href="#shortcuts">shortcuts</a> for the most common things.</li>
+              <li><strong>Keyboard:</strong> everything can be reached with Tab, and there are shortcuts for the most common things.</li>
             </ul>
-            <p>Something hard to use? <a href="contact.html?about=Support">Tell us</a> and we’ll put it right.</p>
+            <p>Something hard to use? Email <a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a> and we’ll put it right.</p>
           </article>
 
-          <article class="hq-art" id="legal-notice" data-k="company who runs owner legal notice imprint contact address independent uk">
-            <h2>Who runs Tenner</h2>
+          <article class="lg-art" id="legal-notice" aria-labelledby="legal-notice-h">
+            <h2 id="legal-notice-h">Who runs Tenner</h2>
             <p>Tenner is an independent project made in the UK, with no big company behind it. It’s free, and it isn’t funded by adverts or by selling data.</p>
-            <ul class="hq-facts">
+            <ul class="lg-facts">
               <li><span>Website</span><b>tenner.stream</b></li>
               <li><span>Contact</span><b><a class="contact-email" href="mailto:support@tenner.stream">support@tenner.stream</a></b></li>
               <li><span>Governing law</span><b>England and Wales</b></li>
               <li><span>Data protection</span><b>UK GDPR and the Data Protection Act 2018</b></li>
             </ul>
           </article>
-        </section>
 
-        <!-- ============================================================ Technical -->
-        <section class="hq-cat" id="c-tech" data-c="#64d2ff" data-ic="chip" aria-labelledby="c-tech-h">
-          <header class="hq-cat-h"><h2 id="c-tech-h">Technical</h2><p>Live status, your device, versions and how Tenner is built.</p></header>
-
-          <article class="hq-art" id="status" data-pop data-live="status" data-k="status down outage working online uptime service health">
-            <h2>System status</h2>
-            <p>Checked live from your device, just now.</p>
-            <ul class="hq-status" id="hqStatus" aria-live="polite">
-              <li data-s="site"><i></i><span><b>Website</b><small>tenner.stream</small></span><em>Checking…</em></li>
-              <li data-s="charts"><i></i><span><b>Charts</b><small>Rebuilt every hour</small></span><em>Checking…</em></li>
-              <li data-s="api"><i></i><span><b>Search and accounts</b><small>Search, sign-in, alerts and messages</small></span><em>Checking…</em></li>
-              <li data-s="tv"><i></i><span><b>Tenner TV</b><small>Freeview listings</small></span><em>Checking…</em></li>
-            </ul>
-            <p><button type="button" class="btn btn-tinted hq-cta" id="hqRecheck"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Check again</button></p>
-            <p>A watchdog also checks all of this every hour and puts right anything that’s fallen behind. If something’s been down a while, <a href="contact.html?about=Support">let us know</a>.</p>
-          </article>
-
-          <article class="hq-art" id="device" data-live="device" data-k="device browser system details diagnostics debug info version storage technical support">
-            <h2>Your device and Tenner</h2>
-            <p>The details we’d ask for if you report a problem. They stay on your device unless you choose to send them.</p>
-            <dl class="hq-facts" id="hqDevice"><div><dt>Tenner</dt><dd class="side-ver-text">Tenner 2.119.2</dd></div></dl>
-            <p class="hq-btns">
-              <button type="button" class="btn btn-tinted btn-2nd hq-cta" id="hqCopy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 5.5v-.3a1.7 1.7 0 0 0-1.7-1.7H6.2a1.7 1.7 0 0 0-1.7 1.7v7.6a1.7 1.7 0 0 0 1.7 1.7h.3" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Copy details</span></button>
-              <a class="btn btn-tinted hq-cta" href="contact.html?about=Support" data-details><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10.2 13.8M21 3l-6.9 18-3.9-7.2L3 9.9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Send to support</a>
-            </p>
-          </article>
-
-          <article class="hq-art" id="versions" data-k="version release notes changelog what's new update centre build number">
-            <h2>Versions and what’s new</h2>
-            <p>You’re using <strong class="side-ver-text">Tenner 2.119.2</strong>. Tenner is updated often, sometimes several times a day, and each update arrives by itself.</p>
-            <p>The Update centre lists every release, with what changed. You can open it any time from here, or from the Update centre card on the Help Centre’s home.</p>
-            <p><a class="btn btn-tinted hq-cta" href="updates.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4M12 8v4.3l2.8 1.7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>Open the Update centre</a></p>
-          </article>
-
-          <article class="hq-art" id="how-built" data-k="technology stack built how works engineering cloudflare github offline service worker">
-            <h2>How Tenner is built</h2>
-            <ul>
-              <li><strong>A fast, light website:</strong> plain HTML, CSS and JavaScript, with no frameworks, served by Cloudflare from close to you.</li>
-              <li><strong>Charts on the hour:</strong> an automated process on GitHub Actions gathers the charts, Browse and title details, and puts the new versions live by itself.</li>
-              <li><strong>Search and accounts:</strong> a small service on Cloudflare Workers, with accounts kept in Cloudflare’s database.</li>
-              <li><strong>Works offline:</strong> a service worker keeps the pages and the latest charts on your device.</li>
-              <li><strong>Looks after itself:</strong> a watchdog checks the site, the charts’ age, search and Tenner TV every hour, and re-runs anything that’s behind.</li>
-            </ul>
-          </article>
-
-          <article class="hq-art" id="browsers" data-k="supported browsers devices requirements compatibility safari chrome firefox edge old">
-            <h2>Supported browsers and devices</h2>
-            <p>Tenner works on iPhone, iPad, Mac, Android phones and tablets, Windows and Linux, in the current versions of:</p>
-            <ul>
-              <li>Safari (iOS and iPadOS 16.4 or later for alerts);</li>
-              <li>Chrome, Edge and other Chromium browsers;</li>
-              <li>Firefox.</li>
-            </ul>
-            <p>Older browsers may still show the charts, but some features (like passkeys, alerts and the smoothest animations) need a recent one.</p>
-          </article>
-        </section>
-
-        <!-- after an article: was it helpful, more on the topic, and a way to reach us (legal.js moves it into place) -->
-        <aside class="hq-after" id="hqAfter" hidden>
-          <div class="hq-help" id="hqHelpful">
-            <p>Was this helpful?</p>
-            <div class="hq-yn bgrp" role="group" aria-label="Was this helpful?"><button type="button" class="btn btn-tinted btn-2nd" data-yn="1">Yes</button><button type="button" class="btn btn-tinted btn-2nd" data-yn="0">No</button></div>
-            <p class="hq-yn-say" id="hqYnSay" role="status" hidden></p>
-          </div>
-          <div class="hq-more" id="hqMore"></div>
-        </aside>
-      </div>
-    </div>
-
-    <p class="hq-foot">© <span class="hq-year">2026</span> Tenner · <a href="#privacy">Privacy</a> · <a href="#terms">Terms</a> · <a href="#cookies">Cookies</a> · <a href="contact.html">Contact</a> · <a class="side-ver-text" href="updates.html">Tenner 2.119.2</a></p>
   </main>
 
 
-  <script src="shell.js?v=2.119.2" defer></script>
-  <script src="legal.js?v=2.119.2" defer></script>
+  <script src="shell.js?v=2.120.0" defer></script>
 </body>
 </html>

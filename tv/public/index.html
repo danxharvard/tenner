@@ -17,7 +17,7 @@
   <meta property="og:description" content="Every UK channel, now and next, and the whole evening.">
   <meta property="og:image" content="https://tenner.stream/og.jpg">
   <link rel="preconnect" href="https://images.metadata.sky.com">
-  <link rel="stylesheet" href="tv.css?v=4.1.0">
+  <link rel="stylesheet" href="tv.css?v=4.1.1">
   <!-- the listings start downloading now, alongside the page's own files (not after them) -->
   <script>(() => { const t = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(Date.now()), q = new URLSearchParams(location.search).get('d'), d = /^\d{4}-\d\d-\d\d$/.test(q || '') && q >= t ? q : t;
     const day = fetch('/api/day?d=' + d), meta = fetch('/data/meta.json').then((r) => (r.ok ? r.json() : null)).catch(() => null); day.catch(() => {});
@@ -43,9 +43,9 @@
     </nav>
     <div class="side-links">
       <button type="button" class="side-acct" id="acctSide" aria-haspopup="dialog"></button>
-      <button type="button" class="side-fb" data-fb>Send feedback</button>
-      <a href="https://tenner.stream/legal.html#terms">Terms of Service</a><a href="https://tenner.stream/legal.html#privacy">Privacy Policy</a><a href="https://tenner.stream/legal.html#cookies">Cookies</a><a href="https://tenner.stream/contact.html">Contact</a>
-      <span class="side-ver">Tenner TV 4.1.0</span>
+      <a class="side-fb" href="mailto:support@tenner.stream?subject=Tenner%20TV%20feedback">Send feedback</a>
+      <a href="https://tenner.stream/legal.html#terms">Terms of Service</a><a href="https://tenner.stream/legal.html#privacy">Privacy Policy</a><a href="https://tenner.stream/legal.html#cookies">Cookies</a><a href="mailto:support@tenner.stream">Support</a>
+      <span class="side-ver">Tenner TV 4.1.1</span>
     </div>
   </aside>
   <header class="bar">
@@ -121,7 +121,7 @@
 
   <footer class="foot">
     <p>Listings from the open <a href="https://github.com/dp247/Freeview-EPG" rel="noopener">Freeview EPG</a> project and Sky’s own TV guide, with <a href="https://www.tvmaze.com/" rel="noopener">TVmaze</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener license">CC BY-SA 4.0</a>) filling any gaps. Channel logos are their owners’ trademarks. Times are UK time.</p>
-    <p>Part of <a href="https://tenner.stream/">Tenner</a>, the UK’s streaming top 10, every hour. New look? <button type="button" class="side-fb" data-fb>Tell us what you think</button></p>
+    <p>Part of <a href="https://tenner.stream/">Tenner</a>, the UK’s streaming top 10, every hour. New look? <a class="side-fb" href="mailto:support@tenner.stream?subject=Tenner%20TV%20feedback">Tell us what you think</a></p>
   </footer>
 
   <!-- search: every channel, all week -->
@@ -145,12 +145,12 @@
   <dialog class="sheet rems" id="remSheet" aria-labelledby="remT"><div class="sh-in" id="remIn"></div></dialog>
   <!-- your account -->
   <dialog class="sheet acs" id="acSheet" aria-labelledby="acT"><div class="sh-in" id="acIn"></div></dialog>
-  <!-- what's new in Tenner TV 4 (shown once), and the feedback form it leads to -->
+  <!-- what's new in Tenner TV 4 (shown once) -->
   <dialog class="sheet hello" id="hello" aria-labelledby="hlT"><div class="sh-in" id="hlIn"></div></dialog>
   <!-- small confirmations, and the alert when a reminder comes round -->
   <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
   <div class="banner" id="banner" role="alert" popover="manual"></div>
 
-  <script src="tv.js?v=4.1.0" defer></script>
+  <script src="tv.js?v=4.1.1" defer></script>
 </body>
 </html>

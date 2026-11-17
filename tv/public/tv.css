@@ -831,8 +831,8 @@ body { background: var(--bg); }
   .side-row[aria-current] svg { color: var(--accent); }
   .side-acct { border-radius: var(--r); }
 }
-.side-fb { padding: 3px 0; border: 0; background: none; cursor: pointer; color: var(--label2); font: 400 12px/1.3 var(--font); letter-spacing: -.01em; }
-.side-fb:hover { color: var(--label); }
+.side-fb { padding: 3px 0; border: 0; background: none; cursor: pointer; text-decoration: none; color: var(--label2); font: 400 12px/1.3 var(--font); letter-spacing: -.01em; }
+.side-fb:hover { color: var(--label); text-decoration: none; }
 
 /* ---------- controls inside the toolbar: plain, with a faint tint on hover; what's chosen keeps Tenner's rainbow line ---------- */
 .seg button, .days button, .pop, .ic-btn, .tools .find-btn { border-radius: var(--r); }
@@ -989,7 +989,7 @@ body { background: var(--bg); }
 @media (min-width: 1340px) { .hero { display: flow-root; } .hero > .wx { float: right; width: 380px; margin: 0 0 12px 32px; } }
 @media (max-width: 760px) { .wx { width: 100%; } .wx-in2 { padding-left: 14px; } }
 
-/* ---------- what's new in Tenner TV 4, shown once: an iOS "What's New" sheet, with a short form for feedback ---------- */
+/* ---------- what's new in Tenner TV 4, shown once: an iOS "What's New" sheet ---------- */
 .hello { width: min(460px, calc(100vw - 24px)); }
 .hl-in { padding: 34px 28px 24px; }
 .hl-in[hidden] { display: none; }
@@ -1003,27 +1003,7 @@ body { background: var(--bg); }
 .hl-list b { display: block; font: 600 16px/1.25 var(--font); letter-spacing: -.016em; }
 .hl-list small { display: block; margin-top: 2px; color: var(--label2); font-size: 14px; line-height: 1.4; }
 .hl-acts { display: grid; gap: 8px; margin-top: 28px; }
-.hl-acts .act { width: 100%; min-height: 46px; font-size: 16px; }
-.hl-ask { margin: 10px 0 0; text-align: center; color: var(--label2); font-size: 15px; line-height: 1.45; }
-.hl-q { margin: 22px 0 8px; font: 600 15px/1.2 var(--font); }
-/* the verdict: three choices joined in one bar (Tenner's button group) */
-.bgrp { display: flex; border-radius: var(--r); overflow: hidden; box-shadow: inset 0 0 0 1px var(--fr-rim); background: linear-gradient(var(--bt2), var(--bt2)) var(--fr-bg); }
-.bgrp label { position: relative; flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; cursor: pointer; color: var(--label);
-  font: 500 14px/1.1 var(--font); text-align: center; transition: background-color .2s ease, color .2s ease; }
-.bgrp label + label::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--fr-rim); }
-.bgrp input { position: absolute; opacity: 0; pointer-events: none; }
-.bgrp label:has(input:checked) { color: #fff; background: var(--bt-fill); }
-.bgrp label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
-@media (hover: hover) { .bgrp label:not(:has(input:checked)):hover { background: var(--bt2-hover); } }
-.hl-f { display: block; margin-top: 12px; }
-.hl-f span { display: block; margin: 0 0 6px; color: var(--label2); font: 500 13px/1.2 var(--font); }
-.hl-f textarea, .hl-f input { display: block; width: 100%; padding: 11px 12px; border: 0; border-radius: var(--r); outline: none; resize: vertical; color: var(--label); font: 400 16px/1.35 var(--font);
-  background: var(--fr-in); box-shadow: inset 0 0 0 1px var(--fr-rim); -webkit-appearance: none; appearance: none; }
-.hl-f textarea { min-height: 96px; }
-.hl-f :is(textarea, input):focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
-.hl-err { min-height: 20px; margin: 10px 0 0; color: #ff3b30; font-size: 14px; }
-.hl-in .hl-acts.two { grid-template-columns: 1fr 1fr; margin-top: 8px; }
-.hl-in .act[disabled] { opacity: .55; cursor: default; }
+.hl-acts .act { width: 100%; min-height: 46px; font-size: 16px; text-decoration: none; }
 .hello .sh-x { position: absolute; top: 14px; right: 14px; z-index: 4; display: grid; place-items: center; padding: 8px; }
 @media (max-width: 760px) { .hello { width: 100vw; max-width: 100vw; } .hl-in { padding: 34px 22px calc(env(safe-area-inset-bottom, 0px) + 22px); } }
 .foot .side-fb { padding: 0; font-size: 13px; color: var(--accent); }

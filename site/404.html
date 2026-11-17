@@ -7,7 +7,8 @@
   <title>Tenner</title>
   <!-- an address that isn't there: a shared title whose own page has gone (it left Tenner's lists) still opens that
        title's sheet on the home page; anything else goes to the home page -->
-  <script>{ const k = location.pathname.match(/^\/t\/([mt]\d{1,9})\/?$/); location.replace('/' + (k ? `?t=${k[1]}` : '')); }</script>
+  <script>{ const k = location.pathname.match(/^\/t\/([mt]\d{1,9})\/?$/);   /* the old Contact page: support is by email now */
+    location.replace(/^\/contact(\.html)?\/?$/.test(location.pathname) ? '/legal.html#support' : '/' + (k ? `?t=${k[1]}` : '')); }</script>
   <style>:root{color-scheme:light dark}body{font:17px/1.4 -apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif;background:Canvas;color:CanvasText;text-align:center;padding:30vh 16px}a{color:#0a84ff}</style>
 </head>
 <body><p><a href="/">Go to Tenner’s home page</a></p></body>

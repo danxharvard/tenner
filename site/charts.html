@@ -50,9 +50,9 @@
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
   <script>/* the charts start downloading now, alongside the scripts, rather than once they've all run (app.js asks for these same addresses) */
   (function(){var v="?v="+Math.floor(Date.now()/6e5);["trending","new","browse","week","cinema","trail"].forEach(function(n){var l=document.createElement("link");l.rel="preload";l.as="fetch";l.crossOrigin="";l.href="data/"+n+".json"+v;document.head.appendChild(l)})})();</script>
-  <link rel="stylesheet" href="styles.css?v=2.119.2">
-  <link rel="stylesheet" href="home.css?v=2.119.2">
-  <link rel="stylesheet" href="new.css?v=2.119.2">
+  <link rel="stylesheet" href="styles.css?v=2.120.0">
+  <link rel="stylesheet" href="home.css?v=2.120.0">
+  <link rel="stylesheet" href="new.css?v=2.120.0">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
@@ -94,8 +94,9 @@
     </div>
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <nav class="side-links" aria-label="Site information">
-      <a class="side-link" href="legal.html">Help Centre</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.119.2</a>
+      <a class="side-link" href="mailto:support@tenner.stream">Support</a>
+      <a class="side-link" href="legal.html">Privacy and Terms</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.120.0</a>
     </nav>
   </header>
 
@@ -118,10 +119,10 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="shell.js?v=2.119.2" defer></script>
-  <script src="links.js?v=2.119.2" defer></script>
-  <script src="sheet.js?v=2.119.2" defer></script>
-  <script src="person.js?v=2.119.2" defer></script>
-  <script src="app.js?v=2.119.2" defer></script>
+  <script src="shell.js?v=2.120.0" defer></script>
+  <script src="links.js?v=2.120.0" defer></script>
+  <script src="sheet.js?v=2.120.0" defer></script>
+  <script src="person.js?v=2.120.0" defer></script>
+  <script src="app.js?v=2.120.0" defer></script>
 </body>
 </html>

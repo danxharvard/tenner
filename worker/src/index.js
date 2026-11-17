@@ -18,11 +18,8 @@
 //   /auth/…, /me…, /share/…  accounts: passkeys, Google, sync, shared lists (auth.js)
 //   /photo/:id        a profile photo someone uploaded (auth.js)
 //   /digest/off       the Sunday email's unsubscribe link (digest.js)
-//   POST /contact     the Contact page's form: emailed to Tenner's inbox (Cloudflare Email Routing). The inbox's
-//                     address is a Worker secret (SUPPORT_EMAIL), so it's never in the website or this code
 // Only Tenner's own pages may call it (CORS), and answers are cached at Cloudflare's edge, so popular searches and
 // titles barely touch TMDB: searches for a day, titles for six hours.
-import { EmailMessage } from 'cloudflare:email';
 import { pushRoute, pushRun, pushSend, pushMorning } from './push.js';
 import { authRoute, photoGet } from './auth.js';
 import { digestRun, digestOff } from './digest.js';
@@ -46,7 +43,6 @@ export default {
     if (!ok) return json({ error: 'Not allowed from this site' }, 403, cors);
     if (url.pathname.startsWith('/push/')) return pushRoute(req, env, ctx, url, json, cors);
     if (/^\/(auth|me|share)(\/|$)/.test(url.pathname)) return authRoute(req, env, ctx, url, json, { ...cors, 'cache-control': 'no-store' }, origin);
-    if (url.pathname === '/contact') return req.method === 'POST' ? contact(req, env, cors) : json({ error: 'POST only' }, 405, cors);
     if (req.method !== 'GET') return json({ error: 'GET only' }, 405, cors);
     if (!env.TMDB_TOKEN) return json({ error: 'Not set up yet' }, 503, cors);
 
@@ -362,41 +358,3 @@ function creditsShape(d, type) {
   const order = ['Creator', 'Director', 'Screenplay', 'Writer', 'Novel', 'Original Music Composer', 'Executive Producer', 'Producer'];
   return { cast, crew: crew.sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role)).slice(0, 6) };
 }
-
-// ---------- the Contact form ----------
-// Checked, then sent on as a plain email to Tenner's inbox, with Reply-To set to the sender (if they gave an address),
-// so replying is just pressing Reply. Nothing is kept here. One message a minute from each connection, and a hidden
-// field that people never fill in but spam robots do.
-const TOPICS = ['Feedback', 'Suggestions', 'Support', 'Legal'];
-async function contact(req, env, cors) {
-  if (!env.MAILER || !env.SUPPORT_EMAIL) return json({ error: 'Not set up yet' }, 503, cors);
-  if (Number(req.headers.get('content-length') || 0) > 20000) return json({ error: 'Too long' }, 413, cors);
-  let f; try { f = (await req.json()) || {}; } catch { return json({ error: 'Bad form' }, 400, cors); }
-  const clean = (v, n) => String(v ?? '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, n);
-  const msg = clean(f.msg, 5000), name = clean(f.name, 80).replace(/[\r\n<>"]/g, ''), email = clean(f.email, 200);
-  const topic = TOPICS.includes(f.topic) ? f.topic : 'Feedback';
-  if (f.website) return json({ ok: true }, 200, cors);   // the hidden field: a robot, quietly ignored
-  if (msg.length < 2) return json({ error: 'Write a message first' }, 400, cors);
-  if (!email) return json({ error: 'Add your email, so we can reply' }, 400, cors);
-  if (email && !/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(email)) return json({ error: 'That email address doesn’t look right' }, 400, cors);
-  // one a minute from each connection (the edge cache remembers it briefly; nothing else is kept)
-  const ip = req.headers.get('cf-connecting-ip') || 'x', slot = new Request(`https://tenner-cache/contact/${encodeURIComponent(ip)}`);
-  if (await caches.default.match(slot)) return json({ error: 'You’ve just sent one. Please wait a minute before sending another.' }, 429, cors);
-  await caches.default.put(slot, new Response('1', { headers: { 'cache-control': 'max-age=60' } }));
-
-  const from = 'contact@tenner.stream', to = env.SUPPORT_EMAIL;
-  const word = (t) => (/^[\x20-\x7e]*$/.test(t) ? t : `=?UTF-8?B?${b64(t)}?=`);   // headers: plain ASCII or encoded
-  const body = [`${topic}${name ? ` from ${name}` : ''}${email ? ` <${email}>` : ''}`, '', msg, '', '—', 'Sent from the Contact page on tenner.stream'].join('\r\n');
-  const raw = [
-    `From: ${word('Tenner')} <${from}>`, `To: <${to}>`,
-    email ? `Reply-To: ${name ? `${word(name)} ` : ''}<${email}>` : null,
-    `Subject: ${word(`Tenner: ${topic}${name ? ` from ${name}` : ''}`)}`,
-    `Message-ID: <${crypto.randomUUID()}@tenner.stream>`, `Date: ${new Date().toUTCString()}`,
-    'MIME-Version: 1.0', 'Content-Type: text/plain; charset=utf-8', 'Content-Transfer-Encoding: base64', '',
-    b64(body).replace(/.{76}/g, '$&\r\n'),
-  ].filter((l) => l !== null).join('\r\n');
-  try { await env.MAILER.send(new EmailMessage(from, to, raw)); }
-  catch (e) { await caches.default.delete(slot); return json({ error: 'Couldn’t send right now. Please try again in a little while.' }, 502, cors); }
-  return json({ ok: true }, 200, cors);
-}
-function b64(t) { let s = ''; for (const b of new TextEncoder().encode(t)) s += String.fromCharCode(b); return btoa(s); }

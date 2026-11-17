@@ -56,7 +56,7 @@
 @media (hover: hover) { .set-page .set-link:hover { background: none; } }
 @media (hover: hover) { .set-page .set-link:hover .set-pill, .set-hero:hover .set-pill { background: var(--bt-hover); } }
 
-/* rows with a little colour square for an icon, the iOS Settings way (the Contact page's squares); hairlines start at the words */
+/* rows with a little colour square for an icon, the iOS Settings way; hairlines start at the words */
 .set-ic.set-ic-s { width: 30px; height: 30px; transition: transform .45s var(--ease-spring); }
 .set-ic.set-ic-s svg { width: 18px; height: 18px; stroke-width: 2; }
 .set-page .set-row-ic { justify-content: flex-start; gap: 12px; }
