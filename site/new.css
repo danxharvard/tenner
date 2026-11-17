@@ -40,7 +40,7 @@
   background: var(--bt-round); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); transition: background-color .18s, transform .5s var(--ease-spring); }
 .rb-arw svg { width: 18px; height: 18px; }
 @media (hover: hover) { .rb-arw:hover { background: var(--bt-round-hover); } }
-.rb-arw:active { transform: scale(.92); }
+.rb-arw:active { transform: scale(.96); }
 .rb-arw:focus-visible, .rb-today:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (hover: none) { .rb-arw { display: none; } }
 

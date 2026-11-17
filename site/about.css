@@ -56,7 +56,7 @@
 .ab-k1 { color: var(--green); } .ab-k2 { color: #ff375f; } .ab-k3 { color: #bf5af2; }
 .ab-live { width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 0 3px rgba(48, 209, 88, .22); }
 .ab-copy h2 { margin: 0; font: 700 clamp(34px, 4.2vw, 56px)/1.04 var(--font-display); letter-spacing: -.028em; text-wrap: balance; }
-.ab-copy h2 .dim { color: var(--label3); }
+.ab-copy h2 .dim { color: var(--label2); }
 .ab-copy > p:not(.ab-k) { margin: 16px 0 26px; max-width: 44ch; color: var(--label2); font-size: clamp(17px, 1.45vw, 20px); line-height: 1.45; letter-spacing: -.015em; text-wrap: pretty; }
 
 /* the example's own colour, glowing softly behind its frosted box so the glass has something to show */
@@ -96,7 +96,7 @@
 .ab-pick .ab-app i { position: absolute; right: -4px; bottom: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--bg); opacity: 0; scale: .5; transition: opacity .2s ease, scale .35s var(--ease-spring); }
 .ab-pick .ab-app i::after { content: ""; position: absolute; left: 6px; top: 3.5px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; rotate: 45deg; }
 .ab-pick [aria-pressed="true"] .ab-app i { opacity: 1; scale: 1; }
-.ab-pick button:active .ab-app { transform: scale(.92); }
+.ab-pick button:active .ab-app { transform: scale(.96); }
 @media (hover: hover) { .ab-pick button:hover { color: var(--label); } .ab-pick button:hover .ab-app { transform: translateY(-2px); } }
 .ab-pick button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -120,7 +120,7 @@
   -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); transition: background-color .18s, transform .4s var(--ease-spring); -webkit-tap-highlight-color: transparent; }
 .ab-round svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .ab-round[data-swipe="yes"] svg { fill: currentColor; stroke-width: 0; }
-.ab-round:active { transform: scale(.9); }
+.ab-round:active { transform: scale(.96); }
 @media (hover: hover) { .ab-round:hover { background: var(--bt-round-hover); } }
 
 /* ============================================================ the promise: three short lines in one frosted box */
@@ -200,4 +200,4 @@
   .more-links a::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--label3); border-bottom: 2px solid var(--label3); transform: rotate(-45deg); }
 }
 .more-ver { display: none; }
-@media (max-width: 999px) { .more-ver { display: block; margin: 12px 4px 0; color: var(--label3); font-size: 13px; } }
+@media (max-width: 999px) { .more-ver { display: block; margin: 12px 4px 0; color: var(--label2); font-size: 13px; } }

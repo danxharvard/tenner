@@ -43,7 +43,7 @@
 .ac-pw input::-ms-reveal { display: none; }
 .ac-eye { position: absolute; top: 50%; right: 0; display: grid; place-items: center; width: 44px; height: 44px; margin-top: -22px; padding: 0; border: 0; border-radius: var(--r); background: none; color: var(--label3); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .2s, transform .25s cubic-bezier(.34, 1.56, .64, 1); }
 .ac-eye[aria-pressed="true"] { color: var(--label2); } @media (hover: hover) { .ac-eye:hover { color: var(--label2); } }
-.ac-eye:active { transform: scale(.88); }
+.ac-eye:active { transform: scale(.96); }
 .ac-eye:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; }
 .ac-eye svg { width: 22px; height: 22px; }
 .ac-eye-off { opacity: 0; transition: opacity .2s; }
@@ -113,7 +113,7 @@
 .ac-cam { position: absolute; z-index: 2; right: -2px; bottom: -2px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
   color: #fff; background: var(--bt-round); box-shadow: 0 0 0 3px rgba(255, 255, 255, .22), 0 6px 16px rgba(0, 0, 0, .3); transition: transform .45s var(--ease-spring), background-color .18s; }
 .ac-cam svg { width: 18px; height: 18px; }
-.ac-cam:active { transform: scale(.9); }
+.ac-cam:active { transform: scale(.96); }
 @media (hover: hover) { .ac-cam:hover { background: var(--bt-round-hover); } }
 .ac-photo .ac-btns { align-items: center; }
 .ac-pick { height: 36px; padding: 0 14px; }
