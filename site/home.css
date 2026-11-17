@@ -372,27 +372,10 @@ html.still .bx-tt-bg img { transition: none; }
 .bx-h-ov-x { -webkit-line-clamp: 4; }
 @media (max-width: 899px) { .bx-h-l .bx-h-ximg { object-position: 70% center; } }
 
-/* ---------- Tenner's own cut in the featured title's card (tn.cut in shell.js): the homepage's top slide and the Watchlist's ---------- */
-body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the window's full width, never past it */
-.wl-top { position: relative; isolation: isolate; padding-top: 10px; padding-bottom: 8px; }
-@media (min-width: 1000px) { .wl-top { padding-top: 22px; } }
-.wl-hero { min-height: clamp(380px, 52vh, 540px); }
+/* ---------- Tenner's own cut in the featured title's card (tn.cut in shell.js): the homepage's top slide ---------- */
 /* each still fills the artwork like the picture beneath it, drifting under the soft dark wash, and dissolves into the next */
 .cut { position: absolute; inset: 0; overflow: hidden; }
 .cut-f { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; opacity: 0; will-change: opacity, transform; }
-.wl-soft .bx-h-l img { filter: blur(28px) saturate(1.4); transform: scale(1.2); }
-:root:not(.still) .wl-soft .bx-h-l.in img { animation: none; }
-:root:not(.still) .wl-copy > * { animation: wlIn .6s var(--ease-out) both; }
-@keyframes wlIn { from { opacity: 0; transform: translateY(8px); } }
-@media (max-width: 899px) { .wl-hero { height: clamp(400px, 104vw, 520px); } }
-@media (max-width: 719px) { .wl-top { padding-top: 6px; } .wl-hero { margin-top: 0; } }
-.wl-hero .bx-h-acts { flex-wrap: nowrap; }
-@media (max-width: 380px) {
-  .wl-hero .bx-h-copy { padding-left: 14px; padding-right: 14px; }
-  .wl-hero .bx-h-acts { gap: 8px; }
-  .wl-hero .bx-r-l { width: 44px; height: 44px; }
-  .wl-hero .bx-cta { font-size: 15px; }
-}
 /* the moving slide's three buttons stay on one line, down to the smallest phones */
 .bx-h-acts:has(.bx-trl) { flex-wrap: nowrap; }
 @media (max-width: 380px) {
@@ -506,19 +489,13 @@ body:has(#wlTop:not([hidden])) { overflow-x: clip; }   /* the glow runs the wind
   /* the picture moves a little less here: the top edge never leaves the screen */
   :root:not(.still) #bxHero .bx-h-l.in img { animation-name: bxDriftPh; }
   @keyframes bxDriftPh { from { transform: scale(1.06); transform-origin: center top; } to { transform: scale(1); transform-origin: center top; } }
-  /* the bar floats over the artwork: no band behind it, its round buttons a touch see-through over the blur, and Tenner's
-     name beside the logo on the left */
+  /* the bar sits over the Top 10s: Tenner's name beside the logo on the left */
   body.home .top-row { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; }
   body.home .top-brand { grid-area: 1 / 2; justify-self: start; display: flex; align-items: center; gap: 9px; }
-  body.home .top-brand .brand-name { display: block; font: 700 21px/1 var(--font); letter-spacing: -.02em; color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .35); }
-  :root.scrolled body.home .top-brand .brand-name { color: var(--label); text-shadow: none; }
+  body.home .top-brand .brand-name { display: block; font: 700 21px/1 var(--font); letter-spacing: -.02em; color: var(--label); }
   :root.title-in body.home .top-brand .brand-name { opacity: 0; }
-  body.home .tb-round { color: #fff; background: rgba(30, 30, 34, .36); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
-    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
-  :root.scrolled body.home .tb-round { background: var(--bt-round); box-shadow: none; }
 }
 @media (max-width: 719px) and (prefers-reduced-transparency: reduce) {
-  body.home .tb-round { background: var(--bt-round); }
   #bxHero .bx-h-badge, #bxHero .bx-eye-x { background: var(--bg); }
 }
 @media (max-width: 359px) { body.home .top-brand .brand-name { display: none; } }

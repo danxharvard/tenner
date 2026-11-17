@@ -604,6 +604,16 @@
     glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 0);   // the thumb under the choice, now it can be measured
     planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
   }
+  // ---------- the Top 10s on the page itself (the phone's homepage): the popup's logos, Shows / Films and its columns,
+  // swiped through just the same, laid straight onto the page instead of tucked away ----------
+  function t10Page(box) {
+    if (!box || box.dataset.on) return; box.dataset.on = '1';
+    box.innerHTML = `<header class="ht10-hd"><div class="t10-logos" aria-label="Jump to a service"></div>${t10Seg()}</header>
+      <div class="t10-row" aria-busy="true">${T10_SK}</div>
+      <div class="t10-ft">${t10Foot()}</div>`;
+    t10Wire(box);
+    planFile('trending').then((d) => t10Draw(box, d));
+  }
   // ---------- See Top 10s: a frosted bar fixed along the foot of every page (like a site map tucked away). Tap it and the
   // Top 10s slide up from the bottom beneath it, carrying the bar up the screen, every service's chart in the popup's own
   // columns rising in one after another; tap again, Escape or a tap on the page and it slides back down. Loads only when opened. ----------
@@ -1852,7 +1862,7 @@
   // a still's address at the size the screen needs (TMDB's w780 on phones, w1280 elsewhere)
   cut.src = (path) => `https://image.tmdb.org/t/p/${innerWidth * Math.min(2, devicePixelRatio || 1) > 1300 ? 'w1280' : 'w780'}${path}`;
 
-  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, arrows, segment, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, signIn: (o, inline) => tnSignIn(o, inline) };
+  window.tn = { prefs, tip: featureTip, cut, loading, haptic, climb, member, seen, hidden, notes, esc, hue, arrows, segment, morph, saved, stars, swipes, forYou, moreLike, progress, nextUp, whenText, finalBadge, mine, pickMine, api, share, alerts, isIOS, account, avatar, featured, findTitle, sharedTitle, fold, score, t10Page, signIn: (o, inline) => tnSignIn(o, inline) };
 
   // ---------- paste or drop a link: an IMDb, TMDB, Letterboxd, JustWatch or Tenner link opens that title's sheet ----------
   // ⌘V (Ctrl+V) anywhere but a text box, or a link dragged onto the page. Anything else pasted is left alone.

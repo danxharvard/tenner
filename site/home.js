@@ -268,7 +268,7 @@
     const t = document.createElement('div'); t.innerHTML = now; if (box.outerHTML !== t.firstElementChild.outerHTML) box.replaceWith(t.firstElementChild);
   }, 20000);
   // the winter night only while the slide's showing and the featured titles are on screen (scrolled past, it stops)
-  let heroSeen = true;
+  let heroSeen = !PHONE.matches;   // phones open on the Top 10s instead
   new IntersectionObserver(([e]) => { heroSeen = e.intersectionRatio > .35; xmasMood(!!heroList[state.hero]?.it.xmas && heroSeen); trSync(); }, { threshold: [0, .35, .6] }).observe($('#bxHero'));
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-xmas]'); if (!b) return;
@@ -478,7 +478,7 @@
   // a poster card: the artwork, its score in a chip, the title and a second line, and a Watchlist button
   const card = (it, info, sub, n) => `<li class="bx-pc${n ? ' bx-pc-ranked' : ''}"><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-pc-art">${poster(it)}</span>${n ? `<span class="bx-pc-n" aria-label="No. ${n}">${n}</span>` : ''}${rating(it.rating).replace('bx-star', 'bx-star bx-chip')}
         <span class="bx-pc-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a>${saveBtn(info, ' bx-pc-add')}</li>`;
-  // phones: the UK's Top 10 (numbered 1 to 10), For you, then the top rated, each a row of ten cards to swipe through
+  // phones (below the Top 10s, which lead the page): Christmas, For you, the UK's Top 10 (numbered 1 to 10), then the top rated, each a row of ten cards to swipe through
   // (one of each chart for shows and films)
   function phoneRows() {
     const word = (k) => (k === 'movie' ? 'films' : 'shows');
@@ -493,10 +493,11 @@
       'bx-row-p', 'browse.html#c=new&amp;k=tv&amp;sort=pop') : '';
     const xm = xmasTop(), xmas = xm.length ? row('bxXm', XM(), 'Festive favourites, most popular first', xm.map((it) => card(it, infoFor(it, XM_EYE(it)), it.year)),
       'bx-row-p', XM_ALL()) : '';
-    return top.join('') + newWeek() + xmas + forYouRow() + best.join('') + spotSlot() + fresh;
+    return xmas + forYouRow() + top.join('') + newWeek() + best.join('') + spotSlot() + fresh;
   }
   function drawRows() {
     if (PHONE.matches) {
+      window.tn.t10Page($('#bxT10'));   // the Top 10s first, the way the popup lays them out
       $('#bxRows').innerHTML = phoneRows() || '<p class="bx-empty">Nothing matches. Try another genre.</p>';
       for (const r of main.querySelectorAll('.bx-row')) edges(r);
       nwkStart(); drawSpot(); return;

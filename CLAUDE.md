@@ -110,8 +110,11 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   on screen and the privacy note is away, shows one tip at a time, and is never shown again once seen: kept in
   `tenner-tips` and synced with the account (`tips` in `worker/src/auth.js`). Works inside sheets too. Playwright skips tips
   unless the test sets `window.tnTipsTest = true`.
-- **Selected states** get Tenner's rainbow underline, except Browse's collections and search scopes: the owner turned it down
-  there (2.121.0), so they get a plain line in the text colour.
+- **Selected states** get Tenner's rainbow underline, except Browse's collections and search scopes and the Top 10s' service
+  logos: the owner turned it down there (2.121.0), so they get a plain line in the text colour.
+- **The phone's homepage opens on the Top 10s** (`#bxT10`, `tn.t10Page` in shell.js): the popup's logos, Shows / Films and
+  service columns laid onto the page, swiped the same way; then Christmas, For you and the UK Top 10 rows. The featured
+  slides and the See Top 10s bar are for bigger screens only. The Watchlist has no splash: it starts at its headline.
 - **Popups** look like iOS alerts or sheets: centred glass, blurred backdrop, one clear primary button, tap outside to close.
 - **Colour:** premium and restrained. No muddy greens or browns; Apple system colours (blue `#0a84ff`, pink `#ff375f`,
   green `#30d158`, purple `#bf5af2`) and artwork colours, blurred.

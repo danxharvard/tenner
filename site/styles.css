@@ -1804,10 +1804,10 @@ button.ps-face:active { scale: .96; }
 .t10-logos button:active { transform: scale(.9); }
 .t10-logos button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .t10-acts { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-:is(.t10, .tf) .segmented { background: var(--fr-in); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-:is(.t10, .tf) .seg-thumb { background: var(--bt-round); box-shadow: none; }
-:is(.t10, .tf) .segmented button[aria-checked="true"] { color: #fff; }
-:is(.t10, .tf) .segmented button { min-width: 78px; }
+:is(.t10, .tf, .ht10) .segmented { background: var(--fr-in); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:is(.t10, .tf, .ht10) .seg-thumb { background: var(--bt-round); box-shadow: none; }
+:is(.t10, .tf, .ht10) .segmented button[aria-checked="true"] { color: #fff; }
+:is(.t10, .tf, .ht10) .segmented button { min-width: 78px; }
 .t10-x, .t10-ar { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
   background: var(--bt-round); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .14); -webkit-tap-highlight-color: transparent;
   transition: background-color .2s ease, transform .35s var(--ease-spring), opacity .2s ease; }
@@ -1858,16 +1858,16 @@ button.ps-face:active { scale: .96; }
 .t10-go svg { width: 17px; height: 17px; flex: none; }
 .t10-also { margin: 0 2px 6px; color: var(--label2); font: 400 13px/1.3 var(--font); }
 /* Nos. 2 to 10: the house list, one column */
-:is(.t10, .tf) .t10-l { display: block; margin: 0 -6px; }
-:is(.t10, .tf) .t10-l li { border-top: .5px solid var(--sep); border-radius: var(--r); }
-:is(.t10, .tf) .t10-l li:first-child { border-top: 0; }
-@media (hover: hover) { :is(.t10, .tf) .t10-l li:has(a:hover) + li { border-top-color: transparent; } :is(.t10, .tf) .t10-l li:hover { background: var(--fr-in); -webkit-backdrop-filter: none; backdrop-filter: none; } }
-:is(.t10, .tf) .t10-l a { gap: 10px; padding: 7px 6px; border-radius: var(--r); -webkit-tap-highlight-color: transparent; }
-:is(.t10, .tf) .t10-l a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-:is(.t10, .tf) .t10-l img, :is(.t10, .tf) .t10-l .t10-ph { width: 32px; height: 48px; flex: none; display: block; object-fit: cover; border-radius: var(--r); box-shadow: 0 0 0 .5px var(--sep); }
+:is(.t10, .tf, .ht10) .t10-l { display: block; margin: 0 -6px; }
+:is(.t10, .tf, .ht10) .t10-l li { border-top: .5px solid var(--sep); border-radius: var(--r); }
+:is(.t10, .tf, .ht10) .t10-l li:first-child { border-top: 0; }
+@media (hover: hover) { :is(.t10, .tf, .ht10) .t10-l li:has(a:hover) + li { border-top-color: transparent; } :is(.t10, .tf, .ht10) .t10-l li:hover { background: var(--fr-in); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+:is(.t10, .tf, .ht10) .t10-l a { gap: 10px; padding: 7px 6px; border-radius: var(--r); -webkit-tap-highlight-color: transparent; }
+:is(.t10, .tf, .ht10) .t10-l a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+:is(.t10, .tf, .ht10) .t10-l img, :is(.t10, .tf, .ht10) .t10-l .t10-ph { width: 32px; height: 48px; flex: none; display: block; object-fit: cover; border-radius: var(--r); box-shadow: 0 0 0 .5px var(--sep); }
 .t10-n { flex: none; width: 18px; text-align: center; font: 600 15px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
-:is(.t10, .tf) .cl-t b { font-size: 14.5px; }
-:is(.t10, .tf) .cl-t small { font-size: 12.5px; }
+:is(.t10, .tf, .ht10) .cl-t b { font-size: 14.5px; }
+:is(.t10, .tf, .ht10) .cl-t small { font-size: 12.5px; }
 .t10-mv { flex: none; display: inline-flex; align-items: center; gap: 1px; font: 600 12px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
 .t10-mv svg { width: 13px; height: 13px; }
 .t10-mv.up { color: #30d158; }
@@ -1897,8 +1897,7 @@ button.ps-face:active { scale: .96; }
   .t10-logos { grid-area: l; justify-content: center; gap: 10px; }
   .t10-logos button { width: 38px; height: 38px; opacity: .5; }
   .t10-logos button[aria-current] { opacity: 1; }
-  .t10-logos button[aria-current]::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: -7px; height: 3px; border-radius: 2px;
-    background: linear-gradient(90deg, #ff375f, #bf5af2 55%, #0a84ff); }
+  .t10-logos button[aria-current]::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: -7px; height: 3px; border-radius: 2px; background: var(--label); }   /* plain, never a rainbow */
   .t10-row { --gap: 10px; grid-auto-columns: calc(100% - 28px); padding: 0 16px; scroll-padding-inline: 16px; }
   .t10-ft { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
   .t10-ft p { font-size: 12px; }
@@ -2216,3 +2215,27 @@ body { padding-bottom: var(--tf-h); }
    animates or transitions at all, so every change lands at once */
 .still, .still *, .still *::before, .still *::after, .still ::backdrop { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 .no-ratings .star, .no-ratings .cl-r, .no-ratings .score, .no-ratings .bx-star { display: none !important; }
+
+/* ---------- the phone's homepage opens on the Top 10s (tn.t10Page in shell.js): the popup's logos, Shows / Films and its
+   columns laid straight onto the page and swiped through the same way; the featured slides and the bar along the foot
+   are for bigger screens ---------- */
+.ht10 { display: none; }
+@media (max-width: 719px) {
+  .ht10 { container: t10 / inline-size; display: block; margin: 6px calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter)); color: var(--label); }
+  body.home .bx-hero, body.home .tf { display: none; }
+  body.home { --tf-h: 0px; }
+  .ht10-hd { display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 0 16px 16px; }
+  .ht10 .t10-logos { gap: 10px; max-width: 100%; justify-content: safe center; }
+  .ht10 .t10-logos button { width: 38px; height: 38px; opacity: .5; }
+  .ht10 .t10-logos button[aria-current] { opacity: 1; }
+  .ht10 .t10-logos button[aria-current]::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: -7px; height: 3px; border-radius: 2px; background: var(--label); }
+  .ht10 .t10-row { --gap: 10px; grid-auto-columns: calc(100% - 28px); padding: 0 16px; scroll-padding-inline: 16px; }
+  .ht10 :is(.t10-fine, .t10-arrows) { display: none; }
+}
+@media (max-width: 359px) {
+  .ht10 .t10-logos { gap: 7px; }
+  .ht10 .t10-logos button { width: 34px; height: 34px; }
+  .ht10 .t10-col { overflow: visible; -webkit-mask-image: none; mask-image: none; box-shadow: none; }
+  .ht10 .t10-ft { padding: 14px 16px 12px; }
+  .ht10 .t10-ft p { font-size: 12px; }
+}
