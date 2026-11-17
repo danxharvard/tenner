@@ -582,7 +582,7 @@
   function top10s() {
     let dlg = document.getElementById('t10');
     if (!dlg) {
-      document.body.insertAdjacentHTML('beforeend', `<dialog class="t10" id="t10" aria-labelledby="t10H" closedby="any">
+      document.body.insertAdjacentHTML('beforeend', `<dialog class="t10" id="t10" aria-labelledby="t10H" closedby="any" tabindex="-1">
         <header class="t10-hd">
           <div class="t10-logos" aria-label="Jump to a service"></div>
           <h2 id="t10H">The <em class="grad">Top 10s</em></h2>
@@ -600,7 +600,7 @@
     const row = dlg.querySelector('.t10-row');
     if (!row.children.length) row.innerHTML = T10_SK;
     const k = t10Kind(); dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
-    dlg.showModal(); haptic(8); dlg.querySelector('#t10X').focus({ preventScroll: true });
+    dlg.showModal(); haptic(8); dlg.focus({ preventScroll: true });
     glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 0);   // the thumb under the choice, now it can be measured
     planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
   }
