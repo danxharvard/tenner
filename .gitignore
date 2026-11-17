@@ -2,3 +2,9 @@
 node_modules/
 tv/public/data/
 site/t/
+# Impeccable / Taste Skill runtime files (engine binaries, caches, sessions)
+**/skills/impeccable/scripts/bin/
+**/skills/impeccable/scripts/config.json
+.impeccable/
+.impeccable.md
+.taste-skill/
