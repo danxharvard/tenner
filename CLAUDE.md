@@ -116,11 +116,14 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   service columns laid onto the page, swiped the same way (refreshed quietly with each quarter-hour check); then Christmas,
   We think you'll like and Trending shows / films (plain rows: no ranks, no Top 10 wording, no By service). The featured
   slides and the See Top 10s bar are for bigger screens only. The Watchlist has no splash: it starts at its headline.
+- **Headings look like the About page's** (the owner's choice, 17 Nov 2026): heavy display type (800, `--font-display`), the
+  text colour with the last word in the pink `.grad` gradient. shell.js adds the gradient word to every heading in its `HEADS`
+  list by itself (also ones drawn later); add a new heading class to `HEADS` and the matching rule at the foot of styles.css.
 - **Popups** look like iOS alerts or sheets: centred glass, blurred backdrop, one clear primary button, tap outside to close.
 - **Colour:** premium and restrained. No muddy greens or browns; Apple system colours (blue `#0a84ff`, pink `#ff375f`,
   green `#30d158`, purple `#bf5af2`) and artwork colours, blurred.
 - **Type:** one text font everywhere (`--font`: San Francisco on Apple devices, Inter elsewhere), the owner's favourite (the About
-  page's lede). The display font (`--font-display`) is only for big headlines, 30px and up. Sentence case for buttons and labels.
+  page's lede). The display font (`--font-display`) is for headlines and section headings. Sentence case for buttons and labels.
 - **Nothing off the page:** no element may run past the edge of the screen (check 320, 375, 390, 430, 768, 1100, 1440px).
 - **Writing:** plain British English, short and friendly, no jargon.
 - **Before shipping anything visual:** screenshot it on phone and computer, light and dark, and look at it critically.
