@@ -52,11 +52,6 @@ body.home { overflow-x: clip; }
   .bx-hero { margin-top: 10px; }
   .bx-h-acts { flex-wrap: wrap; }
   .bx-pc-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* the charts: a big still number on each card (top left, the rating moves to the right), drawn once, no effects */
-  .bx-pc-n { position: absolute; z-index: 2; top: 4px; left: 9px; color: #fff; font: 800 44px/1 var(--font-display); letter-spacing: -.04em; font-variant-numeric: tabular-nums;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, .55), 0 0 2px rgba(0, 0, 0, .35); pointer-events: none; }
-  .bx-pc-ranked .bx-pc-art::before { content: ""; position: absolute; inset: 0 0 auto; height: 40%; z-index: 1; background: linear-gradient(to bottom, rgba(0, 0, 0, .45), transparent); }
-  .bx-pc-ranked .bx-chip { left: auto; right: 8px; z-index: 2; color: #fff; }
   .bx-hd { margin: 0; }
   .bx { padding-bottom: 24px; }
   #bxRows > .bx-sec:first-child { margin-top: 8px; }
@@ -397,9 +392,6 @@ html.still .bx-tt-bg img { transition: none; }
   .bx-hd.me-on .bx-me-slot { display: block; grid-column: 2; grid-row: 1; height: 56px; }
 }
 /* the side boxes' header buttons (Discover's Open, the Top 10's By service): the site's button, a size smaller */
-.bx-hd-btn { position: relative; flex: none; height: 36px; padding: 0 12px; gap: 6px; font-size: 15px; -webkit-font-smoothing: antialiased; text-shadow: none; }
-.bx-hd-btn svg { width: 15px; height: 15px; }
-.bx-hd-btn::after { content: ""; position: absolute; inset: -6px 0; }   /* a 44pt target */
 /* the Top 10's service picker: a pop-up button with the chart icon, as wide as its words (up to about two thirds of the box) */
 .bx-tt-dd { flex: 0 1 auto; max-width: 62%; padding: 0 11px 0 12px; gap: 7px; text-shadow: none; }
 .bx-tt-dd > svg { flex: none; width: 15px; height: 15px; color: #fff; }

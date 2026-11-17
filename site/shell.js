@@ -612,7 +612,17 @@
       <div class="t10-row" aria-busy="true">${T10_SK}</div>
       <div class="t10-ft">${t10Foot()}</div>`;
     t10Wire(box);
-    planFile('trending').then((d) => t10Draw(box, d));
+    let at = null;
+    planFile('trending').then((d) => { at = d?.generatedAt; t10Draw(box, d); });
+    // each quarter-hour check: a fresh chart is swapped in quietly, staying on the service you were looking at
+    addEventListener('tn:check', () => fetch(`data/trending.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((d) => {
+      if (!d || d.generatedAt === at || box.matches(':focus-within') || window.tnSheet?.isOpen?.()) return;
+      at = d.generatedAt; planP.trending = Promise.resolve(d);
+      const row = box.querySelector('.t10-row'), on = box.querySelector('.t10-logos [aria-current]')?.dataset.jump;
+      t10Draw(box, d);
+      const c = on && row.querySelector(`.t10-col[data-svc="${CSS.escape(on)}"]`);
+      if (c) row.scrollLeft = c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).scrollPaddingLeft || 0);
+    }));
   }
   // ---------- See Top 10s: a frosted bar fixed along the foot of every page (like a site map tucked away). Tap it and the
   // Top 10s slide up from the bottom beneath it, carrying the bar up the screen, every service's chart in the popup's own

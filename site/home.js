@@ -469,23 +469,21 @@
   }
 
   // ---------- the rows ----------
-  // the way from the combined Top 10 to each service's own chart (Top 10 by Service), on the phone rows
-  const BY_SERVICE = `<a class="btn btn-tinted bx-hd-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>By service</a>`;
   const row = (id, title, sub, items, cls, more, act = '') => !items.length ? '' : `<section class="bx-sec" aria-labelledby="${id}">
       <header class="bx-sec-hd"><div><h2 id="${id}">${title}</h2>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
         <span class="bx-sec-acts">${act}${more ? `<a class="bx-more" href="${more}">See all</a>` : ''}<button type="button" class="bx-r bx-r-s" data-scroll="-1" aria-label="Back">${I.left}</button><button type="button" class="bx-r bx-r-s" data-scroll="1" aria-label="More">${I.right}</button></span></header>
       <ul class="bx-row ${cls}">${items.join('')}</ul></section>`;
   // a poster card: the artwork, its score in a chip, the title and a second line, and a Watchlist button
-  const card = (it, info, sub, n) => `<li class="bx-pc${n ? ' bx-pc-ranked' : ''}"><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-pc-art">${poster(it)}</span>${n ? `<span class="bx-pc-n" aria-label="No. ${n}">${n}</span>` : ''}${rating(it.rating).replace('bx-star', 'bx-star bx-chip')}
+  const card = (it, info, sub) => `<li class="bx-pc"><a href="${esc(it.url || '#')}" target="_blank" rel="noopener" ${reg(info)}><span class="bx-pc-art">${poster(it)}</span>${rating(it.rating).replace('bx-star', 'bx-star bx-chip')}
         <span class="bx-pc-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a>${saveBtn(info, ' bx-pc-add')}</li>`;
-  // phones (below the Top 10s, which lead the page): Christmas, For you, the UK's Top 10 (numbered 1 to 10), then the top rated, each a row of ten cards to swipe through
-  // (one of each chart for shows and films)
+  // phones (below the Top 10s, which lead the page): Christmas, We think you'll like, what's trending in the UK (rebuilt
+  // every hour with the charts), then the top rated, each a row of cards to swipe through (one of each for shows and films)
   function phoneRows() {
     const word = (k) => (k === 'movie' ? 'films' : 'shows');
-    const top = kinds().map((k) => row(`bxP10-${k}`, `Top 10 ${word(k)} in the UK`, 'Updated every hour', (state.data?.overall?.[k] || []).slice(0, 10).map((it0, i) => {
+    const top = kinds().map((k) => row(`bxPTn-${k}`, `Trending ${word(k)}`, 'What everyone in the UK is watching right now', (state.data?.overall?.[k] || []).slice(0, 10).map((it0) => {
       const it = { ...it0, type: it0.type || k };
-      return card(it, infoFor(it, `No. ${i + 1} ${word(k).slice(0, -1)} in the UK`), it.year, i + 1);
-    }), 'bx-row-p', '', BY_SERVICE));
+      return card(it, infoFor(it, `Trending in the UK`), it.year);
+    }), 'bx-row-p'));
     const g = state.genre != null ? state.cat?.genres?.[state.genre] : null;
     const best = kinds().map((k) => row(`bxPTr-${k}`, `Top rated ${word(k)}${g ? ` in ${esc(g)}` : ''}`, 'The highest scores from viewers', topRated(k).map((it) => card(it, infoFor(it, 'Top rated'), it.year)),
       'bx-row-p', `browse.html#${esc(String(new URLSearchParams({ c: 'top', k })))}`));
@@ -617,7 +615,7 @@
   const loadLike = () => window.tn.moreLike(signedIn()).then((l) => { fy.like = l; });
   function forYouRow() {
     fy.sig = ''; if (!signedIn() || !state.cat?.items) return '';
-    const head = (sub, acts = '') => `<header class="bx-sec-hd"><div><h2 id="bxFy">For you</h2><p>${sub}</p></div>${acts}</header>`;
+    const head = (sub, acts = '') => `<header class="bx-sec-hd"><div><h2 id="bxFy">We think you’ll like</h2><p>${sub}</p></div>${acts}</header>`;
     if (!window.tn.swipes.liked().length && !window.tn.stars.all().length) return `<section class="bx-sec bx-fy-none" aria-labelledby="bxFy">
       ${head('Swipe right on a few titles in Discover and Tenner will find more you’ll like.', `<a class="btn btn-tinted bx-fy-go" href="#discover" data-go-dc>${I.mark}Go to Discover</a>`)}</section>`;
     if (!fy.ready) return `<section class="bx-sec" aria-labelledby="bxFy" aria-busy="true">${head('Finding picks from what you’ve liked in Discover')}
@@ -630,7 +628,7 @@
       const info = infoFor(it, 'For you');
       return card(it, info, [it.type === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · '));
     });
-    return row('bxFy', 'For you', sub, items, 'bx-row-p');
+    return row('bxFy', 'We think you’ll like', sub, items, 'bx-row-p');
   }
   // redraw just the row (once you've stopped swiping, and never under your pointer or an open sheet)
   let fyT = 0;
