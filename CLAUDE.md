@@ -81,6 +81,10 @@ Mac. When in doubt, ask "would this look at home in Apple TV, Apple Music or the
   Not now, Share and Trailer beside Watch, Start again, Copy link, Delete in red). iOS's quiet grey (`--bt2`: the system fill over
   the frost) with the page's text colour, so dark words by day and white by night; same icon, corner and weight. Main actions
   stay navy; a lone button is never secondary.
+- **No hairline dividers except in chart listings** (the owner's rule): a hairline separator belongs only between rows of a
+  chart or list (`.cl`, the Top 10s' columns). Never put one between sections, under a bar, above a header or around a
+  toolbar; use space (a steady 16px rhythm) or one shared frost instead. Remove any you come across elsewhere (a button
+  group's joins, below, are the one standing exception).
 - **Button groups** (`.bgrp`): related secondary actions joined into one bar with hairline dividers and a fine rim, the 9px
   corner on the outside only (Settings' Import | Export | Clear all, the sheet's Mark as watched | Not interested, the Help
   Centre's Yes | No). Use one wherever related actions sit side by side, especially in Settings.
