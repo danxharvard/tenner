@@ -171,11 +171,11 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
 
 ## How we work
 - Merge and push without asking. Always `git pull --rebase` first (the site is also edited from another device).
-- **One release a day, at 19:30 UK time (the owner's rule).** Merge into main as you go, but nothing reaches
-  tenner.stream until the daily release (`release.yml`) bundles the day's work into one version with one Update centre
-  entry and moves the `live` branch (what the live site is built from) to main. Until then main shows on the preview,
-  tenner-preview.danseacroft.workers.dev. So **never bump the version or write `site/updates.json` yourself**: the release
-  does both. Run it by hand from the Actions tab only if the owner asks for a release straight away.
+- **One version and one Update centre entry a day, at 19:30 UK time (the owner's rule).** Changes still go live as
+  they're merged, as always; only the version number and the Update centre wait. At 19:30 the daily release
+  (`release.yml`) bumps the version once and adds one entry covering everything since the last release (it marks each
+  one with a `release-YYYY-MM-DD` tag). So **never bump the version or write `site/updates.json` yourself**. Run it by
+  hand from the Actions tab only if the owner asks for a release straight away.
 - **How to write commits for the release notes:** a major new feature gets the subject `Feature: <short title>` and
   `- ` lines in the body for what's genuinely new; everything else (fixes, tweaks, small changes) gets a plain subject
   and is never spelled out. A day with a feature is a minor version, otherwise a patch.
@@ -184,7 +184,7 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   "Stability improvements" and "Speed and reliability improvements" (added by `updates.js`, so never write them anywhere),
   with that day's major features above them. Notes never mention Apple, Apple's design or any other company's look:
   say what changed for the viewer. To polish an entry, edit it in `site/updates.json` (entries are never overwritten).
-  The history was reset at 2.122.0 (`SINCE` in `scripts/updates.mjs`): older builds stay in git, not in the list.
+  The history was last reset on 17 Nov 2026, so the list starts with that evening's release.
 - After each update: a quick code check, and remove any code that's no longer used.
 - Test what you change (Playwright on phone and computer sizes, both themes); run the worker's auth tests after touching accounts.
 
@@ -206,9 +206,7 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
 - **Minified on the way out:** the build shrinks the site's scripts and styles with esbuild just before it deploys (not
   `sw.js` or `qrcode.js`); the files in git stay readable, and if it fails the readable copies go live instead. So never
   read the live JS for a value (the watchdog takes the version from the homepage's `shell.js?v=`).
-- **On every push to main**: the preview (`preview.yml`), the search/accounts Worker (`api.yml`) and Tenner TV (`tv.yml`)
-  deploy themselves. The site itself goes live only at the 19:30 release (`release.yml` moves `live`, then `update.yml`
-  deploys it); the hourly data runs always build from `live`, so they never put unreleased work live.
+- **On every push**: the site (`update.yml`), the search/accounts Worker (`api.yml`) and Tenner TV (`tv.yml`) deploy themselves.
   Tenner TV runs `node tv/test.mjs` first; a failing test stops the deploy, so what's live keeps working.
 - **Tenner TV** (`tv/`, tv.tenner.stream): listings from the open Freeview EPG feed, plus the most popular Sky channels
   from Sky's own public guide (`awk.epgsky.com`; channels in `tv/channels.json` with `sky` / `match`, live Sky copy kept if it's down), built every 3 hours by

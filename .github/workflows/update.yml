@@ -5,10 +5,8 @@ on:
     # GitHub drops many scheduled runs when it's busy (in practice "hourly" ran every five to seven hours), so it's asked
     # three times an hour; a run that finds the live chart under 40 minutes old stops straight away, so it still builds hourly
     - cron: '7,27,47 * * * *'
-  # the live site is the `live` branch: everything merged into main waits for the 19:30 daily release (release.yml), which
-  # moves `live` and starts this run; until then main is only on the preview (preview.yml)
   push:
-    branches: [live]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -42,20 +40,11 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.gate.outputs.go == 'yes'
         with:
-          ref: live        # what's been released, never main's work in progress (whichever branch started the run)
-          fetch-depth: 0   # the whole history, for the Update centre's list below
 
       - uses: actions/setup-node@v5
         if: steps.gate.outputs.go == 'yes'
         with:
           node-version: 22
-
-      # the Update centre (updates.html): any version in the history that isn't in site/updates.json yet is added from its
-      # commits, so each release lists itself; never stops the build
-      - name: Add new releases to the Update centre
-        if: steps.gate.outputs.go == 'yes'
-        continue-on-error: true
-        run: node scripts/updates.mjs
 
       - name: Fetch latest charts
         if: steps.gate.outputs.go == 'yes'

@@ -1,9 +1,8 @@
-# The daily release (the owner's rule): everything merged into main during the day goes live on tenner.stream together at
-# 19:30 UK time, as one new version with one Update centre entry. Until then main is only on the preview
-# (tenner-preview.danseacroft.workers.dev). The live site is built from the `live` branch, which only this job moves.
+# The daily release (the owner's rule): changes still go live as they're merged, but the version number and the Update
+# centre only move once a day, at 19:30 UK time: one new version and one entry covering everything since the last one.
 #   - a version bump: minor if any commit that day was a major new feature ("Feature: …" subject), otherwise a patch
 #   - the entry: the standard lines are added by the page; major features are listed by their "- " lines
-#   - then `live` is moved to main, today's tag (release-YYYY-MM-DD) is set, and the site deploys
+#   - then today's tag (release-YYYY-MM-DD) marks where the next release starts, and the site deploys
 # Cron runs in UTC and GitHub skips many scheduled runs, so it's asked every 10 minutes from 18:30 to 23:50 UTC; a try
 # before 19:30 London time, or after today's tag exists, stops at once. Run it by hand to release straight away.
 name: Daily release
@@ -15,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # to commit the release, move `live` and set the tag
+  contents: write   # to commit the release and set the tag
   actions: write    # to start the deploy
 
 concurrency:
@@ -51,14 +50,14 @@ jobs:
         run: |
           git config user.name 'Tenner release'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git fetch origin live
-          if git diff --quiet origin/live HEAD -- site site-worker scripts; then
-            echo "Nothing changed on the site today, so there's nothing to release"
-            git tag "release-$DAY" origin/live && git push origin "release-$DAY"
+          base=$(git describe --tags --match 'release-*' --abbrev=0)   # where the last release left off
+          if git diff --quiet "$base" HEAD -- site site-worker scripts; then
+            echo "Nothing changed on the site since $base, so there's nothing to release"
+            git tag "release-$DAY" && git push origin "release-$DAY"
             exit 0
           fi
           old=$(grep -oE "const version = '[0-9]+\.[0-9]+\.[0-9]+'" site/shell.js | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          git log origin/live..HEAD --no-merges --format='%s%x1f%b%x1e' > /tmp/log
+          git log "$base"..HEAD --no-merges --format='%s%x1f%b%x1e' > /tmp/log
           node .github/release-notes.mjs "$old" "$DAY" /tmp/log > /tmp/out
           new=$(sed -n 1p /tmp/out)
           sed -n '2,$p' /tmp/out > /tmp/msg
@@ -66,7 +65,6 @@ jobs:
           git add -A site
           git commit -q -F /tmp/msg
           for i in 1 2 3 4; do git push origin HEAD:main && break; sleep $((i*5)); git pull --rebase origin main; done
-          git push -f origin HEAD:live
           git tag "release-$DAY" && git push origin "release-$DAY"
           echo "### Released Tenner $new" >> "$GITHUB_STEP_SUMMARY"; cat /tmp/msg >> "$GITHUB_STEP_SUMMARY"
 
