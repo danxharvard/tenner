@@ -167,7 +167,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.117.0';
+  const version = '2.118.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -884,7 +884,8 @@
       const lead = people.length && best(people) > best([...local, ...more]);
       S.list = lead ? [...people, ...local, ...more] : [...local, ...people, ...more]; S.at = -1;
       const waiting = S.busy || !S.done;
-      res.innerHTML = (S.list.length ? S.list.map(row).join('') : waiting ? skel() : `<p class="ss-note">Nothing found for “${esc(qi.value.trim())}”. Check the spelling, or try fewer words.</p>`) + seeAll();
+      const fixed = S.fixed && !S.busy && S.list.length ? `<p class="ss-fix">Showing results for <b>${esc(S.fixed)}</b></p>` : '';
+      res.innerHTML = fixed + (S.list.length ? S.list.map(row).join('') : waiting ? skel() : `<p class="ss-note">Nothing found for “${esc(qi.value.trim())}”. Check the spelling, or try fewer words.</p>`) + seeAll();
       res.setAttribute('aria-busy', !S.list.length && waiting);
       qi.removeAttribute('aria-activedescendant');
       show(document.activeElement === qi || box.contains(document.activeElement) || res.contains(document.activeElement));
@@ -895,9 +896,9 @@
     // kept for the visit, so going back a letter is instant
     function web() {
       const raw = qi.value.trim(), key = raw.toLowerCase(); clearTimeout(S.t); S.ctl?.abort();
-      if (!api || raw.length < 2) { S.items = new Map(); S.people = []; S.busy = false; return; }
+      if (!api || raw.length < 2) { S.items = new Map(); S.people = []; S.fixed = ''; S.busy = false; return; }
       const hit = S.cache.get(key);
-      if (hit) { S.items = new Map(hit.items); S.people = hit.people; S.busy = false; return; }
+      if (hit) { S.items = new Map(hit.items); S.people = hit.people; S.fixed = hit.fixed; S.busy = false; return; }
       S.busy = true;
       S.t = setTimeout(async () => {
         S.ctl = new AbortController();
@@ -905,11 +906,11 @@
           const ask = (path) => fetch(`${api}${path}?q=${encodeURIComponent(raw.slice(0, 80))}`, { signal: S.ctl.signal }).then((r) => (r.ok ? r.json() : null)).catch((e) => { if (e.name === 'AbortError') throw e; return null; });
           const [d, pp] = await Promise.all([ask('/search'), ask('/people')]);
           if (qi.value.trim() !== raw) return;
-          S.items = new Map();
+          S.items = new Map(); S.fixed = d?.fixed || '';   // a spelling slip: what the search service looked for instead
           for (const x of d?.results || []) S.items.set(x.k, { ...x, poster: x.poster ? d.img + x.poster : null, backdrop: x.backdrop ? d.bd + x.backdrop : null, web: true });
           // the people worth showing: a face or something they're known for, so the names nobody's heard of stay out
           S.people = (pp?.results || []).filter((x) => x.photo && x.known?.length).map((x) => ({ ...x, person: true, k: `p${x.id}` }));
-          if (d && pp) { S.cache.set(key, { items: [...S.items], people: S.people }); if (S.cache.size > 40) S.cache.delete(S.cache.keys().next().value); }
+          if (d && pp) { S.cache.set(key, { items: [...S.items], people: S.people, fixed: S.fixed }); if (S.cache.size > 40) S.cache.delete(S.cache.keys().next().value); }
         } catch (e) { if (e.name === 'AbortError') return; }
         S.busy = false; draw();
       }, 220);

@@ -2,6 +2,7 @@
 //   GET /search?q=…&page=…   films and shows, best match first, 20 a page (up to ten pages)
 //   GET /title/m123   one title's details and UK where-to-watch, in the same shape as data/titles.json
 //   GET /people?q=…   people (cast and crew) matching a name, for the menu's search
+//                     (both searches forgive spelling slips and loose wording: fuzzy.js; fixed says what was searched instead)
 //   GET /person/123   one person: biography, and everything they've been in or made
 //   GET /credits/m123 a title's main cast and key crew
 //   GET /seen/m123?p=1,2&w=t1,m2  Where have I seen them? for each of those people (up to 12) in that title, the titles
@@ -25,6 +26,7 @@ import { EmailMessage } from 'cloudflare:email';
 import { pushRoute, pushRun, pushSend, pushMorning } from './push.js';
 import { authRoute, photoGet } from './auth.js';
 import { digestRun, digestOff } from './digest.js';
+import { smarter } from './fuzzy.js';
 
 const TMDB = 'https://api.themoviedb.org/3', IMG = 'https://image.tmdb.org/t/p', REGION = 'GB';
 
@@ -50,16 +52,18 @@ export default {
 
     if (/^\/seen\/[mt]\d{1,9}$/.test(url.pathname)) return seenIn(env, ctx, url, cors);
 
-    let path, params, shape, ttl, links = false;
+    let path, params, shape, ttl, links = false, fix = null;
     if (url.pathname === '/search') {
       const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
       if (q.length < 2) return json({ results: [] }, 200, cors);
       const page = Math.min(10, Math.max(1, parseInt(url.searchParams.get('page'), 10) || 1));   // more as you scroll, up to ten pages
       path = '/search/multi'; params = { query: q, language: 'en-GB', region: REGION, include_adult: 'false', ...(page > 1 ? { page: String(page) } : {}) }; shape = searchShape; ttl = 86400;
+      if (page === 1) fix = (body) => smarter(body, q, (t) => tmdb(env, path, { ...params, query: t }).then((d) => (d ? searchShape(d) : null)));
     } else if (url.pathname === '/people') {
       const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
       if (q.length < 2) return json({ results: [] }, 200, cors);
       path = '/search/person'; params = { query: q, language: 'en-GB', include_adult: 'false' }; shape = peopleShape; ttl = 86400;
+      fix = (body) => smarter(body, q, (t) => tmdb(env, path, { ...params, query: t }).then((d) => (d ? peopleShape(d) : null)));
     } else if (/^\/person\/\d{1,9}$/.test(url.pathname)) {
       path = url.pathname; params = { language: 'en-GB', append_to_response: 'combined_credits' }; shape = personShape; ttl = 86400;
     } else if (/^\/credits\/[mt]\d{1,9}$/.test(url.pathname)) {
@@ -92,12 +96,13 @@ export default {
     }
 
     // the edge cache, keyed on the request without its origin
-    const cache = caches.default, key = new Request(`https://tenner-cache/v6${url.pathname}?${new URLSearchParams(params)}`);   // bump v when a shape changes
+    const cache = caches.default, key = new Request(`https://tenner-cache/${fix ? 'v7' : 'v6'}${url.pathname}?${new URLSearchParams(params)}`);   // bump v when a shape changes
     let hit = await cache.match(key);
     if (!hit) {
       const r = await fetch(`${TMDB}${path}?${new URLSearchParams(params)}`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } });
       if (!r.ok) return json({ error: `TMDB ${r.status}` }, r.status === 404 ? 404 : 502, cors);
-      const raw = await r.json(), body = shape(raw);
+      const raw = await r.json(); let body = shape(raw);
+      if (fix) body = await fix(body).catch(() => body);   // a spelling slip: what you most likely meant
       if (links && body.items) await addLinks(body, raw.imdb_id || raw.external_ids?.imdb_id);   // the title's own page on each service, from Wikidata
       hit = new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } });
       ctx.waitUntil(cache.put(key, hit.clone()));
@@ -141,6 +146,8 @@ async function seenIn(env, ctx, url, cors) {
   return json({ people }, 200, { ...cors, 'cache-control': 'no-store' });
 }
 
+const tmdb = (env, path, params) => fetch(`${TMDB}${path}?${new URLSearchParams(params)}`, { headers: { authorization: `Bearer ${env.TMDB_TOKEN}`, accept: 'application/json' } })
+  .then((r) => (r.ok ? r.json() : null)).catch(() => null);
 const json = (o, status, headers) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json', ...headers } });
 
 function searchShape(d) {

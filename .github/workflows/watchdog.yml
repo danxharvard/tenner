@@ -61,6 +61,9 @@ jobs:
             # Discover deals films from TMDB's whole catalogue through it: a page must come back with films in it
             dn=$(curl -s -m 30 -H 'Origin: https://tenner.stream' 'https://tenner-api.danseacroft.workers.dev/discover?page=1' | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const n=(JSON.parse(s).items||[]).length;console.log(n>=10?"ok":"only "+n+" films")}catch{console.log("unreadable")}})')
             [ "$dn" = ok ] || echo "api.yml|Discover's whole-catalogue films came back $dn"
+            # search forgives spelling slips (worker/src/fuzzy.js): 'jurasic park' must still find Jurassic Park
+            fz=$(curl -s -m 30 -H 'Origin: https://tenner.stream' 'https://tenner-api.danseacroft.workers.dev/search?q=jurasic%20park' | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log((JSON.parse(s).results||[]).some(x=>/^jurassic park$/i.test(x.title))?"ok":"no Jurassic Park")}catch{console.log("unreadable")}})')
+            [ "$fz" = ok ] || echo "api.yml|a misspelt search ('jurasic park') came back $fz"
             # Tenner TV's search suggests streaming titles through it: it must keep answering tv.tenner.stream
             code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -H 'Origin: https://tv.tenner.stream' 'https://tenner-api.danseacroft.workers.dev/search?q=bluey')
             [ "$code" = 200 ] || echo "api.yml|The search service answered $code to Tenner TV"
