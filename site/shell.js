@@ -167,7 +167,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.118.0';
+  const version = '2.118.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -1461,8 +1461,8 @@
       const foot = m === 'up' ? 'Already have an account? <button type="button" class="me-link me-swap">Sign in</button>'
         : m === 'in' ? 'New to Tenner? <button type="button" class="me-link me-swap">Sign up</button>'
         : '<button type="button" class="me-link me-swap">Back to sign in</button>';
-      root.innerHTML = `<div class="me-hd me-hd-g" style="--i:0">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
-        <div class="me-ways" style="--i:1">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt" style="--i:2">${foot}</p>${root.id === 'meBody' ? `<nav class="me-links me-links-g" aria-label="Tenner">${mineRow(3)}${shareRow(3)}</nav>` : ''}`;
+      root.innerHTML = `<div class="me-hd me-hd-g">${m === 'check' ? `<span class="av me-av me-mail" aria-hidden="true">${MAIL}</span>` : avatar(null, 'me-av')}<span><b>${heads[m][0]}</b><small>${o.lede ? esc(o.lede) : heads[m][1]}</small></span></div>
+        <div class="me-ways">${body}</div><p class="me-msg" role="status" aria-live="polite"></p><p class="me-alt">${foot}</p>${root.id === 'meBody' ? `<nav class="me-links me-links-g" aria-label="Tenner">${mineRow()}${shareRow()}</nav>` : ''}`;
       const say = (t, bad) => { const n = q('.me-msg'); n.textContent = t; n.classList.toggle('bad', !!bad); };
       if (o.note) say(o.note, o.bad);
       const go = (mode, more = {}) => { Object.assign(o, { note: '', bad: false }, more, { mode }); guestForm(root, o); q('.me-in:not([readonly])')?.focus(); };
@@ -1514,21 +1514,21 @@
     }
     // My services, from the pill: the sheet's own button (a row like the links), signed in or not
     // Share Tenner: the phone's own share sheet, or Tenner's share card on computers
-    const shareRow = (i) => `<button type="button" class="me-row-l" data-me-share style="--i:${i}"><i>${ME_I.share}</i><span><b>Share Tenner</b><small>Tell a friend what’s worth watching</small></span>${ME_I.chev}</button>`;
-    const mineRow = (i) => `<button type="button" class="me-row-l" data-me-mine style="--i:${i}"><i>${ME_I.tv}</i><span><b>My services</b><small>See what’s waiting for you</small></span>${ME_I.chev}</button>`;
+    const shareRow = () => `<button type="button" class="me-row-l" data-me-share><i>${ME_I.share}</i><span><b>Share Tenner</b><small>Tell a friend what’s worth watching</small></span>${ME_I.chev}</button>`;
+    const mineRow = () => `<button type="button" class="me-row-l" data-me-mine><i>${ME_I.tv}</i><span><b>My services</b><small>See what’s waiting for you</small></span>${ME_I.chev}</button>`;
     function fillMenu() {
       const u = account.user(); if (!u) return guestForm($('#meBody'));
       const off = navigator.onLine === false;
       const status = off ? ['off', 'Offline', 'Changes sync when you’re back online'] : ['on', 'Synced', syncedAt ? `Updated ${ago(syncedAt)}` : 'On all your devices'];
       const since = u.created ? new Date(u.created).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
-      const n = (v, l, i) => `<div class="me-n" style="--i:${i}"><b>${v.toLocaleString('en-GB')}</b><small>${l}</small></div>`;
+      const n = (v, l) => `<div class="me-n"><b>${v.toLocaleString('en-GB')}</b><small>${l}</small></div>`;
       const wl = saved.all().length, watched = seen.list().length, going = Object.keys(progress.all()).length, loved = stars.all().length;
-      const row = (href, ic, t, sub, i) => `<a class="me-row-l" href="${href}" style="--i:${i}"><i>${ic}</i><span><b>${t}</b><small>${sub}</small></span>${ME_I.chev}</a>`;
-      $('#meBody').innerHTML = `<div class="me-hd" style="--i:0">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
-        <p class="me-st me-st-${status[0]}" style="--i:1"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
-        <div class="me-nums">${n(wl, 'On your Watchlist', 2)}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched', 2)}${n(going, 'Watching now', 3)}${n(loved, 'Loved', 3)}</div>
-        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices', 4)}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`, 5)}${mineRow(5)}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours', 6)}${shareRow(6)}</nav>
-        <div class="me-share" style="--i:7"><label class="me-share-row"><span><b>Share your Watchlist</b><small>${u.share_id ? '<b class="set-state">On.</b> Anyone with the link can see it' : '<b class="set-state">Off.</b> Only you can see it'}</small></span>
+      const row = (href, ic, t, sub) => `<a class="me-row-l" href="${href}"><i>${ic}</i><span><b>${t}</b><small>${sub}</small></span>${ME_I.chev}</a>`;
+      $('#meBody').innerHTML = `<div class="me-hd">${avatar(u, 'me-av')}<span><b>${esc(u.name || 'You')}</b><small>${esc(u.email || (since ? `With Tenner since ${since}` : 'Your Tenner account'))}</small></span></div>
+        <p class="me-st me-st-${status[0]}"><i aria-hidden="true"></i><b>${status[1]}</b><span>${esc(status[2])}</span></p>
+        <div class="me-nums">${n(wl, 'On your Watchlist')}${n(watched, watched === 1 ? 'Title watched' : 'Titles watched')}${n(going, 'Watching now')}${n(loved, 'Loved')}</div>
+        <nav class="me-links" aria-label="Your account">${row('account.html', ME_I.acct, 'Your account', 'Profile, sign-in and devices')}${row('charts.html#watchlist', ME_I.list, 'Your Watchlist', `${wl} saved`)}${mineRow()}${row('settings.html', ME_I.set, 'Settings', since ? `With Tenner since ${since}` : 'Make Tenner yours')}${shareRow()}</nav>
+        <div class="me-share"><label class="me-share-row"><span><b>Share your Watchlist</b><small>${u.share_id ? '<b class="set-state">On.</b> Anyone with the link can see it' : '<b class="set-state">Off.</b> Only you can see it'}</small></span>
           <input type="checkbox" switch role="switch" id="meShare"${u.share_id ? ' checked' : ''} aria-label="Share your Watchlist with a public link"><i class="sw" aria-hidden="true"></i></label>
           ${u.share_id ? `<div class="me-share-link"><span>${esc(`${location.origin}/list.html?u=${u.share_id}`)}</span><button type="button" class="me-copy" id="meCopy">Copy</button></div>` : ''}</div>`;
     }
@@ -1545,7 +1545,7 @@
       const m = menu(); if (m.hidden) return;
       m.classList.remove('in'); card().setAttribute('aria-expanded', 'false');
       const end = () => { if (!m.classList.contains('in')) m.hidden = true; };
-      if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 220);
+      if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 200);
       if (focus) card().focus();
     }
     $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu(true) : closeMenu()));
@@ -1962,7 +1962,7 @@
     pop.addEventListener('toggle', (e) => {
       const on = e.newState === 'open';
       btn.setAttribute('aria-expanded', on);
-      if (on) { [...pop.children].forEach((c, i) => c.style.setProperty('--i', i)); place(); onOpen?.(); }
+      if (on) { place(); onOpen?.(); }
       else if (pop.contains(document.activeElement) || document.activeElement === document.body) btn.focus({ preventScroll: true });
     });
     addEventListener('resize', () => { if (pop.matches(':popover-open')) place(); });

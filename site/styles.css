@@ -47,8 +47,8 @@
   --lamp: color-mix(in srgb, var(--accent) 7%, transparent);
   /* motion */
   --ease-spring: cubic-bezier(.3, 1.25, .4, 1); --ease-out: cubic-bezier(.2, .8, .2, 1); --ease-snap: cubic-bezier(.34, 1.56, .64, 1);
-  /* popups: a true spring (Apple's, bounce .2: a hint of overshoot, then it settles), iOS's sheet curve, and a quick exit */
-  --ease-pop: linear(0, .028, .097, .191, .296, .404, .508, .603, .689, .763, .825, .876, .917, .949, .973, .991, 1.004, 1.012, 1.017, 1.019, 1.02, 1.019, 1.018, 1.016, 1.014, 1.012, 1.01, 1.008, 1.006, 1.005, 1);
+  /* popups: one simple bounce, a small swell past full size on the way in and on the way out; iOS's sheet curve on phones */
+  --ease-bounce-in: cubic-bezier(.34, 1.56, .64, 1); --ease-bounce-out: cubic-bezier(.36, 0, .66, -.56);
   --ease-sheet: cubic-bezier(.32, .72, 0, 1); --ease-exit: cubic-bezier(.23, 1, .32, 1);
   --spring: var(--ease-spring);
   /* type and shape */
@@ -431,8 +431,6 @@ a.tb-btn:hover { text-decoration: none; }
   transform-origin: var(--tb-o, top right);
 }
 .tb-pop:focus { outline: 0; }
-.tb-pop > * { animation: tbRise .45s cubic-bezier(.2, .85, .25, 1) both; animation-delay: calc(70ms + var(--i, 0) * 40ms); }
-@keyframes tbRise { from { opacity: 0; transform: translateY(10px); } }
 .tb-btn[aria-expanded="true"] .ic-sun { animation: tbSpin .7s cubic-bezier(.3, 1.4, .5, 1) both; }
 @keyframes tbSpin { from { transform: rotate(-90deg) scale(.7); } }
 .tb-btn[aria-expanded="true"] .ic-moon { transform-origin: 60% 60%; animation: tbRock .7s cubic-bezier(.3, 1.4, .5, 1) both; }
@@ -900,14 +898,8 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
 .me-form.native-sw .me-keep .sw { display: none; }
 @media (max-width: 359px) { .me-keep { gap: 8px; font-size: 13px; } .me-opts .me-forgot { font-size: 12.5px; } }
 /* the motion: only with Animations on (both off and Reduce Motion give :root.still) */
-:root:not(.still) .me-menu { opacity: 0; transform: translateY(-10px) scale(.86, .8); filter: blur(8px);
-  transition: opacity .16s var(--ease-exit), transform .2s var(--ease-exit), filter .2s ease; }
-:root:not(.still) .me-menu.in { opacity: 1; transform: none; filter: none;
-  transition: opacity .2s var(--ease-exit), transform .5s var(--ease-pop), filter .3s ease; }
-:root:not(.still) :is(.me-body, .me-nums, .me-links) > * { opacity: 0; transform: translateY(8px); transition: opacity .12s ease; }
-:root:not(.still) .me-menu.in :is(.me-body, .me-nums, .me-links) > * { opacity: 1; transform: none;
-  transition: opacity .3s ease calc(50ms + var(--i, 0) * 35ms), transform .5s var(--ease-pop) calc(50ms + var(--i, 0) * 35ms); }
-:root:not(.still) .me-menu.in .me-body > :is(.me-nums, .me-links) { transition: none; }
+:root:not(.still) .me-menu { opacity: 0; transform: scale(.9); transition: opacity .18s var(--ease-bounce-out), transform .18s var(--ease-bounce-out); }
+:root:not(.still) .me-menu.in { opacity: 1; transform: none; transition: opacity .16s ease-out, transform .26s var(--ease-bounce-in); }
 
 /* ============================================================ 5. shared pieces */
 /* ---------- the one list design (the homepage's chart list): small poster, title, grey second line, hairline separators,
@@ -1250,32 +1242,34 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 :is(.mine-dlg, .share-card) h2, .adv-hd h2 { font: 700 22px/1.2 var(--font) !important; letter-spacing: -.02em !important; text-wrap: balance; }
 dialog.adv { position: fixed; }   /* the calendar keeps its night scene inside the frame */
 /* ---------- one motion for every popup (only with Animations on; shell.js plays the exits before a dialog really closes).
-   Alerts and cards spring up out of the page, a touch small and low, and settle with a hint of overshoot (Apple's spring);
-   they leave quicker than they came, shrinking softly away. On phones the bigger ones are sheets: up from the bottom on
-   iOS's curve, and back down. The dimmed page fades with them. Dropdowns grow out of the button that opened them. ---------- */
-:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open], :root:not(.still) .ps-zoom[open] figure { animation: popIn .5s var(--ease-pop) both; }
-:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet, dialog.ps-zoom)[open]::backdrop { animation: fadeOnly .3s var(--ease-exit) both; }
-:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open].tn-out, :root:not(.still) .ps-zoom.tn-out figure { animation: popOut .2s var(--ease-exit) both; }
-:root:not(.still) dialog[open].tn-out::backdrop { animation: fadeAway .22s var(--ease-exit) both; }
+   A simple bounce, the owner's pick: in, it grows from a little small to just past full size and settles; out, it swells
+   a touch and shrinks away. Short, transform and opacity only (drawn on the GPU), nothing blurred or staggered. On phones
+   the bigger ones are sheets, up from the bottom and back down. Dropdowns grow out of the button that opened them. ---------- */
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open], :root:not(.still) .ps-zoom[open] figure,
+:root:not(.still) :is(.tb-pop, .ss-res, .me-menu, .tt-about, .toast) { will-change: transform, opacity; }
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open], :root:not(.still) .ps-zoom[open] figure { animation: popIn .26s var(--ease-bounce-in) both; }
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet, dialog.ps-zoom)[open]::backdrop { animation: fadeOnly .2s ease-out both; }
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open].tn-out, :root:not(.still) .ps-zoom.tn-out figure { animation: popOut .18s var(--ease-bounce-out) both; }
+:root:not(.still) dialog[open].tn-out::backdrop { animation: fadeAway .18s ease-in both; }
 @media (max-width: 600px) {
-  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open] { animation: sheetUp .5s var(--ease-sheet) both; }
-  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open].tn-out { animation: sheetDown .3s var(--ease-sheet) both; }
+  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open] { animation: sheetUp .34s var(--ease-sheet) both; }
+  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open].tn-out { animation: sheetDown .22s var(--ease-sheet) both; }
 }
 @media (max-width: 699px) {
-  :root:not(.still) dialog.fsheet[open] { animation: sheetUp .5s var(--ease-sheet) both; }
-  :root:not(.still) dialog.fsheet[open].tn-out { animation: sheetDown .3s var(--ease-sheet) both; }
+  :root:not(.still) dialog.fsheet[open] { animation: sheetUp .34s var(--ease-sheet) both; }
+  :root:not(.still) dialog.fsheet[open].tn-out { animation: sheetDown .22s var(--ease-sheet) both; }
 }
-@keyframes popIn { from { opacity: 0; transform: translateY(14px) scale(.92); } }
-@keyframes popOut { to { opacity: 0; transform: translateY(6px) scale(.95); } }
+@keyframes popIn { from { opacity: 0; transform: scale(.9); } }
+@keyframes popOut { to { opacity: 0; transform: scale(.9); } }
 @keyframes sheetUp { from { transform: translateY(100%); } }
 @keyframes sheetDown { to { transform: translateY(100%); } }
 @keyframes fadeAway { to { opacity: 0; } }
-/* dropdowns (Theme, search results): out of their button, a little small and blurred, on the spring; away in a blink */
-:root:not(.still) :is(.tb-pop, .ss-res)[popover] { opacity: 0; transform: translateY(-4px) scale(.96); filter: blur(2px);
-  transition: opacity .15s var(--ease-exit), transform .18s var(--ease-exit), filter .18s ease, display .18s allow-discrete, overlay .18s allow-discrete; }
-:root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 1; transform: none; filter: none;
-  transition: opacity .2s var(--ease-exit), transform .45s var(--ease-pop), filter .25s ease, display .45s allow-discrete, overlay .45s allow-discrete; }
-@starting-style { :root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 0; transform: translateY(-8px) scale(.9); filter: blur(6px); } }
+/* dropdowns (Theme, search results): the same bounce, out of their button and back into it */
+:root:not(.still) :is(.tb-pop, .ss-res)[popover] { opacity: 0; transform: scale(.9);
+  transition: opacity .18s var(--ease-bounce-out), transform .18s var(--ease-bounce-out), display .18s allow-discrete, overlay .18s allow-discrete; }
+:root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 1; transform: none;
+  transition: opacity .16s ease-out, transform .26s var(--ease-bounce-in), display .26s allow-discrete, overlay .26s allow-discrete; }
+@starting-style { :root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 0; transform: scale(.9); } }
 /* a small sheet of choices */
 .mine-dlg { width: min(400px, calc(100vw - 32px)); padding: 0; }
 .mine-dlg form { padding: 22px 20px 18px; }
@@ -1979,9 +1973,9 @@ body { padding-bottom: var(--tf-h); }
   color: var(--label); font: 500 15px/1.2 var(--font); -webkit-font-smoothing: antialiased;
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), var(--shadow); }
 .toast[hidden] { display: none; }
-:root:not(.still) .toast { transition: opacity .2s var(--ease-exit), translate .5s var(--ease-pop), scale .5s var(--ease-pop), display .5s allow-discrete; }
-:root:not(.still) .toast[hidden] { opacity: 0; translate: 0 10px; scale: .96; transition: opacity .2s var(--ease-exit), translate .25s var(--ease-exit), scale .25s var(--ease-exit), display .25s allow-discrete; }
-@starting-style { :root:not(.still) .toast:not([hidden]) { opacity: 0; translate: 0 18px; scale: .92; } }
+:root:not(.still) .toast { transition: opacity .16s ease-out, scale .26s var(--ease-bounce-in), display .26s allow-discrete; }
+:root:not(.still) .toast[hidden] { opacity: 0; scale: .9; transition: opacity .18s var(--ease-bounce-out), scale .18s var(--ease-bounce-out), display .18s allow-discrete; }
+@starting-style { :root:not(.still) .toast:not([hidden]) { opacity: 0; scale: .9; } }
 
 /* one-time feature tips (shell.js, tn.tip): a small frosted box pointing at something new; once, then gone. --ax: where
    the arrow meets the feature, so the box grows out of it */
