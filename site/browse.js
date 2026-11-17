@@ -739,7 +739,7 @@
       if (!l.length) { box.hidden = true; if (all) { $('#grid').innerHTML = `<li class="none"><h2>No one by that name</h2><p>Try another spelling, or look through Top results.</p></li>`; } return; }
       const had = new Set([...$('#bpList').querySelectorAll('[data-p]')].map((a) => a.dataset.p));
       $('#bpList').innerHTML = l.map((p, i) => `<li${had.has(String(p.id)) ? '' : ` class="rv" style="--d:${i}"`}><a href="./?p=${p.id}" data-p="${p.id}">
-        <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async"></span>
+        <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}"${/\/w185\//.test(p.photo) ? ` srcset="${esc(p.photo)} 1x, ${esc(p.photo.replace('/w185/', '/h632/'))} 2x"` : ''} alt="" loading="lazy" decoding="async"></span>
         <b>${esc(p.name)}</b><small>${esc([DEPT[p.dept] || p.dept, p.known[0]].filter(Boolean).join(' · '))}</small></a></li>`).join('');
       // first when a name is the better match; otherwise after this hour's catalogue
       const fq = fold(q), best = (xs, f) => Math.max(0, ...xs.map((x) => score({ n: f(x) }, fq)));

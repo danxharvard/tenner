@@ -46,8 +46,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.121.0">
-  <link rel="stylesheet" href="browse.css?v=2.121.0">
+  <link rel="stylesheet" href="styles.css?v=2.121.1">
+  <link rel="stylesheet" href="browse.css?v=2.121.1">
 </head>
 <body class="browse">
   <a class="skip" href="#grid">Skip to the titles</a>
@@ -91,7 +91,7 @@
     <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="mailto:support@tenner.stream">Support</a>
       <a class="side-link" href="legal.html">Privacy and Terms</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.121.0</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.121.1</a>
     </nav>
   </header>
 
@@ -146,7 +146,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="hs-fl">Filters</span><span class="badge" id="fCount" hidden></span></button>
     </div>
 
-    <!-- the collections: a quiet row of words, each with its icon, over a hairline; a plain line slides under the chosen one -->
+    <!-- the collections: a quiet row of words, each with its icon; a plain line slides under the chosen one -->
     <nav class="coll" aria-label="Collections"><div class="coll-track" id="coll" role="radiogroup" aria-label="Collections"><i class="coll-ind" aria-hidden="true"></i></div></nav>
     <!-- searching: the collections make way for what to look through (Apple's scope bar): everything, shows, films or people -->
     <nav class="coll scopes" id="scopes" aria-label="Search in" hidden><div class="coll-track" role="radiogroup" aria-label="Search in"><i class="coll-ind" aria-hidden="true"></i>
@@ -229,10 +229,10 @@
   </dialog>
 
 
-  <script src="shell.js?v=2.121.0" defer></script>
-  <script src="links.js?v=2.121.0" defer></script>
-  <script src="sheet.js?v=2.121.0" defer></script>
-  <script src="person.js?v=2.121.0" defer></script>
-  <script src="browse.js?v=2.121.0" defer></script>
+  <script src="shell.js?v=2.121.1" defer></script>
+  <script src="links.js?v=2.121.1" defer></script>
+  <script src="sheet.js?v=2.121.1" defer></script>
+  <script src="person.js?v=2.121.1" defer></script>
+  <script src="browse.js?v=2.121.1" defer></script>
 </body>
 </html>
