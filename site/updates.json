@@ -4,9 +4,8 @@
   "date": "2026-11-17",
   "title": "A new Update centre",
   "changes": [
-   "The Update centre now looks like Apple’s release notes: the version you’re on at the top, then each month’s updates in one card",
-   "New features are listed with what they bring; fixes are summed up in a line"
+   "See the version you’re on at a glance, with each month’s updates gathered together below"
   ],
-  "notes": "The update history starts afresh from this release."
+  "notes": ""
  }
 ]

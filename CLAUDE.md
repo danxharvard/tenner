@@ -176,7 +176,8 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   out: a patch release (`X.Y.Z` with Z > 0) is shown as one line, "Bug fixes and improvements.", "Stability improvements."
   or "Speed and reliability improvements." (picked in `updates.js`), so give it a plain subject in those words and no
   `- ` lines. Only major new features get a title and `- ` lines, and only for what's genuinely new; leave anything small
-  out. The history was reset at 2.122.0 (`SINCE` in `scripts/updates.mjs`): older builds stay in git, not in the list.
+  out. Notes never mention Apple, Apple's design or any other company's look: say what changed for the viewer.
+  The history was reset at 2.122.0 (`SINCE` in `scripts/updates.mjs`): older builds stay in git, not in the list.
 - After each update: a quick code check, and remove any code that's no longer used.
 - Test what you change (Playwright on phone and computer sizes, both themes); run the worker's auth tests after touching accounts.
 
