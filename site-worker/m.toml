@@ -1,5 +1,5 @@
 # m.tenner.stream: Tenner's phone view on a computer. Any page address gets a small page that shows the same page of
-# tenner.stream in a phone-sized window (so the phone layout, sign-in and Watchlist are the real ones). Phones are sent
+# tenner.stream in a phone-width, full-height column (so the phone layout, sign-in and Watchlist are the real ones). Phones are sent
 # straight on to tenner.stream. Deployed by .github/workflows/update.yml.
 name = "tenner-m"
 main = "m.js"
