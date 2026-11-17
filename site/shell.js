@@ -2017,9 +2017,26 @@
   });
   // every way of changing the theme (the Theme menu, the phone's picker, the pill, Settings) goes through here, so the
   // round buttons, the menu's ticks and Settings' own menu always agree; another tab changing it changes this one too
+  // A change you make yourself sweeps across the page as a soft wave from where you tapped (styles.css, "theme wave"):
+  // a View Transition whose new picture is unmasked in a growing circle. Animations off, Reduce Motion, a browser without
+  // View Transitions, or a change from another tab: it simply changes.
+  let tap = null;
+  addEventListener('pointerdown', (e) => { tap = { x: e.clientX, y: e.clientY, t: e.timeStamp }; }, true);
   function setTheme(n, quiet) {
-    window.tnTheme?.(n); if (!quiet) { try { localStorage.setItem('tenner-theme', n); } catch {} }
-    showTheme(); syncSel(); dispatchEvent(new Event('tn:theme'));
+    const go = () => { window.tnTheme?.(n); showTheme(); syncSel(); dispatchEvent(new Event('tn:theme')); };
+    const before = root.dataset.theme;
+    if (!quiet) { try { localStorage.setItem('tenner-theme', n); } catch {} }
+    const probe = n === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : n;
+    if (quiet || probe === before || reduce() || !document.startViewTransition) { go(); return; }
+    const recent = tap && performance.now() - tap.t < 4000, a = document.activeElement?.getBoundingClientRect?.();
+    const x = recent ? tap.x : a && a.width ? a.left + a.width / 2 : innerWidth / 2;
+    const y = recent ? tap.y : a && a.width ? a.top + a.height / 2 : innerHeight / 2;
+    root.style.setProperty('--wv-x', `${x}px`); root.style.setProperty('--wv-y', `${y}px`);
+    root.style.setProperty('--wv-r', `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 120}px`);
+    root.classList.add('wave');
+    const v = document.startViewTransition(go);
+    for (const p of [v.ready, v.updateCallbackDone]) p.catch(() => {});
+    v.finished.catch(() => {}).finally(() => root.classList.remove('wave'));
   }
   window.tn.setTheme = (n) => setTheme(n);
   addEventListener('storage', (e) => { if (e.key === 'tenner-theme') setTheme(['light', 'auto'].includes(e.newValue) ? e.newValue : 'dark', true); });

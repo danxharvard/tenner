@@ -2116,6 +2116,17 @@ body { padding-bottom: var(--tf-h); }
 ::view-transition-new(root) { animation: vtIn .38s var(--ease-out) both; }
 @keyframes vtOut { to { opacity: 0; transform: scale(.985); } }
 @keyframes vtIn { from { opacity: 0; transform: translateY(10px); } }
+/* theme wave: Day and Night sweep across from where you tapped (shell.js, setTheme), a soft-edged circle rather than a
+   hard cut, the bar travelling with the page so it changes in the same sweep */
+@property --wv { syntax: '<length>'; inherits: false; initial-value: 0px; }
+:root.wave .top-row { view-transition-name: none; }
+:root.wave::view-transition-old(root) { animation: none; }
+:root.wave::view-transition-new(root) {
+  animation: waveIn .75s cubic-bezier(.3, 0, .15, 1) both;
+  -webkit-mask-image: radial-gradient(circle at var(--wv-x) var(--wv-y), #000 calc(var(--wv) - 90px), transparent var(--wv));
+  mask-image: radial-gradient(circle at var(--wv-x) var(--wv-y), #000 calc(var(--wv) - 90px), transparent var(--wv));
+}
+@keyframes waveIn { from { --wv: 0px; } to { --wv: var(--wv-r); } }
 /* every press answers the moment a finger lands (Apple's rule: feedback on touch-down, never on release): the control
    gives quickly, then springs back softly when it's let go. The button and its icon move as one piece. */
 :root:not(.still) :is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .set-pill, .pv-ok, .ft-ok, .tn-picks a):active {
