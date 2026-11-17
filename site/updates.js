@@ -1,22 +1,17 @@
 // The Update centre: every release from updates.json (kept up to date by scripts/updates.mjs on each build), newest first.
 // Laid out like Apple's release notes: the build you're on at the top, then each month's builds in one frosted card.
-// The owner's rule: fixes are summed up in one line (bug fixes, stability, speed and reliability); only features spell
-// out what changed. The full wording stays in updates.json.
+// The owner's rule: every release lists bug fixes, stability, and speed and reliability improvements; only major new
+// features are spelled out, above them. The full wording stays in updates.json.
 (async () => {
   const log = document.getElementById('uLog'), sub = document.getElementById('uSub'), cur = document.getElementById('uNow');
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const when = (d) => new Date(`${d}T12:00:00Z`);
   const day = (d) => { const t = when(d); return isNaN(t) ? esc(d) : t.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
   const month = (d) => { const t = when(d); return isNaN(t) ? '' : t.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); };
-  const kind = (v) => (/\.0\.0$/.test(v) ? 'major' : /\.0$/.test(v) ? 'feature' : 'fix');
-  const KIND = { major: 'Major update', feature: 'New feature', fix: 'Fixes' };
-  // a fix in one plain line, Apple style
-  const fixLine = (u) => {
-    const t = `${u.title} ${(u.changes || []).join(' ')}`;
-    if (/\b(fast|faster|speed|quick|quicker|slow|lag|smooth|load|loads|loading|reliab)/i.test(t)) return 'Speed and reliability improvements.';
-    if (/\b(crash|error|stab|freez|hang|broke|broken|fail|stuck)/i.test(t)) return 'Stability improvements.';
-    return 'Bug fixes and improvements.';
-  };
+  // every release lists these (the owner's rule); new features, when there are any, come first
+  const STANDARD = ['Bug fixes and improvements', 'Stability improvements', 'Speed and reliability improvements'];
+  const kind = (u) => (/\.0\.0$/.test(u.version) ? 'major' : u.changes?.length ? 'feature' : 'fix');
+  const KIND = { major: 'Major update', feature: 'New features', fix: 'Improvements' };
   let list;
   try { const r = await fetch(`updates.json?v=${Date.now()}`); if (!r.ok) throw 0; list = await r.json(); if (!list.length) throw 0; }
   catch { log.removeAttribute('aria-busy'); cur.hidden = true; log.innerHTML = '<p class="u-empty">The list of updates couldn’t load. Check your connection and try again.</p>'; return; }
@@ -29,10 +24,8 @@
     <p class="u-when">Released ${day(at.date)}</p></div>`;
   cur.removeAttribute('aria-busy');
   const row = (u) => {
-    const k = kind(u.version), v = esc(u.version);
-    const body = k === 'fix'
-      ? `<p class="u-fix">${fixLine(u)}</p>`
-      : `<h3>${esc(u.title)}</h3>${u.changes?.length ? `<ul>${u.changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}${u.notes ? `<p class="u-notes">${esc(u.notes)}</p>` : ''}`;
+    const k = kind(u), v = esc(u.version), feats = k === 'fix' ? [] : u.changes || [];
+    const body = `${feats.length ? `<h3>${esc(u.title)}</h3>` : ''}<ul>${[...feats, ...STANDARD].map((c) => `<li>${esc(c)}</li>`).join('')}</ul>${u.notes ? `<p class="u-notes">${esc(u.notes)}</p>` : ''}`;
     return `<article class="u-row u-${k}" id="v${v}" aria-labelledby="h${v}">
       <header class="u-head"><a class="u-ver" id="h${v}" href="#v${v}">Tenner ${v}</a><span class="u-kind"><i aria-hidden="true"></i>${KIND[k]}</span><time class="u-date" datetime="${esc(u.date)}">${day(u.date)}</time></header>
       ${body}</article>`;
