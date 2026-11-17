@@ -484,6 +484,7 @@ a.tb-btn:hover { text-decoration: none; }
 .ss-t b { font-weight: 500; font-size: 15px; letter-spacing: -.016em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ss-t small { font-size: 13px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ss-all-ic { width: 34px; height: 20px; flex: none; color: var(--accent); }
+.ss-q-ic { width: 34px; height: 18px; flex: none; color: var(--label2); }   /* a recent search: the magnifier where a poster would be */
 .ss-all b { color: var(--accent); }
 .ss-note { margin: 0; padding: 12px 10px; color: var(--label2); font-size: 14px; line-height: 1.4; text-wrap: pretty; }
 /* the part of a name you typed, picked out by weight alone (Spotlight's way), never a highlighter */
