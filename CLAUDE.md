@@ -175,6 +175,14 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   clash with Emil Kowalski's skill of that name): 123 pages of Apple's Human Interface Guidelines plus a review checklist.
   The best source here for checking a page against the HIG; its "distinctive design" directions (palettes, type
   pairings, zero-radius looks) don't apply, since Tenner's look is set.
+- **Kubai Icons** (`kubai-icons`, kubai087/kubai-icons at `ecccdd1`, its release files only): draws a set of icons in one
+  consistent hand, animated (SVG + its small JS engine, the object doing what it does on hover: a folder opens, a gear
+  turns) or exported as static SVG, with a headless self-check. Its own licence is source-available, not open source: keep
+  the copy exact and unmodified (never edit its files or copy its `PROMPT.md` / `SKILL.md` into the site); icons drawn with
+  it are ours, and shipping its engine needs the copyright line kept at the top of each copied file. Its rules are written in
+  Chinese. On Tenner, take its method (one style for every icon, the self-check), not its look: icons stay plain and
+  monochrome (white on the phone menu's colour tiles), and any hover motion only runs with Animations on, never under
+  Reduce Motion, and never on the chart numbers.
 - **The same rule applies: this file wins.** Ignore any default they suggest for corners, buttons, glass, fonts,
   colour or layout that differs from Tenner's house style above (one 9px `--r` corner, solid deep tinted buttons with an
   icon and white words, the shared frost, Apple system colours, `--font`). If a detector flags `backdrop-filter`,
