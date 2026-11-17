@@ -45,8 +45,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.113.1">
-  <link rel="stylesheet" href="about.css?v=2.113.1">
+  <link rel="stylesheet" href="styles.css?v=2.114.0">
+  <link rel="stylesheet" href="about.css?v=2.114.0">
 
 </head>
 <body class="about">
@@ -90,7 +90,7 @@
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.113.1</span>
+      <span class="side-ver">Tenner 2.114.0</span>
     </nav>
   </header>
 
@@ -107,10 +107,10 @@
     <div class="ab-hero-copy">
       <p class="ab-eye">About Tenner</p>
       <h1 id="h-about" data-title="About">Find your next <span class="grad">favourite.</span></h1>
-      <p class="ab-lede">Live charts from the six biggest streamers and the free players, each service’s own Top 10 side by side, and a quicker way to discover something new. Free, and all in one place.</p>
+      <p class="ab-lede">The UK’s Top 10s from the six biggest streamers and the free players, side by side and updated every hour, with a quicker way to find something new. Free, and all in one place.</p>
       <div class="ab-acts">
         <a class="btn btn-tinted ab-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10s</a>
-        <a class="btn btn-tinted ab-btn" href="./#discover"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>Start discovering</a>
+        <a class="btn btn-tinted btn-2nd ab-btn" href="./#discover"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>Start discovering</a>
       </div>
     </div>
   </section>
@@ -122,12 +122,12 @@
       <div class="ab-copy">
         <p class="ab-k ab-k1"><i class="ab-live" aria-hidden="true"></i><span id="abUpd">Live charts</span></p>
         <h2 id="h-live">What everyone’s watching. <span class="dim">Right now.</span></h2>
-        <p>The top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, rebuilt every hour from what people are watching, searching for and saving, kept to what’s streaming in the UK.</p>
+        <p>The top 10 shows and films on Netflix, Disney+, Prime Video, HBO Max, Paramount+ and Apple TV, rebuilt every hour from what people are watching, searching for and saving. Only what’s streaming in the UK makes the cut.</p>
         <a class="btn btn-tinted ab-btn" href="charts.html#top10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19.5v-7M12 19.5v-14M18.5 19.5v-10"/></svg>See the Top 10s</a>
       </div>
-      <div class="ab-vis ab-box lit">
+      <div class="ab-vis ab-box">
         <div class="ab-box-hd"><h3>Top shows in the UK</h3><span class="ab-pill" id="abHour">This hour</span></div>
-        <ol class="cl ab-cl" id="abTop"></ol>
+        <ol class="cl ab-cl" id="abTop"><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li></ol>
         <ul class="ab-six" id="abSix" aria-label="The services"></ul>
       </div>
     </section>
@@ -137,13 +137,13 @@
       <div class="ab-copy">
         <p class="ab-k ab-k2">Made for you</p>
         <h2 id="h-you">Your services. <span class="dim">Your picks.</span></h2>
-        <p>Tell Tenner which services you pay for and Browse, Discover and Home’s rows stick to what you can watch tonight. Swipe in Discover and For you picks out more to suit your taste.</p>
+        <p>Tell Tenner which services you pay for, and Home, Browse and Discover stick to what you can watch tonight. The more you swipe in Discover, the better For you gets at picking for you.</p>
         <a class="btn btn-tinted ab-btn" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>Choose my services</a>
       </div>
-      <div class="ab-vis ab-box lit">
+      <div class="ab-vis ab-box">
         <div class="ab-box-hd"><h3>Try it: tap your services</h3></div>
         <div class="ab-pick" id="abPick" role="group" aria-label="Services to include"></div>
-        <ol class="cl ab-cl" id="abMine" aria-live="polite"></ol>
+        <ol class="cl ab-cl" id="abMine" aria-live="polite"><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li><li class="ab-sk" aria-hidden="true"><a><span class="cl-ph"></span><span class="cl-t"><b></b><small></small></span></a></li></ol>
       </div>
     </section>
 
@@ -152,7 +152,7 @@
       <div class="ab-copy">
         <p class="ab-k ab-k3">Discover</p>
         <h2 id="h-disc">Swipe your way to <span class="dim">something new.</span></h2>
-        <p>Discover deals out ideas one at a time. Swipe right to save it to your Watchlist, left to skip. The more you swipe, the better your picks get.</p>
+        <p>Discover deals out ideas one at a time. Swipe right to save one to your Watchlist, or left to skip it. Try it here: drag the top card, or use the buttons.</p>
         <a class="btn btn-tinted ab-btn" href="./#discover"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.6" y="3" width="10.5" height="15" rx="2.6" transform="rotate(12 13.85 10.5)"/><rect x="4.5" y="5.8" width="10.5" height="15" rx="2.6"/></svg>Start discovering</a>
       </div>
       <div class="ab-vis ab-deck-wrap">
@@ -166,9 +166,9 @@
 
     <!-- the promise, kept short -->
     <section class="ab-promise ab-box" aria-label="Free and private">
-      <div class="tile-c" style="--c:#30d158"><i class="gi" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11.5" rx="1.6"/><path d="M3 9h18M12 9v11.5M12 9C10.5 5 6.5 5 7 7.5S12 9 12 9zm0 0c1.5-4 5.5-4 5-1.5S12 9 12 9z"/></svg></i><b>Free, for good</b><span>Nothing to pay and nothing to unlock.</span></div>
-      <div class="tile-c" style="--c:#0a84ff"><i class="gi" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4.5 4.5l15 15"/></svg></i><b>No adverts, no tracking</b><span>No analytics and no profiles.</span></div>
-      <div class="tile-c" style="--c:#ff9f0a"><i class="gi" style="--c:#ff9f0a" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 3.5 3.5 3 3 0 0 0 3 3 2.5 2.5 0 0 0 2.5 2.5z"/><path d="M8.5 10h.01M8 15h.01M12.5 13.5h.01M15.5 16.5h.01" style="stroke-width:2.8"/></svg></i><b>No cookies</b><span>Not one, even with an account.</span></div>
+      <div><i class="gi" style="--c:#30d158" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11.5" rx="1.6"/><path d="M3 9h18M12 9v11.5M12 9C10.5 5 6.5 5 7 7.5S12 9 12 9zm0 0c1.5-4 5.5-4 5-1.5S12 9 12 9z"/></svg></i><b>Free, for good</b><span>Nothing to pay and nothing to unlock.</span></div>
+      <div><i class="gi" style="--c:#0a84ff" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4.5 4.5l15 15"/></svg></i><b>No adverts, no tracking</b><span>No analytics and no profiles.</span></div>
+      <div><i class="gi" style="--c:#ff9f0a" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 3.5 3.5 3 3 0 0 0 3 3 2.5 2.5 0 0 0 2.5 2.5z"/><path d="M8.5 10h.01M8 15h.01M12.5 13.5h.01M15.5 16.5h.01" style="stroke-width:2.8"/></svg></i><b>No cookies</b><span>Not one, even with an account.</span></div>
       <a class="ab-more" href="legal.html#privacy">Privacy Policy<span class="chev" aria-hidden="true"></span></a>
     </section>
 
@@ -189,12 +189,13 @@
     <nav class="more-links" aria-label="Site information">
       <a href="contact.html">Contact</a><a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms of Service</a><a href="legal.html#cookies">Cookies</a>
     </nav>
-    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.113.1</a></p>
+    <p class="more-ver"><a class="side-ver-text" href="updates.html" title="Update centre">Tenner 2.114.0</a></p>
   </main>
 
   <script>/* the live bits, from the hour's chart: the hero's picture, the top five, the try-it chart and the deck */
   (function(){
     var SIX=['netflix','disney','prime','hbomax','paramount','appletv','free'];
+    var SHORT={prime:'Prime',free:'Free'};   /* names that fit under an icon */
     var $=function(id){return document.getElementById(id)};
     var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
     var still=document.documentElement.classList.contains('still');
@@ -221,13 +222,28 @@
     /* the deck: three ideas from further down the charts; Skip and Save send the top card off and bring the next up */
     var deck=[];
     function drawDeck(){ $('abDeck').innerHTML=deck.slice(0,3).map(function(x,i){return '<div class="ab-card" style="--i:'+i+'">'+poster(x,'ab-card-art')+'<span class="ab-card-t">'+esc(x.title)+'</span></div>'}).reverse().join(''); }
-    document.querySelectorAll('[data-swipe]').forEach(function(b){ b.addEventListener('click',function(){
-      if(deck.length<2) return; var top=$('abDeck').lastElementChild, yes=b.dataset.swipe==='yes';
+    var busy=false;
+    function send(yes){
+      var top=$('abDeck').lastElementChild; if(deck.length<2||busy) return;
       navigator.vibrate&&navigator.vibrate(8);
-      var next=function(){ deck.push(deck.shift()); drawDeck(); };
+      var next=function(){ busy=false; deck.push(deck.shift()); drawDeck(); };
       if(still||!top) return next();
-      top.classList.add(yes?'go-yes':'go-no'); setTimeout(next,320);
-    }); });
+      busy=true; top.style.translate=top.style.rotate=''; top.classList.add(yes?'go-yes':'go-no'); setTimeout(next,320);
+    }
+    document.querySelectorAll('[data-swipe]').forEach(function(b){ b.addEventListener('click',function(){ send(b.dataset.swipe==='yes'); }); });
+    /* ← and → while the buttons have focus, the way Discover answers */
+    document.querySelector('.ab-deck-acts').addEventListener('keydown',function(e){ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); send(e.key==='ArrowRight'); } });
+    /* the top card follows the finger, tilting as it goes; let go past a third of its width (or flick it) and it's sent */
+    (function(){ var el=$('abDeck'), card=null, x0=0, t0=0, dx=0;
+      el.addEventListener('pointerdown',function(e){ var c=el.lastElementChild; if(!c||busy||deck.length<2||e.button>0) return;
+        card=c; x0=e.clientX; t0=e.timeStamp; dx=0; c.setPointerCapture(e.pointerId); c.style.transition='none'; });
+      el.addEventListener('pointermove',function(e){ if(!card) return; dx=e.clientX-x0;
+        card.style.translate=dx+'px '+Math.abs(dx)*.04+'px'; card.style.rotate=(dx/18)+'deg'; });
+      var end=function(e){ if(!card) return; var c=card, w=c.offsetWidth, v=dx/Math.max(1,e.timeStamp-t0); card=null;
+        c.style.transition='';
+        if(Math.abs(dx)>w/3||Math.abs(v)>.6&&Math.abs(dx)>24) send(dx>0); else { c.style.translate=''; c.style.rotate=''; } };
+      el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+    })();
     function load(bust){ fetch('data/trending.json'+(bust?'?v='+Date.now():'')).then(function(r){return r.json()}).then(function(d){
       data=d; svc={}; (d.services||[]).forEach(function(s){svc[s.key]=s});
       var o=d.overall||{}, tv=o.tv||[], mv=o.movie||[];
@@ -238,15 +254,15 @@
       var six=SIX.filter(function(k){return svc[k]});
       $('abSix').innerHTML=six.map(function(k){return '<li title="'+esc(svc[k].label)+'"><span class="ab-app">'+tile(svc[k])+'</span><span class="vh">'+esc(svc[k].label)+'</span></li>'}).join('');
       if(!picks){ picks={}; var m=(window.tn&&window.tn.mine.get())||[]; (m.length?m:six.slice(0,2)).forEach(function(k){picks[k]=1}); }
-      $('abPick').innerHTML=six.map(function(k){return '<button type="button" data-k="'+k+'" aria-pressed="false"><span class="ab-app">'+tile(svc[k])+'<i aria-hidden="true"></i></span><small>'+esc(svc[k].label)+'</small></button>'}).join('');
-      $('abPick').onclick=function(e){ var b=e.target.closest('button'); if(!b) return; picks[b.dataset.k]=!picks[b.dataset.k]; mine(); };
+      $('abPick').innerHTML=six.map(function(k){return '<button type="button" data-k="'+k+'" aria-pressed="false" aria-label="'+esc(svc[k].label)+'"><span class="ab-app">'+tile(svc[k])+'<i aria-hidden="true"></i></span><small>'+esc(SHORT[k]||svc[k].label)+'</small></button>'}).join('');
+      $('abPick').onclick=function(e){ var b=e.target.closest('button'); if(!b) return; picks[b.dataset.k]=!picks[b.dataset.k]; navigator.vibrate&&navigator.vibrate(6); mine(); };
       mine();
       var ids={}; deck=mv.slice(2).concat(tv.slice(5)).filter(function(x){return !ids[x.id]&&(ids[x.id]=1)}).slice(0,8); drawDeck();
-    }).catch(function(){}); }
+    }).catch(function(){ ['abTop','abMine'].forEach(function(id){ if($(id).querySelector('.ab-sk')) $(id).innerHTML='<li class="ab-none">The chart couldn’t load just now. It’ll be back in a moment.</li>'; }); }); }
     /* shell.js (deferred) brings window.tn, for the services you've already chosen */
     if(document.readyState==='loading') addEventListener('DOMContentLoaded',function(){load(false)}); else load(false);
     addEventListener('tn:check',function(){load(true)});   /* a new hour, a new chart */
   })();</script>
-  <script src="shell.js?v=2.113.1" defer></script>
+  <script src="shell.js?v=2.114.0" defer></script>
 </body>
 </html>
