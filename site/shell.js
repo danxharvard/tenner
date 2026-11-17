@@ -96,11 +96,18 @@
   // The pill under a chosen item (tabs, services, collections): it glides across, stretching a little on the way and
   // settling with a small spring. `from` remembers where each pill was.
   const from = new WeakMap();
+  // stretch 0: a segmented control's thumb, which slides straight across as on iOS (quick, no stretch, no lens)
   function glide(ind, b, animate, stretch = 1.14) {
     if (!ind || !b || !b.offsetWidth) return;
     const x = b.offsetLeft, w = b.offsetWidth, was = from.get(ind);
     from.set(ind, x);
     if (was === undefined || !animate || reduce() || !ind.animate) { ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`; return; }
+    if (!stretch) {
+      const t0 = ind.style.transform, w0 = ind.style.width;
+      ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`;
+      ind.tnGlide = ind.animate([{ transform: t0, width: w0 }, { transform: `translateX(${x}px)`, width: w + 'px' }], { duration: 240, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+      return;
+    }
     const t0 = ind.style.transform, w0 = ind.style.width, mw = Math.max(parseFloat(w0), w) * stretch, mid = (was + x) / 2 - (mw - w) / 2;
     ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`;
     const a = ind.animate([{ transform: t0, width: w0 }, { transform: `translateX(${mid}px)`, width: mw + 'px', offset: 0.45 }, { transform: `translateX(${x}px)`, width: w + 'px' }],
@@ -124,13 +131,13 @@
       e.preventDefault(); const n = list[(k + list.length) % list.length]; n.focus(); pick?.(n);
     });
   }
-  // A segmented control that behaves like an iOS switch: its thumb glides to the chosen option with a little spring
+  // A segmented control that behaves like an iOS switch: its thumb slides quickly to the chosen option
   // (when animations are on), and you can grab it and slide (or flick) it between options; it swells slightly while held, then snaps to the nearest.
   // The thumb follows aria-checked, so pages only mark the choice; `pick` is called when a drag lands on a new option.
   function segment(group, pick) {
     if (!group) return;
     const thumb = group.querySelector('.seg-thumb'), btns = () => [...group.querySelectorAll('button')].filter((b) => b.offsetWidth);
-    const place = (animate) => glide(thumb, group.querySelector('button[aria-checked="true"]'), animate, 1.1);
+    const place = (animate) => glide(thumb, group.querySelector('button[aria-checked="true"]'), animate, 0);
     new MutationObserver(() => place(true)).observe(group, { attributes: true, subtree: true, attributeFilter: ['aria-checked'] });
     addEventListener('resize', () => place(false)); document.fonts?.ready.then(() => place(false)); place(false);
     let drag = null, moved = false;
@@ -146,12 +153,11 @@
       const dx = e.clientX - drag.x0; if (Math.abs(dx) > 3) moved = true;
       thumb.getAnimations?.().forEach((a) => a.cancel());
       const nx = Math.min(drag.max, Math.max(drag.min, drag.x + dx));
-      if (moved && nx !== (drag.last ?? drag.x)) lens(thumb, nx - (drag.last ?? drag.x)); drag.last = nx;
       thumb.style.transform = `translateX(${nx}px)`;
     });
     const end = (e) => {
       if (!drag || e.pointerId !== drag.id) return;
-      drag = null; thumb.classList.remove('held'); lens(thumb, 0);
+      drag = null; thumb.classList.remove('held');
       if (!moved) return;
       // snap to whichever option the thumb's centre is over
       const r = thumb.getBoundingClientRect(), mid = r.left + r.width / 2;
@@ -163,7 +169,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.119.0';
+  const version = '2.119.1';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -543,7 +549,10 @@
     const pick = (b) => {
       if (!b || b.getAttribute('aria-checked') === 'true') return;
       t10.kind = b.dataset.kind; try { sessionStorage.setItem('tenner-tt-kind', t10.kind); } catch {}
-      haptic(6); planFile('trending').then((d) => t10Draw(box, d));
+      haptic(6); planFile('trending').then((d) => {
+        t10Draw(box, d);
+        if (!reduce()) row.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });   // the new list fades up into place
+      });
     };
     seg.addEventListener('click', (e) => pick(e.target.closest('button[data-kind]')));
     segment(seg, pick); arrows(seg, () => [...seg.querySelectorAll('button')], pick);
@@ -587,7 +596,7 @@
     if (!row.children.length) row.innerHTML = T10_SK;
     const k = t10Kind(); dlg.querySelectorAll('.t10-seg button').forEach((b) => b.setAttribute('aria-checked', b.dataset.kind === k));
     dlg.showModal(); haptic(8); dlg.querySelector('#t10X').focus({ preventScroll: true });
-    glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 1.1);   // the thumb under the choice, now it can be measured
+    glide(dlg.querySelector('.t10-seg .seg-thumb'), dlg.querySelector('.t10-seg [aria-checked="true"]'), false, 0);   // the thumb under the choice, now it can be measured
     planFile('trending').then((d) => { if (dlg.open) t10Draw(dlg, d); });
   }
   // ---------- See Top 10s: a frosted bar fixed along the foot of every page (like a site map tucked away). Tap it and the

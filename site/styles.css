@@ -411,18 +411,17 @@ a.tb-btn:hover { text-decoration: none; }
 /* Liquid Glass answers a touch by swelling slightly and lighting up, rather than shrinking */
 .tabs button, .tb-btn { transition: transform .35s var(--ease-spring), filter .2s ease, color .3s ease, background-color .2s ease; }
 .tabs button:active, .tb-btn:active { transform: scale(1.08); filter: brightness(1.12); }
-/* the lens in motion: a selection that travels (the tab bar's lens, every segmented thumb) lifts a little as it goes, its
+/* the lens in motion: a selection that travels (the tab bar's lens) lifts a little as it goes, its
    rim splitting the light like a real lens. Drawn only while moving (shell.js adds .lens-go), so an idle page costs nothing. */
-.tab-ind::after, .seg-thumb::after {
+.tab-ind::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
   box-shadow: inset -2px 0 3px -1px rgba(10, 132, 255, .75), inset 2px 0 3px -1px rgba(255, 55, 95, .65), inset 0 1px 0 rgba(255, 255, 255, .9);
   transition: opacity .4s ease;
 }
-:is(.tab-ind, .seg-thumb)[data-dir="l"]::after { box-shadow: inset 2px 0 3px -1px rgba(10, 132, 255, .75), inset -2px 0 3px -1px rgba(255, 55, 95, .65), inset 0 1px 0 rgba(255, 255, 255, .9); }
-:root:not(.still) :is(.tab-ind, .seg-thumb).lens-go::after { opacity: 1; transition-duration: .12s; }
+.tab-ind[data-dir="l"]::after { box-shadow: inset 2px 0 3px -1px rgba(10, 132, 255, .75), inset -2px 0 3px -1px rgba(255, 55, 95, .65), inset 0 1px 0 rgba(255, 255, 255, .9); }
+:root:not(.still) .tab-ind.lens-go::after { opacity: 1; transition-duration: .12s; }
 :root:not(.still) .tab-ind { transition: scale .45s var(--ease-spring); }
 :root:not(.still) .tab-ind.lens-go { scale: 1.04 1.1; }
-:root:not(.still) .seg-thumb.lens-go { scale: 1.04 1.12; }
 .tab-me { display: none !important; }   /* you, as the phone tab bar's last tab (below) */
 
 /* ---------- the Theme card that drops from the round button: Auto, Day or Night ---------- */
