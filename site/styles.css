@@ -694,10 +694,10 @@ a.side-ver[aria-current] { color: var(--label); }
   .fl-done { width: 100%; height: 48px; margin-top: 18px; color: #fff; font-size: 16px; }
   .fl-done svg { width: 18px; height: 18px; }
   /* ---------- the menu, laid out like iOS Settings: the title, Search, your account card, then grouped rows (the pages;
-     About, Theme and Settings; the small print), each with its icon in a small tile of an Apple system colour, and the
+     About, Theme and Settings; the small print), each with its own colour icon (drawn with the Kubai Icons skill), and the
      version at the foot. The pages are where you go, so they have no chevrons (as in iPad's sidebar); the rest open a
      page of their own and keep one. Hairlines only between the rows of a group, starting at the words. ---------- */
-  #drawer { --tile: 30px; --row: 48px; --ind: 56px; background: var(--fr-bg) !important; }   /* the one frost, no coloured glow */
+  #drawer { --row: 48px; --ind: 56px; background: var(--fr-bg) !important; }   /* the one frost, no coloured glow */
   #drawer:focus { outline: none; }
   .drawer .side-search { order: 0; flex-wrap: wrap; margin: 0 0 16px; }
   .drawer .side-search input { height: 40px; border-radius: var(--r); font-size: 17px; padding-left: 36px; }   /* 16px and up, so iOS doesn't zoom in */
@@ -733,20 +733,11 @@ a.side-ver[aria-current] { color: var(--label); }
   .drawer .side-settings, .drawer .side-link:has(+ .side-ver) { border-radius: 0 0 var(--r) var(--r); }
   /* the hairline between two rows of a group, from the words to the edge */
   .drawer :is(.tabs button + button, .th-wrap, .side-settings, .side-link + .side-link)::before { content: ""; position: absolute; z-index: 1; top: 0; right: 0; left: var(--ind); height: .5px; background: var(--sep); }
-  /* the tiles: a white symbol on a colour of its own */
-  .drawer :is(.tabs button, .side-about, .top-act .tb-btn) svg, .drawer .dr-ic { flex: none; box-sizing: border-box; width: var(--tile); height: var(--tile); padding: 5px; border-radius: 7px;
-    color: #fff; background: var(--tile-c, #8e8e93); }
-  .drawer .tabs .i-o { display: none; }
-  .drawer .tabs .i-f { display: block; }
-  .drawer .tabs .i-f path:not(.solid) { fill: none; stroke: currentColor; stroke-width: 2; }
-  .drawer [data-tab="home"] { --tile-c: #0a84ff; }
-  .drawer [data-tab="new"] { --tile-c: #ff375f; }
-  .drawer [data-tab="browse"] { --tile-c: #bf5af2; }
-  .drawer [data-tab="watchlist"] { --tile-c: #ff9f0a; }
-  .drawer .top-act .tb-btn { --tile-c: #5e5ce6; background-image: var(--pop-chev); background-size: 9px 14px; }
-  .drawer a.side-link[href^="mailto:"] { --tile-c: #30d158; }
-  .drawer a.side-link[href="legal.html"] { --tile-c: #0a84ff; }
-  .drawer .dr-ic { display: block; }
+  /* the icons: each row's own little object in a colour of its own (drawn with the Kubai Icons skill), in place of the
+     sidebar's plain symbols */
+  .drawer :is(.tabs button, .side-about, .top-act .tb-btn) svg { display: none !important; }
+  .drawer .dr-ic { display: block; flex: none; width: 38px; height: 38px; margin: -4px -3px; pointer-events: none; -webkit-user-drag: none; }
+  .drawer .top-act .tb-btn { background-image: var(--pop-chev); background-size: 9px 14px; }
   .drawer .top-act .tb-about { display: none; }
   .drawer .side-settings { margin-bottom: 16px; }
   /* Theme: its name, and what it's set to in grey on the right */
@@ -755,7 +746,6 @@ a.side-ver[aria-current] { color: var(--label); }
   /* where you are: the row filled a shade deeper, its name a touch heavier */
   .drawer .tabs button[aria-selected="true"], .drawer .side-about[aria-current] { font-weight: 600; color: var(--label); background-color: color-mix(in srgb, var(--label) 9%, transparent); }
   .drawer .side-link[aria-current] { font-weight: 600; color: var(--label); }
-  .drawer .tabs button[aria-selected="true"] svg { color: #fff; }
   /* a tap: the row darkens at once, like iOS */
   .drawer :is(.tabs button, .side-about, .top-act .tb-btn, .side-link, .side-acct):active { background-color: var(--fill-strong); transform: none; filter: none; transition: none; }
   /* the version, quiet and centred at the foot */

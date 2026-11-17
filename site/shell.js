@@ -1073,13 +1073,21 @@
       if (reduce()) { drawer.close(); return; }
       drawer.classList.add('out'); setTimeout(() => { drawer.classList.remove('out'); drawer.close(); }, 280);
     };
-    // the small print gets its icons in the menu, like every other row there (hidden in the computer's sidebar)
-    const IC = { 'mailto:': '<path d="M4 6.5h16v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m4.5 7 7.5 6 7.5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
-      'legal.html': '<path d="M12 3.2 5 6v5.2c0 4.3 3 7.9 7 9.6 4-1.7 7-5.3 7-9.6V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' };
-    document.querySelectorAll('.side-links a.side-link').forEach((a) => {
-      const k = Object.keys(IC).find((x) => a.getAttribute('href').startsWith(x));
-      if (k) a.insertAdjacentHTML('afterbegin', `<svg class="dr-ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`);
+    // every row of the menu gets its own colour icon (drawn with the Kubai Icons skill, in site/icons/menu/), in place of the
+    // sidebar's plain one; on bigger screens they stay hidden and the sidebar keeps its own
+    [['[data-tab="home"]', 'home'], ['[data-tab="new"]', 'new'], ['[data-tab="browse"]', 'browse'], ['[data-tab="watchlist"]', 'watchlist'],
+      ['.side-about:not(.side-settings)', 'about'], ['#thBtn', 'theme'], ['.side-about.side-settings', 'settings'],
+      ['.side-links a[href^="mailto:"]', 'support'], ['.side-links a[href="legal.html"]', 'privacy']].forEach(([q, n]) => {
+      document.querySelectorAll(q).forEach((el) => el.insertAdjacentHTML('afterbegin', `<img class="dr-ic" src="icons/menu/${n}.svg" alt="" width="38" height="38" decoding="async">`));
     });
+    // New's calendar shows today's date, as the Calendar app's icon does
+    const newIc = $('[data-tab="new"] .dr-ic');
+    if (newIc) fetch(newIc.src).then((r) => (r.ok ? r.text() : null)).then((svg) => {
+      if (!svg) return;
+      const d = new Date(), t = new Date(d.getTime() + 864e5); let i = 0;
+      svg = svg.replace(/(<text[^>]*>)\d+(<\/text>)/g, (m, a, b) => a + (i++ ? d : t).getDate() + b);   // the page behind, then today on top
+      newIc.src = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }).catch(() => {});
     // opening puts the focus on the menu itself (no ring round the close button, and no keyboard popping up for Search)
     menuBtn.addEventListener('click', () => { drawer.showModal(); drawer.focus({ preventScroll: true }); });
     // the round Search button: Browse's own box on Browse, the menu's search box everywhere else

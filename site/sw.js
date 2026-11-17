@@ -9,7 +9,7 @@ const APIS = 'https://tenner-api.danseacroft.workers.dev', ONAIR = 'https://tenn
 // allows), so each page opens offline even if it's never been visited
 const DATA = ['trending', 'featured', 'spotlight', 'titles', 'trail', 'week', 'new', 'prices', 'cinema', 'browse', 'browse-more'].map((n) => `data/${n}.json`);
 const CORE = ['./', 'index.html', 'charts.html', 'home.css', 'new.css', 'home.js', 'advent.css', 'advent.js', 'tonight.js', 'browse.html', 'about.html', 'settings.html', 'settings.css', 'settings.js', 'legal.html', 'legal.css', 'account.html', 'account.css', 'account.js', 'styles.css', 'browse.css', 'about.css', 'updates.html', 'updates.css', 'updates.js', 'updates.json', 'list.html', 'list.js', 'shell.js', 'links.js', 'qrcode.js', 'sheet.js', 'app.js', 'browse.js', 'person.js',
-  'logo.svg', 'favicon.svg', 'favicon.ico'];
+  'logo.svg', 'favicon.svg', 'favicon.ico', ...['home', 'new', 'browse', 'watchlist', 'about', 'theme', 'settings', 'support', 'privacy'].map((n) => `icons/menu/${n}.svg`)];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(SHELL).then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: 'reload' }))))
