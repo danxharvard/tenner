@@ -172,6 +172,11 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   Each build adds any new version by itself (`scripts/updates.mjs`): the commit subject `X.Y.Z: what changed` is the title,
   `- ` lines in the body are the changes, other paragraphs the notes. So write release commits that way; to polish an
   entry, edit it in `site/updates.json` (entries already there are never overwritten).
+  **What goes in the notes (the owner's rule, 2.122.0):** Apple-style. Fixes, tweaks and small changes are never spelled
+  out: a patch release (`X.Y.Z` with Z > 0) is shown as one line, "Bug fixes and improvements.", "Stability improvements."
+  or "Speed and reliability improvements." (picked in `updates.js`), so give it a plain subject in those words and no
+  `- ` lines. Only major new features get a title and `- ` lines, and only for what's genuinely new; leave anything small
+  out. The history was reset at 2.122.0 (`SINCE` in `scripts/updates.mjs`): older builds stay in git, not in the list.
 - After each update: a quick code check, and remove any code that's no longer used.
 - Test what you change (Playwright on phone and computer sizes, both themes); run the worker's auth tests after touching accounts.
 

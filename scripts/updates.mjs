@@ -15,6 +15,8 @@ const VER = /^(?:Tenner\s+)?(\d+\.\d+\.\d+)\b[:\s]*/i;           // "2.58.2: …
 const TAIL = /\((?:v?)(\d+\.\d+\.\d+)\)/;                         // "… (2.50.3)"
 const SKIP = /^(Temporary|Create |Merge |Revert )/i;              // never shown: probes, repo housekeeping
 const TRAILER = /^(Co-Authored-By|Co-authored-by|Claude-Session|Signed-off-by):|^-{3,}$/i;
+// The history was reset at the owner's request (2.122.0): older builds stay in git but are never brought back into the list.
+const SINCE = '2.122.0';
 const cmp = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; };
 const tidy = (s) => { s = s.replace(/\s*\(#\d+\)\s*$/, '').replace(/\s+/g, ' ').trim(); return s && s[0].toUpperCase() + s.slice(1); };
 
@@ -55,7 +57,7 @@ for (const rec of log.split('\x1e')) {
 
 let added = 0;
 for (const u of found.values()) {
-  if (have.has(u.version)) continue;
+  if (have.has(u.version) || cmp(u.version, SINCE) < 0) continue;
   u.changes = [...new Set(u.changes.filter((c) => c && c !== u.title))];
   list.push(u); added++;
 }

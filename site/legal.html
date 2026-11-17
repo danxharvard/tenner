@@ -44,8 +44,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.121.1">
-  <link rel="stylesheet" href="legal.css?v=2.121.1">
+  <link rel="stylesheet" href="styles.css?v=2.122.0">
+  <link rel="stylesheet" href="legal.css?v=2.122.0">
 </head>
 <body class="legal">
   <a class="skip" href="#main">Skip to the page</a>
@@ -89,7 +89,7 @@
     <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="mailto:support@tenner.stream">Support</a>
       <a class="side-link" href="legal.html">Privacy and Terms</a>
-      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.121.1</a>
+      <a class="side-ver" href="updates.html" title="Update centre">Tenner 2.122.0</a>
     </nav>
   </header>
 
@@ -309,6 +309,6 @@
   </main>
 
 
-  <script src="shell.js?v=2.121.1" defer></script>
+  <script src="shell.js?v=2.122.0" defer></script>
 </body>
 </html>

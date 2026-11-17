@@ -169,7 +169,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.121.1';
+  const version = '2.122.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
   // the menu's "Tenner X.Y.Z" opens the Update centre (and says where you are when you're already there)
   document.querySelectorAll('a.side-ver').forEach((a) => {
