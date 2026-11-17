@@ -562,7 +562,7 @@
     return `<section class="bx-sec nwk-sec" aria-labelledby="bxNwk">
       <header class="bx-sec-hd"><div><h2 id="bxNwk">New this week${g ? ` in ${esc(g)}` : ''}</h2><p>${esc(sub)}</p></div>
         <span class="bx-sec-acts"><a class="bx-more" href="charts.html#new">All new</a><button type="button" class="bx-r bx-r-s" data-scroll="-1" aria-label="Earlier days">${I.left}</button><button type="button" class="bx-r bx-r-s" data-scroll="1" aria-label="Later days">${I.right}</button></span></header>
-      <ul class="bx-row nwk">${[...by.keys()].sort().map(day).join('')}</ul></section>`;
+      <ul class="bx-row nwk" tabindex="0" aria-labelledby="bxNwk">${[...by.keys()].sort().map(day).join('')}</ul></section>`;
   }
   // the row opens on today, or the next day with something new (the last day, should everything be behind us)
   function nwkStart() {

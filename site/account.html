@@ -44,15 +44,15 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.113.0">
-  <link rel="stylesheet" href="settings.css?v=2.113.0">
-  <link rel="stylesheet" href="account.css?v=2.113.0">
+  <link rel="stylesheet" href="styles.css?v=2.113.1">
+  <link rel="stylesheet" href="settings.css?v=2.113.1">
+  <link rel="stylesheet" href="account.css?v=2.113.1">
 </head>
 <body>
   <a class="skip" href="#main">Skip to the page</a>
 
   <!-- the bar at the top: the logo, the tabs (a floating bar at the bottom on phones) and the round button -->
-  <div class="top-row">
+  <header class="top-row">
     <div class="top-brand">
       <a class="lt-logo" href="./" aria-label="Tenner, home"><span class="tm" aria-hidden="true"><i class="tm-glow"></i><i class="tm-ring"></i><svg viewBox="0 0 64 64"><path class="tm-one" pathLength="1" d="M13 22.5 19.5 18v28"/><path class="tm-play" d="M36.1 27.4 43.5 32l-7.4 4.6z"/></svg></span></a>
       <span class="brand-name">Tenner</span>
@@ -87,11 +87,11 @@
       <button type="button" class="tb-btn" id="thBtn" aria-haspopup="menu" aria-controls="thPop" aria-expanded="false" aria-label="Theme" title="Theme"><span id="thIc" style="display:contents"></span></button>
     </div>
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
-    <div class="side-links" aria-label="Site information">
+    <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.113.0</span>
-    </div>
-  </div>
+      <span class="side-ver">Tenner 2.113.1</span>
+    </nav>
+  </header>
 
   <div class="tb-pop th-pop" id="thPop" role="menu" aria-labelledby="thH" popover>
     <div class="tb-head"><h2 id="thH">Theme</h2></div>
@@ -215,7 +215,7 @@
   </main>
 
 
-  <script src="shell.js?v=2.113.0" defer></script>
-  <script src="account.js?v=2.113.0" defer></script>
+  <script src="shell.js?v=2.113.1" defer></script>
+  <script src="account.js?v=2.113.1" defer></script>
 </body>
 </html>

@@ -8,9 +8,10 @@
 .u-row { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 16px; padding: 14px 18px; scroll-margin-top: 80px; }
 .u-row + .u-row { border-top: .5px solid var(--sep); }
 .u-meta { display: flex; flex-direction: column; gap: 2px; font: 400 13px/1.4 var(--font); font-variant-numeric: tabular-nums; color: var(--label2); }
-.u-ver { color: var(--label); font-weight: 600; font-size: 14px; text-decoration: none; }
+.u-ver { position: relative; align-self: flex-start; color: var(--label); font-weight: 600; font-size: 14px; text-decoration: none; }
+.u-ver::after { content: ""; position: absolute; inset: -8px -10px -6px; }   /* a bigger target than the number itself */
 @media (hover: hover) { .u-ver:hover { text-decoration: underline; } }
-.u-kind { color: var(--label3); }
+.u-kind { color: var(--label2); }
 .u-body { min-width: 0; overflow-wrap: anywhere; }
 .u-body h2 { margin: 0 0 4px; font: 600 15px/1.35 var(--font); letter-spacing: -.016em; }
 .u-body ul { margin: 4px 0 0; padding-left: 18px; }
