@@ -137,7 +137,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.114.0';
+  const version = '2.115.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -720,26 +720,72 @@
     const words = q.split(' ');
     if (words.length > 1 && words.every((w) => x._f.includes(w) || (w.length > 1 && x._i.includes(w)))) return 30;   // initials count: 'svu'
     if (q.length > 1 && !q.includes(' ') && x._i === q) return 50;
+    // a slip of the finger in a longer word ('breking bad', 'stranger thigns'): every word still has to be close to one
+    // of the title's (or the start of one, for the word still being typed)
+    const tw = x._w ||= x._f.split(' ');
+    if (q.length > 3 && words.every((w, n) => tw.some((t) => t.startsWith(w) || (w.length > 3 && (near(w, t, w.length > 6 ? 2 : 1)
+      || (n === words.length - 1 && t.length > w.length && near(w, t.slice(0, w.length), 1))))))) return 20;
     return 0;
   }
+  // at most `max` letters added, dropped or changed between a and b (the edit distance, given up early)
+  function near(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return false;
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i]; let low = i;
+      for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); low = Math.min(low, cur[j]); }
+      if (low > max) return false;
+      prev = cur;
+    }
+    return prev[b.length] <= max;
+  }
+  // a name with the part you typed picked out (<mark>), found the way fold finds it, so 'amelie' marks 'Amélie'
+  function marked(name, q) {
+    const s = String(name); let f = ''; const at = [];
+    for (let i = 0; i < s.length; i++) {
+      let c = s[i].normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      c = /^[a-z0-9]$/.test(c) ? c : ' ';
+      if (c === ' ' && (!f || f.endsWith(' '))) continue;
+      f += c; at.push(i);
+    }
+    let j = -1;
+    for (let k = f.indexOf(q); k >= 0; k = f.indexOf(q, k + 1)) { if (j < 0) j = k; if (!k || f[k - 1] === ' ') { j = k; break; } }   // a word's start if it can
+    if (!q || j < 0) return esc(s);
+    const a = at[j], b = at[j + q.length - 1] + 1;
+    return `${esc(s.slice(0, a))}<mark>${esc(s.slice(a, b))}</mark>${esc(s.slice(b))}`;
+  }
+  // what you've opened from the search, newest first (this device only), shown when the box opens empty
+  const RECENT = 'tenner-recent-finds';
+  const recent = {
+    get() { try { const l = JSON.parse(localStorage.getItem(RECENT) || '[]'); return Array.isArray(l) ? l.filter((x) => x && x.k).slice(0, 8) : []; } catch { return []; } },
+    add(x) {
+      const keep = x.person ? { person: true, k: x.k, id: x.id, name: x.name, photo: x.photo, dept: x.dept, known: (x.known || []).slice(0, 2) }
+        : { k: x.k, type: x.type, title: x.title, year: x.year, rating: x.rating, poster: x.poster, backdrop: x.backdrop, overview: (x.overview || '').slice(0, 400), on: x.on };
+      try { localStorage.setItem(RECENT, JSON.stringify([keep, ...recent.get().filter((y) => y.k !== keep.k)].slice(0, 8))); } catch {}
+    },
+    clear() { try { localStorage.removeItem(RECENT); } catch {} },
+  };
   const brandEl = $('.top-brand');
   if (brandEl) {
     const GLASS = '<svg class="ss-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
     brandEl.insertAdjacentHTML('afterend', `<div class="side-search" role="search">${GLASS}
       <input id="ssQ" type="search" placeholder="Search shows, films and cast" aria-label="Search shows, films and cast" autocomplete="off" spellcheck="false" enterkeyhint="search"
         role="combobox" aria-expanded="false" aria-controls="ssRes" aria-autocomplete="list">
+      <kbd class="ss-kbd" aria-hidden="true">${/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? '⌘K' : 'Ctrl K'}</kbd>
+      <p class="sk-say" id="ssSay" aria-live="polite"></p>
       <div class="ss-res" id="ssRes" role="listbox" aria-label="Search results" hidden></div></div>`);
-    const box = $('.side-search'), qi = $('#ssQ'), res = $('#ssRes'), phone = matchMedia('(max-width: 719px)'), inline = matchMedia('(max-width: 719px), (min-width: 1000px)');
-    const S = { cat: null, catP: null, svc: null, items: new Map(), people: [], q: '', t: 0, ctl: null, at: -1 };
+    const box = $('.side-search'), qi = $('#ssQ'), res = $('#ssRes'), say = $('#ssSay'), phone = matchMedia('(max-width: 719px)'), inline = matchMedia('(max-width: 719px), (min-width: 1000px)');
+    // open: the box was asked for (a tap on it, the Search button, / or ⌘K), so it shows Recent and Popular now before you type
+    const S = { cat: null, catP: null, svc: null, items: new Map(), people: [], q: '', t: 0, ctl: null, at: -1, open: false, cache: new Map() };
     // the catalogue (and the services' names) are fetched the first time the box is used, then kept
     const load = () => S.catP ||= Promise.all([
       fetch('data/browse.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch('data/trending.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
       prefs.get().no18 && window.tnSheet?.details ? window.tnSheet.details().catch(() => null) : null,
     ]).then(([c, t, d]) => {
-      S.cat = c; S.svc = Object.fromEntries((t?.services || []).map((s) => [s.key, s]));
+      S.done = true; S.cat = c; S.svc = Object.fromEntries((t?.services || []).map((s) => [s.key, s]));
       if (d && c) c.items = c.items.filter((x) => d.items?.[`${x.t[0]}${x.i}`]?.c !== '18');   // Settings: "Hide titles rated 18"
-      if (S.q) draw();
+      if (S.q || S.open) draw();
     });
     // phones and computers: the results fill the menu (the drawer, or the sidebar); tablets: they float over the page in a
     // popover (the browser's top layer)
@@ -751,7 +797,7 @@
     };
     const shown = () => (inline.matches ? !res.hidden : res.matches(':popover-open'));
     function show(on) {
-      on = on && !!S.q;
+      on = on && !!(S.q || S.open) && !!res.innerHTML;
       qi.setAttribute('aria-expanded', on); box.classList.toggle('on', on); $('#drawer')?.classList.toggle('finding', on && phone.matches);
       if ($('#drH')) $('#drH').textContent = on && phone.matches ? 'Search' : 'Tenner';
       box.parentElement.classList.toggle('finding', on && inline.matches && !phone.matches);
@@ -763,33 +809,60 @@
     const row = (x, i) => {
       if (x.person) return `<a class="ss-r ss-p" role="option" id="ssr${i}" aria-selected="false" href="./?p=${x.id}" data-p="${x.id}"><span class="ss-pf" style="--h:${hue(x.name)}">${x.photo
         ? `<img src="${esc(x.photo)}" alt="" loading="lazy" decoding="async">` : esc(x.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
-        <span class="ss-t"><b>${esc(x.name)}</b><small>${esc([DEPT[x.dept] || x.dept, x.known.slice(0, 2).join(', ')].filter(Boolean).join(' · '))}</small></span></a>`;
+        <span class="ss-t"><b>${marked(x.name, S.q)}</b><small>${esc([DEPT[x.dept] || x.dept, x.known.slice(0, 2).join(', ')].filter(Boolean).join(' · '))}</small></span></a>`;
       const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : `<span class="ss-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
       return `<a class="ss-r" role="option" id="ssr${i}" aria-selected="false" href="./?t=${esc(x.k)}" data-k="${esc(x.k)}">${art}
-        <span class="ss-t"><b>${esc(x.title)}</b><small>${esc([x.type === 'tv' ? 'Show' : 'Film', x.year, x.on].filter(Boolean).join(' · '))}</small></span></a>`;
+        <span class="ss-t"><b>${marked(x.title, S.q)}</b><small>${esc([x.type === 'tv' ? 'Show' : 'Film', x.year, x.on].filter(Boolean).join(' · '))}</small></span></a>`;
     };
     const seeAll = () => `<a class="ss-r ss-all" role="option" id="ssrAll" aria-selected="false" href="browse.html#q=${encodeURIComponent(qi.value.trim())}">${GLASS.replace('ss-ic', 'ss-all-ic')}
       <span class="ss-t"><b>See all results</b><small>In Browse, with filters</small></span></a>`;
+    // a catalogue entry as a result
+    const entry = (x, c = S.cat) => ({ k: `${x.t[0]}${x.i}`, type: x.t, title: x.n, year: (x.d || '').slice(0, 4) || null, rating: x.r || null, from: x,
+      poster: x.img ? (x.img.startsWith('/') ? c.img + x.img : x.img) : null, on: x.s.map((s) => S.svc?.[s]?.label).filter(Boolean)[0] || '' });
+    const head = (t, extra = '') => `<div class="ss-h"><span>${t}</span>${extra}</div>`;
+    // while the results are on their way: three rows the shape of the real ones, instead of a line of text
+    const skel = () => `<div class="ss-sk" aria-hidden="true">${'<div><i></i><span><b></b><small></small></span></div>'.repeat(3)}</div>`;
+    const X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
     function draw() {
-      const q = S.q;
-      if (!q) { res.innerHTML = ''; show(false); return; }
-      const c = S.cat, local = !c ? [] : c.items.map((x) => [x, score(x, q)]).filter(([, sc]) => sc).sort((a, b) => b[1] - a[1] || b[0].p - a[0].p).slice(0, 5)
-        .map(([x]) => ({ k: `${x.t[0]}${x.i}`, type: x.t, title: x.n, year: (x.d || '').slice(0, 4) || null, rating: x.r || null, from: x,
-          poster: x.img ? (x.img.startsWith('/') ? c.img + x.img : x.img) : null, on: x.s.map((s) => S.svc?.[s]?.label).filter(Boolean)[0] || '' }));
-      const have = new Set(local.map((x) => x.k)), more = [...S.items.values()].filter((x) => !have.has(x.k)).slice(0, 8 - local.length);
+      const q = S.q, c = S.cat;
+      if (!q) {   // the box open and empty: what you opened lately, then what's popular this hour
+        if (!S.open) { S.list = []; res.innerHTML = ''; show(false); return; }
+        const rec = recent.get().slice(0, 5), have = new Set(rec.map((x) => x.k));
+        const pop = c ? [...c.items].sort((a, b) => b.p - a.p).slice(0, 12).map((x) => entry(x)).filter((x) => !have.has(x.k)).slice(0, rec.length ? 4 : 6) : [];
+        S.list = [...rec, ...pop]; S.at = -1;
+        res.innerHTML = (rec.length ? head('Recent', `<button type="button" class="btn btn-tinted btn-2nd ss-clear" aria-label="Clear recent searches">${X}Clear</button>`) + rec.map(row).join('') : '')
+          + (pop.length ? head('Popular now') + pop.map((x, i) => row(x, rec.length + i)).join('') : !S.done ? head('Popular now') + skel() : '');
+        res.setAttribute('aria-busy', !c && !rec.length);
+        qi.removeAttribute('aria-activedescendant');
+        show(document.activeElement === qi || box.contains(document.activeElement) || res.contains(document.activeElement));
+        return;
+      }
+      const local = !c ? [] : c.items.map((x) => [x, score(x, q)]).filter(([, sc]) => sc).sort((a, b) => b[1] - a[1] || b[0].p - a[0].p).slice(0, 5).map(([x]) => entry(x));
+      // every other film and show, ranked by how well the name matches (the search service's order breaks ties); while
+      // the next answer is on its way, the last one's results that still match stay put, so the list doesn't jump about
+      const have = new Set(local.map((x) => x.k));
+      const more = [...S.items.values()].filter((x) => !have.has(x.k)).map((x, n) => [x, score({ n: x.title }, q), n])
+        .filter(([, sc]) => sc || !S.busy).sort((a, b) => b[1] - a[1] || a[2] - b[2]).slice(0, 8 - local.length).map(([x]) => x);
       // cast and crew: up to three, first when a name matches better than any title does ('tom hanks'), otherwise after
       // this hour's titles
-      const people = S.people.slice(0, 3), best = (l) => Math.max(0, ...l.map((x) => score({ n: x.title || x.name }, q)));
+      const people = S.people.filter((x) => !S.busy || score({ n: x.name }, q)).slice(0, 3), best = (l) => Math.max(0, ...l.map((x) => score({ n: x.title || x.name }, q)));
       const lead = people.length && best(people) > best([...local, ...more]);
       S.list = lead ? [...people, ...local, ...more] : [...local, ...people, ...more]; S.at = -1;
-      res.innerHTML = (S.list.length ? S.list.map(row).join('') : `<p class="ss-note">${S.busy || !S.catP || !c ? 'Searching…' : `Nothing found for “${esc(qi.value.trim())}”.`}</p>`) + seeAll();
+      const waiting = S.busy || !S.done;
+      res.innerHTML = (S.list.length ? S.list.map(row).join('') : waiting ? skel() : `<p class="ss-note">Nothing found for “${esc(qi.value.trim())}”. Check the spelling, or try fewer words.</p>`) + seeAll();
+      res.setAttribute('aria-busy', !S.list.length && waiting);
       qi.removeAttribute('aria-activedescendant');
       show(document.activeElement === qi || box.contains(document.activeElement) || res.contains(document.activeElement));
+      // VoiceOver hears how many, once the answer's in
+      if (!waiting) { const t = S.list.length ? `${S.list.length} result${S.list.length === 1 ? '' : 's'}` : 'No results'; if (say.textContent !== t) say.textContent = t; }
     }
-    // every other film and show, and the people (TMDB, via the search service), after a short pause in typing
+    // every other film and show, and the people (TMDB, via the search service), after a short pause in typing; answers are
+    // kept for the visit, so going back a letter is instant
     function web() {
-      const raw = qi.value.trim(); clearTimeout(S.t); S.ctl?.abort(); S.items = new Map(); S.people = [];
-      if (!api || raw.length < 2) { S.busy = false; return; }
+      const raw = qi.value.trim(), key = raw.toLowerCase(); clearTimeout(S.t); S.ctl?.abort();
+      if (!api || raw.length < 2) { S.items = new Map(); S.people = []; S.busy = false; return; }
+      const hit = S.cache.get(key);
+      if (hit) { S.items = new Map(hit.items); S.people = hit.people; S.busy = false; return; }
       S.busy = true;
       S.t = setTimeout(async () => {
         S.ctl = new AbortController();
@@ -797,14 +870,20 @@
           const ask = (path) => fetch(`${api}${path}?q=${encodeURIComponent(raw.slice(0, 80))}`, { signal: S.ctl.signal }).then((r) => (r.ok ? r.json() : null)).catch((e) => { if (e.name === 'AbortError') throw e; return null; });
           const [d, pp] = await Promise.all([ask('/search'), ask('/people')]);
           if (qi.value.trim() !== raw) return;
+          S.items = new Map();
           for (const x of d?.results || []) S.items.set(x.k, { ...x, poster: x.poster ? d.img + x.poster : null, backdrop: x.backdrop ? d.bd + x.backdrop : null, web: true });
           // the people worth showing: a face or something they're known for, so the names nobody's heard of stay out
           S.people = (pp?.results || []).filter((x) => x.photo && x.known?.length).map((x) => ({ ...x, person: true, k: `p${x.id}` }));
+          if (d && pp) { S.cache.set(key, { items: [...S.items], people: S.people }); if (S.cache.size > 40) S.cache.delete(S.cache.keys().next().value); }
         } catch (e) { if (e.name === 'AbortError') return; }
         S.busy = false; draw();
-      }, 280);
+      }, 220);
     }
-    qi.addEventListener('focus', () => { load(); if (S.q) draw(); });
+    const ask = () => { S.open = true; load(); draw(); };
+    qi.addEventListener('focus', () => { load(); if (S.q || S.open) draw(); });
+    // computers and tablets: a click in the box opens it (on phones the menu stays the menu until you type, or tap Search)
+    qi.addEventListener('click', () => { if (!phone.matches && !S.open) ask(); });
+    box.addEventListener('pointerenter', load, { once: true });   // a head start on the catalogue
     qi.addEventListener('input', () => { S.q = fold(qi.value).slice(0, 80); web(); draw(); });
     // the arrow keys move through the results, Return opens one (or the full results), Escape clears, then leaves
     const pick = (i) => {
@@ -814,16 +893,24 @@
       qi.setAttribute('aria-activedescendant', rows[S.at].id); rows[S.at].scrollIntoView({ block: 'nearest' });
     };
     qi.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { if (!shown()) return; e.preventDefault(); pick(S.at + (e.key === 'ArrowDown' ? 1 : S.at < 0 ? 0 : -1)); }
-      else if (e.key === 'Enter') { e.preventDefault(); if (!S.q) return; (res.querySelectorAll('.ss-r')[Math.max(0, S.at)] || res.querySelector('.ss-all'))?.click(); }
-      else if (e.key === 'Escape') { if (qi.value) { e.preventDefault(); e.stopPropagation(); qi.value = ''; S.q = ''; web(); draw(); } else if (!phone.matches) qi.blur(); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!shown()) { if (e.key === 'ArrowDown') { e.preventDefault(); ask(); } return; }
+        e.preventDefault(); pick(S.at + (e.key === 'ArrowDown' ? 1 : S.at < 0 ? 0 : -1));
+      }
+      else if ((e.key === 'Home' || e.key === 'End') && shown() && S.at >= 0) { e.preventDefault(); pick(e.key === 'Home' ? 0 : -1); }   // first or last result
+      else if (e.key === 'Enter') { e.preventDefault(); if (!S.q && S.at < 0) return; (res.querySelectorAll('.ss-r')[Math.max(0, S.at)] || res.querySelector('.ss-all'))?.click(); }
+      else if (e.key === 'Escape') {   // clears the box, then closes the results, then leaves
+        if (qi.value) { e.preventDefault(); e.stopPropagation(); qi.value = ''; S.q = ''; web(); draw(); }
+        else if (shown()) { e.preventDefault(); e.stopPropagation(); S.open = false; draw(); }
+        else if (!phone.matches) qi.blur();
+      }
     });
     qi.addEventListener('search', () => { if (!qi.value) { S.q = ''; web(); draw(); } });   // the box's own clear button
     async function go(x) {
-      show(false); qi.blur();
+      recent.add(x); S.open = false; show(false); qi.blur();
       if (!window.tnSheet) { location.href = `./?t=${x.k}`; return; }
       if (window.tnSheet.isOpen()) { window.tnSheet.close(); await new Promise((r) => setTimeout(r, 380)); }
-      const c = x.from;
+      const c = x.from || S.cat?.items.find((y) => `${y.t[0]}${y.i}` === x.k);   // a recent one: the catalogue's details if it's still there
       window.tnSheet.open(c ? { k: x.k, type: x.type, title: x.title, year: x.year, rating: x.rating, poster: x.poster,
         genres: [...new Set(c.g.map((g) => S.cat.genres?.[g]).filter(Boolean))].slice(0, 3), tmdb: `https://www.themoviedb.org/${c.t}/${c.i}`,
         services: c.s.map((s) => ({ label: S.svc?.[s]?.label || s, logo: S.svc?.[s]?.logo })) }
@@ -832,10 +919,12 @@
     }
     res.addEventListener('pointerdown', (e) => { if (!phone.matches) e.preventDefault(); });   // keep the box focused while choosing
     res.addEventListener('click', (e) => {
+      if (e.target.closest('.ss-clear')) { recent.clear(); draw(); if (!phone.matches) qi.focus(); return; }
       const a = e.target.closest('.ss-r'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
       if (a.classList.contains('ss-all')) { show(false); if (onPage('browse')) { e.preventDefault(); location.hash = `q=${encodeURIComponent(qi.value.trim())}`; } return; }
       if (a.dataset.p) {   // a person: their sheet here, or on the homepage where this page has none
-        show(false); qi.blur();
+        const x = S.list.find((y) => y.k === `p${a.dataset.p}`); if (x) recent.add(x);
+        S.open = false; show(false); qi.blur();
         if (window.tnPerson) { e.preventDefault(); window.tnPerson.open(a.dataset.p, false, a.querySelector('b')?.textContent); }
         return;
       }
@@ -843,11 +932,13 @@
       e.preventDefault(); go(x);
     });
     // computers: a tap anywhere else puts the results away; they come back when you return to the box
-    qi.addEventListener('blur', () => { if (!phone.matches) setTimeout(() => { if (document.activeElement !== qi) show(false); }, 120); });
+    qi.addEventListener('blur', () => { if (!phone.matches) setTimeout(() => { if (document.activeElement !== qi) { S.open = false; show(false); } }, 120); });
+    // phones: putting the menu away ends a search that never started
+    document.addEventListener('close', (e) => { if (e.target.id === 'drawer' && !S.q && S.open) { S.open = false; draw(); } }, true);
     addEventListener('resize', () => { if (shown()) fit(); });
     inline.addEventListener('change', () => { show(false); fit(); });
     fit();
-    window.tnFind = () => { qi.focus(); qi.select(); };
+    window.tnFind = () => { S.open = true; qi.focus(); qi.select(); load(); draw(); };
   }
 
   // the menu's search box, ready to type in: on phones the menu opens first

@@ -245,7 +245,7 @@
     saved.set([]); mine.set([]);
     Object.keys(progress.all()).forEach((k) => progress.set(k, null));
     prefs.reset();
-    try { localStorage.removeItem('tenner-kind'); } catch {}
+    try { localStorage.removeItem('tenner-kind'); localStorage.removeItem('tenner-recent-finds'); } catch {}
     try { ['tenner-home-svc', 'tenner-home-kind', 'tenner-tt-kind', 'tenner-discover-kind'].forEach((k) => sessionStorage.removeItem(k)); } catch {}   // this visit's picks too
     show(); say('Cleared');
   });

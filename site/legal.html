@@ -44,8 +44,8 @@
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>
-  <link rel="stylesheet" href="styles.css?v=2.114.0">
-  <link rel="stylesheet" href="legal.css?v=2.114.0">
+  <link rel="stylesheet" href="styles.css?v=2.115.0">
+  <link rel="stylesheet" href="legal.css?v=2.115.0">
 </head>
 <body class="legal">
   <a class="skip" href="#main">Skip to the page</a>
@@ -88,7 +88,7 @@
     <a class="side-about side-settings" href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14.2 2.6h-4l-.4 2.5A7.6 7.6 0 0 0 7.2 6.6l-2.3-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Settings</span></a>
     <nav class="side-links" aria-label="Site information">
       <a class="side-link" href="legal.html">Help Centre</a>
-      <span class="side-ver">Tenner 2.114.0</span>
+      <span class="side-ver">Tenner 2.115.0</span>
     </nav>
   </header>
 
@@ -613,7 +613,7 @@
           <article class="hq-art" id="device" data-live="device" data-k="device browser system details diagnostics debug info version storage technical support">
             <h2>Your device and Tenner</h2>
             <p>The details we’d ask for if you report a problem. They stay on your device unless you choose to send them.</p>
-            <dl class="hq-facts" id="hqDevice"><div><dt>Tenner</dt><dd class="side-ver-text">Tenner 2.114.0</dd></div></dl>
+            <dl class="hq-facts" id="hqDevice"><div><dt>Tenner</dt><dd class="side-ver-text">Tenner 2.115.0</dd></div></dl>
             <p class="hq-btns">
               <button type="button" class="btn btn-tinted btn-2nd hq-cta" id="hqCopy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 5.5v-.3a1.7 1.7 0 0 0-1.7-1.7H6.2a1.7 1.7 0 0 0-1.7 1.7v7.6a1.7 1.7 0 0 0 1.7 1.7h.3" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Copy details</span></button>
               <a class="btn btn-tinted hq-cta" href="contact.html?about=Support" data-details><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10.2 13.8M21 3l-6.9 18-3.9-7.2L3 9.9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Send to support</a>
@@ -622,7 +622,7 @@
 
           <article class="hq-art" id="versions" data-k="version release notes changelog what's new update centre build number">
             <h2>Versions and what’s new</h2>
-            <p>You’re using <strong class="side-ver-text">Tenner 2.114.0</strong>. Tenner is updated often, sometimes several times a day, and each update arrives by itself.</p>
+            <p>You’re using <strong class="side-ver-text">Tenner 2.115.0</strong>. Tenner is updated often, sometimes several times a day, and each update arrives by itself.</p>
             <p>The Update centre lists every release, with what changed. You can open it any time from here, or from the Update centre card on the Help Centre’s home.</p>
             <p><a class="btn btn-tinted hq-cta" href="updates.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4M12 8v4.3l2.8 1.7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>Open the Update centre</a></p>
           </article>
@@ -662,11 +662,11 @@
       </div>
     </div>
 
-    <p class="hq-foot">© <span class="hq-year">2026</span> Tenner · <a href="#privacy">Privacy</a> · <a href="#terms">Terms</a> · <a href="#cookies">Cookies</a> · <a href="contact.html">Contact</a> · <a class="side-ver-text" href="updates.html">Tenner 2.114.0</a></p>
+    <p class="hq-foot">© <span class="hq-year">2026</span> Tenner · <a href="#privacy">Privacy</a> · <a href="#terms">Terms</a> · <a href="#cookies">Cookies</a> · <a href="contact.html">Contact</a> · <a class="side-ver-text" href="updates.html">Tenner 2.115.0</a></p>
   </main>
 
 
-  <script src="shell.js?v=2.114.0" defer></script>
-  <script src="legal.js?v=2.114.0" defer></script>
+  <script src="shell.js?v=2.115.0" defer></script>
+  <script src="legal.js?v=2.115.0" defer></script>
 </body>
 </html>
