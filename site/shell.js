@@ -36,6 +36,36 @@
   const apply = () => { const p = prefs.get(); root.classList.toggle('still', !p.anim || osStill.matches); root.classList.toggle('no-moves', !p.moves); root.classList.toggle('no-ratings', !p.ratings); };
   apply(); osStill.addEventListener?.('change', apply);   // the device's Reduce Motion, switched while Tenner is open
   const reduce = () => root.classList.contains('still');   // read live: Settings, another tab or a sync can switch Animations on or off at any moment
+  // ---------- every popup leaves the way it came (styles.css, "one motion for every popup"): an alert or card shrinks
+  // softly away, a phone's sheet slides back down, and the dimmed page clears with it. Every way of closing gets it (a
+  // button, Escape, a tap outside, a form's own buttons), then the dialog really closes. Title and person sheets, the menu
+  // and the Christmas calendar keep their own exits; with Animations off it all closes at once, as before.
+  const OWN_EXIT = '.sheet, .drawer, dialog.adv';
+  const DLG = HTMLDialogElement.prototype, nativeClose = DLG.close, nativeShow = DLG.showModal, leaving = new WeakMap();
+  const animatedExit = (d) => d.open && !reduce() && !d.matches(OWN_EXIT);
+  DLG.close = function (v) {
+    if (leaving.has(this)) return;   // already on its way out
+    if (!animatedExit(this)) return nativeClose.call(this, v);
+    const end = () => { if (leaving.get(this) !== end) return; leaving.delete(this); this.classList.remove('tn-out'); if (this.open) nativeClose.call(this, v); };
+    leaving.set(this, end); this.classList.add('tn-out');
+    const runs = this.getAnimations({ subtree: true }).filter((a) => /Out$|Down$|Away$/.test(a.animationName || ''));
+    if (!runs.length) { end(); return; }
+    Promise.allSettled(runs.map((a) => a.finished)).then(end); setTimeout(end, 450);   // never stuck half-closed
+  };
+  DLG.showModal = function () {   // asked back while it's leaving: it simply stays
+    if (leaving.has(this)) { leaving.delete(this); this.classList.remove('tn-out'); return; }
+    return nativeShow.call(this);
+  };
+  document.addEventListener('cancel', (e) => {   // Escape, or a tap outside where closedby="any" is known
+    const d = e.target;
+    if (!(d instanceof HTMLDialogElement) || e.defaultPrevented || !animatedExit(d)) return;
+    e.preventDefault(); setTimeout(() => { if (d.open && !leaving.has(d)) d.close(); });   // after the dialog's own listener, which may close it with a value
+  }, true);
+  document.addEventListener('submit', (e) => {   // a <form method="dialog">'s buttons, once the form's own code has had its say
+    const f = e.target, s = e.submitter, d = f.closest?.('dialog');
+    if (e.defaultPrevented || !d || (s?.getAttribute('formmethod') || f.getAttribute('method')) !== 'dialog' || !animatedExit(d)) return;
+    e.preventDefault(); d.close(s?.hasAttribute('value') ? s.value : undefined);
+  });
   // a change that crossfades where the browser can (View Transitions), at once with Animations off; a transition cut short
   // by a newer one (or by leaving the page) is fine, so none of its promises is left to fail unheard
   const morph = (fn) => {
@@ -137,7 +167,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.115.0';
+  const version = '2.116.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -551,12 +581,7 @@
         <div class="t10-row" aria-busy="true"></div>
         <footer class="t10-ft">${t10Foot()}</footer></dialog>`);
       dlg = document.getElementById('t10');
-      const shut = () => {
-        if (!dlg.open || dlg.classList.contains('out')) return;
-        if (reduce()) { dlg.close(); return; }
-        dlg.classList.add('out'); setTimeout(() => { dlg.classList.remove('out'); dlg.close(); }, 240);
-      };
-      dlg.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
+      const shut = () => dlg.close();   // it shrinks away (the shared exit, above)
       dlg.querySelector('#t10X').addEventListener('click', shut);
       dlg.addEventListener('click', (e) => { if (e.target === dlg) shut(); });   // a tap on the dimmed page around the card
       t10Wire(dlg);
@@ -667,9 +692,8 @@
       <div class="sc-art">${SCENE}</div>
     </dialog>`);
     card = $('#shareCard');
-    const shut = () => { if (!card.open || card.classList.contains('out')) return; if (reduce()) { card.close(); return; } card.classList.add('out'); setTimeout(() => { card.classList.remove('out'); card.close(); }, 200); };
+    const shut = () => card.close();   // it shrinks away (the shared exit, above)
     $('#scX').addEventListener('click', shut);
-    card.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
     card.addEventListener('click', (e) => {   // a tap on the dimmed page closes it
       if (e.target === card) { const r = card.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) shut(); return; }
       const b = e.target.closest('[data-sc]'); if (!b || !shareNow) return;
@@ -700,7 +724,7 @@
     $('#scBtns').innerHTML = NETS.map(([label, href, icon]) => `<a class="sc-b" href="${esc(href(o.text, o.url))}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg><span>${label}</span></a>`).join('')
       + `<button type="button" class="sc-b" data-sc="copy"><svg viewBox="0 0 24 24" aria-hidden="true">${LINK}</svg><span>Copy link</span></button>`
       + (o.picture ? `<button type="button" class="sc-b" data-sc="pic"><svg viewBox="0 0 24 24" aria-hidden="true">${PIC}</svg><span>Save as picture</span></button>` : '');
-    c.classList.remove('out'); if (!c.open) c.showModal();
+    if (!c.open || c.classList.contains('tn-out')) c.showModal();   // open it, or keep it if it was on its way out
     $('#scX').focus({ preventScroll: true });
   }
 
@@ -1508,7 +1532,7 @@
       const m = menu(); if (m.hidden) return;
       m.classList.remove('in'); card().setAttribute('aria-expanded', 'false');
       const end = () => { if (!m.classList.contains('in')) m.hidden = true; };
-      if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 260);
+      if (document.documentElement.classList.contains('still')) end(); else setTimeout(end, 220);
       if (focus) card().focus();
     }
     $('#bxMeCard').addEventListener('click', () => (menu().hidden ? openMenu(true) : closeMenu()));

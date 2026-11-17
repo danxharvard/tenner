@@ -47,6 +47,9 @@
   --lamp: color-mix(in srgb, var(--accent) 7%, transparent);
   /* motion */
   --ease-spring: cubic-bezier(.3, 1.25, .4, 1); --ease-out: cubic-bezier(.2, .8, .2, 1); --ease-snap: cubic-bezier(.34, 1.56, .64, 1);
+  /* popups: a true spring (Apple's, bounce .2: a hint of overshoot, then it settles), iOS's sheet curve, and a quick exit */
+  --ease-pop: linear(0, .028, .097, .191, .296, .404, .508, .603, .689, .763, .825, .876, .917, .949, .973, .991, 1.004, 1.012, 1.017, 1.019, 1.02, 1.019, 1.018, 1.016, 1.014, 1.012, 1.01, 1.008, 1.006, 1.005, 1);
+  --ease-sheet: cubic-bezier(.32, .72, 0, 1); --ease-exit: cubic-bezier(.23, 1, .32, 1);
   --spring: var(--ease-spring);
   /* type and shape */
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -425,10 +428,9 @@ a.tb-btn:hover { text-decoration: none; }
   position: fixed; inset: auto; margin: 0; border: 0; z-index: 65; box-sizing: border-box; width: min(300px, calc(100vw - 24px)); overflow-y: auto; overscroll-behavior: contain; max-height: calc(100dvh - 90px);
   border-radius: var(--r); padding: 18px 18px 12px; color: var(--label);
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: 0 24px 60px rgba(0, 0, 0, .22);
-  transform-origin: var(--tb-o, top right); animation: tbDrop .5s cubic-bezier(.34, 1.45, .5, 1) both;
+  transform-origin: var(--tb-o, top right);
 }
 .tb-pop:focus { outline: 0; }
-@keyframes tbDrop { 0% { opacity: 0; transform: translateY(-10px) scale(.6); filter: blur(4px); } 55% { opacity: 1; filter: blur(0); } 100% { transform: none; } }
 .tb-pop > * { animation: tbRise .45s cubic-bezier(.2, .85, .25, 1) both; animation-delay: calc(70ms + var(--i, 0) * 40ms); }
 @keyframes tbRise { from { opacity: 0; transform: translateY(10px); } }
 .tb-btn[aria-expanded="true"] .ic-sun { animation: tbSpin .7s cubic-bezier(.3, 1.4, .5, 1) both; }
@@ -467,8 +469,7 @@ a.tb-btn:hover { text-decoration: none; }
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur);
   box-shadow: inset 0 0 0 .5px var(--fr-rim), 0 24px 60px rgba(0, 0, 0, .28);
 }
-.ss-res:popover-open { transform-origin: top left; animation: ssDrop .38s var(--ease-spring) both; }
-@keyframes ssDrop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
+.ss-res[popover] { transform-origin: 24px 0; }   /* it opens out of the search box (the motion: "one motion for every popup") */
 .ss-r { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 7px 8px; border-radius: var(--r); color: var(--label); text-decoration: none; }
 .ss-r + .ss-r::before { content: ""; position: absolute; top: 0; left: 54px; right: 8px; border-top: .5px solid var(--sep); }   /* hairlines, inset past the poster */
 .ss-r[aria-selected="true"], .ss-r:focus-visible { outline: none; background: var(--fill); }
@@ -655,8 +656,8 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
 
   /* ---------- the menu: against the left edge, full height, in the one frost; slides in and is swiped back out ---------- */
   .drawer { position: fixed; height: auto; max-width: none; margin: 0; overflow-y: auto; overscroll-behavior: contain; color: var(--label); }
-  .drawer[open] { display: flex; flex-direction: column; gap: 2px; animation: drIn .5s var(--ease-spring) both; }
-  .drawer.out { animation: drOut .28s cubic-bezier(.4, 0, 1, 1) both; }
+  .drawer[open] { display: flex; flex-direction: column; gap: 2px; animation: drIn .5s var(--ease-sheet) both; }   /* iOS's curve: it never overshoots and leaves a gap at the edge */
+  .drawer.out { animation: drOut .3s var(--ease-sheet) both; }
   .drawer.dragging { transition: none; }
   #drawer { inset: 0 auto 0 0; width: min(320px, calc(100vw - 56px)); height: 100%; max-height: none;
     padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px calc(env(safe-area-inset-bottom, 0px) + 24px) max(14px, env(safe-area-inset-left, 0px));
@@ -677,8 +678,8 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
   .drawer.drawer-r { inset: auto 0 0 0; width: 100%; max-width: 100%; height: auto; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 18px);
     padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 28px); border-radius: var(--r) var(--r) 0 0;
     box-shadow: inset 0 1px 0 var(--fr-rim), 0 -20px 60px rgba(0, 0, 0, .35) !important; translate: 0 var(--drag, 0px); }
-  .drawer.drawer-r[open] { animation: drUp .55s var(--ease-spring) both; }
-  .drawer.drawer-r.out { animation: drDown .3s cubic-bezier(.4, 0, 1, 1) both; }
+  .drawer.drawer-r[open] { animation: drUp .5s var(--ease-sheet) both; }
+  .drawer.drawer-r.out { animation: drDown .3s var(--ease-sheet) both; }
   @keyframes drUp { from { transform: translateY(100%); } }
   @keyframes drDown { to { transform: translateY(100%); } }
   .dr-grab { flex: none; width: 36px; height: 5px; margin: 0 auto 12px; border-radius: 3px; background: var(--label3); }
@@ -896,13 +897,13 @@ button.me-row-l { width: 100%; border: 0; background: none; font: inherit; text-
 .me-form.native-sw .me-keep .sw { display: none; }
 @media (max-width: 359px) { .me-keep { gap: 8px; font-size: 13px; } .me-opts .me-forgot { font-size: 12.5px; } }
 /* the motion: only with Animations on (both off and Reduce Motion give :root.still) */
-:root:not(.still) .me-menu { opacity: 0; transform: translateY(-14px) scale(.55, .35); filter: blur(10px); border-radius: 28px;
-  transition: opacity .22s ease, transform .26s cubic-bezier(.4, 0, .6, 1), filter .26s ease, border-radius .26s ease; }
-:root:not(.still) .me-menu.in { opacity: 1; transform: none; filter: none; border-radius: var(--r);
-  transition: opacity .25s ease, transform .62s cubic-bezier(.2, 1.35, .35, 1), filter .4s ease, border-radius .55s cubic-bezier(.2, 1.2, .35, 1); }
-:root:not(.still) :is(.me-body, .me-nums, .me-links) > * { opacity: 0; transform: translateY(8px); }
+:root:not(.still) .me-menu { opacity: 0; transform: translateY(-10px) scale(.86, .8); filter: blur(8px);
+  transition: opacity .16s var(--ease-exit), transform .2s var(--ease-exit), filter .2s ease; }
+:root:not(.still) .me-menu.in { opacity: 1; transform: none; filter: none;
+  transition: opacity .2s var(--ease-exit), transform .5s var(--ease-pop), filter .3s ease; }
+:root:not(.still) :is(.me-body, .me-nums, .me-links) > * { opacity: 0; transform: translateY(8px); transition: opacity .12s ease; }
 :root:not(.still) .me-menu.in :is(.me-body, .me-nums, .me-links) > * { opacity: 1; transform: none;
-  transition: opacity .35s ease calc(60ms + var(--i, 0) * 40ms), transform .55s cubic-bezier(.2, 1.3, .35, 1) calc(60ms + var(--i, 0) * 40ms); }
+  transition: opacity .3s ease calc(50ms + var(--i, 0) * 35ms), transform .5s var(--ease-pop) calc(50ms + var(--i, 0) * 35ms); }
 :root:not(.still) .me-menu.in .me-body > :is(.me-nums, .me-links) { transition: none; }
 
 /* ============================================================ 5. shared pieces */
@@ -1175,8 +1176,6 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 @media (max-width: 360px) { .tn-acts { flex-direction: column-reverse; } }
 .tn-dlg.tn-drag { transition: none !important; }
 :root:not(.still) .tn-dlg { transition: translate .35s var(--ease-out); }
-:root:not(.still) .tn-dlg[open] { animation: tnIn .5s var(--ease-spring); }
-@media (max-width: 600px) { :root:not(.still) .tn-dlg[open] { animation: tnUp .45s var(--ease-out); } }
 :root:not(.still) .tn-fw { animation: tnFw .45s var(--ease-out); }
 :root:not(.still) .tn-bk { animation: tnBk .45s var(--ease-out); }
 :root:not(.still) .tn-in { animation: fadeOnly .35s ease; }
@@ -1184,8 +1183,6 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 :root:not(.still) .tn-opt .tn-chev { transition: transform .4s var(--ease-snap); }
 @media (hover: hover) { :root:not(.still) .tn-opt:hover .tn-chev { transform: translateX(3px); } }
 :root:not(.still) .tn-opt.on .tn-tick { animation: tnPop .35s var(--ease-spring); }
-@keyframes tnIn { from { opacity: 0; transform: scale(.94); } }
-@keyframes tnUp { from { transform: translateY(100%); } }
 @keyframes tnBit { from { opacity: 0; transform: scale(0) rotate(-90deg); } }
 @keyframes tnPulse { from { opacity: .5; } }
 @keyframes tnPop { from { opacity: 0; transform: scale(.4); } }
@@ -1249,9 +1246,33 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 :is(.mine-dlg, .fsheet, .share-card, .drawer, dialog.adv, .ps-zoom)::backdrop { background: rgba(0, 0, 0, .42); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); }
 :is(.mine-dlg, .share-card) h2, .adv-hd h2 { font: 700 22px/1.2 var(--font) !important; letter-spacing: -.02em !important; text-wrap: balance; }
 dialog.adv { position: fixed; }   /* the calendar keeps its night scene inside the frame */
-:root:not(.still) dialog.mine-dlg:not(.tn-dlg, .ac-del-dlg)[open] { animation: dlgIn .5s var(--ease-spring); }   /* rise in gently over a fading backdrop */
-:root:not(.still) dialog.mine-dlg:not(.ac-del-dlg)[open]::backdrop { animation: fadeOnly .35s ease; }
-@keyframes dlgIn { from { opacity: 0; transform: translateY(12px) scale(.95); } }
+/* ---------- one motion for every popup (only with Animations on; shell.js plays the exits before a dialog really closes).
+   Alerts and cards spring up out of the page, a touch small and low, and settle with a hint of overshoot (Apple's spring);
+   they leave quicker than they came, shrinking softly away. On phones the bigger ones are sheets: up from the bottom on
+   iOS's curve, and back down. The dimmed page fades with them. Dropdowns grow out of the button that opened them. ---------- */
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open], :root:not(.still) .ps-zoom[open] figure { animation: popIn .5s var(--ease-pop) both; }
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet, dialog.ps-zoom)[open]::backdrop { animation: fadeOnly .3s var(--ease-exit) both; }
+:root:not(.still) :is(dialog.mine-dlg, dialog.t10, dialog.share-card, dialog.fsheet)[open].tn-out, :root:not(.still) .ps-zoom.tn-out figure { animation: popOut .2s var(--ease-exit) both; }
+:root:not(.still) dialog[open].tn-out::backdrop { animation: fadeAway .22s var(--ease-exit) both; }
+@media (max-width: 600px) {
+  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open] { animation: sheetUp .5s var(--ease-sheet) both; }
+  :root:not(.still) dialog:is(.mine-subs, .tn-dlg, .t10)[open].tn-out { animation: sheetDown .3s var(--ease-sheet) both; }
+}
+@media (max-width: 699px) {
+  :root:not(.still) dialog.fsheet[open] { animation: sheetUp .5s var(--ease-sheet) both; }
+  :root:not(.still) dialog.fsheet[open].tn-out { animation: sheetDown .3s var(--ease-sheet) both; }
+}
+@keyframes popIn { from { opacity: 0; transform: translateY(14px) scale(.92); } }
+@keyframes popOut { to { opacity: 0; transform: translateY(6px) scale(.95); } }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+@keyframes sheetDown { to { transform: translateY(100%); } }
+@keyframes fadeAway { to { opacity: 0; } }
+/* dropdowns (Theme, search results): out of their button, a little small and blurred, on the spring; away in a blink */
+:root:not(.still) :is(.tb-pop, .ss-res)[popover] { opacity: 0; transform: translateY(-4px) scale(.96); filter: blur(2px);
+  transition: opacity .15s var(--ease-exit), transform .18s var(--ease-exit), filter .18s ease, display .18s allow-discrete, overlay .18s allow-discrete; }
+:root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 1; transform: none; filter: none;
+  transition: opacity .2s var(--ease-exit), transform .45s var(--ease-pop), filter .25s ease, display .45s allow-discrete, overlay .45s allow-discrete; }
+@starting-style { :root:not(.still) :is(.tb-pop, .ss-res):popover-open { opacity: 0; transform: translateY(-8px) scale(.9); filter: blur(6px); } }
 /* a small sheet of choices */
 .mine-dlg { width: min(400px, calc(100vw - 32px)); padding: 0; }
 .mine-dlg form { padding: 22px 20px 18px; }
@@ -1615,9 +1636,6 @@ button.ps-face:active { scale: .96; }
 .ps-zf { display: block; width: min(78vw, 62vh, 420px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 .5px var(--fr-rim), 0 24px 60px -20px rgba(0, 0, 0, .5); }
 .ps-zf img { display: block; width: 100%; height: 100%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; object-position: center 20%; }
 .ps-zoom figcaption { color: var(--label); font: 600 22px/1.2 var(--font); text-align: center; }
-:root:not(.still) .ps-zoom[open] figure { animation: psZoomIn .5s var(--ease-spring); }
-:root:not(.still) .ps-zoom[open]::backdrop { animation: scFade .3s ease both; }
-@keyframes psZoomIn { from { opacity: 0; scale: .6; } }
 .sh-art .ps-sk { background: var(--fill); }
 .sh-art > .ph.ps-sk { -webkit-mask-image: none; mask-image: none; background: linear-gradient(var(--fill), transparent); }
 .ps-on { position: absolute; left: 6px; bottom: 6px; display: flex; gap: 3px; }
@@ -1669,13 +1687,8 @@ button.ps-face:active { scale: .96; }
 /* ---------- Share (computers, and phones without a share sheet): a card with a button for each place to share, a note,
    and a little drive-in scene melting in at the foot (phones use the system's own share sheet) ---------- */
 .share-card { position: fixed; inset: 0; margin: auto; padding: 0; width: min(360px, calc(100vw - 32px)); height: fit-content; max-height: calc(100dvh - 48px);
-  display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; animation: scIn .5s var(--ease-spring) both; }
+  display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
 .share-card:not([open]) { display: none; }
-.share-card.out { animation: scOut .2s ease-in both; }
-.share-card::backdrop { animation: scFade .3s ease both; }
-@keyframes scIn { from { opacity: 0; transform: scale(.9); } }
-@keyframes scOut { to { opacity: 0; transform: scale(.95); } }
-@keyframes scFade { from { opacity: 0; } }
 .share-card h2 { margin: 0; padding: 34px 22px 22px; text-align: center; }
 .sc-btns { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
 .sc-b { position: relative; display: flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 44px; border: 0; border-radius: var(--r);
@@ -1712,9 +1725,6 @@ button.ps-face:active { scale: .96; }
    tile, name, grey line, note, chevron) and the all-services switch in its own card. ---------- */
 .mine-subs { width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .mine-subs::-webkit-scrollbar { display: none; }
-:root:not(.still) .mine-subs[open] { animation: mineIn .55s var(--ease-spring); }
-@keyframes mineIn { from { opacity: 0; transform: translateY(18px) scale(.96); filter: blur(6px); } }
-@keyframes mineUp { from { transform: translateY(40%); opacity: 0; } }
 .mine-subs form { position: relative; z-index: 1; padding: 20px 20px 22px; }
 .mine-top { position: relative; display: grid; place-items: center; min-height: 44px; margin: 6px 0 0; }
 .mine-subs h2 { margin: 0; padding: 0 52px; text-align: center; text-wrap: balance; }
@@ -1774,7 +1784,6 @@ button.ps-face:active { scale: .96; }
 @media (max-width: 600px) {   /* phones: a sheet from the bottom */
   .mine-subs { width: 100%; max-width: 100%; margin: auto 0 0; max-height: calc(100dvh - 20px); border-radius: var(--r) var(--r) 0 0; }
   .mine-subs form { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
-  :root:not(.still) .mine-subs[open] { animation: mineUp .5s var(--ease-out); }
 }
 
 /* ---------- the Top 10s: every service's chart side by side in one wide frosted card. The logos (each jumps to its column),
@@ -1787,11 +1796,6 @@ button.ps-face:active { scale: .96; }
   box-shadow: inset 0 0 0 1.5px var(--fr-rim), 0 30px 80px -20px rgba(0, 0, 0, .6); }
 .t10[open] { display: flex; flex-direction: column; }
 .t10::backdrop { background: rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-:root:not(.still) .t10[open] { animation: mineIn .55s var(--ease-spring); }
-:root:not(.still) .t10[open]::backdrop { animation: fadeOnly .3s ease; }
-:root:not(.still) .t10.out { animation: t10Out .24s ease forwards; }
-@keyframes t10Out { to { opacity: 0; transform: translateY(10px) scale(.98); } }
-@keyframes t10Down { to { transform: translateY(30%); opacity: 0; } }
 .t10-hd { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 22px 22px 18px; }
 .t10-hd h2 { margin: 0; font: 700 32px/1.1 var(--font-display); letter-spacing: -.01em; text-align: center; white-space: nowrap; }
 .t10-logos { display: flex; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 4px 0 8px; margin: -4px 0 -8px; }
@@ -1887,8 +1891,6 @@ button.ps-face:active { scale: .96; }
 .t10-arrows { display: flex; gap: 8px; }
 @media (max-width: 600px) {
   .t10 { width: 100%; height: calc(100dvh - 12px); margin: auto 0 0; border-radius: var(--r) var(--r) 0 0; }
-  :root:not(.still) .t10[open] { animation: mineUp .5s var(--ease-out); }
-  :root:not(.still) .t10.out { animation: t10Down .24s ease-in forwards; }
   .t10-hd { grid-template-columns: 44px 1fr 44px; grid-template-areas: "x h c" "s s s" "l l l"; gap: 12px 8px; padding: 14px 16px 12px; }
   .t10-hd h2 { grid-area: h; font-size: 30px; }
   .t10-acts { display: contents; }
@@ -1974,6 +1976,9 @@ body { padding-bottom: var(--tf-h); }
   color: var(--label); font: 500 15px/1.2 var(--font); -webkit-font-smoothing: antialiased;
   background: var(--fr-bg); -webkit-backdrop-filter: var(--fr-blur); backdrop-filter: var(--fr-blur); box-shadow: inset 0 0 0 1px var(--fr-rim), var(--shadow); }
 .toast[hidden] { display: none; }
+:root:not(.still) .toast { transition: opacity .2s var(--ease-exit), translate .5s var(--ease-pop), scale .5s var(--ease-pop), display .5s allow-discrete; }
+:root:not(.still) .toast[hidden] { opacity: 0; translate: 0 10px; scale: .96; transition: opacity .2s var(--ease-exit), translate .25s var(--ease-exit), scale .25s var(--ease-exit), display .25s allow-discrete; }
+@starting-style { :root:not(.still) .toast:not([hidden]) { opacity: 0; translate: 0 18px; scale: .92; } }
 
 /* one-time feature tips (shell.js, tn.tip): a small frosted box pointing at something new; once, then gone. --ax: where
    the arrow meets the feature, so the box grows out of it */
@@ -2197,5 +2202,5 @@ body { padding-bottom: var(--tf-h); }
 /* ============================================================ 10. Settings, applied on every page */
 /* Animations (off unless switched on in Settings, and always off when the device asks for reduced motion): nothing
    animates or transitions at all, so every change lands at once */
-.still, .still *, .still *::before, .still *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+.still, .still *, .still *::before, .still *::after, .still ::backdrop { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 .no-ratings .star, .no-ratings .cl-r, .no-ratings .score, .no-ratings .bx-star { display: none !important; }
