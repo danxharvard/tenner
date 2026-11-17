@@ -2017,57 +2017,11 @@
   });
   // every way of changing the theme (the Theme menu, the phone's picker, the pill, Settings) goes through here, so the
   // round buttons, the menu's ticks and Settings' own menu always agree; another tab changing it changes this one too
-  // A change you make yourself rides in on a liquid, colourful wave from where you tapped (styles.css, "theme wave"):
-  // a View Transition uncovers the new look in a growing circle, a band drawn on the graphics chip (WebGL, below) rides
-  // its front, wobbling like liquid with the colours splitting at its edge, and an SVG ripple (#wvF) moves the page as it
-  // passes. No WebGL: a blurred CSS ring stands in for the band. Animations off, Reduce Motion, a browser without View
-  // Transitions, or a change from another tab: it simply changes.
+  // A change you make yourself rides in on a colourful wave from where you tapped (styles.css, "theme wave"):
+  // a View Transition whose new picture is unmasked in a growing circle, with a coloured band and a ripple. Animations off, Reduce Motion, a browser without
+  // View Transitions, or a change from another tab: it simply changes.
   let tap = null;
   addEventListener('pointerdown', (e) => { tap = { x: e.clientX, y: e.clientY, t: e.timeStamp }; }, true);
-  const WV_MS = 1100;
-  const ease = (t) => {   // cubic-bezier(.3, 0, .15, 1), the same curve as the CSS circle, so the band stays on its edge
-    let lo = 0, hi = 1, u = t;
-    for (let i = 0; i < 18; i++) { u = (lo + hi) / 2; const x = 3 * u * (1 - u) * (1 - u) * .3 + 3 * u * u * (1 - u) * .15 + u * u * u; if (x < t) lo = u; else hi = u; }
-    return 3 * u * u * (1 - u) + u * u * u;
-  };
-  // the band: one full-screen quad and one small shader, made on first use and thrown away after each wave
-  function waveGL(cv, dark) {
-    const gl = cv.getContext('webgl', { premultipliedAlpha: true, antialias: false, alpha: true });
-    if (!gl) return null;
-    const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; };
-    const vs = sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}');
-    const fs = sh(gl.FRAGMENT_SHADER, `precision mediump float;
-uniform vec2 uRes,uC;uniform float uR,uW,uT,uA;uniform vec3 uBg;
-vec3 pal(float s){s=fract(s);vec3 b=vec3(.04,.52,1.),p=vec3(.75,.35,.95),k=vec3(1.,.22,.37);
- return s<.333?mix(b,p,s*3.):s<.667?mix(p,k,s*3.-1.):mix(k,b,s*3.-2.);}
-float band(float u){return smoothstep(-1.45,-.75,u)*(1.-smoothstep(-.05,.04,u));}
-void main(){
- vec2 q=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y)-uC;float r=length(q),th=atan(q.y,q.x);
- float wob=(sin(3.*th+2.3*uT)*.5+sin(5.*th-3.1*uT+1.3)*.3+sin(11.*th+5.7*uT+.4)*.2)*min(uW*.2,uR*.12);
- float e=uR+wob,u=(r-e)/uW,sp=.07;
- float br=band(u-sp),bg=band(u),bb=band(u+sp);
- float a=max(br,max(bg,bb));if(a<.002){gl_FragColor=vec4(0.);return;}
- vec3 c=pal(th/6.2832+u*.35+uT*.25);
- c=vec3(c.r*br,c.g*bg,c.b*bb)/max(a,.001);
- float lip=exp(-pow((u+.12)*9.,2.));c=mix(c,vec3(1.),lip*.55);
- c=mix(uBg,c,smoothstep(-1.45,-.55,u));
- a*=uA;gl_FragColor=vec4(c*a,a);}`);
-    if (!vs || !fs) return null;
-    const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
-    gl.useProgram(pr);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    const U = (n) => gl.getUniformLocation(pr, n);
-    gl.uniform3fv(U('uBg'), dark ? [0, 0, 0] : [1, 1, 1]);
-    return (cx, cy, R, W, t, al, k) => {
-      gl.viewport(0, 0, cv.width, cv.height);
-      gl.uniform2f(U('uRes'), cv.width, cv.height); gl.uniform2f(U('uC'), cx * k, cy * k);
-      gl.uniform1f(U('uR'), R * k); gl.uniform1f(U('uW'), W * k); gl.uniform1f(U('uT'), t); gl.uniform1f(U('uA'), al);
-      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
-    };
-  }
   function setTheme(n, quiet) {
     const go = () => { window.tnTheme?.(n); showTheme(); syncSel(); dispatchEvent(new Event('tn:theme')); };
     const before = root.dataset.theme;
@@ -2077,45 +2031,21 @@ void main(){
     const recent = tap && performance.now() - tap.t < 4000, a = document.activeElement?.getBoundingClientRect?.();
     const x = recent ? tap.x : a && a.width ? a.left + a.width / 2 : innerWidth / 2;
     const y = recent ? tap.y : a && a.width ? a.top + a.height / 2 : innerHeight / 2;
-    const W = Math.min(150, Math.max(80, Math.min(innerWidth, innerHeight) * .16));   // the band's depth
-    const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + W * 1.6;
     root.style.setProperty('--wv-x', `${x}px`); root.style.setProperty('--wv-y', `${y}px`);
-    root.style.setProperty('--wv-r', `${R}px`); root.style.setProperty('--wv-w', `${W}px`);
+    root.style.setProperty('--wv-r', `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 120}px`);
     // the ripple (made once): a gentle turbulence that pushes the picture about, swelling then calming as the wave passes
     let f = document.getElementById('wvF');
     if (!f) {
       document.body.insertAdjacentHTML('beforeend', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="wvF" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="3"><animate attributeName="seed" values="3;9" dur="${WV_MS}ms" begin="indefinite" calcMode="discrete"/></feTurbulence>
-        <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"><animate attributeName="scale" values="0;34;0" keyTimes="0;.3;1" dur="${WV_MS}ms" begin="indefinite" fill="freeze"/></feDisplacementMap></filter></svg>`);
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="3"><animate attributeName="seed" values="3;9" dur=".9s" begin="indefinite" calcMode="discrete"/></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"><animate attributeName="scale" values="0;40;0" keyTimes="0;.35;1" dur=".9s" begin="indefinite" fill="freeze"/></feDisplacementMap></filter></svg>`);
       f = document.getElementById('wvF');
     }
     root.classList.add('wave');
-    let draw = null, cv = null, raf = 0;
-    const v = document.startViewTransition(() => {
-      go();
-      cv = document.createElement('canvas'); cv.className = 'wv-rim wv-gl'; cv.setAttribute('aria-hidden', 'true');
-      const k = Math.min(devicePixelRatio || 1, 1.5);   // a touch under the screen's sharpness keeps it light; the band is soft anyway
-      cv.width = Math.round(innerWidth * k); cv.height = Math.round(innerHeight * k);
-      try { draw = waveGL(cv, root.dataset.theme === 'dark'); } catch { draw = null; }
-      if (draw) { cv._k = k; draw(x, y, 0, W, 0, 0, k); } else { cv = document.createElement('div'); cv.className = 'wv-rim'; }
-      root.classList.toggle('wv-css', !draw); document.body.append(cv);
-    });
-    v.updateCallbackDone.catch(() => {});
-    v.ready.then(() => {
-      f.querySelectorAll('animate').forEach((m) => m.beginElement());
-      if (!draw) return;
-      const t0 = performance.now();
-      const tick = (now) => {
-        const t = Math.min(1, (now - t0) / WV_MS), e = ease(t);
-        draw(x, y, e * R, W * (.55 + .45 * Math.min(1, t * 3)), (now - t0) / 1000, t > .8 ? (1 - t) / .2 : 1, cv._k);
-        if (t < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, () => {});
-    v.finished.catch(() => {}).finally(() => {
-      cancelAnimationFrame(raf); root.classList.remove('wave', 'wv-css');
-      document.querySelectorAll('.wv-rim').forEach((r) => { if (r.getContext) r.getContext('webgl')?.getExtension('WEBGL_lose_context')?.loseContext(); r.remove(); });
-    });
+    const v = document.startViewTransition(() => { go(); const r = document.createElement('div'); r.className = 'wv-rim'; document.body.append(r); });
+    for (const p of [v.updateCallbackDone]) p.catch(() => {});
+    v.ready.then(() => f.querySelectorAll('animate').forEach((m) => m.beginElement()), () => {});
+    v.finished.catch(() => {}).finally(() => { root.classList.remove('wave'); document.querySelectorAll('.wv-rim').forEach((r) => r.remove()); });
   }
   window.tn.setTheme = (n) => setTheme(n);
   addEventListener('storage', (e) => { if (e.key === 'tenner-theme') setTheme(['light', 'auto'].includes(e.newValue) ? e.newValue : 'dark', true); });
