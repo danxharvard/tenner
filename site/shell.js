@@ -167,7 +167,7 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.116.0';
+  const version = '2.117.0';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
@@ -778,7 +778,7 @@
     const a = at[j], b = at[j + q.length - 1] + 1;
     return `${esc(s.slice(0, a))}<mark>${esc(s.slice(a, b))}</mark>${esc(s.slice(b))}`;
   }
-  // what you've opened from the search, newest first (this device only), shown when the box opens empty
+  // what you've searched for and opened from the search, newest first (this device only), shown when the box opens empty
   const RECENT = 'tenner-recent-finds';
   const recent = {
     get() { try { const l = JSON.parse(localStorage.getItem(RECENT) || '[]'); return Array.isArray(l) ? l.filter((x) => x && x.k).slice(0, 8) : []; } catch { return []; } },
@@ -786,6 +786,11 @@
       const keep = x.person ? { person: true, k: x.k, id: x.id, name: x.name, photo: x.photo, dept: x.dept, known: (x.known || []).slice(0, 2) }
         : { k: x.k, type: x.type, title: x.title, year: x.year, rating: x.rating, poster: x.poster, backdrop: x.backdrop, overview: (x.overview || '').slice(0, 400), on: x.on };
       try { localStorage.setItem(RECENT, JSON.stringify([keep, ...recent.get().filter((y) => y.k !== keep.k)].slice(0, 8))); } catch {}
+    },
+    term(t) {   // the words you searched for, when they led somewhere (a result or See all)
+      t = String(t || '').trim().slice(0, 80); if (t.length < 2) return;
+      const k = `q:${fold(t)}`;
+      try { localStorage.setItem(RECENT, JSON.stringify([{ q: t, k }, ...recent.get().filter((y) => y.k !== k)].slice(0, 8))); } catch {}
     },
     clear() { try { localStorage.removeItem(RECENT); } catch {} },
   };
@@ -831,6 +836,8 @@
     }
     const DEPT = { Acting: 'Actor', Directing: 'Director', Writing: 'Writer', Production: 'Producer', Sound: 'Composer', Camera: 'Cinematographer', Editing: 'Editor' };
     const row = (x, i) => {
+      if (x.q) return `<a class="ss-r ss-q" role="option" id="ssr${i}" aria-selected="false" href="browse.html#q=${encodeURIComponent(x.q)}" data-q="${esc(x.q)}">${GLASS.replace('ss-ic', 'ss-q-ic')}
+        <span class="ss-t"><b>${esc(x.q)}</b></span></a>`;   // a recent search: tap to search again
       if (x.person) return `<a class="ss-r ss-p" role="option" id="ssr${i}" aria-selected="false" href="./?p=${x.id}" data-p="${x.id}"><span class="ss-pf" style="--h:${hue(x.name)}">${x.photo
         ? `<img src="${esc(x.photo)}" alt="" loading="lazy" decoding="async">` : esc(x.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
         <span class="ss-t"><b>${marked(x.name, S.q)}</b><small>${esc([DEPT[x.dept] || x.dept, x.known.slice(0, 2).join(', ')].filter(Boolean).join(' · '))}</small></span></a>`;
@@ -851,11 +858,15 @@
       const q = S.q, c = S.cat;
       if (!q) {   // the box open and empty: what you opened lately, then what's popular this hour
         if (!S.open) { S.list = []; res.innerHTML = ''; show(false); return; }
-        const rec = recent.get().slice(0, 5), have = new Set(rec.map((x) => x.k));
+        // your recent searches (the words), then what you opened, then what's popular this hour
+        const all = recent.get(), terms = all.filter((x) => x.q).slice(0, 4), seen = all.filter((x) => !x.q).slice(0, 4), rec = [...terms, ...seen];
+        const have = new Set(seen.map((x) => x.k));
         const pop = c ? [...c.items].sort((a, b) => b.p - a.p).slice(0, 12).map((x) => entry(x)).filter((x) => !have.has(x.k)).slice(0, rec.length ? 4 : 6) : [];
         S.list = [...rec, ...pop]; S.at = -1;
-        res.innerHTML = (rec.length ? head('Recent', `<button type="button" class="btn btn-tinted btn-2nd ss-clear" aria-label="Clear recent searches">${X}Clear</button>`) + rec.map(row).join('') : '')
-          + (pop.length ? head('Popular now') + pop.map((x, i) => row(x, rec.length + i)).join('') : !S.done ? head('Popular now') + skel() : '');
+        const clear = `<button type="button" class="btn btn-tinted btn-2nd ss-clear" aria-label="Clear recent searches">${X}Clear</button>`;
+        const sect = (t, l, from, extra) => (l.length ? head(t, extra) + l.map((x, i) => row(x, from + i)).join('') : '');
+        res.innerHTML = sect('Recent searches', terms, 0, clear) + sect('Recently viewed', seen, terms.length, terms.length ? '' : clear)
+          + (pop.length ? sect('Popular now', pop, rec.length) : !S.done ? head('Popular now') + skel() : '');
         res.setAttribute('aria-busy', !c && !rec.length);
         qi.removeAttribute('aria-activedescendant');
         show(document.activeElement === qi || box.contains(document.activeElement) || res.contains(document.activeElement));
@@ -931,7 +942,7 @@
     });
     qi.addEventListener('search', () => { if (!qi.value) { S.q = ''; web(); draw(); } });   // the box's own clear button
     async function go(x) {
-      recent.add(x); S.open = false; show(false); qi.blur();
+      if (S.q) recent.term(qi.value); recent.add(x); S.open = false; show(false); qi.blur();
       if (!window.tnSheet) { location.href = `./?t=${x.k}`; return; }
       if (window.tnSheet.isOpen()) { window.tnSheet.close(); await new Promise((r) => setTimeout(r, 380)); }
       const c = x.from || S.cat?.items.find((y) => `${y.t[0]}${y.i}` === x.k);   // a recent one: the catalogue's details if it's still there
@@ -945,9 +956,10 @@
     res.addEventListener('click', (e) => {
       if (e.target.closest('.ss-clear')) { recent.clear(); draw(); if (!phone.matches) qi.focus(); return; }
       const a = e.target.closest('.ss-r'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-      if (a.classList.contains('ss-all')) { show(false); if (onPage('browse')) { e.preventDefault(); location.hash = `q=${encodeURIComponent(qi.value.trim())}`; } return; }
+      if (a.dataset.q) { e.preventDefault(); qi.value = a.dataset.q; qi.focus(); qi.dispatchEvent(new Event('input')); return; }   // search again
+      if (a.classList.contains('ss-all')) { recent.term(qi.value); show(false); if (onPage('browse')) { e.preventDefault(); location.hash = `q=${encodeURIComponent(qi.value.trim())}`; } return; }
       if (a.dataset.p) {   // a person: their sheet here, or on the homepage where this page has none
-        const x = S.list.find((y) => y.k === `p${a.dataset.p}`); if (x) recent.add(x);
+        const x = S.list.find((y) => y.k === `p${a.dataset.p}`); if (S.q) recent.term(qi.value); if (x) recent.add(x);
         S.open = false; show(false); qi.blur();
         if (window.tnPerson) { e.preventDefault(); window.tnPerson.open(a.dataset.p, false, a.querySelector('b')?.textContent); }
         return;
