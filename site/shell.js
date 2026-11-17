@@ -2017,8 +2017,8 @@
   });
   // every way of changing the theme (the Theme menu, the phone's picker, the pill, Settings) goes through here, so the
   // round buttons, the menu's ticks and Settings' own menu always agree; another tab changing it changes this one too
-  // A change you make yourself sweeps across the page as a soft wave from where you tapped (styles.css, "theme wave"):
-  // a View Transition whose new picture is unmasked in a growing circle. Animations off, Reduce Motion, a browser without
+  // A change you make yourself rides in on a colourful wave from where you tapped (styles.css, "theme wave"):
+  // a View Transition whose new picture is unmasked in a growing circle, with a coloured band and a ripple. Animations off, Reduce Motion, a browser without
   // View Transitions, or a change from another tab: it simply changes.
   let tap = null;
   addEventListener('pointerdown', (e) => { tap = { x: e.clientX, y: e.clientY, t: e.timeStamp }; }, true);
@@ -2033,10 +2033,19 @@
     const y = recent ? tap.y : a && a.width ? a.top + a.height / 2 : innerHeight / 2;
     root.style.setProperty('--wv-x', `${x}px`); root.style.setProperty('--wv-y', `${y}px`);
     root.style.setProperty('--wv-r', `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 120}px`);
+    // the ripple (made once): a gentle turbulence that pushes the picture about, swelling then calming as the wave passes
+    let f = document.getElementById('wvF');
+    if (!f) {
+      document.body.insertAdjacentHTML('beforeend', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="wvF" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="3"><animate attributeName="seed" values="3;9" dur=".9s" begin="indefinite" calcMode="discrete"/></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"><animate attributeName="scale" values="0;40;0" keyTimes="0;.35;1" dur=".9s" begin="indefinite" fill="freeze"/></feDisplacementMap></filter></svg>`);
+      f = document.getElementById('wvF');
+    }
     root.classList.add('wave');
-    const v = document.startViewTransition(go);
-    for (const p of [v.ready, v.updateCallbackDone]) p.catch(() => {});
-    v.finished.catch(() => {}).finally(() => root.classList.remove('wave'));
+    const v = document.startViewTransition(() => { go(); const r = document.createElement('div'); r.className = 'wv-rim'; document.body.append(r); });
+    for (const p of [v.updateCallbackDone]) p.catch(() => {});
+    v.ready.then(() => f.querySelectorAll('animate').forEach((m) => m.beginElement()), () => {});
+    v.finished.catch(() => {}).finally(() => { root.classList.remove('wave'); document.querySelectorAll('.wv-rim').forEach((r) => r.remove()); });
   }
   window.tn.setTheme = (n) => setTheme(n);
   addEventListener('storage', (e) => { if (e.key === 'tenner-theme') setTheme(['light', 'auto'].includes(e.newValue) ? e.newValue : 'dark', true); });
