@@ -169,8 +169,13 @@
     group.addEventListener('click', (e) => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
   }
   // ---------- the version: change it here with every update and it shows everywhere (the sidebar, the end of About) ----------
-  const version = '2.119.1';
+  const version = '2.119.2';
   document.querySelectorAll('.side-ver, .side-ver-text').forEach((el) => { el.textContent = `Tenner ${version}`; });
+  // the menu's "Tenner X.Y.Z" opens the Update centre (and says where you are when you're already there)
+  document.querySelectorAll('a.side-ver').forEach((a) => {
+    a.setAttribute('aria-label', `Tenner ${version}, Update centre`);
+    if (/\/updates(\.html)?$/.test(location.pathname)) a.setAttribute('aria-current', 'page');
+  });
 
   // ---------- the contact address: change it here and it updates everywhere (Contact, Privacy Policy, Terms) ----------
   const contact = 'support@tenner.stream';

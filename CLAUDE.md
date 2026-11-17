@@ -167,7 +167,7 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
 ## How we work
 - Merge and push without asking. Always `git pull --rebase` first (the site is also edited from another device).
 - Bump the version with every update: patch for fixes, minor for features, with sed over `site/*.html site/shell.js site/sw.js`.
-- The Update centre (`updates.html`, opened from the Help Centre: its home card and the Versions article; the build number in the menu is plain text) lists every release from `site/updates.json`.
+- The Update centre (`updates.html`, opened from the Help Centre: its home card and the Versions article; and the "Tenner X.Y.Z" at the foot of the menu, a link) lists every release from `site/updates.json`.
   Each build adds any new version by itself (`scripts/updates.mjs`): the commit subject `X.Y.Z: what changed` is the title,
   `- ` lines in the body are the changes, other paragraphs the notes. So write release commits that way; to polish an
   entry, edit it in `site/updates.json` (entries already there are never overwritten).
