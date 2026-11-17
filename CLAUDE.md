@@ -127,7 +127,7 @@ icon and white words, never pills or capsules (ignore their "actions are pills")
 Tenner's shape lock; the shared frost on boxes, bars and sheets is Tenner's chosen material, not "glassmorphism slop";
 and don't generate stock illustrations: the shows' artwork is the imagery.
 
-### Impeccable, Taste Skill, Emil Kowalski's and Vercel's skills (`.claude/skills/`, also a second opinion, never the boss)
+### Impeccable, Taste Skill, Emil Kowalski's, Vercel's and Jakub Krehel's skills (`.claude/skills/`, also a second opinion, never the boss)
 - **Impeccable** (`impeccable`, Apache-2.0, pbakaus/impeccable 4.9.2, plus its helper agents in `.claude/agents/`):
   design commands such as `/impeccable critique`, `audit`, `polish`, `typeset`, `animate`, `harden` and `distill`. Its
   engine downloads itself on first use. Its edit-by-edit hooks are deliberately not installed (they'd run after every
@@ -144,6 +144,9 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   Vercel's Web Interface Guidelines) and `writing-guidelines` are the useful ones here; the React, React Native and
   composition skills only apply if Tenner ever uses React. Their deploy and cost skills were left out on purpose:
   Tenner is served by Cloudflare and is never deployed to Vercel. Writing stays plain British English as above.
+- **Make interfaces feel better** (`make-interfaces-feel-better`, jakubkrehel): a checklist of small polish details
+  (optical alignment, tabular numbers, font smoothing, image outlines, shadows, icon states, motion restraint). Its
+  concentric-radius rule (inner corner = outer minus padding) doesn't apply: Tenner keeps one 9px `--r` corner.
 - **The same rule applies: this file wins.** Ignore any default they suggest for corners, buttons, glass, fonts,
   colour or layout that differs from Tenner's house style above (one 9px `--r` corner, solid deep tinted buttons with an
   icon and white words, the shared frost, Apple system colours, `--font`). If a detector flags `backdrop-filter`,
