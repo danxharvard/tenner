@@ -50,7 +50,7 @@ jobs:
         run: |
           git config user.name 'Tenner release'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          base=$(git describe --tags --match 'release-*' --abbrev=0)   # where the last release left off
+          base=$(git describe --tags --match 'release-*' --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)   # where the last release left off (the first time, the start)
           if git diff --quiet "$base" HEAD -- site site-worker scripts; then
             echo "Nothing changed on the site since $base, so there's nothing to release"
             git tag "release-$DAY" && git push origin "release-$DAY"
