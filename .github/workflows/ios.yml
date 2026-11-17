@@ -1,0 +1,75 @@
+name: Tenner for iPhone
+
+# Checks the iPhone app (ios/) still builds whenever it changes, and takes screenshots of it in the simulator, by day and
+# by night. It never deploys anything and never touches the website.
+on:
+  push:
+    paths: ['ios/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Pick an iPhone simulator
+        run: |
+          xcodebuild -version
+          SIM=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          for k in sorted(d, reverse=True):
+              if 'iOS' in k:
+                  for x in d[k]:
+                      if x['name'].startswith('iPhone') and 'Pro Max' not in x['name'] and 'Plus' not in x['name'] and 'SE' not in x['name']:
+                          print(x['udid']); sys.exit()
+          ")
+          echo "Using $SIM"; test -n "$SIM"
+          echo "SIM=$SIM" >> "$GITHUB_ENV"
+      - name: Build the app
+        working-directory: ios
+        run: |
+          xcodebuild -project Tenner.xcodeproj -scheme Tenner -configuration Debug -destination "id=$SIM" \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build > build.log 2>&1 || {
+            grep -E "error:|error -|fatal" build.log | sort -u | head -100; echo '--- end of log ---'; tail -60 build.log; exit 1; }
+          grep -E "warning:" build.log | grep "/ios/Tenner/" | sort -u | head -40 || true
+          test -d build/Build/Products/Debug-iphonesimulator/Tenner.app
+      - name: Take screenshots
+        run: |
+          xcrun simctl boot "$SIM" || true
+          xcrun simctl bootstatus "$SIM" -b
+          xcrun simctl install "$SIM" ios/build/Build/Products/Debug-iphonesimulator/Tenner.app
+          mkdir -p shots
+          for theme in light dark; do
+            xcrun simctl ui "$SIM" appearance $theme
+            for screen in home browse watchlist settings sheet; do
+              xcrun simctl terminate "$SIM" stream.tenner.app 2>/dev/null || true
+              xcrun simctl launch "$SIM" stream.tenner.app -tennerShot $screen
+              sleep 12
+              xcrun simctl io "$SIM" screenshot "shots/$screen-$theme.png"
+            done
+          done
+          # Waves, part way across
+          xcrun simctl ui "$SIM" appearance light
+          xcrun simctl terminate "$SIM" stream.tenner.app 2>/dev/null || true
+          xcrun simctl launch "$SIM" stream.tenner.app -tennerShot waves
+          sleep 4.25
+          for i in 1 2 3 4; do xcrun simctl io "$SIM" screenshot "shots/waves-$i.png"; sleep 0.15; done
+      - name: Small copies in the log
+        if: always()
+        run: |
+          for f in shots/*.png; do
+            [ -f "$f" ] || continue
+            sips -Z 640 -s format jpeg -s formatOptions 50 "$f" --out "${f%.png}.jpg" >/dev/null
+            echo "SHOT $(basename "$f") $(base64 -i "${f%.png}.jpg" | tr -d '\n')"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Tenner-iPhone-screenshots
+          path: shots/*.png
+          retention-days: 14
