@@ -1,11 +1,12 @@
 # A preview of a branch's site, before it's merged: the site/ folder from the branch, with the live charts and data
 # copied in, on its own Worker (tenner-preview) at its workers.dev address. It never touches tenner.stream or the live
-# Worker. Runs on every push to a claude/ branch that changes the site, or by hand from the Actions tab.
+# Worker. Runs on every push to main (the day's merged work, before the 19:30 release) or to a claude/ branch that changes
+# the site, or by hand from the Actions tab.
 name: Preview a branch
 
 on:
   push:
-    branches: ['claude/**']
+    branches: [main, 'claude/**']
     paths: ['site/**', 'site-worker/**', '.github/workflows/preview.yml']
   workflow_dispatch:
 

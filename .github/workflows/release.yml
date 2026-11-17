@@ -1,0 +1,76 @@
+# The daily release (the owner's rule): everything merged into main during the day goes live on tenner.stream together at
+# 19:30 UK time, as one new version with one Update centre entry. Until then main is only on the preview
+# (tenner-preview.danseacroft.workers.dev). The live site is built from the `live` branch, which only this job moves.
+#   - a version bump: minor if any commit that day was a major new feature ("Feature: …" subject), otherwise a patch
+#   - the entry: the standard lines are added by the page; major features are listed by their "- " lines
+#   - then `live` is moved to main, today's tag (release-YYYY-MM-DD) is set, and the site deploys
+# Cron runs in UTC and GitHub skips many scheduled runs, so it's asked every 10 minutes from 18:30 to 23:50 UTC; a try
+# before 19:30 London time, or after today's tag exists, stops at once. Run it by hand to release straight away.
+name: Daily release
+
+on:
+  schedule:
+    - cron: '30,40,50 18 * * *'
+    - cron: '*/10 19-23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # to commit the release, move `live` and set the tag
+  actions: write    # to start the deploy
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Is it time, and not done yet?
+        id: gate
+        run: |
+          day=$(TZ=Europe/London date +%F); hm=$(TZ=Europe/London date +%H%M)
+          echo "day=$day" >> "$GITHUB_OUTPUT"
+          go=yes
+          if [ "${{ github.event_name }}" = schedule ] && [ "$hm" -lt 1930 ]; then go=no; echo "It's $hm in London: the release is at 19:30"; fi
+          if git ls-remote --exit-code --tags origin "release-$day" >/dev/null; then go=no; echo "Today's release has already gone out"; fi
+          echo "go=$go" >> "$GITHUB_OUTPUT"
+
+      - name: Release today's changes
+        if: steps.gate.outputs.go == 'yes'
+        env:
+          DAY: ${{ steps.gate.outputs.day }}
+        run: |
+          git config user.name 'Tenner release'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin live
+          if git diff --quiet origin/live HEAD -- site site-worker scripts; then
+            echo "Nothing changed on the site today, so there's nothing to release"
+            git tag "release-$DAY" origin/live && git push origin "release-$DAY"
+            exit 0
+          fi
+          old=$(grep -oE "const version = '[0-9]+\.[0-9]+\.[0-9]+'" site/shell.js | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          git log origin/live..HEAD --no-merges --format='%s%x1f%b%x1e' > /tmp/log
+          node .github/release-notes.mjs "$old" "$DAY" /tmp/log > /tmp/out
+          new=$(sed -n 1p /tmp/out)
+          sed -n '2,$p' /tmp/out > /tmp/msg
+          sed -i "s/$(echo "$old" | sed 's/\./\\./g')/$new/g" site/*.html site/shell.js site/sw.js
+          git add -A site
+          git commit -q -F /tmp/msg
+          for i in 1 2 3 4; do git push origin HEAD:main && break; sleep $((i*5)); git pull --rebase origin main; done
+          git push -f origin HEAD:live
+          git tag "release-$DAY" && git push origin "release-$DAY"
+          echo "### Released Tenner $new" >> "$GITHUB_STEP_SUMMARY"; cat /tmp/msg >> "$GITHUB_STEP_SUMMARY"
+
+      # pushes made by this job don't start other workflows by themselves, so the deploy is started here
+      - name: Deploy it
+        if: steps.gate.outputs.go == 'yes'
+        run: gh workflow run update.yml --ref main
