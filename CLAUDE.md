@@ -213,7 +213,7 @@ and don't generate stock illustrations: the shows' artwork is the imagery.
   New once a day, and Watchmode prices are kept a week (at most five new lookups a run). Keep new data on the same footing.
   The site is served by Cloudflare (`site-worker/`: the `site/` folder as static files on the `tenner-site` Worker at
   tenner.stream, and `tenner-www` sending www.tenner.stream on to it), not GitHub Pages, since the old GitHub account was lost.
-  m.tenner.stream (`tenner-m`, `site-worker/m.js`) shows the phone view on a computer: any address gets a phone-sized frame of
+  m.tenner.stream (`tenner-m`, `site-worker/m.js`) shows the mobile site on a computer: any address gets a phone-width, full-height frame of
   the same tenner.stream page (same site, so sign-in and the Watchlist carry over); shell.js tells it the address, title and theme.
   GitHub skips many scheduled runs, so it's asked three times an hour and a try that finds the live chart under 40 minutes
   old stops at once (pushes and runs by hand always build). Only the deploy job queues (on `site`), so a spare try never
