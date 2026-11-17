@@ -484,7 +484,26 @@ a.tb-btn:hover { text-decoration: none; }
 .ss-t small { font-size: 13px; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ss-all-ic { width: 34px; height: 20px; flex: none; color: var(--accent); }
 .ss-all b { color: var(--accent); }
-.ss-note { margin: 0; padding: 12px 10px; color: var(--label2); font-size: 14px; }
+.ss-note { margin: 0; padding: 12px 10px; color: var(--label2); font-size: 14px; line-height: 1.4; text-wrap: pretty; }
+/* the part of a name you typed, picked out by weight alone (Spotlight's way), never a highlighter */
+.ss-t mark { background: none; color: inherit; font-weight: 650; }
+/* the box open and empty: Recent (with Clear) and Popular now, headed like the sidebar's own sections */
+.ss-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; margin: 12px 0 2px; padding: 0 8px;
+  color: var(--label2); font: 600 13px/1 var(--font); letter-spacing: -.005em; }
+.ss-h:first-child { margin-top: 2px; }
+.ss-h .ss-clear { height: 28px; padding: 0 10px; gap: 4px; font-size: 13px; }
+.ss-h .ss-clear svg { width: 12px; height: 12px; flex: none; }
+/* loading: rows the shape of the results, with the same soft shimmer as the rest of the site */
+.ss-sk > div { display: flex; align-items: center; gap: 12px; padding: 7px 8px; }
+.ss-sk i, .ss-sk b, .ss-sk small { display: block; border-radius: var(--r);
+  background: linear-gradient(100deg, var(--fill) 40%, var(--fill-strong) 50%, var(--fill) 60%) 0 0 / 220% 100%; animation: skShine 1.6s ease-in-out infinite; }
+.ss-sk i { width: 34px; height: 51px; flex: none; }
+.ss-sk span { flex: 1; display: grid; gap: 7px; }
+.ss-sk b { width: 72%; height: 12px; } .ss-sk small { width: 44%; height: 10px; }
+.ss-sk > div:nth-child(2) b { width: 58%; } .ss-sk > div:nth-child(3) b { width: 80%; }
+@media (prefers-reduced-motion: reduce) { .ss-sk i, .ss-sk b, .ss-sk small { animation: none; } }
+/* the shortcut, shown in the sidebar's box until you use it (computers with a keyboard only) */
+.ss-kbd { display: none; }
 
 /* ---------- the sidebar's More section and small print (shown on computers and in the phone's menu) ---------- */
 .side-links, .side-about, .side-h { display: none; }
@@ -562,6 +581,12 @@ a.side-ver-text:focus-visible { outline: 2px solid var(--accent); outline-offset
   .top-row > .side-search .ss-res { position: static; inset: auto; flex-basis: 100%; margin: 12px 0 0; padding: 0; max-height: calc(100dvh - 190px); overflow-y: auto;
     overscroll-behavior: contain; scrollbar-width: none; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; animation: none; }
   .top-row > .side-search .ss-res::-webkit-scrollbar { display: none; }
+  .top-row > .side-search .ss-res:not([hidden]) { padding-bottom: 18px; mask-image: linear-gradient(#000 calc(100% - 18px), transparent); }   /* the list fades out at its foot */
+  @media (hover: hover) and (pointer: fine) {
+    .top-row > .side-search .ss-kbd { display: block; position: absolute; top: 8px; right: 10px; color: var(--label2);
+      font: 400 12.5px/20px var(--font); letter-spacing: .04em; pointer-events: none; -webkit-font-smoothing: antialiased; }   /* plain, like a Mac menu's shortcut */
+    .top-row > .side-search input:not(:placeholder-shown) ~ .ss-kbd, .top-row > .side-search input:focus ~ .ss-kbd { display: none; }
+  }
   .top-row.finding > :not(.top-brand, .side-search) { display: none; }
   /* the pages, as rows */
   .tabbar { display: block; }
