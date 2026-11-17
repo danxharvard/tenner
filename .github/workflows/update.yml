@@ -123,3 +123,4 @@ jobs:
             echo "::warning title=Connect tenner.stream::The site is live on its workers.dev address only. In Cloudflare > tenner.stream > DNS, delete the A records for tenner.stream (they point at GitHub), then run this again."
           fi
           npx --yes wrangler@4 deploy -c www.toml || echo "::warning title=Connect www.tenner.stream::In Cloudflare > tenner.stream > DNS, delete the www CNAME record (it points at GitHub), then run this again."
+          npx --yes wrangler@4 deploy -c m.toml || echo "::warning title=Connect m.tenner.stream::In Cloudflare > tenner.stream > DNS, delete any record named m, then run this again."

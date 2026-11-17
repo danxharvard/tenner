@@ -2197,6 +2197,18 @@
   new MutationObserver(() => { if (!gradQ) gradQ = requestAnimationFrame(() => { gradQ = 0; gradAll(); }); }).observe(document.body, { childList: true, subtree: true });
   gradAll();
 
+  // ---------- m.tenner.stream: the phone view on a computer shows this page in a frame; tell it where we are ----------
+  // (the address, the title and the theme), so its address bar and tab follow along. Only ever sent to m.tenner.stream.
+  if (window.parent !== window) {
+    let mq = 0;
+    const tellM = () => { if (mq) return; mq = setTimeout(() => { mq = 0; try { window.parent.postMessage({ tenner: 'm', path: location.pathname + location.search + location.hash, title: document.title, theme: root.dataset.theme === 'light' ? 'light' : 'dark' }, 'https://m.tenner.stream'); } catch {} }, 60); };
+    for (const k of ['pushState', 'replaceState']) { const f = history[k]; history[k] = function (...a) { const r = f.apply(this, a); tellM(); return r; }; }
+    addEventListener('popstate', tellM); addEventListener('hashchange', tellM);
+    new MutationObserver(tellM).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    new MutationObserver(tellM).observe(document.head, { childList: true, subtree: true, characterData: true });
+    tellM();
+  }
+
   // ---------- install as an app: the offline cache (sw.js) ----------
   if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 })();
