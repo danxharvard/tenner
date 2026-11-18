@@ -4,7 +4,7 @@ export default {
   fetch(request, env) {
     const url = new URL(request.url);
     if (url.hostname === 'beta.tenner.stream' && (url.pathname === '/' || url.pathname === '/index.html')) {
-      url.pathname = '/beta-home.html';
+      url.pathname = '/beta-home';
       return env.ASSETS.fetch(new Request(url, request));
     }
     return env.ASSETS.fetch(request);
