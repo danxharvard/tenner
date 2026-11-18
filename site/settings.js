@@ -178,10 +178,20 @@
     const out = await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();
     return `z${b64u(new Uint8Array(out))}`;
   };
+  // a link can come from anyone, so it's capped before and while it's opened: a real one (500 titles, progress, services)
+  // is a few KB squeezed and well under 100 KB opened out, so anything far bigger is turned away rather than filling memory
+  const TAKE_MAX_IN = 100000, TAKE_MAX_OUT = 512 * 1024;
   const unsqueeze = async (t) => {
+    if (t.length > TAKE_MAX_IN) throw new Error('too long');
     const bytes = unb64u(t.slice(1));
     if (t[0] === 'j') return new TextDecoder().decode(bytes);
-    return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+    const rd = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = [];
+    for (let n = 0; ;) {
+      const { done, value } = await rd.read(); if (done) break;
+      if ((n += value.length) > TAKE_MAX_OUT) { rd.cancel().catch(() => {}); throw new Error('too big'); }
+      parts.push(value);
+    }
+    return new Blob(parts).text();
   };
   async function moveLink(posters) {
     const w = saved.all().map((x) => [x.k, x.title, x.year || 0, posters && x.poster ? String(x.poster).replace(IMG, '') : 0]);
@@ -218,6 +228,7 @@
     let d; try { d = JSON.parse(await unsqueeze(m[1])); if (d?.v !== 1) throw 0; } catch { say('That link didn’t work. Make a new one on the other device'); return; }
     // a link can come from anyone, so only what looks like Tenner's own is taken (as with an imported file)
     const ok = (k) => typeof k === 'string' && /^[mt]\d{1,9}$/.test(k), okP = (p) => Array.isArray(p) && p.length === 2 && p.every((n) => Number.isInteger(n) && n > 0 && n < 1000);
+    if ((Array.isArray(d.w) && d.w.length > 1000) || (d.p && typeof d.p === 'object' && Object.keys(d.p).length > 5000) || (Array.isArray(d.s) && d.s.length > 100)) { say('That link didn’t work. Make a new one on the other device'); return; }
     const have = new Set(saved.all().map((x) => x.k)), add = (Array.isArray(d.w) ? d.w : []).filter((x) => Array.isArray(x) && ok(x[0]) && !have.has(x[0]) && have.add(x[0]));
     const takeP = Object.entries(d.p && typeof d.p === 'object' ? d.p : {}).filter(([k, p]) => ok(k) && okP(p) && !progress.get(k));
     const prog = takeP.length, svcs = (Array.isArray(d.s) ? d.s : []).filter((k) => LABELS[k]);
