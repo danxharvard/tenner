@@ -57,6 +57,16 @@
 
   // ---------- data ----------
   const get = (n, bust) => fetch(`data/${n}.json${bust ? `?v=${Date.now()}` : ''}`, bust ? { cache: 'no-store' } : {}).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  let homeDetailsScheduled = false;
+  function loadHomeDetailsWhenIdle() {
+    if (homeDetailsScheduled) return;
+    homeDetailsScheduled = true;
+    const enrich = () => window.tnSheet?.details().then((d) => {
+      if (d) { state.titles = d; drawHeroCopy(); drawSpot(); drawSide(); }
+    });
+    if ('requestIdleCallback' in window) requestIdleCallback(enrich, { timeout: 2500 });
+    else setTimeout(enrich, 1200);
+  }
   async function load(bust) {
     const [data, cat, week, feat, spot, fresh] = await Promise.all([get('trending', bust), get('browse', bust), get('week', bust), get('featured', bust), get('spotlight', bust), get('new', bust)]);
     if (!data) { if (!state.data) $('#bxRows').innerHTML = '<p class="bx-empty">The charts didn’t load. Check your connection and try again.</p>'; return; }
@@ -67,7 +77,7 @@
     state.picks = state.picks.filter((k) => services().some((s) => s.key === k));
     if (state.picks.length >= services().length) state.picks = [];
     draw(); refreshFy();
-    window.tnSheet?.details().then((d) => { if (d) { state.titles = d; drawHeroCopy(); drawSpot(); drawSide(); } });   // genres, age ratings, logos, episodes
+    loadHomeDetailsWhenIdle();   // enrich the already-rendered charts when the browser is idle
     openFromUrl();
   }
   addEventListener('tn:check', () => load(true));

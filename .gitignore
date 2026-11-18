@@ -9,3 +9,6 @@ site/t/
 .impeccable.md
 .taste-skill/
 __pycache__/
+
+# Cloudflare local development state
+.wrangler/
