@@ -142,7 +142,7 @@ body.browse { overflow-x: clip; }
 
 /* Filters, inside the field on its right, and Shows / Films / Both (the system's own menu) beside it: the house's deep buttons,
    each with its icon */
-.hs .dd { flex: none; height: 50px; box-shadow: 0 14px 32px -22px rgba(0, 0, 0, .55); }
+.hs .dd, .hs #kindDD { flex: none; height: 50px; box-shadow: 0 14px 32px -22px rgba(0, 0, 0, .55); }
 .hs-kind { min-width: 0; padding: 0 14px 0 15px; gap: 9px; font: 500 16px/1 var(--font); }
 .dd-ic { width: 19px; height: 19px; flex: none; color: #fff; }
 .hs-filters { position: relative; flex: none; height: 38px; margin-right: 6px; padding: 0 14px 0 12px; gap: 8px; font-size: 15px; }
@@ -155,7 +155,7 @@ body.browse { overflow-x: clip; }
 @media (max-width: 999px) { .hs { top: calc(env(safe-area-inset-top, 0px) + 64px); } }
 @container page (width < 700px) {
   .hs { height: 46px; gap: 8px; }
-  .hs .dd { height: 46px; }
+  .hs .dd, .hs #kindDD { height: 46px; }   /* as tall as the search bar */
   .search input, .hs-hint { font-size: 17px; }
   .search input { padding-left: 40px; }
   .s-ic { left: 12px; }
