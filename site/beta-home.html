@@ -43,7 +43,7 @@
   function tnMe(a){var r=document.documentElement,s=r.style,h=a&&a.hue!=null?+a.hue:210;if([265,330,5,30,145,175].indexOf(h)<0){r.removeAttribute("data-me");return}
     r.setAttribute("data-me","");s.setProperty("--me-h",h);s.setProperty("--me-d","hsl("+h+" 80% "+(h<20||h>=215?44:h<35||h>=200?36:26)+"%)");s.setProperty("--me-n","hsl("+h+" 90% "+(h>=225&&h<=280?72:64)+"%)")}
   try{tnMe(JSON.parse(localStorage.getItem("tenner-account")||"null"))}catch(e){}
-  try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="light"||t==="auto"?t:"dark")}catch(e){tnTheme("dark")}
+  try{var t=localStorage.getItem("tenner-theme");tnTheme(t==="dark"?"dark":t==="auto"?"auto":"light")}catch(e){tnTheme("light")}
   try{if(!(JSON.parse(localStorage.getItem("tenner-settings")||"{}").anim)||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("still")}catch(e){document.documentElement.classList.add("still")}
   try{if(sessionStorage.getItem("tenner-logo"))document.documentElement.classList.add("logo-seen");else sessionStorage.setItem("tenner-logo","1")}catch(e){document.documentElement.classList.add("logo-seen")}
   ["pageswap","pagereveal"].forEach(function(n){addEventListener(n,function(e){var v=e.viewTransition;if(!v)return;[v.ready,v.finished,v.updateCallbackDone].forEach(function(p){p&&p.catch(function(){})});if(document.documentElement.classList.contains("still"))v.skipTransition()})});</script>

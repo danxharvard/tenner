@@ -30,6 +30,10 @@ jobs:
             curl -fsS --retry 3 "https://tenner-site.danseacroft.workers.dev/data/$f.json" -o "data/$f.json.new" && mv "data/$f.json.new" "data/$f.json" || echo "::warning::Kept the repository copy of data/$f.json"
           done
 
+      - name: Bust browser caches for this revision
+        working-directory: site
+        run: sed -i -E "s/\.(js|css)\?v=([0-9.]+)\"/.\1?v=\2\&b=${GITHUB_SHA::7}\"/g" beta-home.html
+
       - name: Deploy beta.tenner.stream
         working-directory: site-worker
         env:
