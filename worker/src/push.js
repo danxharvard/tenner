@@ -66,15 +66,18 @@ export async function pushRun(env, force = false) {
   const fresh = await r.json();
   // nothing new since last time, and nobody's quiet hours are holding an alert back from this list: nothing to do
   if (!force && fresh.generatedAt && (await env.PUSH.get('meta:new')) === fresh.generatedAt && (await env.PUSH.get('meta:held')) !== fresh.generatedAt) return;
-  await env.PUSH.put('meta:new', fresh.generatedAt || String(Date.now()));
   await env.PUSH.delete('meta:held');   // whoever is still in quiet hours marks it again
   let cursor; const ids = [];
   do { const page = await env.PUSH.list({ prefix: 'sub:', cursor }); ids.push(...page.keys.map((k) => k.name)); cursor = page.list_complete ? null : page.cursor; } while (cursor);
   for (let i = 0; i < ids.length; i += 10) {
     const batch = ids.slice(i, i + 10);
-    if (env.SELF) await env.SELF.fetch('https://self/push/send', { method: 'POST', headers: { 'x-tenner-run': await sha(env.VAPID_JWK) }, body: JSON.stringify({ ids: batch, generatedAt: fresh.generatedAt }) });
+    if (env.SELF) {
+      const res = await env.SELF.fetch('https://self/push/send', { method: 'POST', headers: { 'x-tenner-run': await sha(env.VAPID_JWK) }, body: JSON.stringify({ ids: batch, generatedAt: fresh.generatedAt }) });
+      if (!res.ok) throw new Error(`Push batch failed (${res.status})`);
+    }
     else await sendBatch(env, batch, fresh);
   }
+  await env.PUSH.put('meta:new', fresh.generatedAt || String(Date.now()));
 }
 // one batch: each subscriber's matches, as one notification each
 export async function pushSend(req, env) {
@@ -97,18 +100,27 @@ export const ukNow = () => {
 export async function pushMorning(env, force = false) {
   if (!ready(env) || !env.TMDB_TOKEN) return;
   const { day, hour } = ukNow();
-  if (!force && (hour < 9 || (await env.PUSH.get('meta:morning')) === day)) return;
-  await env.PUSH.put('meta:morning', day);
+  if (!force && hour < 9) return;
+  if (!force && (await env.PUSH.get('meta:morning')) === day) {
+    const drops = await env.PUSH.get('meta:drops', 'json').catch(() => null);
+    if (drops?.day !== day) await priceDrops(env, day).catch(() => {});   // retry a transient prices failure on the next hourly run
+    return;
+  }
   const r = await fetch(`${DATA}/data/new.json?v=${Date.now()}`, { cf: { cacheTtl: 0 } });
-  const fresh = r.ok ? await r.json() : {};
+  if (!r.ok) return;
+  const fresh = await r.json();
   await priceDrops(env, day).catch(() => {});
   let cursor; const ids = [];
   do { const page = await env.PUSH.list({ prefix: 'sub:', cursor }); ids.push(...page.keys.map((k) => k.name)); cursor = page.list_complete ? null : page.cursor; } while (cursor);
   for (let i = 0; i < ids.length; i += 10) {
     const batch = ids.slice(i, i + 10);
-    if (env.SELF) await env.SELF.fetch('https://self/push/send', { method: 'POST', headers: { 'x-tenner-run': await sha(env.VAPID_JWK) }, body: JSON.stringify({ ids: batch, kind: 'morning' }) });
+    if (env.SELF) {
+      const res = await env.SELF.fetch('https://self/push/send', { method: 'POST', headers: { 'x-tenner-run': await sha(env.VAPID_JWK) }, body: JSON.stringify({ ids: batch, kind: 'morning' }) });
+      if (!res.ok) throw new Error(`Morning push batch failed (${res.status})`);
+    }
     else await morningBatch(env, batch, fresh);
   }
+  await env.PUSH.put('meta:morning', day);
 }
 // Cheaper to rent or buy: the site's prices (data/prices.json: popular new films to buy or rent) against the
 // day before's. A drop of a tenth or more is kept for the day's batches (meta:drops); today's prices are remembered.
@@ -211,11 +223,12 @@ async function morningBatch(env, ids, fresh) {
       : { title: `${hits.length} things from your Watchlist today`, body: hits.slice(0, 4).map((h) => h.short).join(', '), url: '/#watchlist' };
     const res = await send(s.sub, { ...msg, tag: 'tenner-morning', badge: hits.filter((h) => h.ep).length }, env).catch(() => null);
     if (res && (res.status === 404 || res.status === 410)) { await env.PUSH.delete(id); continue; }
-    if (res?.ok) { for (const h of hits) seen.add(h.tag); await env.PUSH.put(id, JSON.stringify({ ...s, seen: [...seen].slice(-300) })); }
+    if (!res?.ok) throw new Error(`Morning alert delivery failed${res ? ` (${res.status})` : ''}`);
+    for (const h of hits) seen.add(h.tag); await env.PUSH.put(id, JSON.stringify({ ...s, seen: [...seen].slice(-300) }));
   }
 }
 async function sendBatch(env, ids, fresh) {
-  const today = new Date().toISOString().slice(0, 10), since = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
+  const today = ukNow().day, since = new Date(Date.parse(`${today}T12:00:00Z`) - 3 * 864e5).toISOString().slice(0, 10);
   const label = { netflix: 'Netflix', disney: 'Disney+', prime: 'Prime Video', hbomax: 'HBO Max', paramount: 'Paramount+', appletv: 'Apple TV', free: 'Free to watch' };
   const arrived = (fresh.items || []).filter((x) => x.id && x.date <= today && x.date >= since);
   for (const id of ids) {
@@ -232,7 +245,8 @@ async function sendBatch(env, ids, fresh) {
       : { title: `${hits.length} from your Watchlist are on now`, body: hits.slice(0, 4).map((x) => `${what(x)} (${label[x.service] || 'streaming'})`).join(', '), url: '/#watchlist' };
     const res = await send(s.sub, { ...msg, tag: 'tenner-watchlist' }, env).catch(() => null);
     if (res && (res.status === 404 || res.status === 410)) { await env.PUSH.delete(id); continue; }   // that browser turned alerts off
-    if (res?.ok) { for (const x of hits) seen.add(`${x.type[0]}${x.id}:${x.season || 0}`); await env.PUSH.put(id, JSON.stringify({ ...s, seen: [...seen].slice(-300) })); }
+    if (!res?.ok) throw new Error(`Arrival alert delivery failed${res ? ` (${res.status})` : ''}`);
+    for (const x of hits) seen.add(`${x.type[0]}${x.id}:${x.season || 0}`); await env.PUSH.put(id, JSON.stringify({ ...s, seen: [...seen].slice(-300) }));
   }
 }
 

@@ -36,21 +36,28 @@ export async function digestRun(env, force = false) {
   if (!env.DB || !env.RESEND_API_KEY || !env.PUSH) return;
   const { day, hour } = ukNow(), sunday = new Date(`${day}T12:00:00Z`).getUTCDay() === 0;
   if (!force && (!sunday || hour < 9 || (await env.PUSH.get('meta:digest')) === day)) return;
-  await env.PUSH.put('meta:digest', day);
   const get = (p) => fetch(`${DATA}/data/${p}?v=${Date.now()}`, { cf: { cacheTtl: 0 } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const [fresh, week] = await Promise.all([get('new.json'), get('week.json')]);
+  if (!fresh) throw new Error('Could not load the new titles for the Sunday email');
   // everyone with the Sunday email on, and the confirmed address to send it to
   const { results = [] } = await env.DB.prepare(`SELECT u.id, u.name, d.data, COALESCE(v.email, CASE WHEN u.google_sub IS NOT NULL THEN u.email END) AS email
     FROM userdata d JOIN users u ON u.id = d.user_id LEFT JOIN passwords p ON p.user_id = u.id LEFT JOIN verified v ON v.email = p.email AND v.user_id = u.id
     WHERE d.data LIKE '%"digest":true%'`).all();
-  let sent = 0;
+  let sent = 0, delivered = 0, failed = false;
   for (const u of results) {
-    if (sent >= MAX) break;
+    const sentKey = `digest:${day}:${u.id}`;
+    if (await env.PUSH.get(sentKey)) { delivered++; continue; }
+    if (delivered >= MAX) break;
     let d; try { d = JSON.parse(u.data); } catch { continue; }
     if (d.settings?.digest !== true || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(u.email || '')) continue;
     const mail = await build(env, u, d, fresh, week, day);
-    if (mail && await sendMail(env, u.email, mail.subject, mail).catch(() => false)) sent++;
+    if (!mail) continue;
+    if (await sendMail(env, u.email, mail.subject, mail).catch(() => false)) {
+      await env.PUSH.put(sentKey, '1', { expirationTtl: 10 * 86400 });
+      sent++; delivered++;
+    } else failed = true;
   }
+  if (!failed || delivered >= MAX) await env.PUSH.put('meta:digest', day);
   console.log(`Sunday email: ${sent} sent`);
 }
 

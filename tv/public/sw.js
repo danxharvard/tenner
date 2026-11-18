@@ -14,7 +14,7 @@ self.addEventListener('activate', (e) => {
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(Date.now());
 async function fresh(req, ms, key = req) {
   const c = await caches.open(V);
-  const net = fetch(req).then((r) => { if (r.ok) c.put(key, r.clone()); return r; });
+  const net = fetch(req).then(async (r) => { if (r.ok) await c.put(key, r.clone()); return r; });
   let timer;
   const slow = new Promise((_, no) => { timer = setTimeout(() => no(new Error('slow')), ms); });
   try { return await Promise.race([net, slow]); }
@@ -23,11 +23,11 @@ async function fresh(req, ms, key = req) {
 }
 async function kept(req) {
   const c = await caches.open(V), hit = await c.match(req); if (hit) return hit;
-  const r = await fetch(req); if (r.ok) c.put(req, r.clone()); return r;
+  const r = await fetch(req); if (r.ok) await c.put(req, r.clone()); return r;
 }
 async function tidy() {   // listings for days gone by
   const c = await caches.open(V), t = today();
-  for (const r of await c.keys()) { const d = new URL(r.url).searchParams.get('d'); if (d && d < t) c.delete(r); }
+  await Promise.all((await c.keys()).filter((r) => { const d = new URL(r.url).searchParams.get('d'); return d && d < t; }).map((r) => c.delete(r)));
 }
 
 self.addEventListener('fetch', (e) => {
