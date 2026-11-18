@@ -1,5 +1,12 @@
 [
  {
+  "version": "2.123.1",
+  "date": "2026-11-18",
+  "title": "Security update",
+  "changes": [],
+  "notes": "We’ve been following the news about malicious code that found its way into some JavaScript websites over the past 24 hours. We take this kind of thing seriously, so we’ve made several behind-the-scenes changes to strengthen security, reliability and performance, including tighter checks on the links that move your Watchlist to another device. Your privacy and security matter to us. We’ll keep watching the situation and make any further changes needed to keep Tenner secure and private."
+ },
+ {
   "version": "2.123.0",
   "date": "2026-11-17",
   "title": "Seasonal favourites on Home",
