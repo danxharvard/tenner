@@ -6,8 +6,8 @@ compatibility_date = "2026-09-01"
 workers_dev = true
 
 [vars]
-# Sites allowed to use it (comma-separated): tenner.stream, plus the old GitHub address while links to it are still around.
-ALLOWED_ORIGINS = "https://tenner.stream,https://www.tenner.stream,https://tv.tenner.stream,http://localhost:8777,http://localhost:8778,http://localhost:8779,http://localhost:8780,http://127.0.0.1:8780"
+# Sites allowed to use it (comma-separated): the public site, TV and beta preview, plus local development.
+ALLOWED_ORIGINS = "https://tenner.stream,https://www.tenner.stream,https://tv.tenner.stream,https://beta.tenner.stream,http://localhost:8777,http://localhost:8778,http://localhost:8779,http://localhost:8780,http://127.0.0.1:8780"
 
 # Sign in with Google: the OAuth client ID from Google Cloud (public, not a secret). Empty: the Google button stays hidden.
 GOOGLE_CLIENT_ID = "573684167951-69isfjep31v7kl8hs0083228flhbq53e.apps.googleusercontent.com"

@@ -1,0 +1,44 @@
+name: Deploy Tenner beta
+
+on:
+  push:
+    branches: [main, codex/beta-redesign]
+    paths:
+      - 'site/**'
+      - 'site-worker/beta.*'
+      - '.github/workflows/beta.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beta-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Copy current UK charts and catalogue
+        working-directory: site
+        run: |
+          for f in trending browse browse-more week new cinema titles trail featured spotlight prices; do
+            curl -fsS --retry 3 "https://tenner-site.danseacroft.workers.dev/data/$f.json" -o "data/$f.json.new" && mv "data/$f.json.new" "data/$f.json" || echo "::warning::Kept the repository copy of data/$f.json"
+          done
+
+      - name: Deploy beta.tenner.stream
+        working-directory: site-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error title=Beta not deployed::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          npx --yes wrangler@4 deploy -c beta.toml
+          echo "### Beta is live: https://beta.tenner.stream/" >> "$GITHUB_STEP_SUMMARY"

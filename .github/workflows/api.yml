@@ -4,7 +4,7 @@
 name: Deploy search API
 on:
   push:
-    branches: [main]
+    branches: [main, codex/beta-redesign]
     paths: ['worker/**', '.github/workflows/api.yml']
   workflow_dispatch:
 concurrency: { group: api, cancel-in-progress: true }
