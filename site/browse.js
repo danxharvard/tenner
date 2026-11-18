@@ -243,11 +243,12 @@
     const rating = $('#rating');
     rating.addEventListener('input', () => { state.r = +rating.value; paintRating(); apply(true, true); });
 
-    // age rating and length: one choice each (tap it again for Any)
+    // age rating and length: one choice each, on a segmented control whose thumb slides (and can be dragged) between them
     const chips = (box, opts, key) => {
-      $(box).innerHTML = opts.map(([v, l]) => `<button type="button" role="radio" class="g-b" data-v="${v}" aria-checked="false">${esc(l)}</button>`).join('');
-      $(box).addEventListener('click', (e) => { const b = e.target.closest('.g-b'); if (!b) return; state[key] = state[key] === b.dataset.v ? '' : b.dataset.v; apply(true, true); });
-      arrows($(box), () => [...$(box).querySelectorAll('.g-b')], (b) => b.click());
+      $(box).innerHTML = '<span class="seg-thumb" aria-hidden="true"></span>' + opts.map(([v, l]) => `<button type="button" role="radio" data-v="${v}" aria-checked="false">${esc(l)}</button>`).join('');
+      $(box).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b || state[key] === b.dataset.v) return; state[key] = b.dataset.v; apply(true, true); });
+      window.tn.segment($(box), (b) => b.click());
+      arrows($(box), () => [...$(box).querySelectorAll('button')], (b) => b.click());
     };
     chips('#ages', AGES, 'a'); chips('#lens', LENS, 'rt');
     // released: two thumbs on one track
@@ -316,7 +317,9 @@
 
     // the filters: a native <dialog> (it keeps focus, Escape and screen readers inside, and the page inert behind it)
     const openBtn = $('#openFilters');
-    openBtn.addEventListener('click', () => { sheet.showModal(); document.documentElement.classList.add('sheet-open'); });
+    openBtn.addEventListener('click', () => { sheet.showModal(); document.documentElement.classList.add('sheet-open');
+      // the segmented controls can only be measured once the sheet is showing: set their thumbs under the choice
+      sheet.querySelectorAll('.fs-seg [aria-checked="true"]').forEach((b) => b.setAttribute('aria-checked', 'true')); });
     $('#done').addEventListener('click', () => sheet.close());
     $('#showN').addEventListener('click', () => { sheet.close(); toResults(); });
     sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.close(); });   // a tap outside it (where closedby="any" isn't known yet)
@@ -384,8 +387,8 @@
     const gs = [...genreSet()].filter((g) => cat.genres[g]).sort((a, b) => cat.genres[a].localeCompare(cat.genres[b]));
     $('#genres').innerHTML = gs.map((g) => `<button type="button" class="g-b" data-g="${g}" aria-pressed="${state.g.includes(g)}">${esc(cat.genres[g])}</button>`).join('');
     paintRating();
-    document.querySelectorAll('#ages .g-b').forEach((b) => b.setAttribute('aria-checked', b.dataset.v === state.a));
-    document.querySelectorAll('#lens .g-b').forEach((b) => b.setAttribute('aria-checked', b.dataset.v === state.rt));
+    document.querySelectorAll('#ages button').forEach((b) => b.setAttribute('aria-checked', b.dataset.v === state.a));
+    document.querySelectorAll('#lens button').forEach((b) => b.setAttribute('aria-checked', b.dataset.v === state.rt));
     $('#yLo').value = state.y ? state.y[0] : firstYear; $('#yHi').value = state.y ? state.y[1] : THIS_YEAR;
     $('#yearOut').textContent = !state.y ? 'Any time' : state.y[0] === state.y[1] ? state.y[0] : `${state.y[0]} to ${state.y[1]}`;
     const span = THIS_YEAR - firstYear || 1;
@@ -403,7 +406,7 @@
       : q ? (state.sc === 'people' || (!list.length && window.tn.api) ? '' : `${many} on Tenner’s services`) : `${many} ${what}`;
     $('#rNote').hidden = $('#bySvc').hidden = !charting;
     document.body.classList.toggle('charting', charting);
-    $('#showN').firstElementChild.textContent = charting ? 'Done' : list.length ? `Show ${many} ${what}` : 'No matches';
+    $('#showN').querySelector('span').textContent = charting ? 'Done' : list.length ? `Show ${many} ${what}` : 'No matches';
     document.body.classList.toggle('searching', !!q);
     $('#scopes').hidden = !q; if (!q) state.sc = 'all';
     $('#scopes').querySelectorAll('[data-sc]').forEach((b) => b.setAttribute('aria-checked', b.dataset.sc === state.sc));

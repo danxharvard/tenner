@@ -191,42 +191,52 @@
     </section>
   </main>
 
-  <!-- the filters: one sheet (from the bottom on phones, centred on computers), the page dimmed and blurred behind it -->
+  <!-- the filters: one sheet (from the bottom on phones, centred on computers), the page dimmed and blurred behind it.
+       Laid out like an iOS settings sheet: a centred title with a round close button, a heading above each rounded card -->
   <dialog class="fsheet" id="filters" aria-labelledby="fH" closedby="any">
-    <div class="fs-head"><span></span><h2 id="fH">Filters</h2><button type="button" class="btn btn-tinted" id="done">Done</button></div>
+    <div class="fs-head">
+      <h2 id="fH">Filters</h2>
+      <button type="button" class="fs-x" id="done" aria-label="Close filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    </div>
     <div class="fs-body">
-      <section class="panel fs-where" id="pWhere">
-        <h3>Where to watch <button type="button" class="mine-link" id="mineLink">My services</button></h3>
-        <div class="where" id="where"></div>
-      </section>
       <div class="fs-col">
-        <section class="panel">
-          <h3>Genres</h3>
-          <div class="genres" id="genres"></div>
+        <section class="fs-sec" id="pWhere" aria-labelledby="whereH">
+          <h3 class="fs-h"><span id="whereH">Where to watch</span> <button type="button" class="mine-link" id="mineLink">My services</button></h3>
+          <div class="fs-card where" id="where"></div>
         </section>
-        <section class="panel">
-          <h3><label for="rating">Rated at least</label> <output id="ratingOut" for="rating">Any</output></h3>
-          <input type="range" id="rating" min="0" max="9" step="0.5" value="0">
-          <div class="scale" aria-hidden="true"><span>Any</span><span>5</span><span>7</span><span>9</span></div>
+        <section class="fs-sec" aria-labelledby="genH">
+          <h3 class="fs-h" id="genH">Genres</h3>
+          <div class="fs-card"><div class="genres" id="genres"></div></div>
         </section>
-        <section class="panel">
-          <h3><span id="yearL">Released</span> <output id="yearOut" for="yLo yHi">Any time</output></h3>
-          <div class="yr"><input type="range" id="yLo" aria-label="Released from" step="1"><input type="range" id="yHi" aria-label="Released up to" step="1"></div>
-          <div class="scale" aria-hidden="true" id="yScale"></div>
+      </div>
+      <div class="fs-col">
+        <section class="fs-sec">
+          <h3 class="fs-h"><label for="rating">Rated at least</label> <output id="ratingOut" for="rating">Any</output></h3>
+          <div class="fs-card">
+            <input type="range" id="rating" min="0" max="9" step="0.5" value="0">
+            <div class="scale" aria-hidden="true"><span>Any</span><span>5</span><span>7</span><span>9</span></div>
+          </div>
         </section>
-        <section class="panel">
-          <h3>Age rating <span class="p-sub">up to</span></h3>
-          <div class="genres" id="ages" role="radiogroup" aria-label="Age rating, up to"></div>
+        <section class="fs-sec">
+          <h3 class="fs-h"><span id="yearL">Released</span> <output id="yearOut" for="yLo yHi">Any time</output></h3>
+          <div class="fs-card">
+            <div class="yr"><input type="range" id="yLo" aria-label="Released from" step="1"><input type="range" id="yHi" aria-label="Released up to" step="1"></div>
+            <div class="scale" aria-hidden="true" id="yScale"></div>
+          </div>
         </section>
-        <section class="panel">
-          <h3>Length <span class="p-sub">episodes, for shows</span></h3>
-          <div class="genres" id="lens" role="radiogroup" aria-label="Length"></div>
+        <section class="fs-sec">
+          <h3 class="fs-h">Age rating <span class="p-sub">Up to</span></h3>
+          <div class="segmented fs-seg" id="ages" role="radiogroup" aria-label="Age rating, up to"></div>
+        </section>
+        <section class="fs-sec">
+          <h3 class="fs-h">Length <span class="p-sub">Episodes, for shows</span></h3>
+          <div class="segmented fs-seg" id="lens" role="radiogroup" aria-label="Length"></div>
         </section>
       </div>
     </div>
     <div class="fs-foot">
-      <button type="button" class="btn btn-tinted btn-2nd" id="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Clear filters</span></button>
-      <button type="button" class="btn btn-tinted fs-show" id="showN"><span>Show results</span></button>
+      <button type="button" class="btn btn-tinted btn-2nd" id="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Clear all</span></button>
+      <button type="button" class="btn btn-tinted fs-show" id="showN"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Show results</span></button>
     </div>
   </dialog>
 
