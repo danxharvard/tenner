@@ -99,8 +99,8 @@ body.browse { overflow-x: clip; }
 }
 
 
-/* ============================================================ the search bar: a frosted search field holding Shows / Films on
-   its right, with Filters floating beside it as the house's deep button. The three hold on at the top as you scroll, like a Mac toolbar. */
+/* ============================================================ the search bar: a frosted search field holding Filters on its
+   right, with Shows / Films floating beside it as the house's deep button. The three hold on at the top as you scroll, like a Mac toolbar. */
 .cmd-mark { height: 1px; }
 .hs { position: sticky; z-index: 49; top: calc(env(safe-area-inset-top, 0px) + 14px); display: flex; align-items: center; gap: 10px;
   height: 50px; margin-top: 6px; }
@@ -140,13 +140,12 @@ body.browse { overflow-x: clip; }
 @keyframes hintOut { to { translate: 0 -60%; opacity: 0; } }
 .search:has(input:not(:placeholder-shown)) .hs-hint { opacity: 0; }
 
-/* Shows / Films / Both (the system's own menu), inside the field on its right, and Filters beside it: the house's deep buttons,
+/* Filters, inside the field on its right, and Shows / Films / Both (the system's own menu) beside it: the house's deep buttons,
    each with its icon */
-.hs .btn { flex: none; height: 50px; box-shadow: 0 14px 32px -22px rgba(0, 0, 0, .55); }
-.hs #kindDD { flex: none; height: 38px; margin-right: 6px; box-shadow: none; }
-.hs-kind { min-width: 0; padding: 0 12px 0 13px; gap: 8px; font: 500 15px/1 var(--font); }
+.hs .dd { flex: none; height: 50px; box-shadow: 0 14px 32px -22px rgba(0, 0, 0, .55); }
+.hs-kind { min-width: 0; padding: 0 14px 0 15px; gap: 9px; font: 500 16px/1 var(--font); }
 .dd-ic { width: 19px; height: 19px; flex: none; color: #fff; }
-.hs-filters { position: relative; padding: 0 17px 0 15px; gap: 9px; font-size: 16px; }
+.hs-filters { position: relative; flex: none; height: 38px; margin-right: 6px; padding: 0 14px 0 12px; gap: 8px; font-size: 15px; }
 .hs-filters svg { width: 19px; height: 19px; flex: none; }
 .badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--accent); color: #fff; font: 600 12px/1 var(--font); font-variant-numeric: tabular-nums; }
 /* searching: Shows / Films / Both steps aside (the scopes below do its job) */
@@ -156,16 +155,15 @@ body.browse { overflow-x: clip; }
 @media (max-width: 999px) { .hs { top: calc(env(safe-area-inset-top, 0px) + 64px); } }
 @container page (width < 700px) {
   .hs { height: 46px; gap: 8px; }
-  .hs .btn { height: 46px; }
-  .hs #kindDD { height: 36px; margin-right: 5px; }
+  .hs .dd { height: 46px; }
   .search input, .hs-hint { font-size: 17px; }
   .search input { padding-left: 40px; }
   .s-ic { left: 12px; }
   .hs-hint { left: 40px; right: 40px; }
-  .hs-kind { padding: 0 10px 0 12px; gap: 7px; font-size: 15px; }
+  .hs-kind { padding: 0 11px 0 12px; gap: 7px; font-size: 15px; }
   .dd-ic { display: none; }   /* room for the words: the menu's chevrons say what it is */
   /* only an icon: the house's dark grey circle */
-  .hs-filters { width: 46px; padding: 0; justify-content: center; border-radius: 50%; background: var(--bt-round); }
+  .hs-filters { width: 36px; height: 36px; margin-right: 5px; padding: 0; justify-content: center; border-radius: 50%; background: var(--bt-round); }
   .hs-filters .hs-fl { display: none; }
   .hs-filters .badge { position: absolute; top: -4px; right: -4px; }
 }
