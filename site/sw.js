@@ -1,7 +1,7 @@
 // Tenner's service worker: lets the installed app open instantly and still work with no connection.
 // Pages, scripts, styles and the hourly data: the network first (so a new deploy or a new hour always wins), with the
-// last copy kept for when there's no connection, or when the network is too slow to answer within a few seconds. Fonts and icons: from the cache. TMDB's posters: from the cache, the most recent
-// 60 or so. A title's details and cast from the search API, and On TV this week: the network first, the last 150 kept
+// last copy kept for when there's no connection, or when the network is too slow to answer within a few seconds. Fonts and icons: from the cache. TMDB's artwork: from the cache, the most recent
+// 400 or so (enough for a long scroll up and down a page), with a second try when a connection drops. A title's details and cast from the search API, and On TV this week: the network first, the last 150 kept
 // for offline. Everything on your Watchlist (its details and poster) is kept too, so its sheets open on a plane.
 const SHELL = 'tenner-shell-2.123.2', IMGS = 'tenner-img-v1', FONTS = 'tenner-font-v1', API = 'tenner-api-v1', KEEP = 'tenner-keep-v1';   // the shell cache follows the version; fonts never change
 const APIS = 'https://tenner-api.danseacroft.workers.dev', ONAIR = 'https://tenner-tv.danseacroft.workers.dev/api/onair';
@@ -33,7 +33,7 @@ self.addEventListener('fetch', (e) => {
     if (/\.(png|svg|jpg|webp)$/.test(url.pathname)) { e.respondWith(cacheFirst(e, SHELL)); return; }
     e.respondWith(networkFirst(e)); return;
   }
-  if (url.hostname === 'image.tmdb.org') { e.respondWith(caches.match(req, { cacheName: KEEP }).then((hit) => hit || cacheFirst(e, IMGS, 60))); return; }
+  if (url.hostname === 'image.tmdb.org') { e.respondWith(artwork(e)); return; }
   if ((url.origin === APIS && /^\/(title|credits|more)\/[mt]\d+$|^\/season\/t\d+\/\d+$|^\/collection\/\d+$/.test(url.pathname)) || url.href.startsWith(ONAIR)) e.respondWith(apiFirst(e));
 });
 // the search API: the network first; with no connection, the copy kept from last time (or the Watchlist's own copy)
@@ -68,13 +68,40 @@ async function networkFirst(e) {
     return (await fromCache()) || Response.error();
   }
 }
-async function cacheFirst(e, name, max) {
+// TMDB's artwork: the Watchlist's own copy, then the last 400 or so pictures seen (a page full of rows is well over a
+// hundred, so scrolling back up never waits on the network again), then the network. A patchy signal gets a second try
+// a moment later; with no connection at all, the same picture at another size if one's kept. The oldest are let go now
+// and then (about one new picture in 25), not after every one, so a fast scroll isn't held up tidying the cache.
+const IMG_MAX = 400;
+async function artwork(e) {
+  const req = e.request, c = await caches.open(IMGS);
+  const hit = (await caches.match(req, { cacheName: KEEP })) || (await c.match(req));
+  if (hit) return hit;
+  let res;
+  try { res = await fetch(req); } catch {
+    try { await new Promise((r) => setTimeout(r, 1200)); res = await fetch(req); } catch { return (await otherSize(req.url)) || Response.error(); }
+  }
+  if (res.ok || res.type === 'opaque') {
+    const copy = res.clone();
+    e.waitUntil(c.put(req, copy).then(() => (Math.random() < .04 ? trim(c, IMG_MAX) : null)).catch(() => {}));
+  }
+  return res;
+}
+async function otherSize(u) {
+  const file = u.slice(u.lastIndexOf('/'));
+  for (const n of [KEEP, IMGS]) {
+    const c = await caches.open(n), k = (await c.keys()).find((r) => r.url.endsWith(file));
+    if (k) return c.match(k);
+  }
+  return null;
+}
+async function cacheFirst(e, name) {
   const req = e.request, c = await caches.open(name), hit = await c.match(req);
   if (hit) return hit;
   const res = await fetch(req);
   if (res.ok || res.type === 'opaque') {   // straight to the page; the copy is saved alongside
     const copy = res.clone();
-    e.waitUntil(c.put(req, copy).then(() => max && trim(c, max)));
+    e.waitUntil(c.put(req, copy));
   }
   return res;
 }

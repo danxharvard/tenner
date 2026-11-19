@@ -377,7 +377,7 @@
     state.hero = i; const { it } = heroList[i];
     if (!it.xmas) window.tn.featured.saw(keyOf(it));   // so the next visit leads with others
     const art = $('#bxArt'), layer = document.createElement('div');
-    layer.className = 'bx-h-l'; layer.innerHTML = it.xmas ? '<img class="bx-h-ximg" src="xmas.webp" alt="">' : it.backdrop ? `<img src="${esc(it.backdrop.replace('/w1280/', '/original/'))}" srcset="${esc(it.backdrop)} 1280w, ${esc(it.backdrop.replace('/w1280/', '/original/'))} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="">` : wide(it);
+    layer.className = 'bx-h-l'; layer.innerHTML = it.xmas ? '<img class="bx-h-ximg" src="xmas.webp" alt="">' : it.backdrop ? `<img src="${esc(it.backdrop.replace('/w1280/', '/original/'))}" srcset="${esc(it.backdrop.replace('/w1280/', '/w780/'))} 780w, ${esc(it.backdrop)} 1280w, ${esc(it.backdrop.replace('/w1280/', '/original/'))} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="">` : wide(it);
     const put = () => {
       art.append(layer); requestAnimationFrame(() => layer.classList.add('in'));
       setTimeout(() => [...art.children].slice(0, -1).forEach((c) => c.remove()), first || reduce() ? 0 : 900);
@@ -590,7 +590,7 @@
     const x = det(keyOf(it)) || {}, info = infoFor(it, it.eye || 'Spotlight'), on = (it.on || []).map(svcOf).filter(Boolean)[0];
     const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
     const genres = (x.g || []).slice(0, 3), big = it.backdrop?.replace('/w1280/', '/original/');
-    box.innerHTML = `<div class="bx-h-art"><div class="bx-h-l in">${it.backdrop ? `<img src="${esc(big)}" srcset="${esc(it.backdrop)} 1280w, ${esc(big)} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="" loading="lazy" decoding="async">` : wide(it)}</div></div>
+    box.innerHTML = `<div class="bx-h-art"><div class="bx-h-l in">${it.backdrop ? `<img src="${esc(big)}" srcset="${esc(it.backdrop.replace('/w1280/', '/w780/'))} 780w, ${esc(it.backdrop)} 1280w, ${esc(big)} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="" loading="lazy" decoding="async">` : wide(it)}</div></div>
       <div class="bx-h-copy">
         <p class="bx-eye">${I.sparkle}<span>${esc(it.eye || 'Spotlight')}</span></p>
         ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}

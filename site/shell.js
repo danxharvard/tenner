@@ -1820,6 +1820,27 @@
       hapLab.click();
     } catch {}
   };
+  // ---------- artwork on a patchy signal: a picture that doesn't arrive is asked for again ----------
+  // A moment later, then a little later, then once more, and straight away when the device is back online, so a signal
+  // that drops mid-scroll doesn't leave empty tiles where the posters should be. Only TMDB's artwork; a picture that has
+  // since left the page (the hero's title logo swaps to words when its picture is missing) is let go.
+  {
+    const tries = new WeakMap(), waiting = new Set(), GAPS = [1500, 5000, 15000];
+    const again = (img) => {
+      waiting.delete(img); if (!img.isConnected) return;
+      const set = img.getAttribute('srcset'), src = img.getAttribute('src');
+      if (set) { img.removeAttribute('srcset'); img.setAttribute('srcset', set); }
+      if (src) { img.removeAttribute('src'); img.setAttribute('src', src); }
+    };
+    document.addEventListener('error', (e) => {
+      const img = e.target;
+      if (img?.tagName !== 'IMG' || !/^https:\/\/image\.tmdb\.org\//.test(img.getAttribute('src') || '')) return;
+      const n = tries.get(img) || 0; if (n >= GAPS.length) return;
+      tries.set(img, n + 1); waiting.add(img);
+      setTimeout(() => { if (waiting.has(img) && navigator.onLine !== false) again(img); }, GAPS[n]);
+    }, true);
+    addEventListener('online', () => [...waiting].forEach(again));
+  }
   // ---------- Tenner's own cut: the featured spots in motion, without YouTube ----------
   // In place of a trailer (YouTube's ads, its player and the words written over the footage), the title's own wordless
   // stills from TMDB, one after another: each drifts slowly (a push in or a pull out, panning a different way each time)
