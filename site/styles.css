@@ -2116,6 +2116,33 @@ body { padding-bottom: var(--tf-h); }
 ::view-transition-new(root) { animation: vtIn .38s var(--ease-out) both; }
 @keyframes vtOut { to { opacity: 0; transform: scale(.985); } }
 @keyframes vtIn { from { opacity: 0; transform: translateY(10px); } }
+/* theme wave: Day and Night ride in on a liquid, colourful wave from where you tapped (shell.js, setTheme). The new look
+   is uncovered in a growing soft circle; a band drawn with WebGL (.wv-gl) rides its front and hides the circle's edge,
+   and an SVG ripple (#wvF) moves the page as it passes. Without WebGL a blurred CSS ring (.wv-rim) stands in for the band.
+   The bar travels with the page so it changes in the same sweep. */
+@property --wv { syntax: '<length>'; inherits: false; initial-value: 0px; }
+:root.wave .top-row { view-transition-name: none; }
+:root.wave::view-transition-image-pair(root) { filter: url(#wvF); }
+:root.wave::view-transition-old(root) { animation: none; }
+:root.wave::view-transition-new(root) {
+  animation: waveIn 1.1s cubic-bezier(.3, 0, .15, 1) both;
+  -webkit-mask-image: radial-gradient(circle at var(--wv-x) var(--wv-y), #000 calc(var(--wv) - var(--wv-w) * 1.1), transparent calc(var(--wv) - var(--wv-w) * .5));
+  mask-image: radial-gradient(circle at var(--wv-x) var(--wv-y), #000 calc(var(--wv) - var(--wv-w) * 1.1), transparent calc(var(--wv) - var(--wv-w) * .5));
+}
+@keyframes waveIn { from { --wv: 0px; } to { --wv: var(--wv-r); } }
+.wv-rim { position: fixed; z-index: -1; pointer-events: none; view-transition-name: wave-rim; }
+.wv-gl { inset: 0; width: 100vw; height: 100vh; }
+:root.wave::view-transition-group(wave-rim) { animation: none; }
+:root.wave::view-transition-new(wave-rim) { animation: none; }
+/* the CSS stand-in: a ring the size of the wave's last reach, grown from nothing in step with the circle */
+.wv-rim:not(.wv-gl) { border-radius: 50%;
+  left: calc(var(--wv-x) - var(--wv-r)); top: calc(var(--wv-y) - var(--wv-r)); width: calc(var(--wv-r) * 2); height: calc(var(--wv-r) * 2);
+  background: conic-gradient(from 200deg, #0a84ff, #bf5af2, #ff375f, #bf5af2, #5e5ce6, #0a84ff);
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 150px), #000 calc(100% - 70px), #000 calc(100% - 40px), transparent);
+  mask-image: radial-gradient(closest-side, transparent calc(100% - 150px), #000 calc(100% - 70px), #000 calc(100% - 40px), transparent);
+  filter: blur(14px); }
+:root.wave.wv-css::view-transition-new(wave-rim) { animation: waveRim 1.1s cubic-bezier(.3, 0, .15, 1) both; }
+@keyframes waveRim { 0% { transform: scale(0); opacity: 1; } 70% { opacity: .9; } 100% { transform: scale(1); opacity: 0; } }
 /* every press answers the moment a finger lands (Apple's rule: feedback on touch-down, never on release): the control
    gives quickly, then springs back softly when it's let go. The button and its icon move as one piece. */
 :root:not(.still) :is(.btn, .dd, .tb-round, .hc-r, .cal-add, .tn-rd, .bx-me-card, .bx-me-out, .set-pill, .pv-ok, .ft-ok, .tn-picks a):active {
