@@ -2277,13 +2277,13 @@ body { padding-bottom: var(--tf-h); }
 /* phones: the Top 10s already open the homepage, so the menu leaves out their link */
 @media (max-width: 719px) { :is(.tabs, .drawer .tabs) button[data-tab="top10"] { display: none; } }
 
-/* ---------- phones: as you scroll down, each section unfolds into place (a gentle rise, a touch of scale and a fade),
-   driven by the scroll itself so it runs off the main thread and reverses if you scroll back. Sections already on screen
-   when the page opens are shown as they are. Only with Settings → Animations on, never with Reduce Motion. ---------- */
-@supports (animation-timeline: view()) {
-  @media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
-    :root:not(.still) main :is(.bx-sec, .clist, .bx-panel, .wk, .nrow, .set-group) {
-      animation: tnUnfold linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; transform-origin: 50% 0; }
-  }
+/* ---------- phones: as you scroll down, each section unfolds into place the first time it comes on screen (a gentle rise,
+   a touch of scale and a fade), then stays put for the rest of the visit: scrolling back over it never fades its artwork
+   out and in again (that read as the pictures reloading). shell.js marks the sections waiting below the screen (.unf-wait)
+   and plays it once (.unf-go). Sections already on screen are shown as they are. Only with Settings → Animations on,
+   never with Reduce Motion. ---------- */
+@media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
+  :root:not(.still) .unf-wait { opacity: 0; translate: 0 32px; scale: .96; }
+  :root:not(.still) .unf-go { animation: tnUnfold .6s var(--ease-out) both; transform-origin: 50% 0; }
 }
 @keyframes tnUnfold { from { opacity: 0; translate: 0 32px; scale: .96; } }

@@ -512,13 +512,13 @@
     return `<section class="t10-col" data-svc="${esc(s.key)}" aria-labelledby="${pre}h-${esc(s.key)}">
       <header class="t10-ch"><span class="t10-logo">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : esc(s.label[0])}</span><h3 id="${pre}h-${esc(s.key)}">${esc(s.label)}</h3>${yours ? '<span class="t10-pill">Yours</span>' : ''}</header>
       <a class="t10-one" href="${href(one)}" target="_blank" rel="noopener" data-t10="${reg(one, 0)}">
-        <span class="t10-one-bg" aria-hidden="true">${one.backdrop ? `<img src="${esc(one.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy" decoding="async">` : one.poster ? `<img class="blur" src="${esc(one.poster)}" alt="" loading="lazy">` : t10Ph(one.title)}</span>
+        <span class="t10-one-bg" aria-hidden="true">${one.backdrop ? `<img src="${esc(one.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy">` : one.poster ? `<img class="blur" src="${esc(one.poster)}" alt="" loading="lazy">` : t10Ph(one.title)}</span>
         <span class="t10-one-n" aria-hidden="true">1</span>
         <span class="t10-one-t"><small>No. 1 ${word}</small><b>${esc(one.title)}</b><span>${esc(sub(one))}${one.rating ? ` · ★ ${(+one.rating).toFixed(1)}` : ''}</span></span></a>
       <a class="btn btn-tinted t10-go" href="browse.html?s=${encodeURIComponent(s.key)}">${T10_IC.go}Browse ${esc(s.label)}</a>
       <p class="t10-also">Also charting on ${esc(s.label)}:</p>
       <ol class="cl t10-l" start="2">${l.slice(1).map((it, j) => `<li><a href="${href(it)}" target="_blank" rel="noopener" data-t10="${reg(it, j + 1)}">
-        <span class="t10-n">${j + 2}</span>${it.poster ? `<img src="${esc(t10Small(it.poster))}" alt="" loading="lazy" decoding="async">` : t10Ph(it.title)}
+        <span class="t10-n">${j + 2}</span>${it.poster ? `<img src="${esc(t10Small(it.poster))}" alt="" loading="lazy">` : t10Ph(it.title)}
         <span class="cl-t"><b>${esc(it.title)}</b><small>${esc(sub(it))}</small></span>${t10Move(it.mv)}</a></li>`).join('')}</ol></section>`;
   }
   // the popup and the Top 10s along the foot of every page share their drawing: `box` holds a .t10-row, .t10-logos,
@@ -869,9 +869,9 @@
       if (x.q) return `<a class="ss-r ss-q" role="option" id="ssr${i}" aria-selected="false" href="browse.html#q=${encodeURIComponent(x.q)}" data-q="${esc(x.q)}">${GLASS.replace('ss-ic', 'ss-q-ic')}
         <span class="ss-t"><b>${esc(x.q)}</b></span></a>`;   // a recent search: tap to search again
       if (x.person) return `<a class="ss-r ss-p" role="option" id="ssr${i}" aria-selected="false" href="./?p=${x.id}" data-p="${x.id}"><span class="ss-pf" style="--h:${hue(x.name)}">${x.photo
-        ? `<img src="${esc(x.photo)}" alt="" loading="lazy" decoding="async">` : esc(x.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
+        ? `<img src="${esc(x.photo)}" alt="" loading="lazy">` : esc(x.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
         <span class="ss-t"><b>${marked(x.name, S.q)}</b><small>${esc([DEPT[x.dept] || x.dept, x.known.slice(0, 2).join(', ')].filter(Boolean).join(' · '))}</small></span></a>`;
-      const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : `<span class="ss-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
+      const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : `<span class="ss-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
       return `<a class="ss-r" role="option" id="ssr${i}" aria-selected="false" href="./?t=${esc(x.k)}" data-k="${esc(x.k)}">${art}
         <span class="ss-t"><b>${marked(x.title, S.q)}</b><small>${esc([x.type === 'tv' ? 'Show' : 'Film', x.year, x.on].filter(Boolean).join(' · '))}</small></span></a>`;
     };
@@ -2324,6 +2324,31 @@ void main(){
     new MutationObserver(tellM).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
     new MutationObserver(tellM).observe(document.head, { childList: true, subtree: true, characterData: true });
     tellM();
+  }
+
+  // ---------- phones: each section unfolds into place once, the first time it's scrolled to (styles.css, "unfolds") ----------
+  // Sections drawn later (the homepage's rows arrive with their data) are picked up as they appear. One that's already on
+  // screen, or above it, is left as it is; once shown, a section is never hidden again on this visit.
+  {
+    const SECS = 'main :is(.bx-sec, .clist, .bx-panel, .wk, .nrow, .set-group)', phone = matchMedia('(max-width: 719px)');
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target); e.target.classList.replace('unf-wait', 'unf-go');
+      const s = e.target, done = (ev) => { if (ev.target === s) { s.classList.remove('unf-go'); s.removeEventListener('animationend', done); } };
+      s.addEventListener('animationend', done);
+    }), { rootMargin: '0px 0px -8% 0px' });
+    const scan = () => {
+      if (!phone.matches || reduce()) return;
+      for (const s of document.querySelectorAll(SECS)) {
+        if (s.dataset.unf) continue; s.dataset.unf = '1';
+        if (s.getBoundingClientRect().top < innerHeight) continue;   // on screen (or above it) already
+        s.classList.add('unf-wait'); io.observe(s);
+      }
+    };
+    let queued = 0;
+    const later = () => { if (!queued) queued = requestAnimationFrame(() => { queued = 0; scan(); }); };
+    const main = document.querySelector('main');
+    if (main) { new MutationObserver(later).observe(main, { childList: true, subtree: true }); later(); }
   }
 
   // ---------- install as an app: the offline cache (sw.js) ----------

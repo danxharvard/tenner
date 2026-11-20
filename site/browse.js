@@ -747,7 +747,7 @@
       if (!l.length) { box.hidden = true; if (all) { $('#grid').innerHTML = `<li class="none"><h2>No one by that name</h2><p>Try another spelling, or look through Top results.</p></li>`; } return; }
       const had = new Set([...$('#bpList').querySelectorAll('[data-p]')].map((a) => a.dataset.p));
       $('#bpList').innerHTML = l.map((p, i) => `<li${had.has(String(p.id)) ? '' : ` class="rv" style="--d:${i}"`}><a href="./?p=${p.id}" data-p="${p.id}">
-        <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}"${/\/w185\//.test(p.photo) ? ` srcset="${esc(p.photo)} 1x, ${esc(p.photo.replace('/w185/', '/h632/'))} 2x"` : ''} alt="" loading="lazy" decoding="async"></span>
+        <span class="sh-face" style="--h:${hue(p.name)}"><img src="${esc(p.photo)}"${/\/w185\//.test(p.photo) ? ` srcset="${esc(p.photo)} 1x, ${esc(p.photo.replace('/w185/', '/h632/'))} 2x"` : ''} alt="" loading="lazy"></span>
         <b>${esc(p.name)}</b><small>${esc([DEPT[p.dept] || p.dept, p.known[0]].filter(Boolean).join(' · '))}</small></a></li>`).join('');
       // first when a name is the better match; otherwise after this hour's catalogue
       const fq = fold(q), best = (xs, f) => Math.max(0, ...xs.map((x) => score({ n: f(x) }, fq)));
@@ -785,7 +785,7 @@
   new IntersectionObserver((es) => { if (es[0].isIntersecting && web.on) webMore(); }, { rootMargin: '800px 0px' }).observe($('#webEnd'));
   function webCard(x, i) {
     const h = hue(x.title);
-    const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
+    const art = x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.title)}</span>`;
     return `<li class="tile rv" style="--d:${i}" data-wk="${esc(x.k)}">
       <a href="https://www.themoviedb.org/${esc(x.type)}/${esc(x.k.slice(1))}" target="_blank" rel="noopener">
@@ -846,7 +846,7 @@
     const url = `https://www.themoviedb.org/${x.t}/${x.i}/watch?locale=GB`;
     const h = hue(x.n);
     const art = x.img
-      ? `<img src="${esc(x.img.startsWith('/') ? cat.img + x.img : x.img)}" alt="" loading="lazy" decoding="async" width="342" height="513">`
+      ? `<img src="${esc(x.img.startsWith('/') ? cat.img + x.img : x.img)}" alt="" loading="lazy" width="342" height="513">`
       : `<span class="ph" style="background:linear-gradient(160deg,hsl(${h} 45% 42%),hsl(${(h + 40) % 360} 55% 18%))">${esc(x.n)}</span>`;
     const where = x.s.slice(0, 3).map((k) => logos[k] ? `<img src="${esc(logos[k])}" alt="${esc(labels[k])}" data-tip="${esc(labels[k])}">` : '').join('');
     return `${x._sub ? `<li class="g-sub" aria-hidden="true">${x._sub}</li>` : ''}<li class="tile${x._rank ? ' ranked' : ''}${reveal.had && !reveal.had.has(`${x.t[0]}${x.i}`) ? ' rv' : ''}" style="--d:${i % PAGE}" data-k="${x.t[0]}${x.i}">

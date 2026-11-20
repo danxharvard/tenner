@@ -152,8 +152,8 @@
 
   // ---------- pictures ----------
   const ph = (t, cls = '') => { const h = hue(t); return `<span class="bx-ph${cls}" style="background:linear-gradient(160deg,hsl(${h} 45% 40%),hsl(${(h + 40) % 360} 55% 16%))"><span>${esc(t)}</span></span>`; };
-  const poster = (it) => (it.poster ? `<img src="${esc(it.poster)}" alt="" loading="lazy" decoding="async">` : ph(it.title));
-  const wide = (it, size = 'w780') => (it.backdrop ? `<img src="${esc(it.backdrop.replace('/w1280/', `/${size}/`))}" alt="" loading="lazy" decoding="async">` : it.poster ? `<img class="bx-blurfill" src="${esc(it.poster)}" alt="" loading="lazy">` : ph(it.title, ' wide'));
+  const poster = (it) => (it.poster ? `<img src="${esc(it.poster)}" alt="" loading="lazy">` : ph(it.title));
+  const wide = (it, size = 'w780') => (it.backdrop ? `<img src="${esc(it.backdrop.replace('/w1280/', `/${size}/`))}" alt="" loading="lazy">` : it.poster ? `<img class="bx-blurfill" src="${esc(it.poster)}" alt="" loading="lazy">` : ph(it.title, ' wide'));
   const svcIcon = (s, cls = 'bx-svc') => (s?.logo ? `<img class="${cls}" src="${esc(s.logo)}" alt="${esc(s.label)}" title="${esc(s.label)}">` : '');
   const runtime = (m) => (!m ? '' : m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}`);
   const rating = (r) => (r ? `<span class="bx-star">${I.star}${r.toFixed(1)}</span>` : '');
@@ -549,7 +549,7 @@
         <h3 class="nwk-h" id="nwk-${d}">${esc(name)}</h3>
         <ol class="bx-ups nwk-l">${l.map((x, i) => {
           const s = svcOf(x.service), it = { ...x, on: [x.service] }, what = x.type === 'movie' ? 'Film' : x.season ? `Season ${x.season}` : 'Series';
-          const art = `<span class="bx-up-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : ph(x.title)}</span>`;
+          const art = `<span class="bx-up-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : ph(x.title)}</span>`;
           const copy = `<span class="bx-up-copy"><b>${esc(x.title)}</b><small><span>${esc(what)}</span><span class="nwk-svc">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : ''}${esc(s.key === 'free' ? 'Free' : s.label)}</span></small></span>`;
           const inner = x.id ? `<a href="${esc(x.url || tmdbUrl(x.type, x.id))}" target="_blank" rel="noopener" ${reg(infoFor(it, `New on ${s.label}`))}>${art}${copy}</a>` : `<span class="nwk-row">${art}${copy}</span>`;
           return `<li${i >= NWK_MAX ? ' class="nwk-x"' : ''}>${inner}</li>`;
@@ -590,7 +590,7 @@
     const x = det(keyOf(it)) || {}, info = infoFor(it, it.eye || 'Spotlight'), on = (it.on || []).map(svcOf).filter(Boolean)[0];
     const meta = [it.type === 'tv' ? (x.se ? `${x.se} season${x.se === 1 ? '' : 's'}` : 'Series') : 'Film', it.year, x.rt && it.type === 'movie' ? runtime(x.rt) : ''].filter(Boolean);
     const genres = (x.g || []).slice(0, 3), big = it.backdrop?.replace('/w1280/', '/original/');
-    box.innerHTML = `<div class="bx-h-art"><div class="bx-h-l in">${it.backdrop ? `<img src="${esc(big)}" srcset="${esc(it.backdrop.replace('/w1280/', '/w780/'))} 780w, ${esc(it.backdrop)} 1280w, ${esc(big)} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="" loading="lazy" decoding="async">` : wide(it)}</div></div>
+    box.innerHTML = `<div class="bx-h-art"><div class="bx-h-l in">${it.backdrop ? `<img src="${esc(big)}" srcset="${esc(it.backdrop.replace('/w1280/', '/w780/'))} 780w, ${esc(it.backdrop)} 1280w, ${esc(big)} 1920w" sizes="(min-width: 1000px) 70vw, 100vw" alt="" loading="lazy">` : wide(it)}</div></div>
       <div class="bx-h-copy">
         <p class="bx-eye">${I.sparkle}<span>${esc(it.eye || 'Spotlight')}</span></p>
         ${genres.length ? `<p class="bx-pills">${genres.map((g) => `<span>${esc(g)}</span>`).join('')}</p>` : ''}
@@ -728,7 +728,7 @@
       <div class="row-hd"><h2 class="row-h" id="${id}">${head}</h2>
         <a class="see-all" href="${href}">See all<span class="chev" aria-hidden="true"></span></a></div>
       <ol class="cl">${l.map((it, i) => `<li><a href="${esc(it.url)}" target="_blank" rel="noopener" ${reg(infoFor(it, eye(i)))}>
-        ${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
+        ${it.poster ? `<img src="${esc(it.poster.replace('/t/p/w342/', '/t/p/w154/'))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
         <span class="cl-t"><b>${esc(it.title)}</b><small>${window.tn.finalBadge(det(keyOf(it)))}${esc([state.picks.length === 1 ? '' : label(it), it.year].filter(Boolean).join(' · '))}</small></span>
         ${it.rating ? `<span class="cl-r">★ ${it.rating.toFixed(1)}</span>` : ''}
       </a></li>`).join('')}</ol></section>`;

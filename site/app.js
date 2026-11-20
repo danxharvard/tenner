@@ -249,7 +249,7 @@ function pageWatchlist() {
   const rows = list.map((x) => {
     const spot = spots.get(x.k), sh = reg(wlInfo(x, spot || 'In your Watchlist')), on = onLogos(x.k);
     const what = [x.type === 'movie' ? 'Film' : 'Series', x.year, spot].filter(Boolean).join(' · ');
-    const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
+    const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
     return `<li data-type="${x.type === 'movie' ? 'movie' : 'tv'}"><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${sh}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${showLine(x)}${noteLine(x.k)}</span>${on ? `<span class="wl-on">${on}</span>` : ''}</a>
       <button type="button" class="wl-x" data-unsave="${esc(x.k)}" aria-label="Remove ${esc(x.title)} from your Watchlist" title="Remove">${X}</button>
@@ -278,7 +278,7 @@ function watchedList() {
   const all = window.tn.seen.list(), list = all.slice(0, state.seenAll ? 1000 : 20); if (!list.length) return '';
   const X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   const rows = list.map((x) => {
-    const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
+    const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
     const what = [x.type === 'movie' ? 'Film' : 'Series', x.year, `Watched ${fmtDate(new Date(x.at), { day: 'numeric', month: 'short' })}`].filter(Boolean).join(' · ');
     return `<li><a href="${esc(tmdbUrl(x.type, x.k.slice(1)))}" target="_blank" rel="noopener" ${reg(wlInfo(x, 'Watched'))}>
         ${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small>${noteLine(x.k)}</span></a>
@@ -401,7 +401,7 @@ function newItem(x, mode) {
   const kind = x.type === 'movie' ? 'Film' : x.season ? `Season ${x.season}` : 'Series';
   const what = [kind, s ? `${s.label}${x.original ? ' original' : ''}` : ''].filter(Boolean).join(' · ');
   const eye = mode === 'soon' ? `Coming to ${s?.label || 'streaming'}` : mode === 'leaving' ? `Leaving ${s?.label || 'streaming'}` : `New on ${s?.label || 'streaming'}`;
-  const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
+  const art = x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`;
   const cal = i >= 0 ? `<button type="button" class="cal-add" data-cal="${i}" aria-label="${esc(`Add ${x.title} to your calendar`)}" title="Add to Calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 12.6v5M9.5 15.1h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>` : '';
   const row = `${art}<span class="cl-t"><b>${esc(x.title)}</b><small>${esc(what)}</small></span>${s?.logo ? `<img class="nw-logo" src="${esc(s.logo)}" alt="" data-tip="${esc(s.label)}">` : ''}`;
   return `<li>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener" ${reg(infoFor(x, x.type, eye, s ? [s] : []))}>${row}</a>` : `<span class="nw-row">${row}</span>`}${cal}</li>`;
@@ -452,7 +452,7 @@ function nwRibbon(f, today) {
   let month = '';
   const cols = days.map((d) => {
     const l = by.get(d), dt = new Date(d + 'T12:00:00'), on = d === NW.day, mo = fmtDate(dt, { month: 'short' });
-    const stack = l.slice(0, 3).map((x, i) => x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" decoding="async" style="--i:${i}">`
+    const stack = l.slice(0, 3).map((x, i) => x.poster ? `<img src="${esc(thumb(x.poster))}" alt="" loading="lazy" style="--i:${i}">`
       : `<i class="rb-ph" style="--i:${i};background:hsl(${hue(x.title)} 45% 35%)"></i>`).join('');
     const showMo = mo !== month; month = mo;
     return `<button type="button" role="tab" class="rb-day${d < today ? ' past' : ''}${d === today ? ' today' : ''}${l.length ? '' : ' none'}" id="rb-${d}" data-day="${d}" aria-selected="${on}" tabindex="${on ? 0 : -1}" aria-controls="rbPanel"
@@ -518,7 +518,7 @@ function raceInner(r) {
       <div class="race-days" aria-hidden="true">${r.days.map((d, i) => `<span>${i === last ? 'Today' : `<b>${esc(fmtDate(new Date(d + 'T12:00:00'), { weekday: 'short' }))}</b><i>${esc(fmtDate(new Date(d + 'T12:00:00'), { weekday: 'narrow' }))}</i>`}</span>`).join('')}</div></div>
     <ol class="race-list">${r.rows.map((x, i) => `<li style="--c:${RACE_C[i]};--i:${i}" data-k="${x.k}"><a href="${esc(tmdbUrl(x.it.type, x.it.id))}" target="_blank" rel="noopener" ${reg(infoFor(x.it, x.it.type, `No. ${x.rank} ${x.it.type === 'movie' ? 'film' : 'show'} in the UK`))}
       aria-label="${esc(`No. ${x.rank}, ${x.it.title}. ${x.move}`)}">
-      ${x.it.poster ? `<img src="${esc(thumb(x.it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.it.title)} 45% 35%)"></span>`}
+      ${x.it.poster ? `<img src="${esc(thumb(x.it.poster))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(x.it.title)} 45% 35%)"></span>`}
       <span class="race-t"><b>${esc(x.it.title)}</b><small class="mv-${x.dir}">${esc(x.move)}</small></span></a></li>`).join('')}</ol></div>`;
 }
 // the lines themselves, drawn to the plot's real size (and again whenever it changes)
@@ -553,7 +553,7 @@ function nwLeaving(leaving, today) {
   return `<section class="wk" id="leaving" aria-labelledby="lvH"><div class="wk-hd"><h2 class="row-h" id="lvH">Last chance</h2><p>Leaving the services soon</p></div>
     <ul class="nr">${leaving.map((x) => {
       const s = svc(x.service), on = fmtDate(new Date(x.date + 'T12:00:00'), { weekday: 'short', day: 'numeric', month: 'short' });
-      const inner = `<span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : placeholder(x)}<span class="cu-when lv-when">${esc(left(x.date))}</span></span>
+      const inner = `<span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : placeholder(x)}<span class="cu-when lv-when">${esc(left(x.date))}</span></span>
         <b>${esc(x.title)}</b><small>${esc(`${s?.label || 'Streaming'} · ${on}`)}</small>`;
       return `<li>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener" ${reg(infoFor(x, x.type, `Leaving ${s?.label || 'streaming'} ${on}`, s ? [s] : []))}>${inner}</a>` : `<span>${inner}</span>`}</li>`;
     }).join('')}</ul></section>`;
@@ -616,7 +616,7 @@ function pageNew() {
   const c = state.cinema, inCinemas = (c?.now || []).filter((x) => x.date <= today), toCinemas = (c?.soon || []).filter((x) => x.date > today);
   const out = (x) => fmtDate(new Date(x.date + 'T12:00:00'), { day: 'numeric', month: 'short' });
   const filmCard = (x, sub, badge) => `<li><a href="${esc(tmdbUrl('movie', x.id))}" target="_blank" rel="noopener" ${reg(infoFor(x, 'movie', badge ? `In cinemas ${out(x)}` : 'In cinemas now'))}>
-    <span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : placeholder(x)}${badge ? `<span class="cu-when">${esc(badge)}</span>` : ''}</span>
+    <span class="nr-art">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : placeholder(x)}${badge ? `<span class="cu-when">${esc(badge)}</span>` : ''}</span>
     <b>${esc(x.title)}</b><small>${esc(sub)}</small></a></li>`;
   const cinema = sec('cinema', 'At the cinema', 'Showing in UK cinemas now', inCinemas.length ? `<ul class="nr">${inCinemas.map((x) => filmCard(x, [x.cert, `Out ${out(x)}`].filter(Boolean).join(' · '))).join('')}</ul>` : '')
     + sec('cinema-soon', 'Coming to cinemas', 'Out in the UK over the next three months', toCinemas.length ? `<ul class="nr">${toCinemas.map((x) => filmCard(x, [x.cert, out(x)].filter(Boolean).join(' · '), window.tn.whenText(x.date))).join('')}</ul>` : '');
@@ -645,7 +645,7 @@ function weekCharts() {
       + sec('wk-2', 'Biggest climbers', `Up the most places ${sinceText(w)}`, climbers.length ? `<ol class="cl nw-cl">${climbers.map((x) => {
         const it = w.items[x.k];
         return `<li><a href="${esc(tmdbUrl(it.type, it.id))}" target="_blank" rel="noopener" ${reg(weekInfo(x, `Up ${x.by} to No. ${x.to} ${chartName(x.c)}`))}>
-          ${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
+          ${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}
           <span class="cl-t"><b>${esc(it.title)}</b><small>No. ${x.from} → No. ${x.to} ${esc(chartName(x.c))}</small></span>
           ${window.tn.climb(x.by)}</a></li>`; }).join('')}</ol>` : '')
       + sec('wk-3', 'New in the top 10', `Charting now, nowhere in the charts ${w.days >= 6 ? 'a week ago' : 'before'}`, arrivals.length ? `<ul class="nr">${arrivals.map((x) => weekCard(x, `New at No. ${x.to} ${chartName(x.c)}`)).join('')}</ul>` : '');
@@ -671,7 +671,7 @@ function ttBox(s) {
     return `${both ? `<h3 class="bx-tt-sub">${k === 'movie' ? 'Films' : 'Shows'}</h3>` : ''}<ol class="bx-ups bx-tt">${l.map((it, i) => {
       const sub = [k === 'movie' ? 'Film' : 'Series', it.year].filter(Boolean).join(' · ');
       return `<li${i >= 5 && both ? ' class="bx-tt-x"' : ''}><a href="${esc(it.url || tmdbUrl(k, it.id))}" target="_blank" rel="noopener" ${reg(infoFor(it, k, `No. ${i + 1} ${word} on ${s.label}`, [s]))}>
-        <span class="bx-tt-n">${i + 1}</span><span class="bx-up-art">${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy" decoding="async">` : `<span class="bx-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}</span>
+        <span class="bx-tt-n">${i + 1}</span><span class="bx-up-art">${it.poster ? `<img src="${esc(thumb(it.poster))}" alt="" loading="lazy">` : `<span class="bx-ph" style="background:hsl(${hue(it.title)} 45% 35%)"></span>`}</span>
         <span class="bx-up-copy"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span></a></li>`;
     }).join('')}</ol>`;
   };
@@ -680,7 +680,7 @@ function ttBox(s) {
   const scene = ks.flatMap((k) => (s[k] || []).slice(0, 3)).find((it) => it.backdrop);
   const id = `tt-${esc(s.key)}`;
   return `<section class="bx-panel panel bx-tt-box tt-box${TT.open ? ' open' : ''}${scene ? ' has-bg' : ''}" aria-labelledby="${id}">
-    ${scene ? `<div class="bx-tt-bg" aria-hidden="true"><img class="on" src="${esc(scene.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy" decoding="async"></div>` : ''}
+    ${scene ? `<div class="bx-tt-bg" aria-hidden="true"><img class="on" src="${esc(scene.backdrop.replace('/w1280/', '/w780/'))}" alt="" loading="lazy"></div>` : ''}
     <header class="bx-panel-hd"><h2 id="${id}">${s.logo ? `<img class="tt-logo" src="${esc(s.logo)}" alt="">` : ''}<span>${esc(s.label)}</span></h2></header>${body}</section>`;
 }
 function pageTop10() {

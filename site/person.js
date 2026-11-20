@@ -50,8 +50,8 @@
     return l.length ? `<span class="ps-on">${l.map((s) => `<img src="${esc(s.logo)}" alt="${esc(s.label)}" title="${esc(s.label)}">`).join('')}</span>` : '';
   };
   const posters = (list) => `<ul class="nr sh-nr">${list.map((x) => `<li><a href="./?t=${esc(x.k)}" data-pk="${esc(x.k)}"><span class="nr-art">${x.poster
-    ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : ph(x)}${logos(x.k)}</span><b>${esc(x.title)}</b><small>${esc([x.year, x.role].filter(Boolean).join(' · '))}</small></a></li>`).join('')}</ul>`;
-  const row = (x) => `<li><a href="./?t=${esc(x.k)}" data-pk="${esc(x.k)}">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy" decoding="async">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`}
+    ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : ph(x)}${logos(x.k)}</span><b>${esc(x.title)}</b><small>${esc([x.year, x.role].filter(Boolean).join(' · '))}</small></a></li>`).join('')}</ul>`;
+  const row = (x) => `<li><a href="./?t=${esc(x.k)}" data-pk="${esc(x.k)}">${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : `<span class="cl-ph" style="background:hsl(${hue(x.title)} 45% 35%)"></span>`}
     <span class="cl-t"><b>${esc(x.title)}</b><small>${esc([x.role, x.eps > 1 ? `${x.eps} episodes` : '', x.type === 'tv' ? 'Show' : 'Film'].filter(Boolean).join(' · '))}</small></span>
     <span class="cl-r">${esc(x.year || 'Soon')}</span></a></li>`;
   const skeleton = (name) => `<div class="sh-art ps-art"><span class="ph ps-sk"></span><span class="sh-poster ps-face ps-sk"></span></div>

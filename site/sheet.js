@@ -316,7 +316,7 @@
     const people = [...(c?.crew || []).slice(0, 2), ...(c?.cast || [])].filter((p, i, l) => l.findIndex((q) => q.id === p.id) === i);
     if (!people.length) return;
     sec.innerHTML = `<h3 id="shCC">Cast &amp; Crew</h3><ul class="sh-faces">${people.map((p) => `<li><a href="./?p=${p.id}" data-p="${p.id}">
-      <span class="sh-face" style="--h:${hue(p.name)}">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async">` : esc(p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
+      <span class="sh-face" style="--h:${hue(p.name)}">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : esc(p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''))}</span>
       <b>${esc(p.name)}</b><small>${esc(p.role)}</small></a></li>`).join('')}</ul>`;
     sec.hidden = false;
     seenIn(info, people.slice(0, 12), sec);
@@ -343,7 +343,7 @@
   function postersHtml(list, here) {
     return `<ul class="nr sh-nr">${list.map((t) => {
       const ph = `<span class="ph" style="background:linear-gradient(160deg,hsl(${hue(t.title)} 45% 42%),hsl(${(hue(t.title) + 40) % 360} 55% 18%))">${esc(t.title)}</span>`;
-      const inner = `<span class="nr-art">${t.poster ? `<img src="${esc(t.poster)}" alt="" loading="lazy" decoding="async">` : ph}</span><b>${esc(t.title)}</b><small>${esc(t.k === here ? 'You’re here' : [t.year, t.rating ? `★ ${t.rating.toFixed(1)}` : ''].filter(Boolean).join(' · '))}</small>`;
+      const inner = `<span class="nr-art">${t.poster ? `<img src="${esc(t.poster)}" alt="" loading="lazy">` : ph}</span><b>${esc(t.title)}</b><small>${esc(t.k === here ? 'You’re here' : [t.year, t.rating ? `★ ${t.rating.toFixed(1)}` : ''].filter(Boolean).join(' · '))}</small>`;
       return `<li>${t.k === here ? `<span aria-current="page">${inner}</span>` : `<a href="?t=${esc(t.k)}" data-open="${esc(t.k)}">${inner}</a>`}</li>`;
     }).join('')}</ul>`;
   }
@@ -371,7 +371,7 @@
       const sp = shield && n > 0 && !done(e.n), ah = sp ? ' class="sp" aria-hidden="true"' : '';
       const soon = e.date && e.date > now, when = e.date ? (soon ? `Out ${shortDate(e.date)}` : shortDate(e.date)) : '';
       const nextOne = up && up[0] === n && up[1] === e.n;
-      return `<li${nextOne ? ' data-up' : ''}${soon || sp ? ` class="${[soon && 'soon', sp && 'spoil'].filter(Boolean).join(' ')}"` : ''}><span class="sh-still">${e.still ? `<img src="${esc(e.still)}" alt="" loading="lazy" decoding="async">` : ''}${sp ? '<button type="button" class="sh-unspoil" data-act="unspoil" aria-label="Show this episode’s name and description (it may spoil things)">Show</button>' : ''}${done(e.n) ? '<i class="sh-tick" aria-label="Watched"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8.4 2.6 2.6L12 5.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' : ''}</span>
+      return `<li${nextOne ? ' data-up' : ''}${soon || sp ? ` class="${[soon && 'soon', sp && 'spoil'].filter(Boolean).join(' ')}"` : ''}><span class="sh-still">${e.still ? `<img src="${esc(e.still)}" alt="" loading="lazy">` : ''}${sp ? '<button type="button" class="sh-unspoil" data-act="unspoil" aria-label="Show this episode’s name and description (it may spoil things)">Show</button>' : ''}${done(e.n) ? '<i class="sh-tick" aria-label="Watched"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8.4 2.6 2.6L12 5.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' : ''}</span>
         <small class="sh-epn">${nextOne ? 'Up next · ' : ''}Episode ${e.n}</small><b${ah}>${esc(e.name)}</b>${e.ov ? `<p${ah}>${esc(e.ov)}</p>` : ''}<small>${esc([when, runtime(e.rt)].filter(Boolean).join(' · '))}</small></li>`;
     }).join('')}</ul>`;
     if (!reduce()) el.firstChild.classList.add('sh-in');
@@ -382,7 +382,7 @@
   // Trailers & Extras: YouTube's pictures for each, playing in the artwork like the Trailer button
   const VTYPE = { Trailer: 'Trailer', Teaser: 'Teaser', Clip: 'Clip', Featurette: 'Featurette', 'Behind the Scenes': 'Behind the scenes', Bloopers: 'Bloopers' };
   const vidsHtml = (m) => ((m?.vids || []).length > (m.vids?.length === 1 && m.vids[0].key === shown?.items?.[current?.k]?.tr ? 1 : 0) ? `<section class="sh-sec" aria-labelledby="shV"><h3 id="shV">Trailers &amp; Extras</h3>
-    <ul class="sh-vids">${m.vids.map((v) => `<li><button type="button" data-vid="${esc(v.key)}" data-vname="${esc(v.name)}"><span class="sh-vimg"><img src="https://i.ytimg.com/vi/${esc(v.key)}/mqdefault.jpg" alt="" loading="lazy" decoding="async"><i aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></i></span>
+    <ul class="sh-vids">${m.vids.map((v) => `<li><button type="button" data-vid="${esc(v.key)}" data-vname="${esc(v.name)}"><span class="sh-vimg"><img src="https://i.ytimg.com/vi/${esc(v.key)}/mqdefault.jpg" alt="" loading="lazy"><i aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></i></span>
       <b>${esc(v.name)}</b><small>${esc(VTYPE[v.type] || v.type)}</small></button></li>`).join('')}</ul></section>` : '');
   // reviews: the start of each, the whole thing on TMDB
   const revsHtml = (m) => (m?.reviews?.length ? `<section class="sh-sec" aria-labelledby="shR"><h3 id="shR">Reviews</h3><ul class="sh-revs">${m.reviews.map((r) => {
