@@ -2326,11 +2326,14 @@ void main(){
     tellM();
   }
 
-  // ---------- phones: each section unfolds into place once, the first time it's scrolled to (styles.css, "unfolds") ----------
-  // Sections drawn later (the homepage's rows arrive with their data) are picked up as they appear. One that's already on
-  // screen, or above it, is left as it is; once shown, a section is never hidden again on this visit.
+  // ---------- things unfold into place once, the first time they're scrolled to (styles.css, "unfold") ----------
+  // On every screen: Browse's posters, New This Week and the Watchlist, Settings and About; on phones each section too.
+  // Anything drawn later (rows arriving with their data, Browse's next page) is picked up as it appears. Whatever is on
+  // screen, or above it, is left as it is; once shown, nothing is hidden again on this visit, so scrolling back up never
+  // fades artwork out and in (it used to be tied to the scroll, and replayed every time, which looked like reloading).
   {
-    const SECS = 'main :is(.bx-sec, .clist, .bx-panel, .wk, .nrow, .set-group)', phone = matchMedia('(max-width: 719px)');
+    const ALL = 'main :is(.tile, #view .wrap :is(.wk-hd, .wk > .nr, .nw-stats, .race-box, .nrow), .set-page .set-sec, .ab-copy, .ab-vis, .ab-promise)';
+    const PH = 'main :is(.bx-sec, .clist, .bx-panel, .wk, .nrow, .set-group)', phone = matchMedia('(max-width: 719px)');
     const io = new IntersectionObserver((es) => es.forEach((e) => {
       if (!e.isIntersecting) return;
       io.unobserve(e.target); e.target.classList.replace('unf-wait', 'unf-go');
@@ -2338,10 +2341,12 @@ void main(){
       s.addEventListener('animationend', done);
     }), { rootMargin: '0px 0px -8% 0px' });
     const scan = () => {
-      if (!phone.matches || reduce()) return;
-      for (const s of document.querySelectorAll(SECS)) {
+      if (reduce()) return;
+      for (const s of document.querySelectorAll(phone.matches ? `${PH}, ${ALL}` : ALL)) {
         if (s.dataset.unf) continue; s.dataset.unf = '1';
-        if (s.getBoundingClientRect().top < innerHeight) continue;   // on screen (or above it) already
+        if (s.parentElement?.closest('.unf-wait')) continue;   // its section unfolds already
+        const r = s.getBoundingClientRect();
+        if (r.top < innerHeight || r.left >= innerWidth || r.right <= 0) continue;   // on screen (or above it) already, or along a sideways row
         s.classList.add('unf-wait'); io.observe(s);
       }
     };

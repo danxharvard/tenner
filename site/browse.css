@@ -297,11 +297,7 @@ body.browse { overflow-x: clip; }
 @media (hover: hover) { .tile a:hover .art { translate: 0 -4px; } }
 .tile a:focus-visible { outline: none; }
 .tile a:focus-visible .art { outline: 3px solid var(--accent); outline-offset: 3px; }
-/* floating in as they scroll into view, tied to the scroll (off the main thread) */
-@supports (animation-timeline: view()) {
-  :root:not(.still) .tile { animation: tileRise linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; animation-delay: 0s; }
-  @keyframes tileRise { from { opacity: 0; translate: 0 30px; scale: .96; } }
-}
+/* posters float in once, the first time they're scrolled to (styles.css and shell.js, "unfold") */
 /* the score: a small frosted badge on the poster's corner */
 .score { position: absolute; right: 8px; top: 8px; display: grid; grid-auto-flow: column; place-items: center; min-width: 38px; height: 24px; padding: 0 7px; border-radius: 6px;
   background: rgba(20, 20, 24, .6); -webkit-backdrop-filter: blur(12px) saturate(160%); backdrop-filter: blur(12px) saturate(160%);

@@ -188,14 +188,11 @@
 @media (prefers-reduced-transparency: reduce) { .ab-box { background: var(--bg2); } .ab-round { background: #222226; } }
 
 /* ============================================================ depth as you scroll (Animations on, and never with Reduce Motion)
-   Scroll-driven, off the main thread: each chapter's words and example rise into place as they arrive, and the colour
-   under the sidebar fades as the opening scrolls away. */
+   Each chapter's words and example rise into place once, the first time they arrive (styles.css and shell.js, "unfold"),
+   and the colour under the sidebar fades as the opening scrolls away. */
 @supports (animation-timeline: view()) {
-  :root:not(.still) :is(.ab-copy, .ab-vis, .ab-promise) { animation: abRise linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
-  :root:not(.still) .ab-vis { animation-range: entry 10% entry 75%; }
   .ab-ext { animation: abFade linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
 }
-@keyframes abRise { from { opacity: 0; translate: 0 36px; } }
 @keyframes abFade { to { opacity: .3; } }
 
 /* with a mouse or trackpad: a push button shades when pressed (the macOS way) */
