@@ -1188,20 +1188,11 @@ button.tn-node:focus-visible { outline: 2px solid var(--accent); outline-offset:
 @media (max-width: 560px) {
   .nr-art { border-radius: var(--r); }
 }
-/* scroll-driven settling (Animations on only): New This Week and the Watchlist settle in, and the banners' pictures drift */
-@supports (animation-timeline: view()) {
-  :root:not(.still) #view .wrap :is(.wk-hd, .wk > .nr, .nw-stats, .race-box, .nrow) { animation: pxRise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
-  @media (prefers-reduced-motion: no-preference) {
-    :root:not(.still) .set-page .set-sec { animation: pxSettle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
-  }
-}
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {   /* big page titles ease back as the page scrolls under them, like iOS's large titles */
     :root:not(.still) :is(.large-title, #lsH) { transform-origin: 0 100%; animation: ltAway linear both; animation-timeline: scroll(root); animation-range: 0 180px; }
   }
 }
-@keyframes pxRise { from { opacity: 0; translate: 0 34px; } }
-@keyframes pxSettle { from { opacity: 0; translate: 0 28px; scale: .985; } }
 @keyframes ltAway { to { opacity: .2; translate: 0 -14px; scale: .97; } }
 
 /* ---------- the services: a rail of app icons (Home and Browse); the chosen one gets Tenner's rainbow underline ---------- */
@@ -2277,12 +2268,13 @@ body { padding-bottom: var(--tf-h); }
 /* phones: the Top 10s already open the homepage, so the menu leaves out their link */
 @media (max-width: 719px) { :is(.tabs, .drawer .tabs) button[data-tab="top10"] { display: none; } }
 
-/* ---------- phones: as you scroll down, each section unfolds into place the first time it comes on screen (a gentle rise,
-   a touch of scale and a fade), then stays put for the rest of the visit: scrolling back over it never fades its artwork
-   out and in again (that read as the pictures reloading). shell.js marks the sections waiting below the screen (.unf-wait)
-   and plays it once (.unf-go). Sections already on screen are shown as they are. Only with Settings → Animations on,
-   never with Reduce Motion. ---------- */
-@media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
+/* ---------- as you scroll down, things unfold into place the first time they come on screen (a gentle rise, a touch of
+   scale and a fade), then stay put for the rest of the visit: scrolling back over them never fades their artwork out and
+   in again (that read as the pictures reloading). On every screen: Browse's posters, New This Week and the Watchlist,
+   Settings and About; on phones also each section. shell.js marks what's waiting below the screen (.unf-wait) and plays
+   it once (.unf-go). Whatever is on screen already is shown as it is. Only with Settings → Animations on, never with
+   Reduce Motion. ---------- */
+@media (prefers-reduced-motion: no-preference) {
   :root:not(.still) .unf-wait { opacity: 0; translate: 0 32px; scale: .96; }
   :root:not(.still) .unf-go { animation: tnUnfold .6s var(--ease-out) both; transform-origin: 50% 0; }
 }
